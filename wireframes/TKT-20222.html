@@ -126,27 +126,67 @@
       flex: 1;
     }
 
-    /* Component: BisButton / Icon / Ghost */
+    /* ─── Calendar icon button ──────────────────────────────────────────
+       Component: BisButton / Icon / Ghost
+       Behaviour:
+         - Default: shows calendar icon only (frees space for long titles)
+         - Hover/focus: shows date range in a tooltip (read-only view)
+         - Click: opens date range picker popover (edit) — annotated, not live
+    */
     .calendar-btn {
       flex-shrink: 0;
-      width: 24px;
-      height: 24px;
-      border: 1px dashed #aaa;
+      width: 26px;
+      height: 26px;
+      border: 1px solid #bbb;
       border-radius: 3px;
-      background: none;
-      display: flex;
+      background: #fff;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
       cursor: pointer;
-      color: #666;
+      color: #555;
       position: relative;
+      padding: 0;
     }
-    .calendar-btn::after {
-      content: "cal";
-      font-size: 0.55rem;
-      text-transform: uppercase;
-      color: #999;
+    .calendar-btn:hover,
+    .calendar-btn:focus {
+      border-color: #777;
+      color: #222;
+      outline: none;
+    }
+    .calendar-icon {
+      width: 14px;
+      height: 14px;
+      display: block;
+    }
+
+    /* ─── Tooltip (date on hover) ───────────────────────────────────── */
+    .calendar-btn .tooltip {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      right: 0;
+      background: #333;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+      z-index: 10;
+    }
+    .calendar-btn .tooltip::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      right: 8px;
+      border: 4px solid transparent;
+      border-top-color: #333;
+    }
+    .calendar-btn:hover .tooltip,
+    .calendar-btn:focus .tooltip {
+      opacity: 1;
     }
 
     .state-annotation {
@@ -271,6 +311,80 @@
     }
     .table-cell-mock.header { background: #bbb; }
 
+    /* ─── Filter chip mock (Scenario: long widget name) ─────────────────
+       Mimics the existing dashboard filter chip (orange in production).
+       Wireframe uses light gray to stay structural — colour token will
+       match the existing chip in Level 2.
+    */
+    .filter-chip-mock {
+      background: #efe6df;
+      border: 1px solid #d4b89c;
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 0.75rem;
+      color: #4a3520;
+      margin-bottom: 8px;
+      max-width: 360px;
+    }
+    .chip-label-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .chip-label-truncated {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 600;
+    }
+    .chip-label-full {
+      flex: 1;
+      font-weight: 600;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      white-space: normal;
+    }
+    .chip-date-inline {
+      flex-shrink: 0;
+      background: #fff;
+      border: 1px solid #c8b095;
+      border-radius: 3px;
+      padding: 2px 6px;
+      font-size: 0.68rem;
+      color: #6a4d2c;
+      white-space: nowrap;
+      max-width: 130px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chip-close {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      border: none;
+      background: none;
+      color: #6a4d2c;
+      font-size: 1rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+    }
+    .chip-sublabel {
+      margin-top: 4px;
+      padding-top: 4px;
+      border-top: 1px solid #d4b89c;
+      font-size: 0.7rem;
+      color: #6a4d2c;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chip-sublabel.full {
+      white-space: normal;
+      overflow: visible;
+    }
+
     .design-notes {
       background: #fff8e1;
       border: 1px solid #f0c040;
@@ -326,7 +440,7 @@
   </div>
 
   <div class="section-heading">Comparison: Wide Container vs. Narrow Container</div>
-  <div class="label">Scroll down past the comparison for annotated Design Notes</div>
+  <div class="label">Hover any calendar icon to see the date range tooltip</div>
 
   <div class="comparison-grid">
 
@@ -353,10 +467,15 @@
           <div class="widget-card">
             <div class="widget-header">
               <span class="widget-title">Total Injuries</span>
-              <button class="calendar-btn" title="Click to expand date range picker"></button>
-            </div>
-            <div class="state-annotation">
-              [Hover/click calendar icon: popover shows date range "Last 7 Years"]
+              <button class="calendar-btn" aria-label="Date range: Last 7 Years. Click to change.">
+                <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span class="tooltip">Last 7 Years</span>
+              </button>
             </div>
             <div class="count-body">
               <div class="count-value">6</div>
@@ -367,10 +486,15 @@
           <div class="widget-card">
             <div class="widget-header">
               <span class="widget-title">Injury Over Time</span>
-              <button class="calendar-btn" title="Click to expand date range picker"></button>
-            </div>
-            <div class="state-annotation">
-              [Calendar icon popover: "Year to date"]
+              <button class="calendar-btn" aria-label="Date range: Year to date. Click to change.">
+                <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span class="tooltip">Year to date</span>
+              </button>
             </div>
             <div class="chart-body">
 
@@ -398,7 +522,7 @@
               </div>
 
               <div class="callout" style="margin: 8px 0 0;">
-                <strong>Wide state:</strong> With 10 chips and flex-wrap, chips flow onto row 2 automatically. No truncation. Long chip labels (e.g. "Data Entry Error / Category A") wrap text inside the chip per Chaahat's comment.
+                <strong>Wide state:</strong> With 10 chips and flex-wrap, chips flow onto row 2 automatically. No truncation. Long chip labels wrap inside the chip per Chaahat's comment.
               </div>
 
             </div>
@@ -408,7 +532,15 @@
           <div class="widget-card" style="grid-column: 1 / -1;">
             <div class="widget-header">
               <span class="widget-title">Injuries?</span>
-              <button class="calendar-btn" title="Click to expand date range picker"></button>
+              <button class="calendar-btn" aria-label="Date range: Year to date. Click to change.">
+                <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span class="tooltip">Year to date</span>
+              </button>
             </div>
             <div style="padding: 10px;">
               <div class="table-placeholder">
@@ -456,9 +588,16 @@
           <div class="widget-card">
             <div class="widget-header">
               <span class="widget-title">Total Shipment Errors This Period</span>
-              <button class="calendar-btn" title="Click to expand date range picker"></button>
+              <button class="calendar-btn" aria-label="Date range: Last 30 Days. Click to change.">
+                <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span class="tooltip">Last 30 Days</span>
+              </button>
             </div>
-            <div class="state-annotation">[Calendar icon popover: date range]</div>
             <div class="count-body">
               <div class="count-value">42</div>
             </div>
@@ -468,9 +607,16 @@
           <div class="widget-card">
             <div class="widget-header">
               <span class="widget-title">Injury Over Time</span>
-              <button class="calendar-btn" title="Click to expand date range picker"></button>
+              <button class="calendar-btn" aria-label="Date range: Year to date. Click to change.">
+                <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span class="tooltip">Year to date</span>
+              </button>
             </div>
-            <div class="state-annotation">[Calendar icon popover: "Year to date"]</div>
             <div class="chart-body">
 
               <div class="toggle-group">
@@ -507,7 +653,15 @@
           <div class="widget-card">
             <div class="widget-header">
               <span class="widget-title">Injuries?</span>
-              <button class="calendar-btn" title="Click to expand date range picker"></button>
+              <button class="calendar-btn" aria-label="Date range: Year to date. Click to change.">
+                <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span class="tooltip">Year to date</span>
+              </button>
             </div>
             <div style="padding: 10px;">
               <div class="table-placeholder">
@@ -534,31 +688,86 @@
   </div>
 
 
+  <!-- ── NEW SCENARIO: Long widget name with inline date filter ─────────── -->
+  <div class="section-heading">Scenario: Long widget name crowds the inline date filter</div>
+  <div class="label">Filter chip where the widget name is long enough to push the date out of view</div>
+
+  <div class="comparison-grid">
+
+    <!-- BEFORE -->
+    <div>
+      <div class="label">Before — title truncated to fit inline date</div>
+      <div class="filter-chip-mock">
+        <div class="chip-label-row">
+          <span class="chip-label-truncated">C1-3 Shipping and Receivin…</span>
+          <span class="chip-date-inline">01/01/2026 ~ 01/04/2026</span>
+          <button class="chip-close" aria-label="Remove filter">×</button>
+        </div>
+        <div class="chip-sublabel">Future Transfer Online Train…</div>
+      </div>
+      <div class="callout" style="margin-left: 0;">
+        <strong>Problem:</strong> The full title "C1-3 Shipping and Receiving Audit" gets cut off so the inline date range can fit. On narrower widgets, the date itself starts truncating too.
+      </div>
+    </div>
+
+    <!-- AFTER -->
+    <div>
+      <div class="label">After — date collapsed to calendar icon, full title fits</div>
+      <div class="filter-chip-mock">
+        <div class="chip-label-row">
+          <span class="chip-label-full">C1-3 Shipping and Receiving Audit</span>
+          <button class="calendar-btn" aria-label="Date range: 01/01/2026 to 01/04/2026. Click to change.">
+            <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span class="tooltip">01/01/2026 ~ 01/04/2026</span>
+          </button>
+          <button class="chip-close" aria-label="Remove filter">×</button>
+        </div>
+        <div class="chip-sublabel full">Future Transfer Online Training</div>
+      </div>
+      <div class="callout" style="margin-left: 0;">
+        <strong>Solution:</strong> The date range collapses into a calendar icon. <strong>Hover</strong> shows the date in a tooltip; <strong>click</strong> opens the date picker to change it. The full title — and full sublabel — now fit without truncation.
+      </div>
+    </div>
+
+  </div>
+
+
   <aside class="design-notes">
     <h3>Design Decisions</h3>
     <ul>
-      <li>Legend container: changed from <code>flex-wrap: nowrap</code> to <code>flex-wrap: wrap</code> — chips reflow to the next row automatically when horizontal space is exhausted. No JavaScript required.</li>
-      <li>Legend chip text: changed from <code>white-space: nowrap; overflow: hidden; text-overflow: ellipsis</code> to <code>white-space: normal; max-width: 140px</code> so full labels remain readable inside the chip per Chaahat Arora's comment.</li>
-      <li>Widget title: removed fixed single-line height cap and added <code>overflow-wrap: break-word</code> so count box titles wrap to a second line rather than clipping when the container is narrow.</li>
-      <li>Date range: collapsed to a calendar icon button (annotated as BisButton / Icon / Ghost). Expanded state is represented as a static annotation "[popover: date range string]" — no live popover at Level 1.</li>
-      <li>No colours, spacing tokens, or typography tokens applied — those are reserved for Level 2 Styled Mockup.</li>
+      <li><strong>Legend container:</strong> changed from <code>flex-wrap: nowrap</code> to <code>flex-wrap: wrap</code> — chips reflow to the next row automatically when horizontal space is exhausted. No JavaScript required.</li>
+      <li><strong>Legend chip text:</strong> changed from <code>white-space: nowrap; overflow: hidden; text-overflow: ellipsis</code> to <code>white-space: normal; max-width: 140px</code> so full labels remain readable inside the chip per Chaahat Arora's comment.</li>
+      <li><strong>Widget title:</strong> removed the fixed single-line height cap and added <code>overflow-wrap: break-word</code> so count box titles wrap to a second line rather than clipping when the container is narrow.</li>
+      <li><strong>Date range → calendar icon button:</strong> the inline date range string is replaced with a single calendar icon (BisButton / Icon / Ghost). This applies everywhere the date currently competes for header space — widget headers and filter chips.</li>
+      <li><strong>Hover tooltip on calendar icon:</strong> hovering or focusing the icon reveals the current date range in a small tooltip (read-only view). Clicking opens the existing date range picker for editing. This separates "see the date" (cheap, always available) from "change the date" (one click away).</li>
+      <li><strong>Long-widget-name scenario:</strong> by collapsing the date to an icon, long widget/filter titles like "C1-3 Shipping and Receiving Audit" can show in full instead of being truncated to make room for the date string.</li>
+      <li>No production colours, spacing tokens, or typography tokens applied — those are reserved for Level 2 Styled Mockup. Filter chip uses a placeholder warm gray; production should use the existing orange filter-chip token.</li>
     </ul>
 
     <h3>Figma References</h3>
     <ul>
-      <li>None verified — Figma MCP was unavailable (no file key provided). Component names below are best-guess from known BIS naming conventions.</li>
+      <li>None verified — Figma MCP was unavailable (no file key provided). Component names below are best-guess from BIS naming conventions.</li>
       <li>Legend chip — presumed: <code>Dashboard/LegendChip</code> or <code>Chip/Tag</code></li>
       <li>Calendar icon button — presumed: <code>BisButton / Icon / Ghost</code></li>
+      <li>Tooltip — presumed: <code>Tooltip / Default</code></li>
       <li>Toggle group — presumed: <code>BisButton / Toggle / Group</code></li>
       <li>Count box widget — presumed: <code>Dashboard/CountWidget</code></li>
+      <li>Filter chip — presumed: <code>Dashboard/FilterChip</code> (the orange chip from the existing dashboard filters)</li>
     </ul>
 
     <h3>Open Questions</h3>
     <ul>
-      <li>Should a wrapping chip maintain a fixed single-line pill height, or is a taller multi-line pill acceptable? A tall pill may look visually heavy against current chip styling.</li>
-      <li>Is there a maximum number of legend rows (e.g. 3) before a "Show more / Show less" toggle is needed, or should all rows always be fully expanded?</li>
-      <li>Calendar icon button: should clicking open an inline date picker or a BottomSheet on mobile? Confirm whether the icon-only treatment is also intended for desktop (no visible date string at rest).</li>
-      <li>Figma file key not available — which Figma file contains Reporting Dashboard components? Component names (LegendChip, CountWidget, etc.) need to be verified before Level 2 or developer handoff.</li>
+      <li>Should the wrapping legend chip stay a fixed single-line pill height, or is a taller multi-line pill acceptable? A tall pill may feel visually heavy.</li>
+      <li>Is there a max number of legend rows (e.g. 3) before a "Show more / Show less" toggle is needed, or should all rows always be expanded?</li>
+      <li>Calendar icon click behaviour: inline date picker on desktop, BottomSheet on mobile? Confirm the icon-only treatment is acceptable on desktop too (no visible date string at rest, only on hover).</li>
+      <li>Tooltip dismissal: hover-out is the default. On touch devices (no hover), should tap-once show the tooltip and tap-again open the picker, or should tap always go straight to the picker?</li>
+      <li>Filter chip scenario: should the calendar icon also appear in the filter-chip context, or only in widget headers? The wireframe applies the same pattern to both for consistency — confirm this is desired.</li>
+      <li>Figma file key not available — which Figma file holds Reporting Dashboard components? Names (LegendChip, CountWidget, FilterChip, etc.) need verification before Level 2 / dev handoff.</li>
     </ul>
   </aside>
 
