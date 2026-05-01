@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIS Design Work — Mikaela Yeo</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #666;
+    --line: #e5e5e5;
+    --bg: #fafafa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    margin: 0;
+    padding: 4rem 2rem;
+    line-height: 1.6;
+  }
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  header {
+    margin-bottom: 4rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--line);
+  }
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.02em;
+  }
+  .subtitle {
+    color: var(--muted);
+    margin: 0;
+    font-size: 0.95rem;
+  }
+  section {
+    margin-bottom: 3rem;
+  }
+  h2 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  li {
+    border-bottom: 1px solid var(--line);
+  }
+  li:first-child {
+    border-top: 1px solid var(--line);
+  }
+  a {
+    display: block;
+    padding: 0.875rem 0;
+    color: var(--ink);
+    text-decoration: none;
+    transition: padding-left 0.15s ease;
+  }
+  a:hover {
+    padding-left: 0.5rem;
+    color: #000;
+  }
+  a::after {
+    content: "→";
+    float: right;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+  a:hover::after {
+    transform: translateX(4px);
+    color: var(--ink);
+  }
+  footer {
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  footer a {
+    display: inline;
+    padding: 0;
+    color: var(--muted);
+    text-decoration: underline;
+  }
+  footer a:hover {
+    padding-left: 0;
+    color: var(--ink);
+  }
+  footer a::after {
+    content: "";
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>BIS Design Work</h1>
+    <p class="subtitle">Public wireframes, prototypes, and design references by Mikaela Yeo.</p>
+  </header>
+
+  <section>
+    <h2>Wireframes</h2>
+    <ul>
+      <li><a href="wireframes/home-prototype-v3-final%20ready%20for%20review.html">Home prototype v3</a></li>
+      <li><a href="wireframes/TKT-18984.html">TKT-18984</a></li>
+      <li><a href="wireframes/TKT-20222.html">TKT-20222</a></li>
+      <li><a href="wireframes/TKT-20277.html">TKT-20277</a></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Resources</h2>
+    <ul>
+      <li><a href="resources/product-trio.html">Product trio</a></li>
+    </ul>
+  </section>
+
+  <footer>
+    Source on <a href="https://github.com/mikaelayeo/bis-design-work">GitHub</a>.
+  </footer>
+</main>
+</body>
+</html>
