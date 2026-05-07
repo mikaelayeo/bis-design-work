@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select / Combobox | Design System Documentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Component tokens (semantic — Light mode values) */
+      --color-surface-default: #feffff;
+      --color-surface-disabled: #f2f2f2;
+      --color-surface-secondary-lightest: #f2f2f2;
+      --color-stroke-default: #b2b2b3;
+      --color-stroke-primary: #0078b3;
+      --color-stroke-error: #c22222;
+      --color-text-default: #191919;
+      --color-text-secondary: #666666;
+      --color-text-error: #c22222;
+      --color-asterisk-red: #cc2222;
+      --border-radius-base: 4px;
+      --spacing-xxsmall: 4px;
+      --spacing-xsmall: 6px;
+      --spacing-small: 8px;
+      --spacing-medium: 12px;
+      /* Doc chrome (dark theme) */
+      --doc-bg: #0d0d0d;
+      --doc-surface: #1a1a1a;
+      --doc-surface-elevated: #242424;
+      --doc-border: #333;
+      --doc-text: #e5e5e5;
+      --doc-text-muted: #888;
+      --doc-accent: #0078b3;
+      --doc-accent-alt: #009acb;
+      --doc-accent-soft: rgba(0,120,179,0.15);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'IBM Plex Sans',sans-serif;background:var(--doc-bg);color:var(--doc-text);line-height:1.6;}
+    .doc-container{display:grid;grid-template-columns:280px 1fr 320px;min-height:100vh;}
+
+    /* SIDEBAR */
+    .sidebar{background:var(--doc-surface);border-right:1px solid var(--doc-border);padding:32px 24px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .logo{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--doc-accent);margin-bottom:6px;}
+    .component-name{font-size:24px;font-weight:700;margin-bottom:8px;line-height:1.2;}
+    .component-tag{display:inline-block;font-size:11px;font-weight:500;background:var(--doc-accent-soft);color:var(--doc-accent);padding:3px 10px;border-radius:20px;margin-bottom:28px;}
+    .nav-section{margin-bottom:24px;}
+    .nav-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-text-muted);margin-bottom:8px;padding:0 12px;}
+    .nav-link{display:block;width:100%;text-align:left;padding:7px 12px;color:var(--doc-text-muted);border-radius:6px;font-size:13px;background:transparent;border:none;cursor:pointer;transition:all .15s ease;margin-bottom:1px;font-family:inherit;}
+    .nav-link:hover{background:var(--doc-surface-elevated);color:var(--doc-text);}
+    .nav-link.active{background:var(--doc-accent-soft);color:var(--doc-accent);font-weight:500;}
+
+    /* MAIN */
+    .main-content{padding:48px;overflow-y:auto;max-width:900px;}
+    .section{margin-bottom:72px;}
+    .section-eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-accent);margin-bottom:10px;}
+    .section-heading{font-size:30px;font-weight:700;margin-bottom:12px;line-height:1.2;}
+    .section-desc{color:var(--doc-text-muted);font-size:15px;max-width:620px;margin-bottom:32px;line-height:1.7;}
+
+    /* PREVIEW */
+    .preview-container{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:12px;overflow:hidden;margin-bottom:32px;}
+    .preview-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--doc-border);background:var(--doc-surface-elevated);}
+    .preview-tabs{display:flex;gap:4px;}
+    .preview-tab{padding:6px 14px;background:transparent;border:none;color:var(--doc-text-muted);font-size:12px;font-weight:500;cursor:pointer;border-radius:6px;transition:all .15s ease;font-family:inherit;}
+    .preview-tab:hover{color:var(--doc-text);}
+    .preview-tab.active{color:var(--doc-accent);background:var(--doc-accent-soft);}
+    .preview-canvas{padding:48px 32px;display:flex;align-items:flex-start;justify-content:center;min-height:280px;background:#e8edf2;gap:12px;flex-direction:column;align-items:center;}
+    .preview-canvas.dark{background:#111;}
+
+    /* SELECT COMPONENT (rendered in HTML/CSS) */
+    .sel-wrap{font-family:'Segoe UI',sans-serif;display:flex;flex-direction:column;gap:6px;width:376px;}
+    .sel-label{display:flex;gap:2px;align-items:center;}
+    .sel-label-text{font-size:16px;font-weight:600;line-height:26px;color:var(--color-text-default);}
+    .sel-label.dim .sel-label-text{color:#bbb;}
+    .sel-asterisk{font-size:16px;font-weight:600;line-height:26px;color:var(--color-asterisk-red);}
+    .sel-field{display:flex;align-items:center;height:32px;padding:4px 13px;gap:10px;background:var(--color-surface-default);border:1px solid var(--color-stroke-default);border-radius:var(--border-radius-base);}
+    .sel-field.active{border-color:var(--color-stroke-primary);}
+    .sel-field.error{border-color:var(--color-stroke-error);}
+    .sel-field.disabled{background:var(--color-surface-disabled);}
+    .sel-field.read-only{background:transparent;border:none;padding:4px 0;border-radius:0;}
+    .sel-value{flex:1;font-size:16px;line-height:24px;color:var(--color-text-secondary);font-family:'Segoe UI',sans-serif;}
+    .sel-value.filled{color:var(--color-text-default);}
+    .sel-chevron{width:16px;height:9px;color:var(--color-text-secondary);}
+    .sel-clear{font-size:14px;line-height:24px;color:var(--color-text-secondary);font-weight:600;cursor:pointer;}
+    .sel-helper{font-size:12px;line-height:20px;color:var(--color-text-secondary);font-family:'Segoe UI',sans-serif;}
+    .sel-helper.error{color:var(--color-stroke-error);}
+
+    /* MENU PANEL */
+    .menu-panel{width:376px;background:var(--color-surface-default);border:1px solid var(--color-stroke-default);border-radius:4px;box-shadow:0 4px 16px 0 rgba(0,0,0,.08);padding:4px;display:flex;flex-direction:column;font-family:'Segoe UI',sans-serif;}
+    .menu-row{padding:8px 12px;border-radius:4px;font-size:16px;line-height:24px;color:var(--color-text-default);display:flex;align-items:center;gap:8px;}
+    .menu-row.hover{background:var(--color-surface-secondary-lightest);}
+    .menu-row.selected{color:var(--color-stroke-primary);}
+    .menu-row.selected-hover{background:var(--color-surface-secondary-lightest);color:var(--color-stroke-primary);}
+    .menu-row.disabled{opacity:.5;}
+    .menu-row.focused{outline:1px solid var(--color-stroke-primary);outline-offset:-1px;}
+    .menu-check{font-size:14px;font-weight:600;color:var(--color-stroke-primary);}
+    .menu-message{padding:32px 12px;text-align:center;color:var(--color-text-secondary);font-size:14px;font-family:'Segoe UI',sans-serif;}
+    .menu-skeleton{padding:12px;display:flex;}
+    .menu-skeleton .bar{background:#ececec;border-radius:4px;height:14px;}
+    .menu-group-header{padding:8px 12px 4px;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--color-text-secondary);}
+    .menu-divider{height:1px;background:var(--color-stroke-default);margin:4px 0;}
+
+    /* STATES GRID */
+    .states-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+    .state-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;overflow:hidden;}
+    .state-preview{background:#e8edf2;padding:24px;display:flex;justify-content:center;align-items:flex-start;min-height:140px;}
+    .state-info{padding:14px 16px;border-top:1px solid var(--doc-border);}
+    .state-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+    .state-desc{font-size:12px;color:var(--doc-text-muted);}
+
+    /* TABLES */
+    .spec-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .spec-table th{text-align:left;padding:11px 14px;background:var(--doc-surface-elevated);border-bottom:1px solid var(--doc-border);font-weight:600;color:var(--doc-text-muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+    .spec-table td{padding:11px 14px;border-bottom:1px solid var(--doc-border);vertical-align:top;color:var(--doc-text);}
+    .spec-table tr:last-child td{border-bottom:none;}
+    .token-mono{font-family:'IBM Plex Mono',monospace;color:var(--doc-accent-alt);font-size:12px;}
+    .value-mono{font-family:'IBM Plex Mono',monospace;color:var(--doc-text-muted);font-size:12px;}
+    .color-swatch{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:8px;vertical-align:middle;border:1px solid rgba(255,255,255,.15);}
+    .tag-pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;}
+    .tag-required{background:rgba(194,34,34,.15);color:#ff7272;}
+    .tag-optional{background:rgba(0,154,203,.15);color:var(--doc-accent-alt);}
+    .tag-default{background:rgba(255,255,255,.07);color:var(--doc-text-muted);}
+
+    /* A11Y */
+    .a11y-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+    .a11y-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:16px 18px;border-left:3px solid var(--doc-accent);}
+    .a11y-card.warning{border-left-color:#b8880a;}
+    .a11y-card.success{border-left-color:#28a745;}
+    .a11y-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--doc-accent);margin-bottom:6px;}
+    .a11y-card.warning .a11y-label{color:#b8880a;}
+    .a11y-card.success .a11y-label{color:#28a745;}
+    .a11y-text{font-size:13px;color:var(--doc-text-muted);line-height:1.6;}
+
+    /* CODE */
+    .code-block{background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:8px;overflow:hidden;}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--doc-border);background:var(--doc-surface);}
+    .code-lang{font-size:11px;color:var(--doc-text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+    .code-copy{padding:5px 12px;background:var(--doc-accent-soft);border:none;border-radius:4px;color:var(--doc-accent);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+    .code-copy:hover{background:var(--doc-accent);color:#fff;}
+    .code-content{padding:16px;overflow-x:auto;}
+    .code-content pre{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;color:var(--doc-text);margin:0;}
+    .ck{color:#c792ea;}.cs{color:#c3e88d;}.cc{color:#546e7a;font-style:italic;}.cp{color:#82aaff;}.cv{color:#ffcb6b;}
+
+    /* INFO CARDS */
+    .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;}
+    .info-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:16px;}
+    .info-num{width:22px;height:22px;background:var(--doc-accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;margin-bottom:8px;}
+    .info-title{font-weight:600;font-size:14px;margin-bottom:4px;}
+    .info-desc{font-size:12px;color:var(--doc-text-muted);line-height:1.6;}
+
+    /* USAGE */
+    .usage-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .usage-box{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:20px 24px;margin-bottom:16px;}
+    .usage-box h4{font-size:14px;font-weight:600;margin-bottom:8px;}
+    .usage-box ul{list-style:none;padding:0;}
+    .usage-box li{font-size:13px;color:var(--doc-text-muted);padding:4px 0;display:flex;align-items:flex-start;gap:8px;}
+    .usage-box li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--doc-accent);margin-top:7px;flex-shrink:0;}
+    .usage-box.do{border-left:3px solid #28a745;}
+    .usage-box.dont{border-left:3px solid #c22222;}
+    .usage-box.do h4{color:#28a745;}
+    .usage-box.dont h4{color:#c22222;}
+    .usage-box.do li::before{background:#28a745;}
+    .usage-box.dont li::before{background:#c22222;}
+
+    /* PROPS PANEL */
+    .props-panel{background:var(--doc-surface);border-left:1px solid var(--doc-border);padding:32px 24px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .props-title{font-size:15px;font-weight:600;margin-bottom:24px;display:flex;align-items:center;gap:8px;}
+    .props-title::before{content:'';width:8px;height:8px;background:var(--doc-accent);border-radius:2px;}
+    .prop-group{margin-bottom:24px;}
+    .prop-group-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-text-muted);margin-bottom:10px;}
+    .prop-item{margin-bottom:12px;}
+    .prop-label{font-size:12px;color:var(--doc-text-muted);margin-bottom:5px;}
+    .prop-select{width:100%;padding:9px 12px;background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:6px;color:var(--doc-text);font-size:12px;cursor:pointer;outline:none;font-family:inherit;}
+    .prop-select:focus{border-color:var(--doc-accent);}
+    .prop-toggle{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:6px;cursor:pointer;}
+    .prop-toggle-label{font-size:12px;}
+    .toggle-switch{position:relative;width:36px;height:20px;background:var(--doc-border);border-radius:10px;cursor:pointer;transition:background .2s ease;flex-shrink:0;}
+    .toggle-switch.on{background:var(--doc-accent);}
+    .toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s ease;}
+    .toggle-switch.on::after{transform:translateX(16px);}
+    .divider-line{height:1px;background:var(--doc-border);margin:20px 0;}
+
+    @media(max-width:1400px){.doc-container{grid-template-columns:240px 1fr 290px;}}
+    @media(max-width:1100px){.doc-container{grid-template-columns:1fr;}.sidebar,.props-panel{display:none;}.states-grid{grid-template-columns:1fr;}.a11y-grid{grid-template-columns:1fr;}.info-grid{grid-template-columns:1fr 1fr;}.usage-cols{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<div class="doc-container">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">Design System</div>
+  <h1 class="component-name">Select / Combobox</h1>
+  <span class="component-tag">Input · Selection</span>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-title">Overview</div>
+      <button class="nav-link active" onclick="nav(this,'playground')">Interactive Playground</button>
+      <button class="nav-link" onclick="nav(this,'anatomy')">Anatomy</button>
+      <button class="nav-link" onclick="nav(this,'types')">Select vs Combobox</button>
+      <button class="nav-link" onclick="nav(this,'trigger-states')">Trigger States</button>
+      <button class="nav-link" onclick="nav(this,'menu-states')">Menu States</button>
+      <button class="nav-link" onclick="nav(this,'item-states')">Menu Item States</button>
+      <button class="nav-link" onclick="nav(this,'usage')">When to Use</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Specifications</div>
+      <button class="nav-link" onclick="nav(this,'measurements')">Measurements</button>
+      <button class="nav-link" onclick="nav(this,'tokens')">Design Tokens</button>
+      <button class="nav-link" onclick="nav(this,'typography')">Typography</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Implementation</div>
+      <button class="nav-link" onclick="nav(this,'accessibility')">Accessibility</button>
+      <button class="nav-link" onclick="nav(this,'props')">Props API</button>
+      <button class="nav-link" onclick="nav(this,'code')">Code Examples</button>
+    </div>
+  </nav>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+  <!-- PLAYGROUND -->
+  <section id="playground" class="section">
+    <div class="section-eyebrow">Interactive</div>
+    <h2 class="section-heading">Playground</h2>
+    <p class="section-desc">Configure the Select / Combobox using the property panel on the right. Toggle states, switch between Select and Combobox, and see the trigger + menu live.</p>
+    <div class="preview-container">
+      <div class="preview-header">
+        <div class="preview-tabs">
+          <button class="preview-tab active" onclick="setBg('light',this)">Light</button>
+          <button class="preview-tab" onclick="setBg('dark',this)">Dark</button>
+        </div>
+        <span style="font-size:11px;color:var(--doc-text-muted);">Live Preview</span>
+      </div>
+      <div class="preview-canvas" id="previewCanvas">
+        <div id="selPreview"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANATOMY -->
+  <section id="anatomy" class="section">
+    <div class="section-eyebrow">Structure</div>
+    <h2 class="section-heading">Anatomy</h2>
+    <p class="section-desc">A Select has two parts — the <strong>trigger field</strong> visible in forms, and the <strong>menu panel</strong> that floats below when opened. Each part has well-defined sub-elements.</p>
+    <div class="preview-container">
+      <div class="preview-canvas" style="background:#f0f4f8;min-height:340px;padding:40px;flex-direction:row;justify-content:center;gap:48px;align-items:flex-start;">
+        <svg width="400" height="280" viewBox="0 0 400 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- label + asterisk -->
+          <text x="20" y="22" font-size="13" fill="#191919" font-family="IBM Plex Sans" font-weight="600">Label</text>
+          <text x="56" y="22" font-size="13" fill="#cc2222" font-family="IBM Plex Sans" font-weight="600">*</text>
+          <!-- field -->
+          <rect x="20" y="38" width="360" height="32" rx="4" fill="white" stroke="#b2b2b3"/>
+          <text x="33" y="58" font-size="13" fill="#666" font-family="Segoe UI">Select an option</text>
+          <path d="M357 53 L364 60 L371 53" stroke="#666" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <!-- helper text -->
+          <text x="20" y="86" font-size="11" fill="#666" font-family="Segoe UI">Helper text</text>
+          <!-- callouts -->
+          <line x1="40" y1="22" x2="40" y2="6" stroke="#0078b3" stroke-dasharray="2 1"/>
+          <circle cx="40" cy="0" r="9" fill="#0078b3"/>
+          <text x="40" y="4" font-size="9" fill="white" text-anchor="middle">①</text>
+          <line x1="200" y1="38" x2="200" y2="6" stroke="#0078b3" stroke-dasharray="2 1"/>
+          <circle cx="200" cy="0" r="9" fill="#0078b3"/>
+          <text x="200" y="4" font-size="9" fill="white" text-anchor="middle">②</text>
+          <line x1="365" y1="56" x2="395" y2="56" stroke="#0078b3" stroke-dasharray="2 1"/>
+          <circle cx="395" cy="56" r="9" fill="#0078b3"/>
+          <text x="395" y="60" font-size="9" fill="white" text-anchor="middle">③</text>
+          <line x1="40" y1="86" x2="40" y2="100" stroke="#0078b3" stroke-dasharray="2 1"/>
+          <circle cx="40" cy="106" r="9" fill="#0078b3"/>
+          <text x="40" y="110" font-size="9" fill="white" text-anchor="middle">④</text>
+          <!-- menu panel -->
+          <rect x="20" y="130" width="360" height="140" rx="4" fill="white" stroke="#b2b2b3"/>
+          <rect x="24" y="134" width="352" height="32" rx="4" fill="#f2f2f2"/>
+          <text x="36" y="155" font-size="13" fill="#191919" font-family="Segoe UI">Option (hover)</text>
+          <text x="36" y="183" font-size="13" fill="#0078b3" font-family="Segoe UI" font-weight="600">✓</text>
+          <text x="52" y="183" font-size="13" fill="#0078b3" font-family="Segoe UI">Option (selected)</text>
+          <text x="36" y="211" font-size="13" fill="#191919" font-family="Segoe UI">Option</text>
+          <text x="36" y="239" font-size="13" fill="#191919" font-family="Segoe UI">Option</text>
+          <line x1="200" y1="130" x2="200" y2="115" stroke="#0078b3" stroke-dasharray="2 1"/>
+          <circle cx="200" cy="111" r="9" fill="#0078b3"/>
+          <text x="200" y="115" font-size="9" fill="white" text-anchor="middle">⑤</text>
+          <line x1="50" y1="183" x2="10" y2="183" stroke="#0078b3" stroke-dasharray="2 1"/>
+          <circle cx="6" cy="183" r="9" fill="#0078b3"/>
+          <text x="6" y="187" font-size="9" fill="white" text-anchor="middle">⑥</text>
+        </svg>
+      </div>
+    </div>
+    <div class="info-grid" style="grid-template-columns:repeat(3,1fr);">
+      <div class="info-card"><div class="info-num">1</div><div class="info-title">Label</div><p class="info-desc">Optional. 16px Segoe UI Semibold. Use sentence case. Required indicator is the red asterisk next to it.</p></div>
+      <div class="info-card"><div class="info-num">2</div><div class="info-title">Trigger Field</div><p class="info-desc">32px tall. 4px corner radius. Shows current value or placeholder. Border indicates state (default, focus, error, etc.).</p></div>
+      <div class="info-card"><div class="info-num">3</div><div class="info-title">Trailing Affordance</div><p class="info-desc">Chevron-down by default. Replaced by ✕ clear button when user is typing in a Combobox.</p></div>
+      <div class="info-card"><div class="info-num">4</div><div class="info-title">Helper Text</div><p class="info-desc">Optional. 12px Segoe UI Regular. Use for hints. Becomes red error message when state is error.</p></div>
+      <div class="info-card"><div class="info-num">5</div><div class="info-title">Menu Panel</div><p class="info-desc">Floating panel attached 4px below trigger. White surface, 1px gray border, soft shadow, 4px radius. Hosts options and special states.</p></div>
+      <div class="info-card"><div class="info-num">6</div><div class="info-title">Selected Indicator</div><p class="info-desc">Leading ✓ checkmark + primary text color marks the active selection. No heavy background — modern, accessible.</p></div>
+    </div>
+  </section>
+
+  <!-- TYPES -->
+  <section id="types" class="section">
+    <div class="section-eyebrow">Variants</div>
+    <h2 class="section-heading">Select vs Combobox</h2>
+    <p class="section-desc">Two functional modes share the same visual shell. Choose based on whether the user benefits from typeahead filtering.</p>
+    <div class="states-grid">
+      <div class="state-card">
+        <div class="state-preview" style="padding:32px;">
+          <div class="sel-wrap">
+            <div class="sel-label"><span class="sel-label-text">Report Type</span></div>
+            <div class="sel-field"><span class="sel-value">Select an option</span><svg class="sel-chevron" viewBox="0 0 16 9" fill="none"><path d="M1 1L8 8L15 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+          </div>
+        </div>
+        <div class="state-info">
+          <div class="state-name">Select</div>
+          <div class="state-desc">Click to open menu. User picks from a fixed list. Use when there are 2–10 stable options.</div>
+        </div>
+      </div>
+      <div class="state-card">
+        <div class="state-preview" style="padding:32px;">
+          <div class="sel-wrap">
+            <div class="sel-label"><span class="sel-label-text">User</span></div>
+            <div class="sel-field active"><span class="sel-value filled">mik|</span><span class="sel-clear">✕</span></div>
+          </div>
+        </div>
+        <div class="state-info">
+          <div class="state-name">Combobox</div>
+          <div class="state-desc">User types to filter. Trigger becomes editable; chevron is replaced by clear ✕. Use when there are many options or full-text search is helpful.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRIGGER STATES -->
+  <section id="trigger-states" class="section">
+    <div class="section-eyebrow">Visual States</div>
+    <h2 class="section-heading">Trigger States</h2>
+    <p class="section-desc">Seven visual states cover every scenario the user can encounter. Each state binds to the <code class="token-mono">semantic</code> token collection so Light/Dark mode flips automatically.</p>
+    <div class="preview-container">
+      <div class="preview-canvas" style="background:#e8edf2;flex-direction:column;align-items:center;gap:24px;padding:40px;">
+        <div class="sel-wrap"><div class="sel-label"><span class="sel-label-text">Default</span></div><div class="sel-field"><span class="sel-value">Select an option</span><svg class="sel-chevron" viewBox="0 0 16 9" fill="none"><path d="M1 1L8 8L15 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div>
+        <div class="sel-wrap"><div class="sel-label"><span class="sel-label-text">Active (focus / hover)</span></div><div class="sel-field active"><span class="sel-value">Select an option</span><svg class="sel-chevron" viewBox="0 0 16 9" fill="none"><path d="M1 1L8 8L15 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div>
+        <div class="sel-wrap"><div class="sel-label"><span class="sel-label-text">Active typing (Combobox)</span></div><div class="sel-field active"><span class="sel-value filled">Sea|</span><span class="sel-clear">✕</span></div></div>
+        <div class="sel-wrap"><div class="sel-label"><span class="sel-label-text">Filled</span></div><div class="sel-field"><span class="sel-value filled">Selected value</span><svg class="sel-chevron" viewBox="0 0 16 9" fill="none"><path d="M1 1L8 8L15 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div>
+        <div class="sel-wrap"><div class="sel-label"><span class="sel-label-text">Error</span></div><div class="sel-field error"><span class="sel-value">Select an option</span><svg class="sel-chevron" viewBox="0 0 16 9" fill="none"><path d="M1 1L8 8L15 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><span class="sel-helper error">This field is required</span></div>
+        <div class="sel-wrap"><div class="sel-label"><span class="sel-label-text">Read-only</span></div><div class="sel-field read-only"><span class="sel-value filled">Selected value</span></div></div>
+        <div class="sel-wrap"><div class="sel-label dim"><span class="sel-label-text">Disabled</span></div><div class="sel-field disabled"><span class="sel-value">Select an option</span><svg class="sel-chevron" viewBox="0 0 16 9" fill="none"><path d="M1 1L8 8L15 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div>
+      </div>
+    </div>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>State</th><th>Border</th><th>Fill</th><th>Trailing</th><th>When to use</th></tr></thead>
+        <tbody>
+          <tr><td><strong>default</strong></td><td><span class="value-mono">stroke/default</span></td><td><span class="value-mono">surface/default</span></td><td>chevron</td><td>Idle, no interaction yet</td></tr>
+          <tr><td><strong>active</strong></td><td><span class="value-mono">stroke/primary</span></td><td><span class="value-mono">surface/default</span></td><td>chevron</td><td>Hover, focus, or open</td></tr>
+          <tr><td><strong>active typing</strong></td><td><span class="value-mono">stroke/primary</span></td><td><span class="value-mono">surface/default</span></td><td>✕ clear</td><td>Combobox typeahead in progress</td></tr>
+          <tr><td><strong>filled</strong></td><td><span class="value-mono">stroke/default</span></td><td><span class="value-mono">surface/default</span></td><td>chevron</td><td>Value selected, idle</td></tr>
+          <tr><td><strong>error</strong></td><td><span class="value-mono">stroke/error</span></td><td><span class="value-mono">surface/default</span></td><td>chevron</td><td>Validation failed (with red helper text)</td></tr>
+          <tr><td><strong>read-only</strong></td><td>none</td><td>transparent</td><td>none</td><td>Display value, no interaction</td></tr>
+          <tr><td><strong>disabled</strong></td><td><span class="value-mono">stroke/default</span></td><td><span class="value-mono">surface/disabled</span></td><td>chevron</td><td>Not currently available</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MENU STATES -->
+  <section id="menu-states" class="section">
+    <div class="section-eyebrow">Menu Panel</div>
+    <h2 class="section-heading">Menu States</h2>
+    <p class="section-desc">The floating panel handles four content states.</p>
+    <div class="states-grid">
+      <div class="state-card">
+        <div class="state-preview" style="padding:24px;">
+          <div class="menu-panel">
+            <div class="menu-row">Option 1</div>
+            <div class="menu-row hover">Option 2</div>
+            <div class="menu-row selected"><span class="menu-check">✓</span>Option 3</div>
+            <div class="menu-row disabled">Option 4</div>
+          </div>
+        </div>
+        <div class="state-info"><div class="state-name">Default (populated)</div><div class="state-desc">List of options. May include groups, dividers, hover/selected/disabled rows.</div></div>
+      </div>
+      <div class="state-card">
+        <div class="state-preview" style="padding:24px;">
+          <div class="menu-panel"><div class="menu-message">No options available</div></div>
+        </div>
+        <div class="state-info"><div class="state-name">Empty</div><div class="state-desc">No options exist. Show an explanatory message centered in the panel.</div></div>
+      </div>
+      <div class="state-card">
+        <div class="state-preview" style="padding:24px;">
+          <div class="menu-panel">
+            <div class="menu-skeleton"><div class="bar" style="width:200px;"></div></div>
+            <div class="menu-skeleton"><div class="bar" style="width:280px;"></div></div>
+            <div class="menu-skeleton"><div class="bar" style="width:160px;"></div></div>
+          </div>
+        </div>
+        <div class="state-info"><div class="state-name">Loading</div><div class="state-desc">Async data in flight. Show skeleton bars (3 rows of varying widths).</div></div>
+      </div>
+      <div class="state-card">
+        <div class="state-preview" style="padding:24px;">
+          <div class="menu-panel"><div class="menu-message">No matches found</div></div>
+        </div>
+        <div class="state-info"><div class="state-name">No results</div><div class="state-desc">Combobox typeahead returned empty. Reflect the typed query when possible.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ITEM STATES -->
+  <section id="item-states" class="section">
+    <div class="section-eyebrow">Menu Item</div>
+    <h2 class="section-heading">Menu Item States</h2>
+    <p class="section-desc">Each row inside the panel has six visual states. Selected uses a leading checkmark + primary text color — no heavy fill.</p>
+    <div class="preview-container">
+      <div class="preview-canvas" style="background:#fff;padding:24px;flex-direction:column;align-items:stretch;gap:0;">
+        <div class="menu-row">Default option</div>
+        <div class="menu-row hover">Hover option</div>
+        <div class="menu-row selected"><span class="menu-check">✓</span>Selected option</div>
+        <div class="menu-row selected-hover"><span class="menu-check">✓</span>Selected + hover</div>
+        <div class="menu-row disabled">Disabled option</div>
+        <div class="menu-row focused">Focused (keyboard)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHEN TO USE -->
+  <section id="usage" class="section">
+    <div class="section-eyebrow">Guidance</div>
+    <h2 class="section-heading">When to Use</h2>
+    <p class="section-desc">Pick Select for short stable lists. Pick Combobox when typing is faster than scrolling.</p>
+    <div class="usage-cols">
+      <div class="usage-box do">
+        <h4>✅ Use Select When</h4>
+        <ul>
+          <li>2–10 stable, named options</li>
+          <li>Selection is mutually exclusive (single value)</li>
+          <li>Users recognize the options at a glance</li>
+          <li>The list rarely changes</li>
+        </ul>
+      </div>
+      <div class="usage-box do">
+        <h4>✅ Use Combobox When</h4>
+        <ul>
+          <li>10+ options or unbounded list (e.g. user search)</li>
+          <li>Typing is faster than scanning visually</li>
+          <li>Partial-match filter is helpful</li>
+          <li>Free-text fallback is acceptable</li>
+        </ul>
+      </div>
+      <div class="usage-box dont">
+        <h4>❌ Avoid Both When</h4>
+        <ul>
+          <li>Only 2–3 options visible always (use Radio or SegmentedButtons)</li>
+          <li>User needs to compare options side-by-side</li>
+          <li>Users select multiple values (use a multi-select component instead — v2 backlog)</li>
+          <li>The action is irreversible or destructive (use Button + Confirm)</li>
+        </ul>
+      </div>
+      <div class="usage-box dont">
+        <h4>❌ Don't Use Combobox When</h4>
+        <ul>
+          <li>The list of options is short (Combobox typeahead adds cognitive load)</li>
+          <li>Users won't know the names ahead of time (browse-only)</li>
+          <li>The platform doesn't support filtering reliably (e.g. ancient browsers)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEASUREMENTS -->
+  <section id="measurements" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Measurements</h2>
+    <p class="section-desc">All values are tokenized and bound to the <code class="token-mono">semantic</code> collection.</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Element</th><th>Property</th><th>Value</th><th>Token</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Trigger field</strong></td><td>Height</td><td><span class="value-mono">32px</span></td><td>—</td></tr>
+          <tr><td></td><td>Horizontal padding</td><td><span class="value-mono">13px</span></td><td>—</td></tr>
+          <tr><td></td><td>Vertical padding</td><td><span class="value-mono">4px</span></td><td><span class="token-mono">spacing/xxsmall</span></td></tr>
+          <tr><td></td><td>Border radius</td><td><span class="value-mono">4px</span></td><td><span class="token-mono">radius/base</span></td></tr>
+          <tr><td></td><td>Border width</td><td><span class="value-mono">1px</span></td><td>—</td></tr>
+          <tr><td></td><td>Gap (label to field)</td><td><span class="value-mono">6px</span></td><td><span class="token-mono">spacing/xsmall</span></td></tr>
+          <tr><td></td><td>Gap (field to helper)</td><td><span class="value-mono">2px</span></td><td>—</td></tr>
+          <tr><td><strong>Menu panel</strong></td><td>Width</td><td><span class="value-mono">match trigger</span></td><td>—</td></tr>
+          <tr><td></td><td>Inner padding</td><td><span class="value-mono">4px</span></td><td><span class="token-mono">spacing/xxsmall</span></td></tr>
+          <tr><td></td><td>Border radius</td><td><span class="value-mono">4px</span></td><td><span class="token-mono">radius/base</span></td></tr>
+          <tr><td></td><td>Drop shadow</td><td><span class="value-mono">0 4 16 0 rgba(0,0,0,0.08)</span></td><td>—</td></tr>
+          <tr><td></td><td>Offset from trigger</td><td><span class="value-mono">4px</span></td><td><span class="token-mono">spacing/xxsmall</span></td></tr>
+          <tr><td><strong>Menu item</strong></td><td>Height</td><td><span class="value-mono">40px</span></td><td>—</td></tr>
+          <tr><td></td><td>Horizontal padding</td><td><span class="value-mono">12px</span></td><td><span class="token-mono">spacing/medium</span></td></tr>
+          <tr><td></td><td>Vertical padding</td><td><span class="value-mono">8px</span></td><td><span class="token-mono">spacing/small</span></td></tr>
+          <tr><td></td><td>Inner radius (highlight)</td><td><span class="value-mono">4px</span></td><td><span class="token-mono">radius/base</span></td></tr>
+          <tr><td></td><td>Item spacing (icon to label)</td><td><span class="value-mono">8px</span></td><td><span class="token-mono">spacing/small</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DESIGN TOKENS -->
+  <section id="tokens" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Design Tokens</h2>
+    <p class="section-desc">All colors come from the BIS <code class="token-mono">semantic</code> collection (Light / Dark modes auto-flip).</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Token</th><th>Light value</th><th>Used for</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-mono">color/surface/default</span></td><td><span class="color-swatch" style="background:#feffff;border-color:#ccc;"></span><span class="value-mono">#feffff</span></td><td>Trigger fill, menu panel fill</td></tr>
+          <tr><td><span class="token-mono">color/surface/disabled</span></td><td><span class="color-swatch" style="background:#f2f2f2;"></span><span class="value-mono">#f2f2f2</span></td><td>Disabled trigger fill</td></tr>
+          <tr><td><span class="token-mono">color/surface/secondary-lightest</span></td><td><span class="color-swatch" style="background:#f2f2f2;"></span><span class="value-mono">#f2f2f2</span></td><td>Menu item hover background</td></tr>
+          <tr><td><span class="token-mono">color/stroke/default</span></td><td><span class="color-swatch" style="background:#b2b2b3;"></span><span class="value-mono">#b2b2b3</span></td><td>Default trigger / panel border, divider</td></tr>
+          <tr><td><span class="token-mono">color/stroke/primary</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">#0078b3</span></td><td>Active trigger border, selected text + checkmark, focus ring</td></tr>
+          <tr><td><span class="token-mono">color/stroke/error</span></td><td><span class="color-swatch" style="background:#c22222;"></span><span class="value-mono">#c22222</span></td><td>Error trigger border, error helper text</td></tr>
+          <tr><td><span class="token-mono">color/text/default</span></td><td><span class="color-swatch" style="background:#191919;"></span><span class="value-mono">#191919</span></td><td>Filled value, label, default option text</td></tr>
+          <tr><td><span class="token-mono">color/text/secondary</span></td><td><span class="color-swatch" style="background:#666;"></span><span class="value-mono">#666666</span></td><td>Placeholder, helper text, group header</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TYPOGRAPHY -->
+  <section id="typography" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Typography</h2>
+    <p class="section-desc">Font family: Segoe UI throughout. Component-specific sizes:</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Element</th><th>Size</th><th>Weight</th><th>Line Height</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Label</strong></td><td><span class="value-mono">16px</span></td><td><span class="value-mono">600 Semibold</span></td><td><span class="value-mono">26px</span></td></tr>
+          <tr><td><strong>Value / option text</strong></td><td><span class="value-mono">16px</span></td><td><span class="value-mono">400 Regular</span></td><td><span class="value-mono">24px</span></td></tr>
+          <tr><td><strong>Helper / error text</strong></td><td><span class="value-mono">12px</span></td><td><span class="value-mono">400 Regular</span></td><td><span class="value-mono">20px</span></td></tr>
+          <tr><td><strong>Group header</strong></td><td><span class="value-mono">11px</span></td><td><span class="value-mono">600 Semibold</span></td><td><span class="value-mono">16px</span></td></tr>
+          <tr><td><strong>Empty / no-results message</strong></td><td><span class="value-mono">14px</span></td><td><span class="value-mono">400 Regular</span></td><td><span class="value-mono">20px</span></td></tr>
+          <tr><td><strong>Match highlight (Combobox)</strong></td><td><span class="value-mono">16px</span></td><td><span class="value-mono">600 Semibold</span></td><td><span class="value-mono">24px</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ACCESSIBILITY -->
+  <section id="accessibility" class="section">
+    <div class="section-eyebrow">WCAG 2.1 AA</div>
+    <h2 class="section-heading">Accessibility</h2>
+    <p class="section-desc">Selects must be reachable and operable via keyboard alone, and announced clearly to screen readers.</p>
+    <div class="a11y-grid" style="margin-bottom:24px;">
+      <div class="a11y-card">
+        <div class="a11y-label">ARIA roles</div>
+        <p class="a11y-text">Trigger uses <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="combobox"</code> with <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-expanded</code>, <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-controls</code> pointing to the menu panel, and <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-haspopup="listbox"</code>. Menu uses <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="listbox"</code> and items use <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="option"</code> with <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-selected</code>.</p>
+      </div>
+      <div class="a11y-card">
+        <div class="a11y-label">Required field</div>
+        <p class="a11y-text">When <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">required</code> is true, set <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-required="true"</code>. The visible asterisk is decorative — screen readers should hear "required" via the attribute, not the asterisk character.</p>
+      </div>
+      <div class="a11y-card warning">
+        <div class="a11y-label">Keyboard navigation</div>
+        <p class="a11y-text"><strong>Tab</strong> focuses trigger. <strong>Space / Enter / ↓</strong> opens menu. <strong>↑ / ↓</strong> moves between options. <strong>Enter</strong> selects. <strong>Esc</strong> closes. Combobox: typing filters. Maintain <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-activedescendant</code> on the trigger pointing to the currently focused option.</p>
+      </div>
+      <div class="a11y-card success">
+        <div class="a11y-label">Focus indicator</div>
+        <p class="a11y-text">Trigger uses 1px primary border on focus. Menu items show a 1px primary outline (inset). Both meet 3:1 contrast against their backgrounds.</p>
+      </div>
+      <div class="a11y-card">
+        <div class="a11y-label">Color independence</div>
+        <p class="a11y-text">Selected state uses both color (primary) AND a leading ✓ checkmark. Error state uses both red border AND a red helper message. Never rely on color alone.</p>
+      </div>
+      <div class="a11y-card warning">
+        <div class="a11y-label">Touch targets</div>
+        <p class="a11y-text">Menu items are 40px tall — meets 44×44 minimum once horizontal padding is included. Trigger is 32px tall, so ensure there's vertical breathing room (label + helper) so the entire labelled control is at least 44px.</p>
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">HTML — Accessibility template</span></div>
+      <div class="code-content"><pre><code><span class="cc">&lt;!-- Combobox trigger --&gt;</span>
+&lt;<span class="cp">div</span>&gt;
+  &lt;<span class="cp">label</span> <span class="cv">id</span>=<span class="cs">"sel-label"</span>&gt;User&lt;/<span class="cp">label</span>&gt;
+  &lt;<span class="cp">input</span> <span class="cv">role</span>=<span class="cs">"combobox"</span> <span class="cv">aria-expanded</span>=<span class="cs">"false"</span>
+         <span class="cv">aria-controls</span>=<span class="cs">"sel-listbox"</span> <span class="cv">aria-haspopup</span>=<span class="cs">"listbox"</span>
+         <span class="cv">aria-labelledby</span>=<span class="cs">"sel-label"</span> <span class="cv">aria-required</span>=<span class="cs">"true"</span> /&gt;
+&lt;/<span class="cp">div</span>&gt;
+
+<span class="cc">&lt;!-- Menu --&gt;</span>
+&lt;<span class="cp">ul</span> <span class="cv">id</span>=<span class="cs">"sel-listbox"</span> <span class="cv">role</span>=<span class="cs">"listbox"</span>&gt;
+  &lt;<span class="cp">li</span> <span class="cv">role</span>=<span class="cs">"option"</span> <span class="cv">aria-selected</span>=<span class="cs">"true"</span>&gt;Option 1&lt;/<span class="cp">li</span>&gt;
+  &lt;<span class="cp">li</span> <span class="cv">role</span>=<span class="cs">"option"</span> <span class="cv">aria-selected</span>=<span class="cs">"false"</span>&gt;Option 2&lt;/<span class="cp">li</span>&gt;
+&lt;/<span class="cp">ul</span>&gt;</code></pre></div>
+    </div>
+  </section>
+
+  <!-- PROPS API -->
+  <section id="props" class="section">
+    <div class="section-eyebrow">API</div>
+    <h2 class="section-heading">Props API</h2>
+    <p class="section-desc">Component property names match the Figma component variants and properties so design and code stay aligned.</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><strong>label</strong></td><td><span class="value-mono">string</span></td><td><span class="tag-pill tag-required">required</span></td><td>Visible label above the trigger</td></tr>
+          <tr><td><strong>type</strong></td><td><span class="value-mono">"select" | "combobox"</span></td><td><span class="value-mono">"select"</span></td><td>Single-select picker vs typeahead filter</td></tr>
+          <tr><td><strong>options</strong></td><td><span class="value-mono">SelectOption[]</span></td><td><span class="tag-pill tag-required">required</span></td><td><code>{ id, label, group?, description?, disabled? }[]</code></td></tr>
+          <tr><td><strong>value</strong></td><td><span class="value-mono">string | null</span></td><td><span class="value-mono">null</span></td><td>Currently selected option id</td></tr>
+          <tr><td><strong>placeholder</strong></td><td><span class="value-mono">string</span></td><td><span class="value-mono">"Select an option"</span></td><td>Shown when no value is selected</td></tr>
+          <tr><td><strong>required</strong></td><td><span class="value-mono">boolean</span></td><td><span class="value-mono">false</span></td><td>Adds visible asterisk + <code>aria-required</code></td></tr>
+          <tr><td><strong>disabled</strong></td><td><span class="value-mono">boolean</span></td><td><span class="value-mono">false</span></td><td>Disables interaction</td></tr>
+          <tr><td><strong>readOnly</strong></td><td><span class="value-mono">boolean</span></td><td><span class="value-mono">false</span></td><td>Renders as text without border or chevron</td></tr>
+          <tr><td><strong>error</strong></td><td><span class="value-mono">string | null</span></td><td><span class="value-mono">null</span></td><td>Error message; toggles error styling when truthy</td></tr>
+          <tr><td><strong>helperText</strong></td><td><span class="value-mono">string</span></td><td><span class="value-mono">null</span></td><td>Optional hint below the field</td></tr>
+          <tr><td><strong>loading</strong></td><td><span class="value-mono">boolean</span></td><td><span class="value-mono">false</span></td><td>Shows skeleton rows in the menu</td></tr>
+          <tr><td><strong>onChange</strong></td><td><span class="value-mono">(id: string) =&gt; void</span></td><td><span class="tag-pill tag-required">required</span></td><td>Fires when user selects an option</td></tr>
+          <tr><td><strong>onSearch</strong></td><td><span class="value-mono">(q: string) =&gt; void</span></td><td><span class="value-mono">undefined</span></td><td>Combobox-only. Fires on typeahead change</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CODE -->
+  <section id="code" class="section">
+    <div class="section-eyebrow">Implementation</div>
+    <h2 class="section-heading">Code Examples</h2>
+    <p class="section-desc">Reference implementations using the BIS Common Components React library.</p>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;margin-top:24px;">Basic Select</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">React / TSX</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code><span class="ck">const</span> [reportType, setReportType] = useState&lt;<span class="cp">string</span> | <span class="cp">null</span>&gt;(<span class="ck">null</span>);
+
+&lt;<span class="cp">BisSelect</span>
+  <span class="cv">label</span>=<span class="cs">"Report type"</span>
+  <span class="cv">required</span>
+  <span class="cv">options</span>={[
+    { id: <span class="cs">"asset"</span>,    label: <span class="cs">"Asset Summary Report"</span> },
+    { id: <span class="cs">"billable"</span>, label: <span class="cs">"Billable User Report"</span> },
+    { id: <span class="cs">"cert"</span>,     label: <span class="cs">"Certification Program Report"</span> },
+  ]}
+  <span class="cv">value</span>={reportType}
+  <span class="cv">onChange</span>={setReportType}
+/&gt;</code></pre></div>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;margin-top:24px;">Combobox with async search</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">React / TSX</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code><span class="ck">const</span> [query, setQuery]   = useState(<span class="cs">""</span>);
+<span class="ck">const</span> [users, setUsers]   = useState&lt;<span class="cp">User</span>[]&gt;([]);
+<span class="ck">const</span> [loading, setLoading] = useState(<span class="ck">false</span>);
+
+useEffect(() => {
+  <span class="ck">if</span> (!query) <span class="ck">return</span>;
+  setLoading(<span class="ck">true</span>);
+  fetchUsers(query).then(setUsers).<span class="cp">finally</span>(() => setLoading(<span class="ck">false</span>));
+}, [query]);
+
+&lt;<span class="cp">BisSelect</span>
+  <span class="cv">type</span>=<span class="cs">"combobox"</span>
+  <span class="cv">label</span>=<span class="cs">"User"</span>
+  <span class="cv">options</span>={users.map(u => ({ id: u.id, label: u.fullName }))}
+  <span class="cv">loading</span>={loading}
+  <span class="cv">onSearch</span>={setQuery}
+  <span class="cv">onChange</span>={handleSelectUser}
+/&gt;</code></pre></div>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;margin-top:24px;">Grouped options with descriptions</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">React / TSX</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code>&lt;<span class="cp">BisSelect</span>
+  <span class="cv">label</span>=<span class="cs">"Role"</span>
+  <span class="cv">options</span>={[
+    { id: <span class="cs">"pri-bw"</span>, group: <span class="cs">"Primary"</span>,   label: <span class="cs">"Bridge Worker"</span> },
+    { id: <span class="cs">"pri-aa"</span>, group: <span class="cs">"Primary"</span>,   label: <span class="cs">"Administrative Assistant"</span> },
+    { id: <span class="cs">"sec-ceo"</span>,group: <span class="cs">"Secondary"</span>, label: <span class="cs">"CEO"</span>, description: <span class="cs">"Chief Executive Officer"</span> },
+    { id: <span class="cs">"sec-cfo"</span>,group: <span class="cs">"Secondary"</span>, label: <span class="cs">"CFO"</span>, description: <span class="cs">"Chief Financial Officer"</span> },
+  ]}
+  <span class="cv">value</span>={role}
+  <span class="cv">onChange</span>={setRole}
+/&gt;</code></pre></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- PROPS PANEL (interactive playground) -->
+<aside class="props-panel">
+  <h2 class="props-title">Properties</h2>
+  <div class="prop-group">
+    <div class="prop-group-title">Component</div>
+    <div class="prop-item">
+      <div class="prop-label">Type</div>
+      <select class="prop-select" id="sType" onchange="render()">
+        <option value="select">Select</option>
+        <option value="combobox">Combobox</option>
+      </select>
+    </div>
+    <div class="prop-item">
+      <div class="prop-label">State</div>
+      <select class="prop-select" id="sState" onchange="render()">
+        <option value="default">default</option>
+        <option value="active">active</option>
+        <option value="filled">filled</option>
+        <option value="error">error</option>
+        <option value="read-only">read-only</option>
+        <option value="disabled">disabled</option>
+      </select>
+    </div>
+  </div>
+  <div class="prop-group">
+    <div class="prop-group-title">Modifiers</div>
+    <div class="prop-item">
+      <div class="prop-toggle" onclick="toggle('tRequired')">
+        <span class="prop-toggle-label">Required</span>
+        <div class="toggle-switch" id="tRequired"></div>
+      </div>
+    </div>
+    <div class="prop-item">
+      <div class="prop-toggle" onclick="toggle('tHelper')">
+        <span class="prop-toggle-label">Helper text</span>
+        <div class="toggle-switch on" id="tHelper"></div>
+      </div>
+    </div>
+    <div class="prop-item">
+      <div class="prop-toggle" onclick="toggle('tOpen')">
+        <span class="prop-toggle-label">Show menu (open)</span>
+        <div class="toggle-switch" id="tOpen"></div>
+      </div>
+    </div>
+  </div>
+  <div class="divider-line"></div>
+  <div style="font-size:11px;color:var(--doc-text-muted);line-height:1.7;">
+    <strong style="color:var(--doc-text);display:block;margin-bottom:6px;">Quick rules</strong>
+    Selected state uses ✓ + primary text, no fill<br>
+    Combobox shows ✕ when typing<br>
+    Read-only has no border or chevron<br>
+    Match highlight uses Semibold inside Regular
+  </div>
+</aside>
+</div>
+
+<script>
+function nav(el,id){document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));el.classList.add('active');document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});}
+function toggle(id){document.getElementById(id).classList.toggle('on');render();}
+function on(id){return document.getElementById(id).classList.contains('on');}
+function setBg(mode,el){document.querySelectorAll('.preview-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');const c=document.getElementById('previewCanvas');mode==='dark'?c.classList.add('dark'):c.classList.remove('dark');render();}
+
+function render(){
+  const dark=document.getElementById('previewCanvas').classList.contains('dark');
+  const type=document.getElementById('sType').value;
+  const state=document.getElementById('sState').value;
+  const required=on('tRequired');
+  const showHelper=on('tHelper');
+  const showMenu=on('tOpen');
+
+  const labelDim = state==='disabled' ? 'dim' : '';
+  const fieldClasses = ['sel-field'];
+  let trailing = `<svg class="sel-chevron" viewBox="0 0 16 9" fill="none"><path d="M1 1L8 8L15 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+  let valueText = 'Select an option';
+  let valueClasses = ['sel-value'];
+  let helperText = 'Helper text';
+  let helperClasses = ['sel-helper'];
+
+  if (state==='active') fieldClasses.push('active');
+  if (state==='error')  { fieldClasses.push('error'); helperText='This field is required'; helperClasses.push('error'); }
+  if (state==='disabled') fieldClasses.push('disabled');
+  if (state==='read-only') { fieldClasses.push('read-only'); trailing=''; }
+  if (state==='filled') { valueText='Selected value'; valueClasses.push('filled'); }
+  if (type==='combobox' && state==='active')  { valueText='Sea|'; valueClasses.push('filled'); trailing='<span class="sel-clear">✕</span>'; fieldClasses.push('active'); }
+
+  const labelHtml = `<div class="sel-label ${labelDim}"><span class="sel-label-text">Label</span>${required?'<span class="sel-asterisk">*</span>':''}</div>`;
+  const fieldHtml = `<div class="${fieldClasses.join(' ')}"><span class="${valueClasses.join(' ')}">${valueText}</span>${trailing}</div>`;
+  const helperHtml = (showHelper && state!=='read-only') ? `<span class="${helperClasses.join(' ')}">${helperText}</span>` : '';
+
+  let menuHtml = '';
+  if (showMenu) {
+    menuHtml = `<div class="menu-panel" style="margin-top:4px;">
+      <div class="menu-row">Option 1</div>
+      <div class="menu-row hover">Option 2</div>
+      <div class="menu-row selected"><span class="menu-check">✓</span>Option 3</div>
+      <div class="menu-row">Option 4</div>
+      <div class="menu-row disabled">Option 5</div>
+    </div>`;
+  }
+
+  document.getElementById('selPreview').innerHTML = `<div class="sel-wrap">${labelHtml}${fieldHtml}${helperHtml}</div>${menuHtml}`;
+}
+
+function copyCode(btn){const code=btn.closest('.code-block').querySelector('pre').textContent;navigator.clipboard.writeText(code);btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',2000);}
+
+render();
+</script>
+</body>
+</html>
