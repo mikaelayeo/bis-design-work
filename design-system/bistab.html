@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BisTab | Design System Documentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Component tokens */
+      --color-primary: #0078b3;
+      --color-primary-stroke: #009acb;
+      --color-primary-lightest: #f2fcff;
+      --color-secondary: #666666;
+      --color-secondary-lightest: #f2f2f2;
+      --color-text-default: #191919;
+      --color-surface-default: #feffff;
+      --color-stroke-default: #b2b2b3;
+      --color-stroke-default-light: #e2e2e3;
+      --border-radius-base: 4px;
+      --border-radius-none: 0;
+      --spacing-tiny: 2px;
+      --spacing-xxsmall: 4px;
+      --spacing-xsmall: 6px;
+      --spacing-small: 8px;
+      --spacing-base: 12px;
+      --spacing-medium: 16px;
+      /* Doc chrome */
+      --doc-bg: #0d0d0d;
+      --doc-surface: #1a1a1a;
+      --doc-surface-elevated: #242424;
+      --doc-border: #333;
+      --doc-text: #e5e5e5;
+      --doc-text-muted: #888;
+      --doc-accent: #0078b3;
+      --doc-accent-alt: #009acb;
+      --doc-accent-soft: rgba(0,120,179,0.15);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'IBM Plex Sans',sans-serif;background:var(--doc-bg);color:var(--doc-text);line-height:1.6;}
+    .doc-container{display:grid;grid-template-columns:280px 1fr 320px;min-height:100vh;}
+
+    /* SIDEBAR */
+    .sidebar{background:var(--doc-surface);border-right:1px solid var(--doc-border);padding:32px 24px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .logo{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--doc-accent);margin-bottom:6px;}
+    .component-name{font-size:26px;font-weight:700;margin-bottom:8px;line-height:1.2;}
+    .component-tag{display:inline-block;font-size:11px;font-weight:500;background:var(--doc-accent-soft);color:var(--doc-accent);padding:3px 10px;border-radius:20px;margin-bottom:28px;}
+    .nav-section{margin-bottom:24px;}
+    .nav-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-text-muted);margin-bottom:8px;padding:0 12px;}
+    .nav-link{display:block;width:100%;text-align:left;padding:7px 12px;color:var(--doc-text-muted);border-radius:6px;font-size:13px;background:transparent;border:none;cursor:pointer;transition:all .15s ease;margin-bottom:1px;font-family:inherit;}
+    .nav-link:hover{background:var(--doc-surface-elevated);color:var(--doc-text);}
+    .nav-link.active{background:var(--doc-accent-soft);color:var(--doc-accent);font-weight:500;}
+
+    /* MAIN */
+    .main-content{padding:48px;overflow-y:auto;max-width:900px;}
+    .section{margin-bottom:72px;}
+    .section-eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-accent);margin-bottom:10px;}
+    .section-heading{font-size:30px;font-weight:700;margin-bottom:12px;line-height:1.2;}
+    .section-desc{color:var(--doc-text-muted);font-size:15px;max-width:620px;margin-bottom:32px;line-height:1.7;}
+
+    /* PREVIEW */
+    .preview-container{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:12px;overflow:hidden;margin-bottom:32px;}
+    .preview-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--doc-border);background:var(--doc-surface-elevated);}
+    .preview-tabs{display:flex;gap:4px;}
+    .preview-tab{padding:6px 14px;background:transparent;border:none;color:var(--doc-text-muted);font-size:12px;font-weight:500;cursor:pointer;border-radius:6px;transition:all .15s ease;font-family:inherit;}
+    .preview-tab:hover{color:var(--doc-text);}
+    .preview-tab.active{color:var(--doc-accent);background:var(--doc-accent-soft);}
+    .preview-canvas{padding:36px 32px;display:flex;align-items:center;justify-content:center;min-height:200px;background:#e8edf2;flex-wrap:wrap;}
+    .preview-canvas.dark{background:#111;}
+
+    /* === BISTAB COMPONENT STYLES === */
+    .bistab-row{display:flex;align-items:flex-end;font-family:'Segoe UI',sans-serif;}
+
+    /* Shared tab item base */
+    .tabitem{
+      display:inline-flex;align-items:center;justify-content:center;
+      font-family:'Segoe UI',sans-serif;font-size:16px;line-height:24px;
+      cursor:pointer;user-select:none;transition:all .15s;
+      white-space:nowrap;
+    }
+
+    /* TYPE: Traditional — boxed tabs */
+    .bistab-traditional{gap:0;}
+    .tabitem.traditional{
+      padding:4px 12px;height:34px;
+      border:1px solid var(--color-stroke-default);
+      background:var(--color-surface-default);
+      color:var(--color-secondary);
+      font-weight:600;
+      border-radius:0;
+      margin-left:-1px;
+    }
+    .tabitem.traditional:first-child{margin-left:0;border-radius:4px 0 0 4px;}
+    .tabitem.traditional:last-child{border-radius:0 4px 4px 0;}
+    .tabitem.traditional.selected{
+      background:var(--color-primary-lightest);
+      color:var(--color-primary);
+      border-color:var(--color-primary-stroke);
+      z-index:1;
+    }
+
+    /* TYPE: Floating — selected gets blue outline pill */
+    .bistab-floating{gap:8px;}
+    .tabitem.floating{
+      padding:4px 12px;height:34px;
+      border:1px solid transparent;
+      background:transparent;
+      color:var(--color-secondary);
+      font-weight:600;
+      border-radius:4px;
+    }
+    .tabitem.floating.selected{
+      background:var(--color-primary-lightest);
+      color:var(--color-primary);
+      border-color:var(--color-primary-stroke);
+    }
+
+    /* TYPE: Expanded — bold blue underline indicator */
+    .bistab-expanded{gap:0;}
+    .tabitem.expanded{
+      padding:8px 12px;height:42px;
+      background:transparent;
+      color:var(--color-secondary);
+      font-weight:600;
+      border-bottom:3px solid transparent;
+    }
+    .tabitem.expanded.selected{
+      color:var(--color-text-default);
+      border-bottom-color:var(--color-primary);
+    }
+
+    /* TYPE: Simple — full-width baseline + selected underline */
+    .bistab-simple{gap:0;border-bottom:1px solid var(--color-stroke-default-light);width:100%;}
+    .tabitem.simple{
+      padding:6px 12px;height:38px;
+      background:transparent;
+      color:var(--color-secondary);
+      font-weight:600;
+      border-bottom:3px solid transparent;
+      margin-bottom:-1px;
+    }
+    .tabitem.simple.selected{
+      color:var(--color-text-default);
+      border-bottom-color:var(--color-primary);
+    }
+
+    /* SUB-ELEMENT: more */
+    .tabitem.more{font-style:italic;font-weight:500;}
+
+    /* SUB-ELEMENT: add (+ button or input) */
+    .tabitem.add{padding:4px 8px;}
+    .tabitem.add svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;}
+    .tab-input{
+      border:1px solid var(--color-stroke-default);
+      background:var(--color-surface-default);
+      padding:4px 8px;
+      font-family:'Segoe UI',sans-serif;
+      font-size:14px;
+      border-radius:4px;
+      outline:none;
+      width:100px;
+      color:var(--color-secondary);
+    }
+    .tab-input:focus{border-color:var(--color-primary);}
+
+    /* STATES GRID */
+    .states-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+    .state-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;overflow:hidden;}
+    .state-preview{background:#e8edf2;padding:24px;display:flex;justify-content:center;align-items:center;min-height:120px;}
+    .state-info{padding:14px 16px;border-top:1px solid var(--doc-border);}
+    .state-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+    .state-desc{font-size:12px;color:var(--doc-text-muted);}
+
+    /* TABLES */
+    .spec-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .spec-table th{text-align:left;padding:11px 14px;background:var(--doc-surface-elevated);border-bottom:1px solid var(--doc-border);font-weight:600;color:var(--doc-text-muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+    .spec-table td{padding:11px 14px;border-bottom:1px solid var(--doc-border);vertical-align:top;color:var(--doc-text);}
+    .spec-table tr:last-child td{border-bottom:none;}
+    .token-mono{font-family:'IBM Plex Mono',monospace;color:var(--doc-accent-alt);font-size:12px;}
+    .value-mono{font-family:'IBM Plex Mono',monospace;color:var(--doc-text-muted);font-size:12px;}
+    .color-swatch{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:8px;vertical-align:middle;border:1px solid rgba(255,255,255,.15);}
+    .tag-pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;}
+    .tag-required{background:rgba(194,34,34,.15);color:#ff7272;}
+    .tag-optional{background:rgba(0,154,203,.15);color:var(--doc-accent-alt);}
+    .tag-default{background:rgba(255,255,255,.07);color:var(--doc-text-muted);}
+
+    /* A11Y */
+    .a11y-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+    .a11y-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:16px 18px;border-left:3px solid var(--doc-accent);}
+    .a11y-card.warning{border-left-color:#b8880a;}
+    .a11y-card.success{border-left-color:#28a745;}
+    .a11y-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--doc-accent);margin-bottom:6px;}
+    .a11y-card.warning .a11y-label{color:#b8880a;}
+    .a11y-card.success .a11y-label{color:#28a745;}
+    .a11y-text{font-size:13px;color:var(--doc-text-muted);line-height:1.6;}
+
+    /* CODE */
+    .code-block{background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:8px;overflow:hidden;}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--doc-border);background:var(--doc-surface);}
+    .code-lang{font-size:11px;color:var(--doc-text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+    .code-copy{padding:5px 12px;background:var(--doc-accent-soft);border:none;border-radius:4px;color:var(--doc-accent);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+    .code-copy:hover{background:var(--doc-accent);color:#fff;}
+    .code-content{padding:16px;overflow-x:auto;}
+    .code-content pre{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;color:var(--doc-text);margin:0;}
+    .ck{color:#c792ea;}.cs{color:#c3e88d;}.cc{color:#546e7a;font-style:italic;}.cp{color:#82aaff;}.cv{color:#ffcb6b;}
+
+    /* INFO CARDS */
+    .info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px;}
+    .info-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:16px;}
+    .info-num{width:22px;height:22px;background:var(--doc-accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;margin-bottom:8px;}
+    .info-title{font-weight:600;font-size:14px;margin-bottom:4px;}
+    .info-desc{font-size:12px;color:var(--doc-text-muted);line-height:1.6;}
+
+    /* USAGE */
+    .usage-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .usage-box{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:20px 24px;margin-bottom:16px;}
+    .usage-box h4{font-size:14px;font-weight:600;margin-bottom:8px;}
+    .usage-box ul{list-style:none;padding:0;}
+    .usage-box li{font-size:13px;color:var(--doc-text-muted);padding:4px 0;display:flex;align-items:flex-start;gap:8px;}
+    .usage-box li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--doc-accent);margin-top:7px;flex-shrink:0;}
+    .usage-box.do{border-left:3px solid #28a745;}
+    .usage-box.dont{border-left:3px solid #c22222;}
+    .usage-box.do h4{color:#28a745;}
+    .usage-box.dont h4{color:#c22222;}
+    .usage-box.do li::before{background:#28a745;}
+    .usage-box.dont li::before{background:#c22222;}
+
+    /* PROPS PANEL */
+    .props-panel{background:var(--doc-surface);border-left:1px solid var(--doc-border);padding:32px 24px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .props-title{font-size:15px;font-weight:600;margin-bottom:24px;display:flex;align-items:center;gap:8px;}
+    .props-title::before{content:'';width:8px;height:8px;background:var(--doc-accent);border-radius:2px;}
+    .prop-group{margin-bottom:24px;}
+    .prop-group-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-text-muted);margin-bottom:10px;}
+    .prop-item{margin-bottom:12px;}
+    .prop-label{font-size:12px;color:var(--doc-text-muted);margin-bottom:5px;}
+    .prop-select{width:100%;padding:9px 12px;background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:6px;color:var(--doc-text);font-size:12px;cursor:pointer;outline:none;font-family:inherit;}
+    .prop-select:focus{border-color:var(--doc-accent);}
+    .prop-toggle{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:6px;cursor:pointer;}
+    .prop-toggle-label{font-size:12px;}
+    .toggle-switch{position:relative;width:36px;height:20px;background:var(--doc-border);border-radius:10px;cursor:pointer;transition:background .2s ease;flex-shrink:0;}
+    .toggle-switch.on{background:var(--doc-accent);}
+    .toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s ease;}
+    .toggle-switch.on::after{transform:translateX(16px);}
+    .divider-line{height:1px;background:var(--doc-border);margin:20px 0;}
+
+    @media(max-width:1400px){.doc-container{grid-template-columns:240px 1fr 290px;}.info-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:1100px){.doc-container{grid-template-columns:1fr;}.sidebar,.props-panel{display:none;}.states-grid{grid-template-columns:1fr;}.a11y-grid{grid-template-columns:1fr;}.info-grid{grid-template-columns:1fr 1fr;}.usage-cols{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<div class="doc-container">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">Design System</div>
+  <h1 class="component-name">BisTab</h1>
+  <span class="component-tag">Navigation · Container</span>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-title">Overview</div>
+      <button class="nav-link active" onclick="nav(this,'playground')">Interactive Playground</button>
+      <button class="nav-link" onclick="nav(this,'anatomy')">Anatomy</button>
+      <button class="nav-link" onclick="nav(this,'types')">Tab Types</button>
+      <button class="nav-link" onclick="nav(this,'states')">States &amp; Sub-Elements</button>
+      <button class="nav-link" onclick="nav(this,'usage')">When to Use</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Specifications</div>
+      <button class="nav-link" onclick="nav(this,'measurements')">Measurements</button>
+      <button class="nav-link" onclick="nav(this,'tokens')">Design Tokens</button>
+      <button class="nav-link" onclick="nav(this,'typography')">Typography</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Implementation</div>
+      <button class="nav-link" onclick="nav(this,'accessibility')">Accessibility</button>
+      <button class="nav-link" onclick="nav(this,'props')">Props API</button>
+      <button class="nav-link" onclick="nav(this,'code')">Code Examples</button>
+    </div>
+  </nav>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+  <!-- PLAYGROUND -->
+  <section id="playground" class="section">
+    <div class="section-eyebrow">Interactive</div>
+    <h2 class="section-heading">Playground</h2>
+    <p class="section-desc">Configure the BisTab component using the properties panel on the right. Switch between tab types and toggle the optional <em>more</em> overflow indicator and <em>add</em> button.</p>
+    <div class="preview-container">
+      <div class="preview-header">
+        <div class="preview-tabs">
+          <button class="preview-tab active" onclick="setBg('light',this)">Light</button>
+          <button class="preview-tab" onclick="setBg('dark',this)">Dark</button>
+        </div>
+        <span style="font-size:11px;color:var(--doc-text-muted);">Live Preview</span>
+      </div>
+      <div class="preview-canvas" id="previewCanvas" style="padding:40px 24px;">
+        <div id="tabPreview" style="width:100%;display:flex;justify-content:center;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANATOMY -->
+  <section id="anatomy" class="section">
+    <div class="section-eyebrow">Structure</div>
+    <h2 class="section-heading">Anatomy</h2>
+    <p class="section-desc">A BisTab is a horizontal row of tab items. Each row may also contain a <em>more</em> overflow indicator (when tabs exceed available width) and an <em>add</em> button (when users can create new tabs). The label is the only mandatory part.</p>
+    <div class="preview-container">
+      <div class="preview-canvas" style="background:#f0f4f8;min-height:200px;padding:48px 32px;">
+        <svg width="640" height="120" viewBox="0 0 640 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- tab row baseline -->
+          <line x1="40" y1="80" x2="600" y2="80" stroke="#b2b2b3" stroke-width="1"/>
+          <!-- tab 1 (selected) -->
+          <rect x="40" y="50" width="80" height="30" fill="none"/>
+          <text x="80" y="70" font-size="14" fill="#191919" text-anchor="middle" font-family="Segoe UI" font-weight="600">Active</text>
+          <line x1="40" y1="80" x2="120" y2="80" stroke="#0078b3" stroke-width="3"/>
+          <!-- tab 2 -->
+          <text x="170" y="70" font-size="14" fill="#666" text-anchor="middle" font-family="Segoe UI" font-weight="600">Tab</text>
+          <!-- tab 3 -->
+          <text x="240" y="70" font-size="14" fill="#666" text-anchor="middle" font-family="Segoe UI" font-weight="600">Tab</text>
+          <!-- more -->
+          <text x="320" y="70" font-size="14" fill="#0078b3" text-anchor="middle" font-family="Segoe UI" font-weight="500" font-style="italic">1 more...</text>
+          <!-- add -->
+          <rect x="380" y="55" width="30" height="22" rx="3" stroke="#b2b2b3" stroke-dasharray="3 2" fill="none"/>
+          <text x="395" y="71" font-size="14" fill="#666" text-anchor="middle" font-family="Segoe UI" font-weight="600">+</text>
+
+          <!-- callouts -->
+          <line x1="80" y1="50" x2="80" y2="28" stroke="#0078b3" stroke-dasharray="2 1"/>
+          <circle cx="80" cy="20" r="9" fill="#0078b3"/>
+          <text x="80" y="24" font-size="9" fill="white" text-anchor="middle" font-weight="700">1</text>
+          <line x1="170" y1="58" x2="170" y2="28" stroke="#0078b3" stroke-dasharray="2 1"/>
+          <circle cx="170" cy="20" r="9" fill="#0078b3"/>
+          <text x="170" y="24" font-size="9" fill="white" text-anchor="middle" font-weight="700">2</text>
+          <line x1="320" y1="58" x2="320" y2="28" stroke="#0078b3" stroke-dasharray="2 1"/>
+          <circle cx="320" cy="20" r="9" fill="#0078b3"/>
+          <text x="320" y="24" font-size="9" fill="white" text-anchor="middle" font-weight="700">3</text>
+          <line x1="395" y1="55" x2="395" y2="28" stroke="#0078b3" stroke-dasharray="2 1"/>
+          <circle cx="395" cy="20" r="9" fill="#0078b3"/>
+          <text x="395" y="24" font-size="9" fill="white" text-anchor="middle" font-weight="700">4</text>
+        </svg>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-card"><div class="info-num">1</div><div class="info-title">Selected Tab</div><p class="info-desc">Active tab — distinct color, weight, or indicator (varies by type). Only one tab can be selected at a time.</p></div>
+      <div class="info-card"><div class="info-num">2</div><div class="info-title">Deselected Tab</div><p class="info-desc">Inactive tabs use secondary text color. Clicking them activates them and deselects the previous tab.</p></div>
+      <div class="info-card"><div class="info-num">3</div><div class="info-title">More (overflow)</div><p class="info-desc">Optional. Appears when tabs exceed available width. Italic style, primary color when expanded.</p></div>
+      <div class="info-card"><div class="info-num">4</div><div class="info-title">Add</div><p class="info-desc">Optional. Plus icon to create a new tab. When clicked, transforms into an inline "New Tab" input.</p></div>
+    </div>
+  </section>
+
+  <!-- TAB TYPES -->
+  <section id="types" class="section">
+    <div class="section-eyebrow">Variants</div>
+    <h2 class="section-heading">Tab Types</h2>
+    <p class="section-desc">There are four BisTab types — Traditional, Floating, Expanded, and Simple. Each gives the tab row a different visual weight, from heavy boxed segments down to a quiet text-only row.</p>
+
+    <div class="states-grid" style="margin-bottom:32px;">
+      <!-- Traditional -->
+      <div class="state-card">
+        <div class="state-preview">
+          <div class="bistab-row bistab-traditional">
+            <div class="tabitem traditional selected">Name</div>
+            <div class="tabitem traditional">Name</div>
+            <div class="tabitem traditional">Name</div>
+            <div class="tabitem traditional">Name</div>
+            <div class="tabitem traditional">Name</div>
+          </div>
+        </div>
+        <div class="state-info">
+          <div class="state-name">Traditional</div>
+          <div class="state-desc">Boxed segmented control. Each tab has a visible 1px border that connects to the next. Heaviest visual weight — best for primary navigation. Height 34px.</div>
+        </div>
+      </div>
+
+      <!-- Floating -->
+      <div class="state-card">
+        <div class="state-preview">
+          <div class="bistab-row bistab-floating">
+            <div class="tabitem floating selected">Name</div>
+            <div class="tabitem floating">Name</div>
+            <div class="tabitem floating">Name</div>
+            <div class="tabitem floating">Name</div>
+            <div class="tabitem floating">Name</div>
+          </div>
+        </div>
+        <div class="state-info">
+          <div class="state-name">Floating</div>
+          <div class="state-desc">No container — only the selected tab gets a 1px outlined pill. Use over content where a heavy frame would feel intrusive. Height 34px (40px with vertical padding).</div>
+        </div>
+      </div>
+
+      <!-- Expanded -->
+      <div class="state-card">
+        <div class="state-preview">
+          <div class="bistab-row bistab-expanded">
+            <div class="tabitem expanded selected">Name</div>
+            <div class="tabitem expanded">Name</div>
+            <div class="tabitem expanded">Name</div>
+            <div class="tabitem expanded">Name</div>
+            <div class="tabitem expanded">Name</div>
+          </div>
+        </div>
+        <div class="state-info">
+          <div class="state-name">Expanded</div>
+          <div class="state-desc">Plain text tabs with a 3px primary underline marking the selected tab. No baseline rule — tabs sit free on the page. Height 42px.</div>
+        </div>
+      </div>
+
+      <!-- Simple -->
+      <div class="state-card">
+        <div class="state-preview">
+          <div class="bistab-row bistab-simple">
+            <div class="tabitem simple selected">Name</div>
+            <div class="tabitem simple">Name</div>
+            <div class="tabitem simple">Name</div>
+            <div class="tabitem simple">Name</div>
+            <div class="tabitem simple">Name</div>
+          </div>
+        </div>
+        <div class="state-info">
+          <div class="state-name">Simple</div>
+          <div class="state-desc">Text tabs over a continuous 1px baseline. Selected tab overlays the baseline with a 3px primary underline. The default for in-page section navigation. Height 38px.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATES & SUB-ELEMENTS -->
+  <section id="states" class="section">
+    <div class="section-eyebrow">Behavior</div>
+    <h2 class="section-heading">States &amp; Sub-Elements</h2>
+    <p class="section-desc">Each tab type supports the same set of states — selected, deselected — and the same two sub-elements: <em>more</em> for overflow and <em>add</em> for creating new tabs. The styling adapts to match the parent type.</p>
+
+    <div class="preview-container" style="margin-bottom:24px;">
+      <div class="preview-canvas" style="background:#f0f4f8;flex-direction:column;align-items:flex-start;gap:32px;padding:32px;">
+        <!-- Traditional row with more + add -->
+        <div style="width:100%;">
+          <div style="font-size:10px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-family:'IBM Plex Sans',sans-serif;">Traditional</div>
+          <div class="bistab-row bistab-traditional" style="margin-bottom:8px;">
+            <div class="tabitem traditional selected">Name</div>
+            <div class="tabitem traditional">Name</div>
+            <div class="tabitem traditional">Name</div>
+            <div class="tabitem traditional more" style="border-left:1px solid #b2b2b3;">1 more...</div>
+            <div class="tabitem traditional add" style="border-left:1px solid #b2b2b3;border-radius:0 4px 4px 0;"><svg viewBox="0 0 14 14"><path d="M7 1v12M1 7h12"/></svg></div>
+          </div>
+        </div>
+        <!-- Floating row with more + add input -->
+        <div style="width:100%;">
+          <div style="font-size:10px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-family:'IBM Plex Sans',sans-serif;">Floating</div>
+          <div class="bistab-row bistab-floating">
+            <div class="tabitem floating selected">Name</div>
+            <div class="tabitem floating">Name</div>
+            <div class="tabitem floating">Name</div>
+            <div class="tabitem floating more selected">1 more...</div>
+            <input class="tab-input" placeholder="New Tab"/>
+          </div>
+        </div>
+        <!-- Expanded row with more + add input -->
+        <div style="width:100%;">
+          <div style="font-size:10px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-family:'IBM Plex Sans',sans-serif;">Expanded</div>
+          <div class="bistab-row bistab-expanded">
+            <div class="tabitem expanded selected">Name</div>
+            <div class="tabitem expanded">Name</div>
+            <div class="tabitem expanded">Name</div>
+            <div class="tabitem expanded more selected">1 more...</div>
+            <div class="tabitem expanded add"><svg viewBox="0 0 14 14"><path d="M7 1v12M1 7h12"/></svg></div>
+            <input class="tab-input" placeholder="New Tab" style="margin-left:8px;"/>
+          </div>
+        </div>
+        <!-- Simple row with more + add input -->
+        <div style="width:100%;">
+          <div style="font-size:10px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-family:'IBM Plex Sans',sans-serif;">Simple</div>
+          <div class="bistab-row bistab-simple">
+            <div class="tabitem simple selected">Name</div>
+            <div class="tabitem simple">Name</div>
+            <div class="tabitem simple">Name</div>
+            <div class="tabitem simple more selected">1 more...</div>
+            <div class="tabitem simple add"><svg viewBox="0 0 14 14"><path d="M7 1v12M1 7h12"/></svg></div>
+            <input class="tab-input" placeholder="New Tab" style="margin-left:8px;"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHEN TO USE -->
+  <section id="usage" class="section">
+    <div class="section-eyebrow">Guidance</div>
+    <h2 class="section-heading">When to Use</h2>
+    <p class="section-desc">Tabs let users switch between sibling views of related content without leaving the page. Pick the type based on visual weight required — heavier types for primary navigation, lighter for in-content section toggles.</p>
+    <div class="usage-cols">
+      <div class="usage-box do">
+        <h4>✅ Use BisTab When</h4>
+        <ul>
+          <li>Switching between sibling views of equal hierarchy</li>
+          <li>Content fits in 2–7 distinct sections</li>
+          <li>Users benefit from seeing all section labels at once</li>
+          <li>State should be preserved when switching between sections</li>
+          <li>Sections share a parent context (settings, profile, report)</li>
+        </ul>
+      </div>
+      <div class="usage-box dont">
+        <h4>❌ Avoid BisTab When</h4>
+        <ul>
+          <li>Sections should appear in a specific order (use steps)</li>
+          <li>There are more than 7 sections (use side nav or dropdown)</li>
+          <li>Sections have a parent-child relationship (use breadcrumbs)</li>
+          <li>The content is a list of filterable items (use Chip)</li>
+          <li>Users only see one section per visit (use Page links)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEASUREMENTS -->
+  <section id="measurements" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Measurements</h2>
+    <p class="section-desc">Heights and padding by type. All values are tokenized — do not stretch or modify.</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Type</th><th>Height</th><th>H Padding</th><th>V Padding</th><th>Indicator</th><th>Border</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Traditional</strong></td><td><span class="value-mono">34px</span></td><td><span class="value-mono">12px</span></td><td><span class="value-mono">4px</span></td><td><span class="value-mono">filled bg + border</span></td><td><span class="value-mono">1px stroke/default</span></td></tr>
+          <tr><td><strong>Floating</strong></td><td><span class="value-mono">34px</span></td><td><span class="value-mono">12px</span></td><td><span class="value-mono">4px</span></td><td><span class="value-mono">outlined pill (selected only)</span></td><td><span class="value-mono">1px stroke/primary (selected)</span></td></tr>
+          <tr><td><strong>Expanded</strong></td><td><span class="value-mono">42px</span></td><td><span class="value-mono">12px</span></td><td><span class="value-mono">8px</span></td><td><span class="value-mono">3px bottom underline</span></td><td><span class="value-mono">none</span></td></tr>
+          <tr><td><strong>Simple</strong></td><td><span class="value-mono">38px</span></td><td><span class="value-mono">12px</span></td><td><span class="value-mono">6px</span></td><td><span class="value-mono">3px bottom underline</span></td><td><span class="value-mono">1px baseline (row)</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="section-desc" style="margin-top:24px;">Spacing between tab items:</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Type</th><th>Gap</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Traditional</strong></td><td><span class="value-mono">0px (shared border)</span></td><td>Borders collapse — use <code style="font-family:monospace;font-size:12px;">margin-left:-1px</code></td></tr>
+          <tr><td><strong>Floating</strong></td><td><span class="value-mono">8px</span></td><td><span class="token-mono">--spacing/small</span></td></tr>
+          <tr><td><strong>Expanded</strong></td><td><span class="value-mono">0px</span></td><td>Padding handles separation</td></tr>
+          <tr><td><strong>Simple</strong></td><td><span class="value-mono">0px</span></td><td>Padding handles separation</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DESIGN TOKENS -->
+  <section id="tokens" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Design Tokens</h2>
+    <p class="section-desc">All color and spacing tokens used in the BisTab component. Pulled from the BIStrainer token library.</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-mono">--color/text/primary</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">#0078b3</span></td><td>Selected tab text (Traditional, Floating); selected underline (Expanded, Simple)</td></tr>
+          <tr><td><span class="token-mono">--color/text/secondary</span></td><td><span class="color-swatch" style="background:#666;"></span><span class="value-mono">#666666</span></td><td>Deselected tab text (all types)</td></tr>
+          <tr><td><span class="token-mono">--color/text/default</span></td><td><span class="color-swatch" style="background:#191919;"></span><span class="value-mono">#191919</span></td><td>Selected tab text (Expanded, Simple)</td></tr>
+          <tr><td><span class="token-mono">--color/surface/default</span></td><td><span class="color-swatch" style="background:#feffff;border-color:#ccc;"></span><span class="value-mono">#feffff</span></td><td>Tab background (Traditional default)</td></tr>
+          <tr><td><span class="token-mono">--color/surface/primary-lightest</span></td><td><span class="color-swatch" style="background:#f2fcff;border-color:#ccc;"></span><span class="value-mono">#f2fcff</span></td><td>Selected tab background (Traditional, Floating)</td></tr>
+          <tr><td><span class="token-mono">--color/stroke/default</span></td><td><span class="color-swatch" style="background:#b2b2b3;"></span><span class="value-mono">#b2b2b3</span></td><td>Tab border (Traditional)</td></tr>
+          <tr><td><span class="token-mono">--color/stroke/default-light</span></td><td><span class="color-swatch" style="background:#e2e2e3;"></span><span class="value-mono">#e2e2e3</span></td><td>Baseline rule (Simple)</td></tr>
+          <tr><td><span class="token-mono">--color/stroke/primary</span></td><td><span class="color-swatch" style="background:#009acb;"></span><span class="value-mono">#009acb</span></td><td>Selected pill border (Floating); selected border (Traditional)</td></tr>
+          <tr><td><span class="token-mono">--spacing/xxSmall</span></td><td><span class="value-mono">4px</span></td><td>Vertical padding (Traditional, Floating)</td></tr>
+          <tr><td><span class="token-mono">--spacing/xSmall</span></td><td><span class="value-mono">6px</span></td><td>Vertical padding (Simple)</td></tr>
+          <tr><td><span class="token-mono">--spacing/small</span></td><td><span class="value-mono">8px</span></td><td>Vertical padding (Expanded); gap between Floating tabs</td></tr>
+          <tr><td><span class="token-mono">--spacing/base</span></td><td><span class="value-mono">12px</span></td><td>Horizontal padding (all types)</td></tr>
+          <tr><td><span class="token-mono">--border-radius/base</span></td><td><span class="value-mono">4px</span></td><td>Tab corners (Traditional outer, Floating)</td></tr>
+          <tr><td><span class="token-mono">--font-size/label/base</span></td><td><span class="value-mono">16px</span></td><td>Tab label size</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TYPOGRAPHY -->
+  <section id="typography" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Typography</h2>
+    <p class="section-desc">Font family: Segoe UI. All tab labels are SemiBold (600). The <em>more</em> sub-element switches to Medium (500) italic to distinguish it from real tabs.</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Element</th><th>Size</th><th>Weight</th><th>Style</th><th>Token</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Tab label</strong></td><td><span class="value-mono">16px</span></td><td><span class="value-mono">600 SemiBold</span></td><td><span class="value-mono">Normal</span></td><td><span class="token-mono">label/base</span></td></tr>
+          <tr><td><strong>More label</strong></td><td><span class="value-mono">16px</span></td><td><span class="value-mono">500 Medium</span></td><td><span class="value-mono">Italic</span></td><td><span class="token-mono">label/base</span></td></tr>
+          <tr><td><strong>Add input</strong></td><td><span class="value-mono">14px</span></td><td><span class="value-mono">400 Regular</span></td><td><span class="value-mono">Normal</span></td><td><span class="token-mono">body/small</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ACCESSIBILITY -->
+  <section id="accessibility" class="section">
+    <div class="section-eyebrow">WCAG Compliance</div>
+    <h2 class="section-heading">Accessibility</h2>
+    <p class="section-desc">BisTab is an interactive navigation pattern. It must follow the WAI-ARIA tabs pattern with full keyboard support and meet WCAG 2.1 AA contrast requirements.</p>
+    <div class="a11y-grid" style="margin-bottom:24px;">
+      <div class="a11y-card">
+        <div class="a11y-label">Roles</div>
+        <p class="a11y-text">Wrap tabs in <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="tablist"</code>. Each tab uses <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="tab"</code> with <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-selected</code> and an associated <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-controls</code> pointing to its panel.</p>
+      </div>
+      <div class="a11y-card warning">
+        <div class="a11y-label">Keyboard</div>
+        <p class="a11y-text"><strong>Tab</strong> moves focus into and out of the tablist. <strong>Left/Right arrows</strong> move between tabs. <strong>Home/End</strong> jump to first/last tab. <strong>Enter/Space</strong> activates a tab. Use a roving <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">tabindex</code>.</p>
+      </div>
+      <div class="a11y-card success">
+        <div class="a11y-label">Focus</div>
+        <p class="a11y-text">Visible 2px focus outline in primary color, 2px offset from the tab edge. Focus indicator must reach 3:1 contrast against the surface behind the tab.</p>
+      </div>
+      <div class="a11y-card warning">
+        <div class="a11y-label">Color Alone</div>
+        <p class="a11y-text">Floating type relies heavily on color + border. Pair with a weight or underline change if used at small sizes. The 3px underline in Expanded/Simple gives non-color reinforcement of selection.</p>
+      </div>
+      <div class="a11y-card">
+        <div class="a11y-label">Add Button</div>
+        <p class="a11y-text">The "+" button needs <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-label="Add tab"</code>. When it transforms into the input, focus moves to the input and the input has its own label ("New tab name").</p>
+      </div>
+      <div class="a11y-card">
+        <div class="a11y-label">More Overflow</div>
+        <p class="a11y-text">"1 more..." should be a button that opens a menu listing the hidden tabs. Use <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-haspopup="menu"</code> and <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-expanded</code>.</p>
+      </div>
+      <div class="a11y-card warning">
+        <div class="a11y-label">Contrast</div>
+        <p class="a11y-text">Secondary text (#666 on #feffff) passes AA at 5.7:1. Selected primary (#0078b3) passes AA at 4.6:1. Verify the 3px underline indicator against the actual page background — light grays may fail 3:1.</p>
+      </div>
+      <div class="a11y-card">
+        <div class="a11y-label">Touch Targets</div>
+        <p class="a11y-text">Minimum 44×44px tap area on touch surfaces. Traditional and Simple types meet this with default padding. Floating may need extra hit padding on mobile.</p>
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">HTML — Accessibility Template</span></div>
+      <div class="code-content"><pre><code><span class="cc">&lt;!-- Tablist --&gt;</span>
+&lt;<span class="cp">div</span> <span class="cv">role</span>=<span class="cs">"tablist"</span> <span class="cv">aria-label</span>=<span class="cs">"Account sections"</span>&gt;
+  &lt;<span class="cp">button</span>
+    <span class="cv">role</span>=<span class="cs">"tab"</span>
+    <span class="cv">id</span>=<span class="cs">"tab-profile"</span>
+    <span class="cv">aria-selected</span>=<span class="cs">"true"</span>
+    <span class="cv">aria-controls</span>=<span class="cs">"panel-profile"</span>
+    <span class="cv">tabindex</span>=<span class="cs">"0"</span>&gt;
+    Profile
+  &lt;/<span class="cp">button</span>&gt;
+  &lt;<span class="cp">button</span>
+    <span class="cv">role</span>=<span class="cs">"tab"</span>
+    <span class="cv">id</span>=<span class="cs">"tab-billing"</span>
+    <span class="cv">aria-selected</span>=<span class="cs">"false"</span>
+    <span class="cv">aria-controls</span>=<span class="cs">"panel-billing"</span>
+    <span class="cv">tabindex</span>=<span class="cs">"-1"</span>&gt;
+    Billing
+  &lt;/<span class="cp">button</span>&gt;
+&lt;/<span class="cp">div</span>&gt;
+
+<span class="cc">&lt;!-- Tab panels --&gt;</span>
+&lt;<span class="cp">div</span>
+  <span class="cv">role</span>=<span class="cs">"tabpanel"</span>
+  <span class="cv">id</span>=<span class="cs">"panel-profile"</span>
+  <span class="cv">aria-labelledby</span>=<span class="cs">"tab-profile"</span>&gt;
+  ...
+&lt;/<span class="cp">div</span>&gt;</code></pre></div>
+    </div>
+  </section>
+
+  <!-- PROPS API -->
+  <section id="props" class="section">
+    <div class="section-eyebrow">Implementation</div>
+    <h2 class="section-heading">Props API</h2>
+    <p class="section-desc">Full prop reference for the BisTab and BisTabItem React components.</p>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">BisTab (container)</h3>
+    <div class="preview-container" style="margin-bottom:32px;">
+      <table class="spec-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-mono">type</span></td><td><span class="value-mono">"traditional" | "floating" | "expanded" | "simple"</span></td><td><span class="tag-pill tag-default">"simple"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Visual variant for the entire tab row</td></tr>
+          <tr><td><span class="token-mono">value</span></td><td><span class="value-mono">string</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-required">required</span></td><td>The id of the currently selected tab</td></tr>
+          <tr><td><span class="token-mono">onChange</span></td><td><span class="value-mono">(value: string) =&gt; void</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-required">required</span></td><td>Called when a tab is activated</td></tr>
+          <tr><td><span class="token-mono">onAdd</span></td><td><span class="value-mono">(label: string) =&gt; void</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Provided to enable the "+" add button</td></tr>
+          <tr><td><span class="token-mono">overflow</span></td><td><span class="value-mono">"hide" | "menu"</span></td><td><span class="tag-pill tag-default">"menu"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>How to handle tabs that don't fit. "menu" shows the "1 more..." popover.</td></tr>
+          <tr><td><span class="token-mono">ariaLabel</span></td><td><span class="value-mono">string</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-required">required</span></td><td>Accessible label for the tablist</td></tr>
+          <tr><td><span class="token-mono">className</span></td><td><span class="value-mono">string</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Additional CSS class names</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">BisTabItem (child)</h3>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-mono">id</span></td><td><span class="value-mono">string</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-required">required</span></td><td>Unique identifier — matched against parent's <code style="font-family:monospace;font-size:11px;">value</code></td></tr>
+          <tr><td><span class="token-mono">label</span></td><td><span class="value-mono">string</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-required">required</span></td><td>Visible tab text</td></tr>
+          <tr><td><span class="token-mono">disabled</span></td><td><span class="value-mono">boolean</span></td><td><span class="tag-pill tag-default">false</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Disables the tab. Skipped during keyboard arrow navigation.</td></tr>
+          <tr><td><span class="token-mono">badge</span></td><td><span class="value-mono">number | string</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Optional badge / count rendered after the label</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CODE EXAMPLES -->
+  <section id="code" class="section">
+    <div class="section-eyebrow">Code</div>
+    <h2 class="section-heading">Code Examples</h2>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">TypeScript Interface</h3>
+    <div class="code-block" style="margin-bottom:28px;">
+      <div class="code-header"><span class="code-lang">TypeScript</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code><span class="ck">type</span> BisTabType = <span class="cs">"traditional"</span> | <span class="cs">"floating"</span> | <span class="cs">"expanded"</span> | <span class="cs">"simple"</span>;
+
+<span class="ck">interface</span> BisTabProps {
+  type?: BisTabType;            <span class="cc">// default: "simple"</span>
+  value: <span class="ck">string</span>;               <span class="cc">// id of selected tab</span>
+  onChange: (value: <span class="ck">string</span>) => <span class="ck">void</span>;
+  onAdd?: (label: <span class="ck">string</span>) => <span class="ck">void</span>;
+  overflow?: <span class="cs">"hide"</span> | <span class="cs">"menu"</span>; <span class="cc">// default: "menu"</span>
+  ariaLabel: <span class="ck">string</span>;
+  className?: <span class="ck">string</span>;
+  children: ReactElement&lt;BisTabItemProps&gt;[];
+}
+
+<span class="ck">interface</span> BisTabItemProps {
+  id: <span class="ck">string</span>;                  <span class="cc">// required, unique within row</span>
+  label: <span class="ck">string</span>;
+  disabled?: <span class="ck">boolean</span>;
+  badge?: <span class="ck">number</span> | <span class="ck">string</span>;
+}</code></pre></div>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">Basic Tabs (Simple type)</h3>
+    <div class="code-block" style="margin-bottom:28px;">
+      <div class="code-header"><span class="code-lang">React / TSX</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code><span class="ck">const</span> [active, setActive] = useState(<span class="cs">"profile"</span>);
+
+&lt;<span class="cp">BisTab</span>
+  <span class="cv">type</span>=<span class="cs">"simple"</span>
+  <span class="cv">value</span>={active}
+  <span class="cv">onChange</span>={setActive}
+  <span class="cv">ariaLabel</span>=<span class="cs">"Account sections"</span>
+&gt;
+  &lt;<span class="cp">BisTabItem</span> <span class="cv">id</span>=<span class="cs">"profile"</span> <span class="cv">label</span>=<span class="cs">"Profile"</span> /&gt;
+  &lt;<span class="cp">BisTabItem</span> <span class="cv">id</span>=<span class="cs">"billing"</span> <span class="cv">label</span>=<span class="cs">"Billing"</span> /&gt;
+  &lt;<span class="cp">BisTabItem</span> <span class="cv">id</span>=<span class="cs">"security"</span> <span class="cv">label</span>=<span class="cs">"Security"</span> /&gt;
+&lt;/<span class="cp">BisTab</span>&gt;</code></pre></div>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">Tabs with Add &amp; Overflow</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">React / TSX</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code><span class="ck">const</span> [tabs, setTabs] = useState([
+  { id: <span class="cs">"sheet-1"</span>, label: <span class="cs">"Q1 Report"</span> },
+  { id: <span class="cs">"sheet-2"</span>, label: <span class="cs">"Q2 Report"</span> },
+]);
+<span class="ck">const</span> [active, setActive] = useState(<span class="cs">"sheet-1"</span>);
+
+<span class="ck">const</span> handleAdd = (label: <span class="ck">string</span>) => {
+  <span class="ck">const</span> id = <span class="cs">`sheet-</span>${tabs.length + 1}<span class="cs">`</span>;
+  setTabs([...tabs, { id, label }]);
+  setActive(id);
+};
+
+&lt;<span class="cp">BisTab</span>
+  <span class="cv">type</span>=<span class="cs">"floating"</span>
+  <span class="cv">value</span>={active}
+  <span class="cv">onChange</span>={setActive}
+  <span class="cv">onAdd</span>={handleAdd}
+  <span class="cv">overflow</span>=<span class="cs">"menu"</span>
+  <span class="cv">ariaLabel</span>=<span class="cs">"Report sheets"</span>
+&gt;
+  {tabs.map(t => (
+    &lt;<span class="cp">BisTabItem</span> <span class="cv">key</span>={t.id} <span class="cv">id</span>={t.id} <span class="cv">label</span>={t.label} /&gt;
+  ))}
+&lt;/<span class="cp">BisTab</span>&gt;</code></pre></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- PROPS PANEL -->
+<aside class="props-panel">
+  <h2 class="props-title">Properties</h2>
+  <div class="prop-group">
+    <div class="prop-group-title">Variant</div>
+    <div class="prop-item">
+      <div class="prop-label">Type</div>
+      <select class="prop-select" id="sType" onchange="render()">
+        <option value="traditional">Traditional</option>
+        <option value="floating">Floating</option>
+        <option value="expanded">Expanded</option>
+        <option value="simple" selected>Simple</option>
+      </select>
+    </div>
+    <div class="prop-item">
+      <div class="prop-label">Tab count</div>
+      <select class="prop-select" id="sCount" onchange="render()">
+        <option value="3">3 tabs</option>
+        <option value="5" selected>5 tabs</option>
+        <option value="7">7 tabs</option>
+      </select>
+    </div>
+    <div class="prop-item">
+      <div class="prop-label">Selected index</div>
+      <select class="prop-select" id="sSelected" onchange="render()">
+        <option value="0" selected>First</option>
+        <option value="1">Second</option>
+        <option value="2">Third</option>
+      </select>
+    </div>
+  </div>
+  <div class="prop-group">
+    <div class="prop-group-title">Sub-elements</div>
+    <div class="prop-item">
+      <div class="prop-toggle" onclick="toggle('tMore')">
+        <span class="prop-toggle-label">Show "1 more..."</span>
+        <div class="toggle-switch" id="tMore"></div>
+      </div>
+    </div>
+    <div class="prop-item">
+      <div class="prop-toggle" onclick="toggle('tAdd')">
+        <span class="prop-toggle-label">Show + add</span>
+        <div class="toggle-switch" id="tAdd"></div>
+      </div>
+    </div>
+  </div>
+  <div class="divider-line"></div>
+  <div style="font-size:11px;color:var(--doc-text-muted);line-height:1.7;">
+    <strong style="color:var(--doc-text);display:block;margin-bottom:6px;">Quick Rules</strong>
+    Only one tab selected at a time<br>
+    Use Simple for in-page section navigation<br>
+    Use Traditional for primary navigation<br>
+    Don't mix types in the same view
+  </div>
+</aside>
+</div>
+
+<script>
+function nav(el,id){document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));el.classList.add('active');document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});}
+function toggle(id){document.getElementById(id).classList.toggle('on');render();}
+function on(id){return document.getElementById(id).classList.contains('on');}
+function setBg(mode,el){document.querySelectorAll('.preview-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');const c=document.getElementById('previewCanvas');mode==='dark'?c.classList.add('dark'):c.classList.remove('dark');render();}
+
+function render(){
+  const type=document.getElementById('sType').value;
+  const count=parseInt(document.getElementById('sCount').value,10);
+  const selectedIdx=parseInt(document.getElementById('sSelected').value,10);
+  const showMore=on('tMore');
+  const showAdd=on('tAdd');
+
+  const labels=['Profile','Billing','Security','Team','API','Audit','Settings'].slice(0,count);
+
+  let row='<div class="bistab-row bistab-'+type+'">';
+  labels.forEach((label,i)=>{
+    const sel=i===selectedIdx?' selected':'';
+    row+='<div class="tabitem '+type+sel+'">'+label+'</div>';
+  });
+  if(showMore){
+    const sel=type==='floating'||type==='expanded'||type==='simple'?' selected':'';
+    let extra='';
+    if(type==='traditional')extra=' style="border-left:1px solid #b2b2b3;"';
+    row+='<div class="tabitem '+type+' more'+sel+'"'+extra+'>1 more...</div>';
+  }
+  if(showAdd){
+    let extra='';
+    if(type==='traditional')extra=' style="border-left:1px solid #b2b2b3;border-radius:0 4px 4px 0;"';
+    row+='<div class="tabitem '+type+' add"'+extra+'><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 1v12M1 7h12"/></svg></div>';
+  }
+  row+='</div>';
+
+  document.getElementById('tabPreview').innerHTML=row;
+}
+
+render();
+</script>
+</body>
+</html>

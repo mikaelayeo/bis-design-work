@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chip | Design System Documentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Component tokens */
+      --color-primary: #0078b3;
+      --color-primary-lighter: #c9effa;
+      --color-primary-lightest: #f2fcff;
+      --color-secondary: #666666;
+      --color-secondary-lightest: #f2f2f2;
+      --color-success: #28a745;
+      --color-success-lightest: #f0fff4;
+      --color-error: #c22222;
+      --color-error-lightest: #fff2f2;
+      --color-warning: #a1851f;
+      --color-warning-lightest: #fffbf0;
+      --color-orange: #c45c00;
+      --color-orange-lightest: #fff6ef;
+      --color-navy: #1a3a5c;
+      --color-navy-lightest: #f0f4f8;
+      --color-surface-default: #feffff;
+      --color-stroke-default: #b2b2b3;
+      --color-text-default: #191919;
+      --border-radius-base: 4px;
+      --border-radius-circular: 100px;
+      --spacing-xxsmall: 4px;
+      --spacing-xsmall: 6px;
+      /* Doc chrome */
+      --doc-bg: #0d0d0d;
+      --doc-surface: #1a1a1a;
+      --doc-surface-elevated: #242424;
+      --doc-border: #333;
+      --doc-text: #e5e5e5;
+      --doc-text-muted: #888;
+      --doc-accent: #0078b3;
+      --doc-accent-alt: #009acb;
+      --doc-accent-soft: rgba(0,120,179,0.15);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'IBM Plex Sans',sans-serif;background:var(--doc-bg);color:var(--doc-text);line-height:1.6;}
+    .doc-container{display:grid;grid-template-columns:280px 1fr 320px;min-height:100vh;}
+
+    /* SIDEBAR */
+    .sidebar{background:var(--doc-surface);border-right:1px solid var(--doc-border);padding:32px 24px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .logo{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--doc-accent);margin-bottom:6px;}
+    .component-name{font-size:26px;font-weight:700;margin-bottom:8px;line-height:1.2;}
+    .component-tag{display:inline-block;font-size:11px;font-weight:500;background:var(--doc-accent-soft);color:var(--doc-accent);padding:3px 10px;border-radius:20px;margin-bottom:28px;}
+    .nav-section{margin-bottom:24px;}
+    .nav-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-text-muted);margin-bottom:8px;padding:0 12px;}
+    .nav-link{display:block;width:100%;text-align:left;padding:7px 12px;color:var(--doc-text-muted);border-radius:6px;font-size:13px;background:transparent;border:none;cursor:pointer;transition:all .15s ease;margin-bottom:1px;font-family:inherit;}
+    .nav-link:hover{background:var(--doc-surface-elevated);color:var(--doc-text);}
+    .nav-link.active{background:var(--doc-accent-soft);color:var(--doc-accent);font-weight:500;}
+
+    /* MAIN */
+    .main-content{padding:48px;overflow-y:auto;max-width:900px;}
+    .section{margin-bottom:72px;}
+    .section-eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-accent);margin-bottom:10px;}
+    .section-heading{font-size:30px;font-weight:700;margin-bottom:12px;line-height:1.2;}
+    .section-desc{color:var(--doc-text-muted);font-size:15px;max-width:620px;margin-bottom:32px;line-height:1.7;}
+
+    /* PREVIEW */
+    .preview-container{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:12px;overflow:hidden;margin-bottom:32px;}
+    .preview-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--doc-border);background:var(--doc-surface-elevated);}
+    .preview-tabs{display:flex;gap:4px;}
+    .preview-tab{padding:6px 14px;background:transparent;border:none;color:var(--doc-text-muted);font-size:12px;font-weight:500;cursor:pointer;border-radius:6px;transition:all .15s ease;font-family:inherit;}
+    .preview-tab:hover{color:var(--doc-text);}
+    .preview-tab.active{color:var(--doc-accent);background:var(--doc-accent-soft);}
+    .preview-canvas{padding:36px 32px;display:flex;align-items:center;justify-content:center;min-height:200px;background:#e8edf2;gap:12px;flex-wrap:wrap;}
+    .preview-canvas.dark{background:#111;}
+
+    /* CHIP COMPONENT */
+    .chip{
+      display:inline-flex;align-items:center;justify-content:center;
+      gap:var(--spacing-xsmall);
+      padding:var(--spacing-xxsmall) var(--spacing-xsmall);
+      border:1px solid var(--color-stroke-default);
+      border-radius:var(--border-radius-base);
+      background:var(--color-surface-default);
+      font-family:'Segoe UI',sans-serif;
+      font-size:14px;font-weight:600;line-height:18px;
+      white-space:nowrap;
+      cursor:default;
+      transition:background .15s, border-color .15s;
+    }
+    .chip.circular{border-radius:var(--border-radius-circular);}
+    .chip.size-small{font-size:12px;line-height:16px;padding:2px 5px;gap:4px;}
+    .chip.interactive{cursor:pointer;}
+    .chip.interactive:hover{filter:brightness(0.97);}
+
+    /* Chip colors - default state */
+    .chip-primary{color:#0078b3;}
+    .chip-secondary{color:#666666;}
+    .chip-green{color:#28a745;}
+    .chip-yellow{color:#a1851f;}
+    .chip-red{color:#c22222;}
+
+    /* Chip colors - selected state */
+    .chip-primary.selected{background:#c9effa;color:#0078b3;border-color:#b2b2b3;}
+    .chip-secondary.selected{background:#e2e2e3;color:#666666;border-color:#b2b2b3;}
+    .chip-green.selected{background:#d4edda;color:#28a745;border-color:#b2b2b3;}
+    .chip-yellow.selected{background:#fff3cd;color:#a1851f;border-color:#b2b2b3;}
+    .chip-red.selected{background:#fde8e8;color:#c22222;border-color:#b2b2b3;}
+
+    /* Dismiss icon */
+    .chip-dismiss{width:10px;height:10px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;opacity:.7;}
+    .chip-dismiss:hover{opacity:1;}
+    .chip-dismiss svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;}
+
+    /* Check icon */
+    .chip-check{width:12px;height:10px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .chip-check svg{width:12px;height:10px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+    /* STATES GRID */
+    .states-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+    .state-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;overflow:hidden;}
+    .state-preview{background:#e8edf2;padding:24px;display:flex;justify-content:center;align-items:center;min-height:120px;gap:8px;flex-wrap:wrap;}
+    .state-info{padding:14px 16px;border-top:1px solid var(--doc-border);}
+    .state-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+    .state-desc{font-size:12px;color:var(--doc-text-muted);}
+
+    /* TABLES */
+    .spec-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .spec-table th{text-align:left;padding:11px 14px;background:var(--doc-surface-elevated);border-bottom:1px solid var(--doc-border);font-weight:600;color:var(--doc-text-muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+    .spec-table td{padding:11px 14px;border-bottom:1px solid var(--doc-border);vertical-align:top;color:var(--doc-text);}
+    .spec-table tr:last-child td{border-bottom:none;}
+    .token-mono{font-family:'IBM Plex Mono',monospace;color:var(--doc-accent-alt);font-size:12px;}
+    .value-mono{font-family:'IBM Plex Mono',monospace;color:var(--doc-text-muted);font-size:12px;}
+    .color-swatch{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:8px;vertical-align:middle;border:1px solid rgba(255,255,255,.15);}
+    .tag-pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;}
+    .tag-required{background:rgba(194,34,34,.15);color:#ff7272;}
+    .tag-optional{background:rgba(0,154,203,.15);color:var(--doc-accent-alt);}
+    .tag-default{background:rgba(255,255,255,.07);color:var(--doc-text-muted);}
+
+    /* A11Y */
+    .a11y-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+    .a11y-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:16px 18px;border-left:3px solid var(--doc-accent);}
+    .a11y-card.warning{border-left-color:#b8880a;}
+    .a11y-card.success{border-left-color:#28a745;}
+    .a11y-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--doc-accent);margin-bottom:6px;}
+    .a11y-card.warning .a11y-label{color:#b8880a;}
+    .a11y-card.success .a11y-label{color:#28a745;}
+    .a11y-text{font-size:13px;color:var(--doc-text-muted);line-height:1.6;}
+
+    /* CODE */
+    .code-block{background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:8px;overflow:hidden;}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--doc-border);background:var(--doc-surface);}
+    .code-lang{font-size:11px;color:var(--doc-text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+    .code-copy{padding:5px 12px;background:var(--doc-accent-soft);border:none;border-radius:4px;color:var(--doc-accent);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+    .code-copy:hover{background:var(--doc-accent);color:#fff;}
+    .code-content{padding:16px;overflow-x:auto;}
+    .code-content pre{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;color:var(--doc-text);margin:0;}
+    .ck{color:#c792ea;}.cs{color:#c3e88d;}.cc{color:#546e7a;font-style:italic;}.cp{color:#82aaff;}.cv{color:#ffcb6b;}
+
+    /* INFO CARDS */
+    .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;}
+    .info-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:16px;}
+    .info-num{width:22px;height:22px;background:var(--doc-accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;margin-bottom:8px;}
+    .info-title{font-weight:600;font-size:14px;margin-bottom:4px;}
+    .info-desc{font-size:12px;color:var(--doc-text-muted);line-height:1.6;}
+
+    /* USAGE */
+    .usage-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .usage-box{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:20px 24px;margin-bottom:16px;}
+    .usage-box h4{font-size:14px;font-weight:600;margin-bottom:8px;}
+    .usage-box ul{list-style:none;padding:0;}
+    .usage-box li{font-size:13px;color:var(--doc-text-muted);padding:4px 0;display:flex;align-items:flex-start;gap:8px;}
+    .usage-box li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--doc-accent);margin-top:7px;flex-shrink:0;}
+    .usage-box.do{border-left:3px solid #28a745;}
+    .usage-box.dont{border-left:3px solid #c22222;}
+    .usage-box.do h4{color:#28a745;}
+    .usage-box.dont h4{color:#c22222;}
+    .usage-box.do li::before{background:#28a745;}
+    .usage-box.dont li::before{background:#c22222;}
+
+    /* COLOR MATRIX */
+    .color-matrix{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+    .color-col{display:flex;flex-direction:column;gap:8px;align-items:center;}
+    .color-label{font-size:10px;color:var(--doc-text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+
+    /* PROPS PANEL */
+    .props-panel{background:var(--doc-surface);border-left:1px solid var(--doc-border);padding:32px 24px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .props-title{font-size:15px;font-weight:600;margin-bottom:24px;display:flex;align-items:center;gap:8px;}
+    .props-title::before{content:'';width:8px;height:8px;background:var(--doc-accent);border-radius:2px;}
+    .prop-group{margin-bottom:24px;}
+    .prop-group-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-text-muted);margin-bottom:10px;}
+    .prop-item{margin-bottom:12px;}
+    .prop-label{font-size:12px;color:var(--doc-text-muted);margin-bottom:5px;}
+    .prop-select{width:100%;padding:9px 12px;background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:6px;color:var(--doc-text);font-size:12px;cursor:pointer;outline:none;font-family:inherit;}
+    .prop-select:focus{border-color:var(--doc-accent);}
+    .prop-toggle{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:6px;cursor:pointer;}
+    .prop-toggle-label{font-size:12px;}
+    .toggle-switch{position:relative;width:36px;height:20px;background:var(--doc-border);border-radius:10px;cursor:pointer;transition:background .2s ease;flex-shrink:0;}
+    .toggle-switch.on{background:var(--doc-accent);}
+    .toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s ease;}
+    .toggle-switch.on::after{transform:translateX(16px);}
+    .divider-line{height:1px;background:var(--doc-border);margin:20px 0;}
+
+    @media(max-width:1400px){.doc-container{grid-template-columns:240px 1fr 290px;}}
+    @media(max-width:1100px){.doc-container{grid-template-columns:1fr;}.sidebar,.props-panel{display:none;}.states-grid{grid-template-columns:1fr;}.a11y-grid{grid-template-columns:1fr;}.info-grid{grid-template-columns:1fr 1fr;}.usage-cols{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<div class="doc-container">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">Design System</div>
+  <h1 class="component-name">Chip</h1>
+  <span class="component-tag">Interactive · Filter</span>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-title">Overview</div>
+      <button class="nav-link active" onclick="nav(this,'playground')">Interactive Playground</button>
+      <button class="nav-link" onclick="nav(this,'anatomy')">Anatomy</button>
+      <button class="nav-link" onclick="nav(this,'types')">Chip Types</button>
+      <button class="nav-link" onclick="nav(this,'colors')">Colors &amp; States</button>
+      <button class="nav-link" onclick="nav(this,'usage')">When to Use</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Specifications</div>
+      <button class="nav-link" onclick="nav(this,'measurements')">Measurements</button>
+      <button class="nav-link" onclick="nav(this,'tokens')">Design Tokens</button>
+      <button class="nav-link" onclick="nav(this,'typography')">Typography</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Implementation</div>
+      <button class="nav-link" onclick="nav(this,'accessibility')">Accessibility</button>
+      <button class="nav-link" onclick="nav(this,'props')">Props API</button>
+      <button class="nav-link" onclick="nav(this,'code')">Code Examples</button>
+    </div>
+  </nav>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+  <!-- PLAYGROUND -->
+  <section id="playground" class="section">
+    <div class="section-eyebrow">Interactive</div>
+    <h2 class="section-heading">Playground</h2>
+    <p class="section-desc">Configure the Chip component using the properties panel on the right. Toggle between types, colors, shapes, and sizes to see live results.</p>
+    <div class="preview-container">
+      <div class="preview-header">
+        <div class="preview-tabs">
+          <button class="preview-tab active" onclick="setBg('light',this)">Light</button>
+          <button class="preview-tab" onclick="setBg('dark',this)">Dark</button>
+        </div>
+        <span style="font-size:11px;color:var(--doc-text-muted);">Live Preview</span>
+      </div>
+      <div class="preview-canvas" id="previewCanvas">
+        <div id="chipPreview"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANATOMY -->
+  <section id="anatomy" class="section">
+    <div class="section-eyebrow">Structure</div>
+    <h2 class="section-heading">Anatomy</h2>
+    <p class="section-desc">A chip has a container with optional leading icon, label text, and optional trailing dismiss icon. Not all parts are required — the label is the only mandatory element.</p>
+    <div class="preview-container">
+      <div class="preview-canvas" style="background:#f0f4f8;min-height:200px;padding:40px;">
+        <svg width="480" height="120" viewBox="0 0 480 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- chip body -->
+          <rect x="140" y="37" width="200" height="46" rx="4" fill="white" stroke="#b2b2b3"/>
+          <!-- leading icon zone -->
+          <rect x="150" y="47" width="24" height="26" rx="3" fill="#0078b3" fill-opacity=".1" stroke="#0078b3" stroke-dasharray="3 2"/>
+          <!-- check mark approx -->
+          <path d="M155 61 L159 65 L167 57" stroke="#0078b3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- label zone -->
+          <rect x="182" y="47" width="100" height="26" rx="3" fill="#0078b3" fill-opacity=".06" stroke="#0078b3" stroke-dasharray="3 2"/>
+          <text x="232" y="64" font-size="11" fill="#0078b3" text-anchor="middle" font-family="IBM Plex Sans" font-weight="600">Label</text>
+          <!-- dismiss zone -->
+          <rect x="290" y="47" width="40" height="26" rx="3" fill="#0078b3" fill-opacity=".08" stroke="#0078b3" stroke-dasharray="3 2"/>
+          <line x1="299" y1="56" x2="307" y2="64" stroke="#0078b3" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="307" y1="56" x2="299" y2="64" stroke="#0078b3" stroke-width="1.5" stroke-linecap="round"/>
+          <!-- callout lines -->
+          <line x1="162" y1="37" x2="162" y2="20" stroke="#0078b3" stroke-dasharray="2 1"/>
+          <circle cx="162" cy="12" r="9" fill="#0078b3"/>
+          <text x="162" y="16" font-size="8" fill="white" text-anchor="middle">①</text>
+          <line x1="232" y1="37" x2="232" y2="20" stroke="#0078b3" stroke-dasharray="2 1"/>
+          <circle cx="232" cy="12" r="9" fill="#0078b3"/>
+          <text x="232" y="16" font-size="8" fill="white" text-anchor="middle">②</text>
+          <line x1="310" y1="37" x2="310" y2="20" stroke="#0078b3" stroke-dasharray="2 1"/>
+          <circle cx="310" cy="12" r="9" fill="#0078b3"/>
+          <text x="310" y="16" font-size="8" fill="white" text-anchor="middle">③</text>
+          <!-- border-radius callout -->
+          <line x1="340" y1="83" x2="360" y2="83" stroke="#888" stroke-dasharray="2 1"/>
+          <text x="365" y="87" font-size="10" fill="#888" font-family="IBM Plex Sans">border-radius: 4px (box) · 100px (circular)</text>
+        </svg>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-card"><div class="info-num">1</div><div class="info-title">Leading Icon</div><p class="info-desc">Optional. Used in selectable chips to show a checkmark when selected. 14×10px icon.</p></div>
+      <div class="info-card"><div class="info-num">2</div><div class="info-title">Label</div><p class="info-desc">Required. 14px SemiBold Segoe UI. Keep to 1–2 words. Colored to match chip's semantic color.</p></div>
+      <div class="info-card"><div class="info-num">3</div><div class="info-title">Dismiss Icon</div><p class="info-desc">Optional. Present on Dismissible chips only. 10×10px ×. Clicking immediately removes the chip.</p></div>
+    </div>
+  </section>
+
+  <!-- CHIP TYPES -->
+  <section id="types" class="section">
+    <div class="section-eyebrow">Variants</div>
+    <h2 class="section-heading">Chip Types</h2>
+    <p class="section-desc">There are two functional chip types — Dismissible and Selectable — plus two shape variants (Box and Circular) and two sizes (Regular and Small).</p>
+
+    <div class="states-grid" style="margin-bottom:32px;">
+      <!-- Dismissible -->
+      <div class="state-card">
+        <div class="state-preview" style="flex-direction:column;align-items:flex-start;gap:10px;padding:24px 32px;">
+          <div class="chip chip-primary">
+            Name
+            <span class="chip-dismiss"><svg viewBox="0 0 10 10"><path d="M1 1 L9 9 M9 1 L1 9"/></svg></span>
+          </div>
+          <div class="chip chip-primary circular">
+            Name
+            <span class="chip-dismiss"><svg viewBox="0 0 10 10"><path d="M1 1 L9 9 M9 1 L1 9"/></svg></span>
+          </div>
+        </div>
+        <div class="state-info">
+          <div class="state-name">Dismissible Chip</div>
+          <div class="state-desc">Represents an applied value that can be removed. Includes a trailing × icon. Use for active filters, tags, selections. Not clickable as a whole unless explicitly defined.</div>
+        </div>
+      </div>
+
+      <!-- Selectable -->
+      <div class="state-card">
+        <div class="state-preview" style="flex-direction:column;align-items:flex-start;gap:10px;padding:24px 32px;">
+          <div class="chip chip-primary interactive">Unselected</div>
+          <div class="chip chip-primary selected interactive">
+            <span class="chip-check"><svg viewBox="0 0 12 10"><path d="M1 5.5l3.5 3.5 6-7"/></svg></span>
+            Selected
+          </div>
+        </div>
+        <div class="state-info">
+          <div class="state-name">Selectable Chip</div>
+          <div class="state-desc">A toggleable option within a set. Supports selected/unselected states. Shows a leading checkmark when selected. Use for multi-select filters or category toggles.</div>
+        </div>
+      </div>
+
+      <!-- Box shape -->
+      <div class="state-card">
+        <div class="state-preview" style="gap:8px;">
+          <div class="chip chip-primary" style="font-size:14px;">Regular</div>
+          <div class="chip chip-primary size-small">Small</div>
+        </div>
+        <div class="state-info">
+          <div class="state-name">Box Shape</div>
+          <div class="state-desc">border-radius: 4px. Default shape. Used in most contexts. Available in regular (26px tall) and small (20px tall) sizes.</div>
+        </div>
+      </div>
+
+      <!-- Circular shape -->
+      <div class="state-card">
+        <div class="state-preview" style="gap:8px;">
+          <div class="chip chip-primary circular" style="font-size:14px;">Regular</div>
+          <div class="chip chip-primary circular size-small">Small</div>
+        </div>
+        <div class="state-info">
+          <div class="state-name">Circular Shape</div>
+          <div class="state-desc">border-radius: 100px (pill). Use for a softer, more tag-like appearance. Same size variants as Box shape.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COLORS & STATES -->
+  <section id="colors" class="section">
+    <div class="section-eyebrow">Visual Language</div>
+    <h2 class="section-heading">Colors &amp; States</h2>
+    <p class="section-desc">Chips come in 5 semantic colors. Each color has a Default and Selected state. The background changes on selection; the text color remains consistent.</p>
+
+    <div class="preview-container" style="margin-bottom:28px;">
+      <div class="preview-canvas" style="background:#f0f4f8;gap:24px;flex-direction:column;">
+        <div style="display:flex;gap:24px;align-items:center;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div style="font-size:10px;color:#666;font-family:IBM Plex Sans;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Default</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <div class="chip chip-primary">Primary</div>
+              <div class="chip chip-secondary">Secondary</div>
+              <div class="chip chip-green">Green</div>
+              <div class="chip chip-yellow">Yellow</div>
+              <div class="chip chip-red">Red</div>
+            </div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:10px;color:#666;font-family:IBM Plex Sans;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Selected</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <div class="chip chip-primary selected"><span class="chip-check"><svg viewBox="0 0 12 10"><path d="M1 5.5l3.5 3.5 6-7" stroke="#0078b3" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Primary</div>
+              <div class="chip chip-secondary selected"><span class="chip-check"><svg viewBox="0 0 12 10"><path d="M1 5.5l3.5 3.5 6-7" stroke="#666" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Secondary</div>
+              <div class="chip chip-green selected"><span class="chip-check"><svg viewBox="0 0 12 10"><path d="M1 5.5l3.5 3.5 6-7" stroke="#28a745" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Green</div>
+              <div class="chip chip-yellow selected"><span class="chip-check"><svg viewBox="0 0 12 10"><path d="M1 5.5l3.5 3.5 6-7" stroke="#a1851f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Yellow</div>
+              <div class="chip chip-red selected"><span class="chip-check"><svg viewBox="0 0 12 10"><path d="M1 5.5l3.5 3.5 6-7" stroke="#c22222" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Red</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Color</th><th>Default bg</th><th>Selected bg</th><th>Text color</th><th>Token (text)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Primary</strong></td><td><span class="color-swatch" style="background:#feffff;border-color:#ccc;"></span><span class="value-mono">#feffff</span></td><td><span class="color-swatch" style="background:#c9effa;"></span><span class="value-mono">#c9effa</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">#0078b3</span></td><td><span class="token-mono">--color/text/primary</span></td></tr>
+          <tr><td><strong>Secondary</strong></td><td><span class="color-swatch" style="background:#feffff;border-color:#ccc;"></span><span class="value-mono">#feffff</span></td><td><span class="color-swatch" style="background:#e2e2e3;"></span><span class="value-mono">#e2e2e3</span></td><td><span class="color-swatch" style="background:#666;"></span><span class="value-mono">#666666</span></td><td><span class="token-mono">--color/text/secondary</span></td></tr>
+          <tr><td><strong>Green</strong></td><td><span class="color-swatch" style="background:#feffff;border-color:#ccc;"></span><span class="value-mono">#feffff</span></td><td><span class="color-swatch" style="background:#d4edda;"></span><span class="value-mono">#d4edda</span></td><td><span class="color-swatch" style="background:#28a745;"></span><span class="value-mono">#28a745</span></td><td><span class="token-mono">--color/text/success</span></td></tr>
+          <tr><td><strong>Yellow</strong></td><td><span class="color-swatch" style="background:#feffff;border-color:#ccc;"></span><span class="value-mono">#feffff</span></td><td><span class="color-swatch" style="background:#fff3cd;"></span><span class="value-mono">#fff3cd</span></td><td><span class="color-swatch" style="background:#a1851f;"></span><span class="value-mono">#a1851f</span></td><td><span class="token-mono">--color/text/warning</span></td></tr>
+          <tr><td><strong>Red</strong></td><td><span class="color-swatch" style="background:#feffff;border-color:#ccc;"></span><span class="value-mono">#feffff</span></td><td><span class="color-swatch" style="background:#fde8e8;"></span><span class="value-mono">#fde8e8</span></td><td><span class="color-swatch" style="background:#c22222;"></span><span class="value-mono">#c22222</span></td><td><span class="token-mono">--color/text/error</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- WHEN TO USE -->
+  <section id="usage" class="section">
+    <div class="section-eyebrow">Guidance</div>
+    <h2 class="section-heading">When to Use</h2>
+    <p class="section-desc">Chips are designed for high-density, interactive labeling scenarios. Use them when users need to see, apply, or remove discrete items without navigating away.</p>
+    <div class="usage-cols">
+      <div class="usage-box do">
+        <h4>✅ Use Chips When</h4>
+        <ul>
+          <li>Information is short and categorical</li>
+          <li>Multiple items must be visible simultaneously</li>
+          <li>Quick selection or removal is important</li>
+          <li>Displaying active filters or applied tags</li>
+          <li>Multi-select options in a compact space (2–10 items)</li>
+        </ul>
+      </div>
+      <div class="usage-box dont">
+        <h4>❌ Avoid Chips When</h4>
+        <ul>
+          <li>Labels are long (more than 2–3 words)</li>
+          <li>Hierarchy or deep navigation is required</li>
+          <li>Actions are high-risk or complex</li>
+          <li>There are more than ~10 options (use dropdown)</li>
+          <li>The element is purely informational (use Badge instead)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- MEASUREMENTS -->
+  <section id="measurements" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Measurements</h2>
+    <p class="section-desc">Chip dimensions by size. All measurements are fixed — do not stretch or modify these dimensions.</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Element</th><th>Property</th><th>Regular</th><th>Small</th><th>Token</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Container</strong></td><td>Height</td><td><span class="value-mono">26px</span></td><td><span class="value-mono">20px</span></td><td><span class="token-mono">-</span></td></tr>
+          <tr><td></td><td>Horizontal padding</td><td><span class="value-mono">6px</span></td><td><span class="value-mono">5px</span></td><td><span class="token-mono">--spacing/xsmall</span></td></tr>
+          <tr><td></td><td>Vertical padding</td><td><span class="value-mono">4px</span></td><td><span class="value-mono">2px</span></td><td><span class="token-mono">--spacing/xxsmall</span></td></tr>
+          <tr><td></td><td>Gap (between elements)</td><td><span class="value-mono">6px</span></td><td><span class="value-mono">4px</span></td><td><span class="token-mono">--spacing/xsmall</span></td></tr>
+          <tr><td></td><td>Border radius (box)</td><td><span class="value-mono">4px</span></td><td><span class="value-mono">4px</span></td><td><span class="token-mono">--border-radius/base</span></td></tr>
+          <tr><td></td><td>Border radius (circular)</td><td><span class="value-mono">100px</span></td><td><span class="value-mono">100px</span></td><td><span class="token-mono">--border-radius/circular</span></td></tr>
+          <tr><td></td><td>Border</td><td><span class="value-mono">1px solid</span></td><td><span class="value-mono">1px solid</span></td><td><span class="token-mono">--color/stroke/default</span></td></tr>
+          <tr><td><strong>Leading Icon</strong></td><td>Size</td><td><span class="value-mono">14 × 10px</span></td><td><span class="value-mono">12 × 8px</span></td><td><span class="token-mono">-</span></td></tr>
+          <tr><td><strong>Dismiss Icon</strong></td><td>Size</td><td><span class="value-mono">10 × 10px</span></td><td><span class="value-mono">8 × 8px</span></td><td><span class="token-mono">-</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DESIGN TOKENS -->
+  <section id="tokens" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Design Tokens</h2>
+    <p class="section-desc">All color and spacing tokens used in the Chip component. These are referenced directly from the BIStrainer token library.</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-mono">--color/surface/default</span></td><td><span class="color-swatch" style="background:#feffff;border-color:#ccc;"></span><span class="value-mono">#feffff</span></td><td>Chip background (default state)</td></tr>
+          <tr><td><span class="token-mono">--color/surface/primary-lighter</span></td><td><span class="color-swatch" style="background:#c9effa;"></span><span class="value-mono">#c9effa</span></td><td>Primary chip selected background</td></tr>
+          <tr><td><span class="token-mono">--color/stroke/default</span></td><td><span class="color-swatch" style="background:#b2b2b3;"></span><span class="value-mono">#b2b2b3</span></td><td>Chip border (all states)</td></tr>
+          <tr><td><span class="token-mono">--color/text/primary</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">#0078b3</span></td><td>Primary chip text</td></tr>
+          <tr><td><span class="token-mono">--color/text/secondary</span></td><td><span class="color-swatch" style="background:#666;"></span><span class="value-mono">#666666</span></td><td>Secondary chip text</td></tr>
+          <tr><td><span class="token-mono">--color/text/success</span></td><td><span class="color-swatch" style="background:#28a745;"></span><span class="value-mono">#28a745</span></td><td>Green chip text</td></tr>
+          <tr><td><span class="token-mono">--color/text/warning</span></td><td><span class="color-swatch" style="background:#a1851f;"></span><span class="value-mono">#a1851f</span></td><td>Yellow chip text</td></tr>
+          <tr><td><span class="token-mono">--color/text/error</span></td><td><span class="color-swatch" style="background:#c22222;"></span><span class="value-mono">#c22222</span></td><td>Red chip text</td></tr>
+          <tr><td><span class="token-mono">--spacing/xsmall</span></td><td><span class="value-mono">6px</span></td><td>Horizontal padding &amp; gap</td></tr>
+          <tr><td><span class="token-mono">--spacing/xxsmall</span></td><td><span class="value-mono">4px</span></td><td>Vertical padding</td></tr>
+          <tr><td><span class="token-mono">--border-radius/base</span></td><td><span class="value-mono">4px</span></td><td>Box shape border radius</td></tr>
+          <tr><td><span class="token-mono">--font-size/label/small</span></td><td><span class="value-mono">14px</span></td><td>Regular chip label font size</td></tr>
+          <tr><td><span class="token-mono">--font-size/label/xsmall</span></td><td><span class="value-mono">12px</span></td><td>Small chip label font size</td></tr>
+          <tr><td><span class="token-mono">--line-height/label/small</span></td><td><span class="value-mono">18px</span></td><td>Regular chip label line height</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TYPOGRAPHY -->
+  <section id="typography" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Typography</h2>
+    <p class="section-desc">Font family: Segoe UI. Weight is always SemiBold (600).</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Element</th><th>Size</th><th>Weight</th><th>Line Height</th><th>Token</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Label (Regular)</strong></td><td><span class="value-mono">14px</span></td><td><span class="value-mono">600 SemiBold</span></td><td><span class="value-mono">18px</span></td><td><span class="token-mono">label/small</span></td></tr>
+          <tr><td><strong>Label (Small)</strong></td><td><span class="value-mono">12px</span></td><td><span class="value-mono">600 SemiBold</span></td><td><span class="value-mono">16px</span></td><td><span class="token-mono">label/xsmall</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ACCESSIBILITY -->
+  <section id="accessibility" class="section">
+    <div class="section-eyebrow">WCAG Compliance</div>
+    <h2 class="section-heading">Accessibility</h2>
+    <p class="section-desc">Chips are interactive elements and must meet WCAG 2.1 AA keyboard and screen reader requirements.</p>
+    <div class="a11y-grid" style="margin-bottom:24px;">
+      <div class="a11y-card">
+        <div class="a11y-label">Selectable Chips</div>
+        <p class="a11y-text">Use <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="checkbox"</code> with <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-checked</code> for toggle state. Group chips in a <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="group"</code> with an accessible label.</p>
+      </div>
+      <div class="a11y-card">
+        <div class="a11y-label">Dismissible Chips</div>
+        <p class="a11y-text">The dismiss button must have <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-label="Remove [chip label]"</code>. The chip container itself is not focusable unless the entire chip is clickable.</p>
+      </div>
+      <div class="a11y-card warning">
+        <div class="a11y-label">Keyboard Navigation</div>
+        <p class="a11y-text"><strong>Enter / Space</strong> toggles selection or triggers dismiss. <strong>Tab</strong> moves to next focusable element. Dismiss buttons within a chip group should be reachable with Tab.</p>
+      </div>
+      <div class="a11y-card success">
+        <div class="a11y-label">Focus Styling</div>
+        <p class="a11y-text">All interactive chips must have a visible focus outline. Minimum 3:1 contrast ratio for focus indicator against background. Use a 2px offset outline in the primary color.</p>
+      </div>
+      <div class="a11y-card">
+        <div class="a11y-label">Color Alone</div>
+        <p class="a11y-text">Never rely on chip color alone to convey meaning. The checkmark icon in the selected state and the × icon in dismissible chips provide non-color indicators of state.</p>
+      </div>
+      <div class="a11y-card warning">
+        <div class="a11y-label">Contrast</div>
+        <p class="a11y-text">Yellow chip text (#a1851f on #feffff) passes AA (5.3:1). All other colors exceed 4.5:1 on white backgrounds. Verify against actual background in implementation.</p>
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">HTML — Accessibility Template</span></div>
+      <div class="code-content"><pre><code><span class="cc">&lt;!-- Selectable Chips Group --&gt;</span>
+&lt;<span class="cp">div</span> <span class="cv">role</span>=<span class="cs">"group"</span> <span class="cv">aria-label</span>=<span class="cs">"Filter by category"</span>&gt;
+  &lt;<span class="cp">button</span> <span class="cv">role</span>=<span class="cs">"checkbox"</span> <span class="cv">aria-checked</span>=<span class="cs">"false"</span> <span class="cv">class</span>=<span class="cs">"chip chip-primary"</span>&gt;
+    Reports
+  &lt;/<span class="cp">button</span>&gt;
+  &lt;<span class="cp">button</span> <span class="cv">role</span>=<span class="cs">"checkbox"</span> <span class="cv">aria-checked</span>=<span class="cs">"true"</span> <span class="cv">class</span>=<span class="cs">"chip chip-primary selected"</span>&gt;
+    <span class="cc">&lt;!-- checkmark icon, aria-hidden --&gt;</span>
+    &lt;<span class="cp">svg</span> <span class="cv">aria-hidden</span>=<span class="cs">"true"</span>&gt;...&lt;/<span class="cp">svg</span>&gt;
+    Users
+  &lt;/<span class="cp">button</span>&gt;
+&lt;/<span class="cp">div</span>&gt;
+
+<span class="cc">&lt;!-- Dismissible Chip --&gt;</span>
+&lt;<span class="cp">div</span> <span class="cv">class</span>=<span class="cs">"chip chip-primary"</span>&gt;
+  <span class="cc">&lt;!-- Label text --&gt;</span>
+  Filter: Active
+  <span class="cc">&lt;!-- Dismiss button --&gt;</span>
+  &lt;<span class="cp">button</span>
+    <span class="cv">aria-label</span>=<span class="cs">"Remove filter: Active"</span>
+    <span class="cv">class</span>=<span class="cs">"chip-dismiss"</span>
+    <span class="cv">tabindex</span>=<span class="cs">"0"</span>
+  &gt;
+    &lt;<span class="cp">svg</span> <span class="cv">aria-hidden</span>=<span class="cs">"true"</span>&gt;...&lt;/<span class="cp">svg</span>&gt;
+  &lt;/<span class="cp">button</span>&gt;
+&lt;/<span class="cp">div</span>&gt;</code></pre></div>
+    </div>
+  </section>
+
+  <!-- PROPS API -->
+  <section id="props" class="section">
+    <div class="section-eyebrow">Implementation</div>
+    <h2 class="section-heading">Props API</h2>
+    <p class="section-desc">Full prop reference for the BisChip React component.</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-mono">colour</span></td><td><span class="value-mono">"Primary" | "Secondary" | "Green" | "Yellow" | "Red"</span></td><td><span class="tag-pill tag-default">"Primary"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Semantic color variant</td></tr>
+          <tr><td><span class="token-mono">size</span></td><td><span class="value-mono">"regular" | "small"</span></td><td><span class="tag-pill tag-default">"regular"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Chip size — regular (26px) or small (20px)</td></tr>
+          <tr><td><span class="token-mono">shape</span></td><td><span class="value-mono">"box" | "circular"</span></td><td><span class="tag-pill tag-default">"box"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Border radius style — 4px box or 100px pill</td></tr>
+          <tr><td><span class="token-mono">state</span></td><td><span class="value-mono">"default" | "selected"</span></td><td><span class="tag-pill tag-default">"default"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Visual and semantic selection state</td></tr>
+          <tr><td><span class="token-mono">type</span></td><td><span class="value-mono">"selectable" | "dismissible"</span></td><td><span class="tag-pill tag-default">"selectable"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Functional chip type. Determines which icons appear.</td></tr>
+          <tr><td><span class="token-mono">label</span></td><td><span class="value-mono">string</span></td><td><span class="tag-pill tag-required">required</span></td><td><span class="tag-pill tag-required">required</span></td><td>Text label for the chip</td></tr>
+          <tr><td><span class="token-mono">leadingIcon</span></td><td><span class="value-mono">boolean</span></td><td><span class="tag-pill tag-default">false</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Show leading checkmark icon (typically auto-shown when state="selected" for selectable chips)</td></tr>
+          <tr><td><span class="token-mono">trailingDismiss</span></td><td><span class="value-mono">boolean</span></td><td><span class="tag-pill tag-default">false</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Show trailing × dismiss icon (for dismissible chips)</td></tr>
+          <tr><td><span class="token-mono">onDismiss</span></td><td><span class="value-mono">() =&gt; void</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Callback fired when dismiss × is clicked</td></tr>
+          <tr><td><span class="token-mono">onSelect</span></td><td><span class="value-mono">(selected: boolean) =&gt; void</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Callback fired when chip selection state changes</td></tr>
+          <tr><td><span class="token-mono">disabled</span></td><td><span class="value-mono">boolean</span></td><td><span class="tag-pill tag-default">false</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Disables all interactions. Applies reduced opacity.</td></tr>
+          <tr><td><span class="token-mono">className</span></td><td><span class="value-mono">string</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Additional CSS class names</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CODE EXAMPLES -->
+  <section id="code" class="section">
+    <div class="section-eyebrow">Code</div>
+    <h2 class="section-heading">Code Examples</h2>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">TypeScript Interface</h3>
+    <div class="code-block" style="margin-bottom:28px;">
+      <div class="code-header"><span class="code-lang">TypeScript</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code><span class="ck">type</span> ChipColour = <span class="cs">"Primary"</span> | <span class="cs">"Secondary"</span> | <span class="cs">"Green"</span> | <span class="cs">"Yellow"</span> | <span class="cs">"Red"</span>;
+<span class="ck">type</span> ChipSize = <span class="cs">"regular"</span> | <span class="cs">"small"</span>;
+<span class="ck">type</span> ChipShape = <span class="cs">"box"</span> | <span class="cs">"circular"</span>;
+<span class="ck">type</span> ChipState = <span class="cs">"default"</span> | <span class="cs">"selected"</span>;
+<span class="ck">type</span> ChipType = <span class="cs">"selectable"</span> | <span class="cs">"dismissible"</span>;
+
+<span class="ck">interface</span> BisChipProps {
+  label: <span class="ck">string</span>;           <span class="cc">// required</span>
+  colour?: ChipColour;    <span class="cc">// default: "Primary"</span>
+  size?: ChipSize;        <span class="cc">// default: "regular"</span>
+  shape?: ChipShape;      <span class="cc">// default: "box"</span>
+  state?: ChipState;      <span class="cc">// default: "default"</span>
+  type?: ChipType;        <span class="cc">// default: "selectable"</span>
+  leadingIcon?: <span class="ck">boolean</span>;  <span class="cc">// default: false</span>
+  trailingDismiss?: <span class="ck">boolean</span>; <span class="cc">// default: false</span>
+  disabled?: <span class="ck">boolean</span>;    <span class="cc">// default: false</span>
+  onDismiss?: () => <span class="ck">void</span>;
+  onSelect?: (selected: <span class="ck">boolean</span>) => <span class="ck">void</span>;
+  className?: <span class="ck">string</span>;
+}</code></pre></div>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">Selectable Chip Group</h3>
+    <div class="code-block" style="margin-bottom:28px;">
+      <div class="code-header"><span class="code-lang">React / TSX</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code><span class="cc">// Multi-select filter chips</span>
+<span class="ck">const</span> [selected, setSelected] = useState&lt;<span class="ck">string</span>[]&gt;([]);
+
+<span class="ck">const</span> toggleChip = (value: <span class="ck">string</span>) => {
+  setSelected(prev =>
+    prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
+  );
+};
+
+&lt;<span class="cp">div</span> <span class="cv">role</span>=<span class="cs">"group"</span> <span class="cv">aria-label</span>=<span class="cs">"Filter by status"</span>&gt;
+  {[<span class="cs">"Active"</span>, <span class="cs">"Pending"</span>, <span class="cs">"Expired"</span>].map(label => (
+    &lt;<span class="cp">BisChip</span>
+      <span class="cv">key</span>={label}
+      <span class="cv">label</span>={label}
+      <span class="cv">colour</span>=<span class="cs">"Primary"</span>
+      <span class="cv">type</span>=<span class="cs">"selectable"</span>
+      <span class="cv">state</span>={selected.includes(label) ? <span class="cs">"selected"</span> : <span class="cs">"default"</span>}
+      <span class="cv">leadingIcon</span>={selected.includes(label)}
+      <span class="cv">onSelect</span>={() => toggleChip(label)}
+    /&gt;
+  ))}
+&lt;/<span class="cp">div</span>&gt;</code></pre></div>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">Dismissible Filter Tags</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">React / TSX</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code><span class="cc">// Active filter tags that can be removed</span>
+<span class="ck">const</span> [filters, setFilters] = useState([
+  { id: <span class="cs">"1"</span>, label: <span class="cs">"John Smith"</span>, colour: <span class="cs">"Primary"</span> },
+  { id: <span class="cs">"2"</span>, label: <span class="cs">"Reports"</span>, colour: <span class="cs">"Green"</span> },
+]);
+
+&lt;<span class="cp">div</span> <span class="cv">style</span>={{display: <span class="cs">"flex"</span>, gap: <span class="cs">"6px"</span>, flexWrap: <span class="cs">"wrap"</span>}}&gt;
+  {filters.map(f => (
+    &lt;<span class="cp">BisChip</span>
+      <span class="cv">key</span>={f.id}
+      <span class="cv">label</span>={f.label}
+      <span class="cv">colour</span>={f.colour}
+      <span class="cv">type</span>=<span class="cs">"dismissible"</span>
+      <span class="cv">trailingDismiss</span>={<span class="ck">true</span>}
+      <span class="cv">onDismiss</span>={() => setFilters(prev => prev.filter(x => x.id !== f.id))}
+    /&gt;
+  ))}
+&lt;/<span class="cp">div</span>&gt;</code></pre></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- PROPS PANEL -->
+<aside class="props-panel">
+  <h2 class="props-title">Properties</h2>
+  <div class="prop-group">
+    <div class="prop-group-title">Variant</div>
+    <div class="prop-item">
+      <div class="prop-label">Color</div>
+      <select class="prop-select" id="sColor" onchange="render()">
+        <option value="primary">Primary (Blue)</option>
+        <option value="secondary">Secondary (Gray)</option>
+        <option value="green">Green</option>
+        <option value="yellow">Yellow</option>
+        <option value="red">Red</option>
+      </select>
+    </div>
+    <div class="prop-item">
+      <div class="prop-label">Type</div>
+      <select class="prop-select" id="sType" onchange="render()">
+        <option value="selectable">Selectable</option>
+        <option value="dismissible">Dismissible</option>
+      </select>
+    </div>
+    <div class="prop-item">
+      <div class="prop-label">Shape</div>
+      <select class="prop-select" id="sShape" onchange="render()">
+        <option value="box">Box</option>
+        <option value="circular">Circular</option>
+      </select>
+    </div>
+    <div class="prop-item">
+      <div class="prop-label">Size</div>
+      <select class="prop-select" id="sSize" onchange="render()">
+        <option value="regular">Regular</option>
+        <option value="small">Small</option>
+      </select>
+    </div>
+  </div>
+  <div class="prop-group">
+    <div class="prop-group-title">State</div>
+    <div class="prop-item">
+      <div class="prop-toggle" onclick="toggle('tSelected')">
+        <span class="prop-toggle-label">Selected</span>
+        <div class="toggle-switch" id="tSelected"></div>
+      </div>
+    </div>
+    <div class="prop-item">
+      <div class="prop-toggle" onclick="toggle('tDisabled')">
+        <span class="prop-toggle-label">Disabled</span>
+        <div class="toggle-switch" id="tDisabled"></div>
+      </div>
+    </div>
+  </div>
+  <div class="divider-line"></div>
+  <div style="font-size:11px;color:var(--doc-text-muted);line-height:1.7;">
+    <strong style="color:var(--doc-text);display:block;margin-bottom:6px;">Quick Rules</strong>
+    Leading icon auto-shown when selected<br>
+    Dismiss × only on dismissible type<br>
+    Max 1–2 words per label<br>
+    Never use for navigation
+  </div>
+</aside>
+</div>
+
+<script>
+function nav(el,id){document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));el.classList.add('active');document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});}
+function toggle(id){document.getElementById(id).classList.toggle('on');render();}
+function on(id){return document.getElementById(id).classList.contains('on');}
+function setBg(mode,el){document.querySelectorAll('.preview-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');const c=document.getElementById('previewCanvas');mode==='dark'?c.classList.add('dark'):c.classList.remove('dark');render();}
+
+const colorMap={
+  primary:{text:'#0078b3',selBg:'#c9effa',check:'#0078b3'},
+  secondary:{text:'#666',selBg:'#e2e2e3',check:'#666'},
+  green:{text:'#28a745',selBg:'#d4edda',check:'#28a745'},
+  yellow:{text:'#a1851f',selBg:'#fff3cd',check:'#a1851f'},
+  red:{text:'#c22222',selBg:'#fde8e8',check:'#c22222'}
+};
+
+function render(){
+  const dark=document.getElementById('previewCanvas').classList.contains('dark');
+  const color=document.getElementById('sColor').value;
+  const type=document.getElementById('sType').value;
+  const shape=document.getElementById('sShape').value;
+  const size=document.getElementById('sSize').value;
+  const isSelected=on('tSelected');
+  const isDisabled=on('tDisabled');
+  const c=colorMap[color];
+
+  const chipBg=isSelected?c.selBg:(dark?'#2a2a2a':'#feffff');
+  const chipBorder=dark?'#555':'#b2b2b3';
+  const chipText=c.text;
+  const borderRadius=shape==='circular'?'100px':'4px';
+  const fontSize=size==='small'?'12px':'14px';
+  const lineHeight=size==='small'?'16px':'18px';
+  const padV=size==='small'?'2px':'4px';
+  const padH=size==='small'?'5px':'6px';
+  const gap=size==='small'?'4px':'6px';
+  const iconW=size==='small'?'10px':'12px';
+  const iconH=size==='small'?'8px':'10px';
+  const dismissW=size==='small'?'8px':'10px';
+
+  let inner='';
+  if(type==='selectable'&&isSelected){
+    inner+=`<span style="width:${iconW};height:${iconH};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="${iconW}" height="${iconH}" viewBox="0 0 12 10" fill="none"><path d="M1 5.5l3.5 3.5 6-7" stroke="${c.check}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+  }
+  inner+=`<span style="font-family:'Segoe UI',sans-serif;font-size:${fontSize};font-weight:600;line-height:${lineHeight};color:${chipText};">Name</span>`;
+  if(type==='dismissible'){
+    inner+=`<span style="width:${dismissW};height:${dismissW};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;opacity:.75;"><svg width="${dismissW}" height="${dismissW}" viewBox="0 0 10 10" fill="none"><path d="M1 1 L9 9 M9 1 L1 9" stroke="${chipText}" stroke-width="2" stroke-linecap="round"/></svg></span>`;
+  }
+
+  const html=`<div style="display:inline-flex;align-items:center;justify-content:center;gap:${gap};padding:${padV} ${padH};border:1px solid ${chipBorder};border-radius:${borderRadius};background:${chipBg};opacity:${isDisabled?.5:1};cursor:${isDisabled?'not-allowed':'pointer'};">${inner}</div>`;
+  document.getElementById('chipPreview').innerHTML=html;
+}
+
+function copyCode(btn){const code=btn.closest('.code-block').querySelector('pre').textContent;navigator.clipboard.writeText(code);btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',2000);}
+
+render();
+</script>
+</body>
+</html>

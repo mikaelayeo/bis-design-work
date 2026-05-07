@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BIS Design System — Component Docs</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'IBM Plex Sans',sans-serif;background:#0d0d0d;color:#e5e5e5;line-height:1.6;min-height:100vh;}
+    .wrap{max-width:880px;margin:0 auto;padding:80px 32px;}
+    .eyebrow{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#0078b3;margin-bottom:8px;}
+    h1{font-size:42px;font-weight:700;line-height:1.15;margin-bottom:14px;}
+    .lede{font-size:17px;color:#888;max-width:640px;margin-bottom:56px;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+    .card{display:block;background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:24px;text-decoration:none;color:#e5e5e5;transition:all .15s;}
+    .card:hover{border-color:#0078b3;transform:translateY(-2px);}
+    .card-tag{display:inline-block;font-size:10px;font-weight:600;background:rgba(0,120,179,.15);color:#0078b3;padding:3px 10px;border-radius:20px;margin-bottom:14px;letter-spacing:.06em;text-transform:uppercase;}
+    .card-name{font-size:22px;font-weight:700;margin-bottom:6px;}
+    .card-desc{font-size:13px;color:#888;}
+    .meta{margin-top:64px;font-size:12px;color:#666;border-top:1px solid #333;padding-top:24px;}
+    .meta a{color:#888;}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">BIS Design System</div>
+  <h1>Component Documentation</h1>
+  <p class="lede">Living docs for BIStrainer UI components — anatomy, tokens, accessibility, and code examples. Each page is generated from the Figma source.</p>
+
+  <div class="grid">
+    <a class="card" href="chip.html">
+      <span class="card-tag">Interactive · Filter</span>
+      <div class="card-name">Chip</div>
+      <div class="card-desc">Compact, interactive labels for filters, tags, and multi-select.</div>
+    </a>
+    <a class="card" href="bistab.html">
+      <span class="card-tag">Navigation · Container</span>
+      <div class="card-name">BisTab</div>
+      <div class="card-desc">Tabbed navigation in four visual weights — Traditional, Floating, Expanded, Simple.</div>
+    </a>
+  </div>
+
+  <div class="meta">
+    Source: <a href="https://www.figma.com/design/sYqKFiF1879GNNITzqd8qC/BIStrainer_UI-Library-Guide">BIStrainer UI Library Guide (Figma)</a>
+  </div>
+</div>
+</body>
+</html>
