@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimePicker | Design System Documentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #0078b3;
+      --color-primary-lightest: #f2fcff;
+      --color-secondary: #666666;
+      --color-text-default: #191919;
+      --color-text-disabled: #bbbbbb;
+      --color-surface-default: #feffff;
+      --color-stroke-default: #b2b2b3;
+      --color-stroke-default-light: #e2e2e3;
+      --doc-bg: #0d0d0d;
+      --doc-surface: #1a1a1a;
+      --doc-surface-elevated: #242424;
+      --doc-border: #333;
+      --doc-text: #e5e5e5;
+      --doc-text-muted: #888;
+      --doc-accent: #0078b3;
+      --doc-accent-alt: #009acb;
+      --doc-accent-soft: rgba(0,120,179,0.15);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'IBM Plex Sans',sans-serif;background:var(--doc-bg);color:var(--doc-text);line-height:1.6;}
+    .doc-container{display:grid;grid-template-columns:280px 1fr 320px;min-height:100vh;}
+
+    .sidebar{background:var(--doc-surface);border-right:1px solid var(--doc-border);padding:32px 24px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .logo{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--doc-accent);margin-bottom:6px;}
+    .component-name{font-size:26px;font-weight:700;margin-bottom:8px;line-height:1.2;}
+    .component-tag{display:inline-block;font-size:11px;font-weight:500;background:var(--doc-accent-soft);color:var(--doc-accent);padding:3px 10px;border-radius:20px;margin-bottom:28px;}
+    .nav-section{margin-bottom:24px;}
+    .nav-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-text-muted);margin-bottom:8px;padding:0 12px;}
+    .nav-link{display:block;width:100%;text-align:left;padding:7px 12px;color:var(--doc-text-muted);border-radius:6px;font-size:13px;background:transparent;border:none;cursor:pointer;transition:all .15s ease;margin-bottom:1px;font-family:inherit;}
+    .nav-link:hover{background:var(--doc-surface-elevated);color:var(--doc-text);}
+    .nav-link.active{background:var(--doc-accent-soft);color:var(--doc-accent);font-weight:500;}
+
+    .main-content{padding:48px;overflow-y:auto;max-width:900px;}
+    .section{margin-bottom:72px;}
+    .section-eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-accent);margin-bottom:10px;}
+    .section-heading{font-size:30px;font-weight:700;margin-bottom:12px;line-height:1.2;}
+    .section-desc{color:var(--doc-text-muted);font-size:15px;max-width:620px;margin-bottom:32px;line-height:1.7;}
+
+    .preview-container{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:12px;overflow:hidden;margin-bottom:32px;}
+    .preview-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--doc-border);background:var(--doc-surface-elevated);}
+    .preview-tabs{display:flex;gap:4px;}
+    .preview-tab{padding:6px 14px;background:transparent;border:none;color:var(--doc-text-muted);font-size:12px;font-weight:500;cursor:pointer;border-radius:6px;transition:all .15s ease;font-family:inherit;}
+    .preview-tab:hover{color:var(--doc-text);}
+    .preview-tab.active{color:var(--doc-accent);background:var(--doc-accent-soft);}
+    .preview-canvas{padding:36px 32px;display:flex;align-items:flex-start;justify-content:center;min-height:200px;background:#e8edf2;}
+
+    /* === TIMEPICKER === */
+    .tp{font-family:'Inter','Segoe UI',sans-serif;width:280px;}
+    .tp-label{font-size:13px;font-weight:600;color:var(--color-text-default);margin-bottom:6px;}
+    .tp-field{
+      display:flex;align-items:center;justify-content:space-between;
+      background:var(--color-surface-default);
+      border:1px solid var(--color-stroke-default);
+      border-radius:4px;
+      padding:8px 12px;height:38px;cursor:pointer;
+      font-size:14px;color:var(--color-text-default);
+    }
+    .tp-field .chevron{color:var(--color-secondary);font-size:11px;}
+    .tp-menu{
+      margin-top:6px;
+      background:var(--color-surface-default);
+      border:1px solid var(--color-stroke-default-light);
+      border-radius:4px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      overflow:hidden;
+    }
+    .tp-slot{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:8px 16px;font-size:14px;color:var(--color-text-default);cursor:pointer;
+      transition:background .12s;
+    }
+    .tp-slot:hover{background:var(--color-primary-lightest);}
+    .tp-slot.selected{background:var(--color-primary-lightest);color:var(--color-primary);font-weight:600;}
+    .tp-slot.selected .check{display:inline;}
+    .tp-slot .check{display:none;color:var(--color-primary);font-weight:700;}
+
+    .states-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    .state-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;overflow:hidden;}
+    .state-preview{background:#e8edf2;padding:24px;display:flex;justify-content:center;align-items:flex-start;min-height:160px;}
+    .state-info{padding:14px 16px;border-top:1px solid var(--doc-border);}
+    .state-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+    .state-desc{font-size:12px;color:var(--doc-text-muted);}
+
+    .spec-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .spec-table th{text-align:left;padding:11px 14px;background:var(--doc-surface-elevated);border-bottom:1px solid var(--doc-border);font-weight:600;color:var(--doc-text-muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+    .spec-table td{padding:11px 14px;border-bottom:1px solid var(--doc-border);vertical-align:top;color:var(--doc-text);}
+    .spec-table tr:last-child td{border-bottom:none;}
+    .token-mono{font-family:'IBM Plex Mono',monospace;color:var(--doc-accent-alt);font-size:12px;}
+    .value-mono{font-family:'IBM Plex Mono',monospace;color:var(--doc-text-muted);font-size:12px;}
+    .color-swatch{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:8px;vertical-align:middle;border:1px solid rgba(255,255,255,.15);}
+    .tag-pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;}
+    .tag-required{background:rgba(194,34,34,.15);color:#ff7272;}
+    .tag-optional{background:rgba(0,154,203,.15);color:var(--doc-accent-alt);}
+    .tag-default{background:rgba(255,255,255,.07);color:var(--doc-text-muted);}
+
+    .a11y-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+    .a11y-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:16px 18px;border-left:3px solid var(--doc-accent);}
+    .a11y-card.warning{border-left-color:#b8880a;}
+    .a11y-card.success{border-left-color:#28a745;}
+    .a11y-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--doc-accent);margin-bottom:6px;}
+    .a11y-card.warning .a11y-label{color:#b8880a;}
+    .a11y-card.success .a11y-label{color:#28a745;}
+    .a11y-text{font-size:13px;color:var(--doc-text-muted);line-height:1.6;}
+
+    .code-block{background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:8px;overflow:hidden;}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--doc-border);background:var(--doc-surface);}
+    .code-lang{font-size:11px;color:var(--doc-text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+    .code-copy{padding:5px 12px;background:var(--doc-accent-soft);border:none;border-radius:4px;color:var(--doc-accent);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+    .code-copy:hover{background:var(--doc-accent);color:#fff;}
+    .code-content{padding:16px;overflow-x:auto;}
+    .code-content pre{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;color:var(--doc-text);margin:0;}
+    .ck{color:#c792ea;}.cs{color:#c3e88d;}.cc{color:#546e7a;font-style:italic;}.cp{color:#82aaff;}.cv{color:#ffcb6b;}
+
+    .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;}
+    .info-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:16px;}
+    .info-num{width:22px;height:22px;background:var(--doc-accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;margin-bottom:8px;}
+    .info-title{font-weight:600;font-size:14px;margin-bottom:4px;}
+    .info-desc{font-size:12px;color:var(--doc-text-muted);line-height:1.6;}
+
+    .usage-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .usage-box{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:20px 24px;margin-bottom:16px;}
+    .usage-box h4{font-size:14px;font-weight:600;margin-bottom:8px;}
+    .usage-box ul{list-style:none;padding:0;}
+    .usage-box li{font-size:13px;color:var(--doc-text-muted);padding:4px 0;display:flex;align-items:flex-start;gap:8px;}
+    .usage-box li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--doc-accent);margin-top:7px;flex-shrink:0;}
+    .usage-box.do{border-left:3px solid #28a745;}
+    .usage-box.dont{border-left:3px solid #c22222;}
+    .usage-box.do h4{color:#28a745;}
+    .usage-box.dont h4{color:#c22222;}
+    .usage-box.do li::before{background:#28a745;}
+    .usage-box.dont li::before{background:#c22222;}
+
+    .reuse-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+    .reuse-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:18px;border-left:3px solid var(--doc-accent-alt);}
+    .reuse-card h4{font-size:14px;font-weight:600;margin-bottom:6px;color:var(--doc-text);}
+    .reuse-card p{font-size:13px;color:var(--doc-text-muted);line-height:1.6;}
+    .reuse-card code{font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;color:var(--doc-accent-alt);}
+
+    .props-panel{background:var(--doc-surface);border-left:1px solid var(--doc-border);padding:32px 24px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .props-title{font-size:15px;font-weight:600;margin-bottom:24px;display:flex;align-items:center;gap:8px;}
+    .props-title::before{content:'';width:8px;height:8px;background:var(--doc-accent);border-radius:2px;}
+    .prop-group{margin-bottom:24px;}
+    .prop-group-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-text-muted);margin-bottom:10px;}
+    .prop-item{margin-bottom:12px;}
+    .prop-label{font-size:12px;color:var(--doc-text-muted);margin-bottom:5px;}
+    .prop-select{width:100%;padding:9px 12px;background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:6px;color:var(--doc-text);font-size:12px;cursor:pointer;outline:none;font-family:inherit;}
+    .prop-select:focus{border-color:var(--doc-accent);}
+    .prop-toggle{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:6px;cursor:pointer;}
+    .toggle-switch{position:relative;width:36px;height:20px;background:var(--doc-border);border-radius:10px;cursor:pointer;transition:background .2s ease;flex-shrink:0;}
+    .toggle-switch.on{background:var(--doc-accent);}
+    .toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s ease;}
+    .toggle-switch.on::after{transform:translateX(16px);}
+    .divider-line{height:1px;background:var(--doc-border);margin:20px 0;}
+
+    @media(max-width:1400px){.doc-container{grid-template-columns:240px 1fr 290px;}}
+    @media(max-width:1100px){.doc-container{grid-template-columns:1fr;}.sidebar,.props-panel{display:none;}.states-grid{grid-template-columns:1fr;}.a11y-grid{grid-template-columns:1fr;}.info-grid{grid-template-columns:1fr 1fr;}.usage-cols{grid-template-columns:1fr;}.reuse-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<div class="doc-container">
+
+<aside class="sidebar">
+  <div class="logo">Design System</div>
+  <h1 class="component-name">TimePicker</h1>
+  <span class="component-tag">Form · Picker</span>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-title">Overview</div>
+      <button class="nav-link active" onclick="nav(this,'playground')">Interactive Playground</button>
+      <button class="nav-link" onclick="nav(this,'anatomy')">Anatomy</button>
+      <button class="nav-link" onclick="nav(this,'states')">States</button>
+      <button class="nav-link" onclick="nav(this,'reuse')">Component Reuse</button>
+      <button class="nav-link" onclick="nav(this,'usage')">When to Use</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Specifications</div>
+      <button class="nav-link" onclick="nav(this,'measurements')">Measurements</button>
+      <button class="nav-link" onclick="nav(this,'tokens')">Design Tokens</button>
+      <button class="nav-link" onclick="nav(this,'typography')">Typography</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Implementation</div>
+      <button class="nav-link" onclick="nav(this,'accessibility')">Accessibility</button>
+      <button class="nav-link" onclick="nav(this,'props')">Props API</button>
+      <button class="nav-link" onclick="nav(this,'code')">Code Examples</button>
+    </div>
+  </nav>
+</aside>
+
+<main class="main-content">
+
+  <section id="playground" class="section">
+    <div class="section-eyebrow">Interactive</div>
+    <h2 class="section-heading">Playground</h2>
+    <p class="section-desc">TimePicker has two states. <strong>Closed</strong> is an Input Field with a chevron — the trigger that opens the picker. <strong>Open</strong> shows the field plus a scrollable menu of time slots beneath it.</p>
+    <div class="preview-container">
+      <div class="preview-header">
+        <div class="preview-tabs">
+          <button class="preview-tab active" onclick="setState('closed',this)">state=closed</button>
+          <button class="preview-tab" onclick="setState('open',this)">state=open</button>
+        </div>
+        <span style="font-size:11px;color:var(--doc-text-muted);">Live Preview</span>
+      </div>
+      <div class="preview-canvas">
+        <div id="tpPreview"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="anatomy" class="section">
+    <div class="section-eyebrow">Structure</div>
+    <h2 class="section-heading">Anatomy</h2>
+    <p class="section-desc">TimePicker doesn't introduce new UI primitives — it composes the existing Input Field (as the dropdown trigger) and Dropdown List Item (as each menu row).</p>
+    <div class="info-grid">
+      <div class="info-card"><div class="info-num">1</div><div class="info-title">Label</div><p class="info-desc">Above the field. Customize via the Input Field's <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">label text</code> property. Default: "Time".</p></div>
+      <div class="info-card"><div class="info-num">2</div><div class="info-title">Field (Input Field)</div><p class="info-desc">An <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">Input Field</code> instance with <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">dropdown=true</code>. Shows current value or placeholder ("00:00 AM"). Chevron indicates dropdown.</p></div>
+      <div class="info-card"><div class="info-num">3</div><div class="info-title">Menu (open only)</div><p class="info-desc">A floating panel directly under the field. White surface, light border, soft shadow. ~6 visible slots before scroll.</p></div>
+      <div class="info-card"><div class="info-num">4</div><div class="info-title">Slot (Dropdown List Item)</div><p class="info-desc">Each row is a <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">Dropdown List Item</code> instance — three states: inactive, hover, selected.</p></div>
+      <div class="info-card"><div class="info-num">5</div><div class="info-title">Selected indicator</div><p class="info-desc">When a slot is the current value: blue text, light-blue background, trailing checkmark. Comes for free from the <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">selected</code> variant.</p></div>
+      <div class="info-card"><div class="info-num">6</div><div class="info-title">Scroll</div><p class="info-desc">Vertical scrollbar appears when slot count exceeds the menu's visible height (~6 rows × 32px = 200px).</p></div>
+    </div>
+  </section>
+
+  <section id="states" class="section">
+    <div class="section-eyebrow">States</div>
+    <h2 class="section-heading">States</h2>
+    <p class="section-desc">A single variant axis — <code style="font-family:'IBM Plex Mono',monospace;font-size:13px;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;">state</code> — with two values.</p>
+    <div class="states-grid">
+      <div class="state-card">
+        <div class="state-preview" style="align-items:center;">
+          <div class="tp">
+            <div class="tp-label">Time</div>
+            <div class="tp-field"><span style="color:#999;">00:00 AM</span><span class="chevron">&#x25BE;</span></div>
+          </div>
+        </div>
+        <div class="state-info">
+          <div class="state-name">state=closed (default)</div>
+          <div class="state-desc">Just the Input Field with dropdown=true. Use as the trigger in any form. 376×64 (with label) or 376×38 (without).</div>
+        </div>
+      </div>
+      <div class="state-card">
+        <div class="state-preview">
+          <div class="tp">
+            <div class="tp-label">Time</div>
+            <div class="tp-field"><span style="color:#999;">00:00 AM</span><span class="chevron">&#x25BE;</span></div>
+            <div class="tp-menu">
+              <div class="tp-slot">6:30 AM<span class="check">&#x2713;</span></div>
+              <div class="tp-slot">6:45 AM<span class="check">&#x2713;</span></div>
+              <div class="tp-slot selected">7:00 AM<span class="check">&#x2713;</span></div>
+              <div class="tp-slot">7:15 AM<span class="check">&#x2713;</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="state-info">
+          <div class="state-name">state=open</div>
+          <div class="state-desc">Field + scrollable menu. Use this state when documenting flows that depict the picker mid-interaction. ~376×272 (varies with slot count).</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reuse" class="section">
+    <div class="section-eyebrow">Composition</div>
+    <h2 class="section-heading">Component Reuse</h2>
+    <p class="section-desc">TimePicker is intentionally thin — it composes existing components rather than introducing new patterns. Improvements to those components automatically flow through.</p>
+    <div class="reuse-grid">
+      <div class="reuse-card">
+        <h4>Input Field</h4>
+        <p>The closed state IS an instance of <code>Input Field</code> with <code>dropdown=true</code>. All Input Field props (sizes, error/active/disabled states, leading/trailing icons, helper text) are available by overriding the inner instance.</p>
+      </div>
+      <div class="reuse-card">
+        <h4>Dropdown List Item</h4>
+        <p>Each menu row is an instance of <code>Dropdown List Item</code> — variants <code>inactive</code> / <code>hover</code> / <code>selected</code>. Selection visuals (blue text, checkmark) come from this component, not TimePicker.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="usage" class="section">
+    <div class="section-eyebrow">Guidance</div>
+    <h2 class="section-heading">When to Use</h2>
+    <div class="usage-cols">
+      <div class="usage-box do">
+        <h4>✅ Use TimePicker When</h4>
+        <ul>
+          <li>User selects a single time of day</li>
+          <li>The set of valid times is finite (e.g. 15-min increments)</li>
+          <li>You want consistency with other dropdowns in the app</li>
+          <li>A start/end pair is needed — render two TimePickers side-by-side</li>
+        </ul>
+      </div>
+      <div class="usage-box dont">
+        <h4>❌ Avoid TimePicker When</h4>
+        <ul>
+          <li>Users type any time precisely (use a masked Input Field)</li>
+          <li>You need a time + date in one UI — use DatePicker + TimePicker</li>
+          <li>Duration is what's being captured (use a number + unit input)</li>
+          <li>Time is implicit (now, end of day) — use a relative button instead</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="measurements" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Measurements</h2>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Element</th><th>Closed</th><th>Open</th><th>Token</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Container</strong></td><td><span class="value-mono">376 × 64</span></td><td><span class="value-mono">376 × 272</span></td><td><span class="token-mono">—</span></td></tr>
+          <tr><td>Field height</td><td><span class="value-mono">38</span></td><td><span class="value-mono">38</span></td><td><span class="token-mono">Input Field default</span></td></tr>
+          <tr><td>Field padding</td><td><span class="value-mono">8 / 12</span></td><td><span class="value-mono">8 / 12</span></td><td><span class="token-mono">spacing/small, spacing/base</span></td></tr>
+          <tr><td>Field border radius</td><td><span class="value-mono">4</span></td><td><span class="value-mono">4</span></td><td><span class="token-mono">border-radius/base</span></td></tr>
+          <tr><td>Menu offset</td><td>—</td><td><span class="value-mono">6 below field</span></td><td><span class="token-mono">spacing/xSmall</span></td></tr>
+          <tr><td>Menu border radius</td><td>—</td><td><span class="value-mono">4</span></td><td><span class="token-mono">border-radius/base</span></td></tr>
+          <tr><td>Menu shadow</td><td>—</td><td><span class="value-mono">0 4 12 rgba(0,0,0,.08)</span></td><td><span class="token-mono">elevation/menu</span></td></tr>
+          <tr><td>Slot height</td><td>—</td><td><span class="value-mono">32</span></td><td><span class="token-mono">Dropdown List Item</span></td></tr>
+          <tr><td>Slot padding</td><td>—</td><td><span class="value-mono">8 / 16</span></td><td><span class="token-mono">spacing/small, spacing/medium</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tokens" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Design Tokens</h2>
+    <p class="section-desc">All bound to the BIStrainer semantic + responsive token system. Most resolve through composed components rather than being set on TimePicker directly.</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-mono">color/surface/default</span></td><td><span class="color-swatch" style="background:#feffff;border-color:#ccc;"></span><span class="value-mono">#feffff</span></td><td>Field + menu backgrounds</td></tr>
+          <tr><td><span class="token-mono">color/surface/primary-lightest</span></td><td><span class="color-swatch" style="background:#f2fcff;border-color:#ccc;"></span><span class="value-mono">#f2fcff</span></td><td>Selected slot background</td></tr>
+          <tr><td><span class="token-mono">color/text/default</span></td><td><span class="color-swatch" style="background:#191919;"></span><span class="value-mono">#191919</span></td><td>Field value, default slot text</td></tr>
+          <tr><td><span class="token-mono">color/text/primary</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">#0078b3</span></td><td>Selected slot text + checkmark</td></tr>
+          <tr><td><span class="token-mono">color/text/secondary</span></td><td><span class="color-swatch" style="background:#666;"></span><span class="value-mono">#666666</span></td><td>Placeholder, chevron</td></tr>
+          <tr><td><span class="token-mono">color/stroke/default</span></td><td><span class="color-swatch" style="background:#b2b2b3;"></span><span class="value-mono">#b2b2b3</span></td><td>Field border</td></tr>
+          <tr><td><span class="token-mono">color/stroke/default-light</span></td><td><span class="color-swatch" style="background:#e2e2e3;"></span><span class="value-mono">#e2e2e3</span></td><td>Menu border</td></tr>
+          <tr><td><span class="token-mono">border-radius/base</span></td><td><span class="value-mono">4px</span></td><td>Field + menu corners</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="typography" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Typography</h2>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Element</th><th>Size</th><th>Weight</th><th>Token</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Label</strong></td><td><span class="value-mono">13px</span></td><td><span class="value-mono">600 SemiBold</span></td><td><span class="token-mono">font-size/body/small</span></td></tr>
+          <tr><td><strong>Field value</strong></td><td><span class="value-mono">14px</span></td><td><span class="value-mono">400 Regular</span></td><td><span class="token-mono">font-size/body/small</span></td></tr>
+          <tr><td><strong>Slot (default)</strong></td><td><span class="value-mono">14px</span></td><td><span class="value-mono">400 Regular</span></td><td><span class="token-mono">font-size/body/small</span></td></tr>
+          <tr><td><strong>Slot (selected)</strong></td><td><span class="value-mono">14px</span></td><td><span class="value-mono">600 SemiBold</span></td><td><span class="token-mono">font-size/body/small</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="accessibility" class="section">
+    <div class="section-eyebrow">WCAG Compliance</div>
+    <h2 class="section-heading">Accessibility</h2>
+    <p class="section-desc">TimePicker is a combobox / listbox combo. Follow the WAI-ARIA combobox pattern.</p>
+    <div class="a11y-grid" style="margin-bottom:24px;">
+      <div class="a11y-card">
+        <div class="a11y-label">Roles</div>
+        <p class="a11y-text">Field uses <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="combobox"</code> with <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-haspopup="listbox"</code> and <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-expanded</code>. Menu uses <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="listbox"</code>; each slot <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="option"</code>.</p>
+      </div>
+      <div class="a11y-card warning">
+        <div class="a11y-label">Keyboard</div>
+        <p class="a11y-text"><strong>Down arrow</strong> opens the menu and moves to first/next option. <strong>Up arrow</strong> moves to previous. <strong>Home / End</strong> jump to first / last. <strong>Enter / Space</strong> selects. <strong>Esc</strong> closes the menu without changing value. Type-ahead jumps to matching slots.</p>
+      </div>
+      <div class="a11y-card success">
+        <div class="a11y-label">Selection</div>
+        <p class="a11y-text">Currently-selected option uses <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-selected="true"</code>. The combobox's <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-activedescendant</code> points to the focused option's id.</p>
+      </div>
+      <div class="a11y-card">
+        <div class="a11y-label">Labelling</div>
+        <p class="a11y-text">The label above the field must be associated via <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-labelledby</code> or <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">&lt;label for&gt;</code>. Slot text should include "AM"/"PM" — never rely on color or position.</p>
+      </div>
+      <div class="a11y-card warning">
+        <div class="a11y-label">Touch targets</div>
+        <p class="a11y-text">32px slots are below the 44×44 mobile minimum. Increase slot height to 44px on touch surfaces or wrap each slot in a 44px hit-area while keeping the visual at 32.</p>
+      </div>
+      <div class="a11y-card">
+        <div class="a11y-label">Color contrast</div>
+        <p class="a11y-text">Selected slot (#0078b3 on #f2fcff) hits 4.6:1 (AA). The checkmark provides a non-color indicator of selection.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="props" class="section">
+    <div class="section-eyebrow">Implementation</div>
+    <h2 class="section-heading">Props API</h2>
+    <p class="section-desc">Suggested prop interface. Most styling/state props pass through to the underlying Input Field.</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-mono">value</span></td><td><span class="value-mono">string</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-required">required</span></td><td>Selected time as a string (e.g. "07:00 AM")</td></tr>
+          <tr><td><span class="token-mono">onChange</span></td><td><span class="value-mono">(value: string) =&gt; void</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-required">required</span></td><td>Called when user picks a slot</td></tr>
+          <tr><td><span class="token-mono">label</span></td><td><span class="value-mono">string</span></td><td><span class="tag-pill tag-default">"Time"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Field label</td></tr>
+          <tr><td><span class="token-mono">placeholder</span></td><td><span class="value-mono">string</span></td><td><span class="tag-pill tag-default">"00:00 AM"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Field placeholder</td></tr>
+          <tr><td><span class="token-mono">slots</span></td><td><span class="value-mono">string[]</span></td><td><span class="tag-pill tag-default">15-min</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>List of selectable times</td></tr>
+          <tr><td><span class="token-mono">interval</span></td><td><span class="value-mono">number (minutes)</span></td><td><span class="tag-pill tag-default">15</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Generate slots at this interval if <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">slots</code> not provided</td></tr>
+          <tr><td><span class="token-mono">size</span></td><td><span class="value-mono">"small" | "Default" | "large"</span></td><td><span class="tag-pill tag-default">"Default"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Pass-through to Input Field</td></tr>
+          <tr><td><span class="token-mono">state</span></td><td><span class="value-mono">"default" | "active" | "error" | "disabled" | "read-only"</span></td><td><span class="tag-pill tag-default">"default"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Pass-through to Input Field</td></tr>
+          <tr><td><span class="token-mono">required</span></td><td><span class="value-mono">boolean</span></td><td><span class="tag-pill tag-default">false</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Marks the field required</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="code" class="section">
+    <div class="section-eyebrow">Code</div>
+    <h2 class="section-heading">Code Examples</h2>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">Basic time picker</h3>
+    <div class="code-block" style="margin-bottom:28px;">
+      <div class="code-header"><span class="code-lang">React / TSX</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code><span class="ck">const</span> [time, setTime] = useState(<span class="cs">"07:00 AM"</span>);
+
+&lt;<span class="cp">TimePicker</span>
+  <span class="cv">label</span>=<span class="cs">"Start time"</span>
+  <span class="cv">value</span>={time}
+  <span class="cv">onChange</span>={setTime}
+  <span class="cv">interval</span>={<span class="cs">15</span>}
+/&gt;</code></pre></div>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">Time range (Start + End)</h3>
+    <div class="code-block" style="margin-bottom:28px;">
+      <div class="code-header"><span class="code-lang">React / TSX</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code><span class="ck">const</span> [start, setStart] = useState(<span class="cs">"09:00 AM"</span>);
+<span class="ck">const</span> [end, setEnd] = useState(<span class="cs">"05:00 PM"</span>);
+
+&lt;<span class="cp">div</span> <span class="cv">style</span>={{display:<span class="cs">"flex"</span>, gap:<span class="cs">"12px"</span>}}&gt;
+  &lt;<span class="cp">TimePicker</span> <span class="cv">label</span>=<span class="cs">"Start"</span> <span class="cv">value</span>={start} <span class="cv">onChange</span>={setStart}/&gt;
+  &lt;<span class="cp">TimePicker</span> <span class="cv">label</span>=<span class="cs">"End"</span> <span class="cv">value</span>={end} <span class="cv">onChange</span>={setEnd}/&gt;
+&lt;/<span class="cp">div</span>&gt;</code></pre></div>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">Custom slots (30-min only, business hours)</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">React / TSX</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code><span class="ck">const</span> businessHours = [
+  <span class="cs">"9:00 AM"</span>, <span class="cs">"9:30 AM"</span>, <span class="cs">"10:00 AM"</span>, <span class="cs">"10:30 AM"</span>,
+  <span class="cs">"11:00 AM"</span>, <span class="cs">"11:30 AM"</span>, <span class="cs">"1:00 PM"</span>,  <span class="cs">"1:30 PM"</span>,
+  <span class="cs">"2:00 PM"</span>,  <span class="cs">"2:30 PM"</span>,  <span class="cs">"3:00 PM"</span>,  <span class="cs">"3:30 PM"</span>
+];
+
+&lt;<span class="cp">TimePicker</span>
+  <span class="cv">label</span>=<span class="cs">"Appointment"</span>
+  <span class="cv">value</span>={time}
+  <span class="cv">onChange</span>={setTime}
+  <span class="cv">slots</span>={businessHours}
+  <span class="cv">required</span>
+/&gt;</code></pre></div>
+    </div>
+  </section>
+
+</main>
+
+<aside class="props-panel">
+  <h2 class="props-title">Properties</h2>
+  <div class="prop-group">
+    <div class="prop-group-title">Variant</div>
+    <div class="prop-item">
+      <div class="prop-label">State</div>
+      <select class="prop-select" id="sState" onchange="render()">
+        <option value="closed">closed</option>
+        <option value="open">open</option>
+      </select>
+    </div>
+    <div class="prop-item">
+      <div class="prop-label">Selected time</div>
+      <select class="prop-select" id="sTime" onchange="render()">
+        <option value="">— (placeholder)</option>
+        <option value="6:30 AM">6:30 AM</option>
+        <option value="6:45 AM">6:45 AM</option>
+        <option value="7:00 AM">7:00 AM</option>
+        <option value="7:15 AM">7:15 AM</option>
+        <option value="7:30 AM">7:30 AM</option>
+      </select>
+    </div>
+  </div>
+  <div class="divider-line"></div>
+  <div style="font-size:11px;color:var(--doc-text-muted);line-height:1.7;">
+    <strong style="color:var(--doc-text);display:block;margin-bottom:6px;">Quick Rules</strong>
+    Reuses Input Field + Dropdown List Item<br>
+    Default interval: 15 min<br>
+    Slot height 32 — bump to 44 on touch<br>
+    Two states: closed (default), open
+  </div>
+</aside>
+</div>
+
+<script>
+function nav(el,id){document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));el.classList.add('active');document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});}
+function setState(s,el){document.querySelectorAll('.preview-tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');document.getElementById('sState').value=s;render();}
+function copyCode(btn){const code=btn.closest('.code-block').querySelector('pre').textContent;navigator.clipboard.writeText(code);btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',2000);}
+
+const SLOTS = ['6:30 AM','6:45 AM','7:00 AM','7:15 AM','7:30 AM','7:45 AM'];
+
+function render() {
+  const state = document.getElementById('sState').value;
+  const sel = document.getElementById('sTime').value;
+  let html = '<div class="tp"><div class="tp-label">Time</div>';
+  const fieldText = sel ? sel : '<span style="color:#999;">00:00 AM</span>';
+  html += '<div class="tp-field">'+fieldText+'<span class="chevron">&#x25BE;</span></div>';
+  if (state === 'open') {
+    html += '<div class="tp-menu">';
+    for (const s of SLOTS) {
+      const c = s === sel ? ' selected' : '';
+      html += '<div class="tp-slot'+c+'">'+s+'<span class="check">&#x2713;</span></div>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  document.getElementById('tpPreview').innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>

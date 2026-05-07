@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DatePicker | Design System Documentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #0078b3;
+      --color-primary-stroke: #009acb;
+      --color-primary-lightest: #f2fcff;
+      --color-secondary: #666666;
+      --color-secondary-lightest: #f2f2f2;
+      --color-text-default: #191919;
+      --color-text-disabled: #bbbbbb;
+      --color-surface-default: #feffff;
+      --color-stroke-default: #b2b2b3;
+      --color-stroke-default-light: #e2e2e3;
+      --border-radius-base: 4px;
+      --doc-bg: #0d0d0d;
+      --doc-surface: #1a1a1a;
+      --doc-surface-elevated: #242424;
+      --doc-border: #333;
+      --doc-text: #e5e5e5;
+      --doc-text-muted: #888;
+      --doc-accent: #0078b3;
+      --doc-accent-alt: #009acb;
+      --doc-accent-soft: rgba(0,120,179,0.15);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'IBM Plex Sans',sans-serif;background:var(--doc-bg);color:var(--doc-text);line-height:1.6;}
+    .doc-container{display:grid;grid-template-columns:280px 1fr 320px;min-height:100vh;}
+
+    .sidebar{background:var(--doc-surface);border-right:1px solid var(--doc-border);padding:32px 24px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .logo{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--doc-accent);margin-bottom:6px;}
+    .component-name{font-size:26px;font-weight:700;margin-bottom:8px;line-height:1.2;}
+    .component-tag{display:inline-block;font-size:11px;font-weight:500;background:var(--doc-accent-soft);color:var(--doc-accent);padding:3px 10px;border-radius:20px;margin-bottom:28px;}
+    .nav-section{margin-bottom:24px;}
+    .nav-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-text-muted);margin-bottom:8px;padding:0 12px;}
+    .nav-link{display:block;width:100%;text-align:left;padding:7px 12px;color:var(--doc-text-muted);border-radius:6px;font-size:13px;background:transparent;border:none;cursor:pointer;transition:all .15s ease;margin-bottom:1px;font-family:inherit;}
+    .nav-link:hover{background:var(--doc-surface-elevated);color:var(--doc-text);}
+    .nav-link.active{background:var(--doc-accent-soft);color:var(--doc-accent);font-weight:500;}
+
+    .main-content{padding:48px;overflow-y:auto;max-width:900px;}
+    .section{margin-bottom:72px;}
+    .section-eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-accent);margin-bottom:10px;}
+    .section-heading{font-size:30px;font-weight:700;margin-bottom:12px;line-height:1.2;}
+    .section-desc{color:var(--doc-text-muted);font-size:15px;max-width:620px;margin-bottom:32px;line-height:1.7;}
+
+    .preview-container{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:12px;overflow:hidden;margin-bottom:32px;}
+    .preview-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--doc-border);background:var(--doc-surface-elevated);}
+    .preview-tabs{display:flex;gap:4px;}
+    .preview-tab{padding:6px 14px;background:transparent;border:none;color:var(--doc-text-muted);font-size:12px;font-weight:500;cursor:pointer;border-radius:6px;transition:all .15s ease;font-family:inherit;}
+    .preview-tab:hover{color:var(--doc-text);}
+    .preview-tab.active{color:var(--doc-accent);background:var(--doc-accent-soft);}
+    .preview-canvas{padding:36px 32px;display:flex;align-items:center;justify-content:center;min-height:200px;background:#e8edf2;flex-wrap:wrap;}
+    .preview-canvas.dark{background:#111;}
+
+    /* === DATEPICKER COMPONENT === */
+    .datepicker{
+      display:inline-flex;
+      background:var(--color-surface-default);
+      border:1px solid var(--color-stroke-default);
+      border-radius:4px;
+      font-family:'Inter','Segoe UI',sans-serif;
+      overflow:hidden;
+    }
+    .datepicker .sidebar-pane{
+      width:150px;
+      display:flex;flex-direction:column;
+      background:var(--color-surface-default);
+      border-right:1px solid var(--color-stroke-default-light);
+    }
+    .datepicker .quickpick{
+      padding:7px 12px;
+      font-size:12px;color:var(--color-text-default);
+      cursor:pointer;
+    }
+    .datepicker .quickpick:hover{background:var(--color-secondary-lightest);}
+    .datepicker .quickpick.label{font-weight:600;}
+    .datepicker .last-counter{padding:8px 12px;display:flex;gap:6px;align-items:center;}
+    .datepicker .input{
+      flex:1;border:1px solid var(--color-stroke-default-light);
+      border-radius:2px;padding:2px 6px;font-size:11px;width:32px;text-align:center;
+    }
+    .datepicker .calendar-pane{padding:12px 8px;display:flex;flex-direction:column;gap:12px;}
+    .datepicker .header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:1px 8px;height:22px;
+    }
+    .datepicker .header .arrow{color:var(--color-primary);font-weight:700;cursor:pointer;}
+    .datepicker .header .month{font-weight:600;font-size:14px;color:var(--color-text-default);}
+    .datepicker .grid{display:grid;grid-template-columns:repeat(7,32px);gap:0;}
+    .datepicker .grid .day-name{
+      width:32px;height:26px;display:flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:600;color:var(--color-primary);
+    }
+    .datepicker .grid .day{
+      width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+      font-size:13px;color:var(--color-text-default);cursor:pointer;border-radius:2px;
+    }
+    .datepicker .grid .day:hover{background:var(--color-primary-lightest);}
+    .datepicker .grid .day.selected-left{background:var(--color-primary);color:#fff;border-radius:16px 0 0 16px;}
+    .datepicker .grid .day.selected-middle{background:var(--color-primary);color:#fff;border-radius:0;}
+    .datepicker .grid .day.selected-right{background:var(--color-primary);color:#fff;border-radius:0 16px 16px 0;}
+    .datepicker .grid .day.empty{visibility:hidden;}
+
+    /* DAY component — standalone preview */
+    .day-cell{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;font-family:'Inter','Segoe UI',sans-serif;font-size:13px;color:var(--color-text-default);background:var(--color-surface-default);}
+    .day-cell.selected-left{background:var(--color-primary);color:#fff;border-radius:16px 0 0 16px;}
+    .day-cell.selected-middle{background:var(--color-primary);color:#fff;}
+    .day-cell.selected-right{background:var(--color-primary);color:#fff;border-radius:0 16px 16px 0;}
+    .day-cell.empty{height:28px;visibility:hidden;}
+
+    .states-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+    .state-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;overflow:hidden;}
+    .state-preview{background:#e8edf2;padding:24px;display:flex;justify-content:center;align-items:center;min-height:140px;}
+    .state-info{padding:14px 16px;border-top:1px solid var(--doc-border);}
+    .state-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+    .state-desc{font-size:12px;color:var(--doc-text-muted);}
+
+    .spec-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .spec-table th{text-align:left;padding:11px 14px;background:var(--doc-surface-elevated);border-bottom:1px solid var(--doc-border);font-weight:600;color:var(--doc-text-muted);font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+    .spec-table td{padding:11px 14px;border-bottom:1px solid var(--doc-border);vertical-align:top;color:var(--doc-text);}
+    .spec-table tr:last-child td{border-bottom:none;}
+    .token-mono{font-family:'IBM Plex Mono',monospace;color:var(--doc-accent-alt);font-size:12px;}
+    .value-mono{font-family:'IBM Plex Mono',monospace;color:var(--doc-text-muted);font-size:12px;}
+    .color-swatch{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:8px;vertical-align:middle;border:1px solid rgba(255,255,255,.15);}
+    .tag-pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;}
+    .tag-required{background:rgba(194,34,34,.15);color:#ff7272;}
+    .tag-optional{background:rgba(0,154,203,.15);color:var(--doc-accent-alt);}
+    .tag-default{background:rgba(255,255,255,.07);color:var(--doc-text-muted);}
+
+    .a11y-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+    .a11y-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:16px 18px;border-left:3px solid var(--doc-accent);}
+    .a11y-card.warning{border-left-color:#b8880a;}
+    .a11y-card.success{border-left-color:#28a745;}
+    .a11y-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--doc-accent);margin-bottom:6px;}
+    .a11y-card.warning .a11y-label{color:#b8880a;}
+    .a11y-card.success .a11y-label{color:#28a745;}
+    .a11y-text{font-size:13px;color:var(--doc-text-muted);line-height:1.6;}
+
+    .code-block{background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:8px;overflow:hidden;}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--doc-border);background:var(--doc-surface);}
+    .code-lang{font-size:11px;color:var(--doc-text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+    .code-copy{padding:5px 12px;background:var(--doc-accent-soft);border:none;border-radius:4px;color:var(--doc-accent);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+    .code-copy:hover{background:var(--doc-accent);color:#fff;}
+    .code-content{padding:16px;overflow-x:auto;}
+    .code-content pre{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;color:var(--doc-text);margin:0;}
+    .ck{color:#c792ea;}.cs{color:#c3e88d;}.cc{color:#546e7a;font-style:italic;}.cp{color:#82aaff;}.cv{color:#ffcb6b;}
+
+    .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;}
+    .info-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:16px;}
+    .info-num{width:22px;height:22px;background:var(--doc-accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;margin-bottom:8px;}
+    .info-title{font-weight:600;font-size:14px;margin-bottom:4px;}
+    .info-desc{font-size:12px;color:var(--doc-text-muted);line-height:1.6;}
+
+    .usage-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .usage-box{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:20px 24px;margin-bottom:16px;}
+    .usage-box h4{font-size:14px;font-weight:600;margin-bottom:8px;}
+    .usage-box ul{list-style:none;padding:0;}
+    .usage-box li{font-size:13px;color:var(--doc-text-muted);padding:4px 0;display:flex;align-items:flex-start;gap:8px;}
+    .usage-box li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--doc-accent);margin-top:7px;flex-shrink:0;}
+    .usage-box.do{border-left:3px solid #28a745;}
+    .usage-box.dont{border-left:3px solid #c22222;}
+    .usage-box.do h4{color:#28a745;}
+    .usage-box.dont h4{color:#c22222;}
+    .usage-box.do li::before{background:#28a745;}
+    .usage-box.dont li::before{background:#c22222;}
+
+    .props-panel{background:var(--doc-surface);border-left:1px solid var(--doc-border);padding:32px 24px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .props-title{font-size:15px;font-weight:600;margin-bottom:24px;display:flex;align-items:center;gap:8px;}
+    .props-title::before{content:'';width:8px;height:8px;background:var(--doc-accent);border-radius:2px;}
+    .prop-group{margin-bottom:24px;}
+    .prop-group-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--doc-text-muted);margin-bottom:10px;}
+    .prop-item{margin-bottom:12px;}
+    .prop-label{font-size:12px;color:var(--doc-text-muted);margin-bottom:5px;}
+    .prop-select{width:100%;padding:9px 12px;background:var(--doc-surface-elevated);border:1px solid var(--doc-border);border-radius:6px;color:var(--doc-text);font-size:12px;cursor:pointer;outline:none;font-family:inherit;}
+    .prop-select:focus{border-color:var(--doc-accent);}
+    .divider-line{height:1px;background:var(--doc-border);margin:20px 0;}
+
+    @media(max-width:1400px){.doc-container{grid-template-columns:240px 1fr 290px;}}
+    @media(max-width:1100px){.doc-container{grid-template-columns:1fr;}.sidebar,.props-panel{display:none;}.states-grid{grid-template-columns:1fr;}.a11y-grid{grid-template-columns:1fr;}.info-grid{grid-template-columns:1fr 1fr;}.usage-cols{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<div class="doc-container">
+
+<aside class="sidebar">
+  <div class="logo">Design System</div>
+  <h1 class="component-name">DatePicker</h1>
+  <span class="component-tag">Form · Picker</span>
+  <nav>
+    <div class="nav-section">
+      <div class="nav-title">Overview</div>
+      <button class="nav-link active" onclick="nav(this,'playground')">Interactive Playground</button>
+      <button class="nav-link" onclick="nav(this,'anatomy')">Anatomy</button>
+      <button class="nav-link" onclick="nav(this,'variants')">Variants</button>
+      <button class="nav-link" onclick="nav(this,'day')">DatePicker Day</button>
+      <button class="nav-link" onclick="nav(this,'usage')">When to Use</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Specifications</div>
+      <button class="nav-link" onclick="nav(this,'measurements')">Measurements</button>
+      <button class="nav-link" onclick="nav(this,'tokens')">Design Tokens</button>
+      <button class="nav-link" onclick="nav(this,'typography')">Typography</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-title">Implementation</div>
+      <button class="nav-link" onclick="nav(this,'accessibility')">Accessibility</button>
+      <button class="nav-link" onclick="nav(this,'props')">Props API</button>
+      <button class="nav-link" onclick="nav(this,'code')">Code Examples</button>
+    </div>
+  </nav>
+</aside>
+
+<main class="main-content">
+
+  <section id="playground" class="section">
+    <div class="section-eyebrow">Interactive</div>
+    <h2 class="section-heading">Playground</h2>
+    <p class="section-desc">DatePicker has two top-level variants combining <em>Type</em> (Robust or Simple) with <em>Language</em> (English or Default). Robust adds a sidebar of quick-pick ranges; Simple is just the calendar.</p>
+    <div class="preview-container">
+      <div class="preview-header">
+        <div class="preview-tabs">
+          <button class="preview-tab active" onclick="setVariant('robust',this)">Type=Robust</button>
+          <button class="preview-tab" onclick="setVariant('simple',this)">Type=Simple</button>
+        </div>
+        <span style="font-size:11px;color:var(--doc-text-muted);">Live Preview</span>
+      </div>
+      <div class="preview-canvas" id="previewCanvas">
+        <div id="dpPreview"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="anatomy" class="section">
+    <div class="section-eyebrow">Structure</div>
+    <h2 class="section-heading">Anatomy</h2>
+    <p class="section-desc">A DatePicker has a header with month navigation, a 7-column grid of weekday labels and date cells (each cell is a <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">DatePicker Day</code> instance), and an optional sidebar of quick-pick ranges in the Robust variant.</p>
+    <div class="info-grid">
+      <div class="info-card"><div class="info-num">1</div><div class="info-title">Sidebar (Robust only)</div><p class="info-desc">Quick-pick ranges: Year to Date, Today, Yesterday, This Week, Last Week, This Month, Last Month, plus a "Last N days/months/years" counter.</p></div>
+      <div class="info-card"><div class="info-num">2</div><div class="info-title">Header</div><p class="info-desc">Previous/next arrows in primary color, month-year label centered. SemiBold 14px.</p></div>
+      <div class="info-card"><div class="info-num">3</div><div class="info-title">Weekday row</div><p class="info-desc">Sun–Sat labels in primary color, SemiBold 12px. Locale-aware via the Language axis.</p></div>
+      <div class="info-card"><div class="info-num">4</div><div class="info-title">Date grid</div><p class="info-desc">7 columns × 5–6 rows of <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">DatePicker Day</code> instances. Each cell is 32×32. The component supports range selection via <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">selected-left</code>/<code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">selected-middle</code>/<code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">selected-right</code> states.</p></div>
+      <div class="info-card"><div class="info-num">5</div><div class="info-title">Last counter</div><p class="info-desc">In Robust only: "Last [N] days/weeks/months/years" with a number input and unit dropdown.</p></div>
+      <div class="info-card"><div class="info-num">6</div><div class="info-title">Empty cells</div><p class="info-desc">Date cells before the 1st of the month or after the last day use <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">state=empty</code> (32×28, hidden).</p></div>
+    </div>
+  </section>
+
+  <section id="variants" class="section">
+    <div class="section-eyebrow">Variants</div>
+    <h2 class="section-heading">Variants</h2>
+    <p class="section-desc">Two variant axes — <strong>Type</strong> determines whether the sidebar of quick picks is shown; <strong>Language</strong> sets the locale of weekday and quick-pick labels.</p>
+
+    <div class="states-grid" style="margin-bottom:32px;">
+      <div class="state-card">
+        <div class="state-preview" id="robustPreview" style="padding:16px;"></div>
+        <div class="state-info">
+          <div class="state-name">Type=Robust</div>
+          <div class="state-desc">Calendar + sidebar of quick-pick ranges. Use when users frequently pick a range relative to today (e.g. "Last 30 days"). 425×273.</div>
+        </div>
+      </div>
+      <div class="state-card">
+        <div class="state-preview" id="simplePreview" style="padding:16px;"></div>
+        <div class="state-info">
+          <div class="state-name">Type=Simple</div>
+          <div class="state-desc">Calendar only — no sidebar. Use when users pick a specific date or short range. 237×246.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Axis</th><th>Values</th><th>Default</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Type</strong></td><td><span class="value-mono">Robust | Simple</span></td><td><span class="tag-pill tag-default">Robust</span></td><td>Robust shows the quick-pick sidebar; Simple is calendar-only</td></tr>
+          <tr><td><strong>Language</strong></td><td><span class="value-mono">English | Default</span></td><td><span class="tag-pill tag-default">English</span></td><td>Locale of weekday and quick-pick labels. Default is English; "Default" is reserved for future locale strings.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="day" class="section">
+    <div class="section-eyebrow">Sub-Component</div>
+    <h2 class="section-heading">DatePicker Day</h2>
+    <p class="section-desc">Each cell in the date grid is an instance of <code style="font-family:'IBM Plex Mono',monospace;font-size:13px;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;">DatePicker Day</code>. Five states cover unselected, selected as part of a range (with edge rounding), and empty placeholders.</p>
+
+    <div class="preview-container">
+      <div class="preview-canvas" style="background:#f0f4f8;gap:24px;padding:36px;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div class="day-cell">15</div>
+          <span style="font-size:10px;color:#666;font-family:'IBM Plex Mono',monospace;">Default</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div class="day-cell selected-left">15</div>
+          <span style="font-size:10px;color:#666;font-family:'IBM Plex Mono',monospace;">selected-left</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div class="day-cell selected-middle">16</div>
+          <span style="font-size:10px;color:#666;font-family:'IBM Plex Mono',monospace;">selected-middle</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div class="day-cell selected-right">17</div>
+          <span style="font-size:10px;color:#666;font-family:'IBM Plex Mono',monospace;">selected-right</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div style="width:32px;height:28px;border:1px dashed #ccc;border-radius:3px;"></div>
+          <span style="font-size:10px;color:#666;font-family:'IBM Plex Mono',monospace;">empty</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-desc" style="margin-top:24px;">A range like "Sep 8 → Sep 12" renders as: Sep 8 = <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">selected-left</code>, Sep 9–11 = <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">selected-middle</code>, Sep 12 = <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">selected-right</code>. Single-day selection uses <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">selected-middle</code>.</p>
+
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>State</th><th>Size</th><th>Background</th><th>Text</th><th>Border radius</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Default</strong></td><td><span class="value-mono">32 × 32</span></td><td><span class="color-swatch" style="background:#feffff;border-color:#ccc;"></span><span class="value-mono">surface/default</span></td><td><span class="value-mono">text/default</span></td><td><span class="value-mono">border-radius/small (2)</span></td></tr>
+          <tr><td><strong>selected-left</strong></td><td><span class="value-mono">32 × 32</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">surface/primary</span></td><td><span class="value-mono">text/default-on surface</span></td><td><span class="value-mono">16 / 0 / 0 / 16</span></td></tr>
+          <tr><td><strong>selected-middle</strong></td><td><span class="value-mono">32 × 32</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">surface/primary</span></td><td><span class="value-mono">text/default-on surface</span></td><td><span class="value-mono">0</span></td></tr>
+          <tr><td><strong>selected-right</strong></td><td><span class="value-mono">32 × 32</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">surface/primary</span></td><td><span class="value-mono">text/default-on surface</span></td><td><span class="value-mono">0 / 16 / 16 / 0</span></td></tr>
+          <tr><td><strong>empty</strong></td><td><span class="value-mono">32 × 28</span></td><td>—</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="usage" class="section">
+    <div class="section-eyebrow">Guidance</div>
+    <h2 class="section-heading">When to Use</h2>
+    <p class="section-desc">DatePicker is for selecting a date or a date range. Pair with <code style="font-family:'IBM Plex Mono',monospace;font-size:13px;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;">TimePicker</code> if a time is also needed; do not embed time controls inside DatePicker.</p>
+    <div class="usage-cols">
+      <div class="usage-box do">
+        <h4>✅ Use DatePicker When</h4>
+        <ul>
+          <li>User picks a date or contiguous date range</li>
+          <li>Range relative to today is common (Robust)</li>
+          <li>The form needs a clear visual anchor for the calendar</li>
+          <li>Designers need range visualization (selected-left/middle/right)</li>
+        </ul>
+      </div>
+      <div class="usage-box dont">
+        <h4>❌ Avoid DatePicker When</h4>
+        <ul>
+          <li>Date is part of a longer freeform input — use a date <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;">Input Field</code></li>
+          <li>User picks a time only — use <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;">TimePicker</code></li>
+          <li>You need a recurring schedule editor — that's its own component</li>
+          <li>A simple month/year picker is enough — Type=Simple</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="measurements" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Measurements</h2>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Element</th><th>Robust</th><th>Simple</th><th>Token</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Container</strong></td><td><span class="value-mono">425 × 273</span></td><td><span class="value-mono">237 × 246</span></td><td><span class="token-mono">—</span></td></tr>
+          <tr><td>Border</td><td><span class="value-mono">1px</span></td><td><span class="value-mono">1px</span></td><td><span class="token-mono">color/stroke/default</span></td></tr>
+          <tr><td>Border radius</td><td><span class="value-mono">4px</span></td><td><span class="value-mono">4px</span></td><td><span class="token-mono">border-radius/base</span></td></tr>
+          <tr><td><strong>Sidebar</strong></td><td><span class="value-mono">150 wide</span></td><td>—</td><td><span class="token-mono">—</span></td></tr>
+          <tr><td>Quick-pick row</td><td><span class="value-mono">30 tall, 12 H pad</span></td><td>—</td><td><span class="token-mono">spacing/base, spacing/xSmall</span></td></tr>
+          <tr><td><strong>Calendar pane</strong></td><td><span class="value-mono">275 wide</span></td><td><span class="value-mono">237 wide</span></td><td><span class="token-mono">—</span></td></tr>
+          <tr><td>Padding</td><td><span class="value-mono">12 / 8</span></td><td><span class="value-mono">12 / 8</span></td><td><span class="token-mono">spacing/base, spacing/small</span></td></tr>
+          <tr><td>Header height</td><td><span class="value-mono">22</span></td><td><span class="value-mono">22</span></td><td><span class="token-mono">—</span></td></tr>
+          <tr><td>Weekday row</td><td><span class="value-mono">28 tall</span></td><td><span class="value-mono">28 tall</span></td><td><span class="token-mono">—</span></td></tr>
+          <tr><td>Date cell</td><td><span class="value-mono">32 × 32</span></td><td><span class="value-mono">32 × 32</span></td><td><span class="token-mono">DatePicker Day</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="tokens" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Design Tokens</h2>
+    <p class="section-desc">All colors, spacing, and typography use semantic tokens from the BIStrainer design system.</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-mono">color/surface/default</span></td><td><span class="color-swatch" style="background:#feffff;border-color:#ccc;"></span><span class="value-mono">#feffff</span></td><td>Container + cell backgrounds</td></tr>
+          <tr><td><span class="token-mono">color/surface/primary</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">#0078b3</span></td><td>Selected-* day backgrounds</td></tr>
+          <tr><td><span class="token-mono">color/text/default</span></td><td><span class="color-swatch" style="background:#191919;"></span><span class="value-mono">#191919</span></td><td>Date numbers, quick-pick labels</td></tr>
+          <tr><td><span class="token-mono">color/text/primary</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">#0078b3</span></td><td>Header arrows, weekday labels</td></tr>
+          <tr><td><span class="token-mono">color/text/default-on surface</span></td><td><span class="color-swatch" style="background:#fff;border-color:#ccc;"></span><span class="value-mono">#ffffff</span></td><td>Text on selected days</td></tr>
+          <tr><td><span class="token-mono">color/stroke/default</span></td><td><span class="color-swatch" style="background:#b2b2b3;"></span><span class="value-mono">#b2b2b3</span></td><td>Container border</td></tr>
+          <tr><td><span class="token-mono">color/stroke/default-light</span></td><td><span class="color-swatch" style="background:#e2e2e3;"></span><span class="value-mono">#e2e2e3</span></td><td>Sidebar divider, input borders</td></tr>
+          <tr><td><span class="token-mono">border-radius/base</span></td><td><span class="value-mono">4px</span></td><td>Container corners</td></tr>
+          <tr><td><span class="token-mono">border-radius/small</span></td><td><span class="value-mono">2px</span></td><td>Day cell hover/focus</td></tr>
+          <tr><td><span class="token-mono">spacing/base</span></td><td><span class="value-mono">12px</span></td><td>Calendar pane padding</td></tr>
+          <tr><td><span class="token-mono">spacing/small</span></td><td><span class="value-mono">8px</span></td><td>Calendar pane gap</td></tr>
+          <tr><td><span class="token-mono">spacing/xSmall</span></td><td><span class="value-mono">6px</span></td><td>Quick-pick vertical padding</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="typography" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Typography</h2>
+    <p class="section-desc">All text uses the design system font (Segoe UI in production; Inter is used here as a substitute when Segoe isn't available — e.g., automated tooling).</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Element</th><th>Size</th><th>Weight</th><th>Token</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Month-year header</strong></td><td><span class="value-mono">14px</span></td><td><span class="value-mono">600 SemiBold</span></td><td><span class="token-mono">font-size/body/small</span></td></tr>
+          <tr><td><strong>Weekday labels</strong></td><td><span class="value-mono">12px</span></td><td><span class="value-mono">600 SemiBold</span></td><td><span class="token-mono">font-size/body/xSmall</span></td></tr>
+          <tr><td><strong>Date numbers</strong></td><td><span class="value-mono">13px</span></td><td><span class="value-mono">400 Regular</span></td><td><span class="token-mono">font-size/body/small</span></td></tr>
+          <tr><td><strong>Quick-pick labels</strong></td><td><span class="value-mono">12px</span></td><td><span class="value-mono">400 Regular</span></td><td><span class="token-mono">font-size/body/xSmall</span></td></tr>
+          <tr><td><strong>Last counter label</strong></td><td><span class="value-mono">12px</span></td><td><span class="value-mono">700 Bold</span></td><td><span class="token-mono">font-size/body/xSmall</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="accessibility" class="section">
+    <div class="section-eyebrow">WCAG Compliance</div>
+    <h2 class="section-heading">Accessibility</h2>
+    <p class="section-desc">DatePicker is a complex composite widget. Follow the WAI-ARIA <em>grid</em> pattern for the calendar and treat the sidebar quick-picks as a list of buttons.</p>
+    <div class="a11y-grid" style="margin-bottom:24px;">
+      <div class="a11y-card">
+        <div class="a11y-label">Roles</div>
+        <p class="a11y-text">Wrap the date grid with <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="grid"</code>. Each row uses <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="row"</code>; each cell <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="gridcell"</code>. The currently focused cell has <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">tabindex="0"</code>; all others <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">tabindex="-1"</code>.</p>
+      </div>
+      <div class="a11y-card warning">
+        <div class="a11y-label">Keyboard</div>
+        <p class="a11y-text"><strong>Arrow keys</strong> move within the grid by 1 day / 1 week. <strong>PageUp / PageDown</strong> move by month. <strong>Shift+PageUp / Shift+PageDown</strong> move by year. <strong>Home / End</strong> go to start / end of week. <strong>Enter / Space</strong> select. <strong>Esc</strong> closes the picker.</p>
+      </div>
+      <div class="a11y-card success">
+        <div class="a11y-label">Selection state</div>
+        <p class="a11y-text">Selected dates use <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-selected="true"</code>. Range visualization (selected-left/middle/right) is purely visual — keep <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-selected</code> on every cell in the range.</p>
+      </div>
+      <div class="a11y-card">
+        <div class="a11y-label">Labelling</div>
+        <p class="a11y-text">Each date cell needs an <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-label</code> with the full date (e.g., "September 15, 2024, Sunday") — the visible text is just the day number, which screen readers can't disambiguate.</p>
+      </div>
+      <div class="a11y-card warning">
+        <div class="a11y-label">Quick-picks (Robust)</div>
+        <p class="a11y-text">Sidebar items are buttons. Wrap in a <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="group"</code> with an accessible label like "Quick date ranges". Each pick triggers an immediate range selection — announce the new range via a live region.</p>
+      </div>
+      <div class="a11y-card">
+        <div class="a11y-label">Color contrast</div>
+        <p class="a11y-text">Selected cells (#fff on #0078b3) hit 4.6:1 (AA). Disabled / out-of-month cells must still meet 3:1 against the background or include a non-color indicator (italic, lower-opacity).</p>
+      </div>
+      <div class="a11y-card">
+        <div class="a11y-label">Touch targets</div>
+        <p class="a11y-text">32×32 cells are below the 44×44 mobile minimum. On touch surfaces, increase cell size to 44×44 or wrap in a 44×44 hit-area while keeping the visual at 32.</p>
+      </div>
+      <div class="a11y-card success">
+        <div class="a11y-label">Locale</div>
+        <p class="a11y-text">Use the <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">Language</code> variant to set weekday and quick-pick labels. Date format in <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">aria-label</code> should also be localized.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="props" class="section">
+    <div class="section-eyebrow">Implementation</div>
+    <h2 class="section-heading">Props API</h2>
+    <p class="section-desc">Suggested prop interface for the React component. Adapt to match your actual implementation.</p>
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="token-mono">type</span></td><td><span class="value-mono">"Robust" | "Simple"</span></td><td><span class="tag-pill tag-default">"Robust"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Whether to show the quick-pick sidebar</td></tr>
+          <tr><td><span class="token-mono">language</span></td><td><span class="value-mono">"English" | "Default"</span></td><td><span class="tag-pill tag-default">"English"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Locale for weekday + quick-pick labels</td></tr>
+          <tr><td><span class="token-mono">value</span></td><td><span class="value-mono">Date | [Date, Date]</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-required">required</span></td><td>Selected date or range</td></tr>
+          <tr><td><span class="token-mono">onChange</span></td><td><span class="value-mono">(value) =&gt; void</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-required">required</span></td><td>Called when user selects a date or completes a range</td></tr>
+          <tr><td><span class="token-mono">minDate</span></td><td><span class="value-mono">Date</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Earliest selectable date</td></tr>
+          <tr><td><span class="token-mono">maxDate</span></td><td><span class="value-mono">Date</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Latest selectable date</td></tr>
+          <tr><td><span class="token-mono">range</span></td><td><span class="value-mono">boolean</span></td><td><span class="tag-pill tag-default">false</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Enable range selection (uses selected-left/middle/right Day states)</td></tr>
+          <tr><td><span class="token-mono">quickPicks</span></td><td><span class="value-mono">QuickPick[]</span></td><td><span class="tag-pill tag-default">defaults</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Custom quick-pick options (Robust only)</td></tr>
+          <tr><td><span class="token-mono">aria-label</span></td><td><span class="value-mono">string</span></td><td><span class="tag-pill tag-default">—</span></td><td><span class="tag-pill tag-required">required</span></td><td>Accessible label for the picker</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="code" class="section">
+    <div class="section-eyebrow">Code</div>
+    <h2 class="section-heading">Code Examples</h2>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">Single date (Simple)</h3>
+    <div class="code-block" style="margin-bottom:28px;">
+      <div class="code-header"><span class="code-lang">React / TSX</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code><span class="ck">const</span> [date, setDate] = useState&lt;<span class="ck">Date</span>&gt;(<span class="ck">new</span> <span class="cp">Date</span>());
+
+&lt;<span class="cp">DatePicker</span>
+  <span class="cv">type</span>=<span class="cs">"Simple"</span>
+  <span class="cv">language</span>=<span class="cs">"English"</span>
+  <span class="cv">value</span>={date}
+  <span class="cv">onChange</span>={setDate}
+  <span class="cv">aria-label</span>=<span class="cs">"Birth date"</span>
+/&gt;</code></pre></div>
+    </div>
+
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;">Date range (Robust)</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">React / TSX</span><button class="code-copy" onclick="copyCode(this)">Copy</button></div>
+      <div class="code-content"><pre><code><span class="ck">const</span> [range, setRange] = useState&lt;[<span class="ck">Date</span>, <span class="ck">Date</span>]&gt;([
+  startOfMonth(<span class="ck">new</span> <span class="cp">Date</span>()),
+  <span class="ck">new</span> <span class="cp">Date</span>()
+]);
+
+&lt;<span class="cp">DatePicker</span>
+  <span class="cv">type</span>=<span class="cs">"Robust"</span>
+  <span class="cv">language</span>=<span class="cs">"English"</span>
+  <span class="cv">range</span>
+  <span class="cv">value</span>={range}
+  <span class="cv">onChange</span>={setRange}
+  <span class="cv">aria-label</span>=<span class="cs">"Report date range"</span>
+/&gt;</code></pre></div>
+    </div>
+  </section>
+
+</main>
+
+<aside class="props-panel">
+  <h2 class="props-title">Properties</h2>
+  <div class="prop-group">
+    <div class="prop-group-title">Variant</div>
+    <div class="prop-item">
+      <div class="prop-label">Type</div>
+      <select class="prop-select" id="sType" onchange="renderPlayground()">
+        <option value="robust">Robust</option>
+        <option value="simple">Simple</option>
+      </select>
+    </div>
+    <div class="prop-item">
+      <div class="prop-label">Language</div>
+      <select class="prop-select" id="sLang" onchange="renderPlayground()">
+        <option value="english">English</option>
+        <option value="default">Default</option>
+      </select>
+    </div>
+  </div>
+  <div class="prop-group">
+    <div class="prop-group-title">Demo selection</div>
+    <div class="prop-item">
+      <div class="prop-label">Range mode</div>
+      <select class="prop-select" id="sRange" onchange="renderPlayground()">
+        <option value="single">Single (Sep 15)</option>
+        <option value="range">Range (Sep 8 → 12)</option>
+        <option value="none">None</option>
+      </select>
+    </div>
+  </div>
+  <div class="divider-line"></div>
+  <div style="font-size:11px;color:var(--doc-text-muted);line-height:1.7;">
+    <strong style="color:var(--doc-text);display:block;margin-bottom:6px;">Quick Rules</strong>
+    Cell is 32×32 — wrap in 44×44 on touch<br>
+    Range uses selected-left/middle/right states<br>
+    Use TimePicker separately if time is needed<br>
+    Date grid follows WAI-ARIA grid pattern
+  </div>
+</aside>
+</div>
+
+<script>
+function nav(el,id){document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));el.classList.add('active');document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});}
+function setVariant(t,el){document.querySelectorAll('.preview-tab').forEach(x=>x.classList.remove('active'));el.classList.add('active');document.getElementById('sType').value=t;renderPlayground();}
+function copyCode(btn){const code=btn.closest('.code-block').querySelector('pre').textContent;navigator.clipboard.writeText(code);btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',2000);}
+
+const QUICK_PICKS = ['Year to Date','Today','Yesterday','This Week','Last Week','This Month','Last Month'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function buildCalendar(month, year, sel) {
+  // sel: {kind:'single'|'range'|'none', start, end}
+  const firstDay = new Date(year, month, 1).getDay();
+  const lastDate = new Date(year, month + 1, 0).getDate();
+  let html = '<div class="header"><span class="arrow">&#x2039;</span><span class="month">'+
+    ['January','February','March','April','May','June','July','August','September','October','November','December'][month]+
+    ', '+year+'</span><span class="arrow">&#x203A;</span></div>';
+  html += '<div class="grid">';
+  for (const d of DAYS) html += '<div class="day-name">'+d+'</div>';
+  for (let i = 0; i < firstDay; i++) html += '<div class="day"></div>';
+  for (let d = 1; d <= lastDate; d++) {
+    let cls = 'day';
+    if (sel.kind === 'single' && d === sel.start) cls += ' selected-middle';
+    if (sel.kind === 'range') {
+      if (d === sel.start) cls += ' selected-left';
+      else if (d === sel.end) cls += ' selected-right';
+      else if (d > sel.start && d < sel.end) cls += ' selected-middle';
+    }
+    html += '<div class="'+cls+'">'+d+'</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function buildSidebar() {
+  let html = '<div class="sidebar-pane">';
+  for (const p of QUICK_PICKS) html += '<div class="quickpick">'+p+'</div>';
+  html += '<div class="quickpick label">Last</div>';
+  html += '<div class="last-counter"><input class="input" value="7"/><select class="input" style="width:auto;font-size:11px;"><option>days</option><option>months</option></select></div>';
+  html += '</div>';
+  return html;
+}
+
+function renderPlayground() {
+  const type = document.getElementById('sType').value;
+  const range = document.getElementById('sRange').value;
+  let sel = { kind: 'none' };
+  if (range === 'single') sel = { kind: 'single', start: 15 };
+  else if (range === 'range') sel = { kind: 'range', start: 8, end: 12 };
+
+  const cal = buildCalendar(8, 2024, sel); // September 2024
+  let html = '<div class="datepicker">';
+  if (type === 'robust') html += buildSidebar();
+  html += '<div class="calendar-pane">'+cal+'</div></div>';
+  document.getElementById('dpPreview').innerHTML = html;
+}
+
+// Build the variant comparison previews
+function renderStatic() {
+  const robust = '<div class="datepicker">'+buildSidebar()+'<div class="calendar-pane">'+buildCalendar(8, 2024, {kind:'range',start:8,end:12})+'</div></div>';
+  const simple = '<div class="datepicker"><div class="calendar-pane">'+buildCalendar(8, 2024, {kind:'single',start:15})+'</div></div>';
+  document.getElementById('robustPreview').innerHTML = robust;
+  document.getElementById('simplePreview').innerHTML = simple;
+}
+
+renderPlayground();
+renderStatic();
+</script>
+</body>
+</html>
