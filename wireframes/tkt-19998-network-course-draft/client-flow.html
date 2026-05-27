@@ -113,15 +113,16 @@
 
 <div class="toc">
   <strong>Walkthrough — Path A from the course owner's perspective</strong>
-  <a href="#s1">1. Course list</a>
+  <a href="#s1">1. Course list (initial)</a>
   <a href="#s2">2. View mode</a>
   <a href="#s3">3. Edit mode</a>
   <a href="#s4">4. Edits in progress</a>
-  <a href="#s5">5. Submit modal</a>
-  <a href="#s6">6. Pending review</a>
-  <a href="#s7">7. Rejection email</a>
-  <a href="#s8">8. Returned draft</a>
-  <a href="#s9">9. Approval email</a>
+  <a href="#s5">5. Course list with Draft badge</a>
+  <a href="#s6">6. Submit modal</a>
+  <a href="#s7">7. Pending review</a>
+  <a href="#s8">8. Rejection email</a>
+  <a href="#s9">9. Returned draft</a>
+  <a href="#s10">10. Approval email</a>
 </div>
 
 <!-- ============ SCREEN 1 ============ -->
@@ -212,7 +213,7 @@
   <div class="mock">
     <div class="ui-app">
       <div class="ui-topnav"><span>Home</span><span>Profile</span><span>Store</span><span>Users</span><span>Admin</span></div>
-      <div class="ui-subnav">WHMIS 2077 <span><button class="btn">Discard Draft</button> &nbsp; <button class="btn btn-primary">Submit for Review</button></span></div>
+      <div class="ui-subnav">WHMIS 2077 <span><button class="btn btn-danger">Discard Draft</button> &nbsp; <button class="btn">Save Draft</button> &nbsp; <button class="btn btn-primary">Submit for Review</button></span></div>
       <div class="ui-tabs">
         <div class="ui-tab">Playlist</div>
         <div class="ui-tab">E-Commerce</div>
@@ -248,7 +249,7 @@
   <div class="mock">
     <div class="ui-app">
       <div class="ui-topnav"><span>Home</span><span>Profile</span><span>Store</span><span>Users</span><span>Admin</span></div>
-      <div class="ui-subnav">WHMIS 2077 <span><button class="btn">Discard Draft</button> &nbsp; <button class="btn btn-primary">Submit for Review</button></span></div>
+      <div class="ui-subnav">WHMIS 2077 <span><button class="btn btn-danger">Discard Draft</button> &nbsp; <button class="btn">Save Draft</button> &nbsp; <button class="btn btn-primary">Submit for Review</button></span></div>
       <div class="ui-tabs">
         <div class="ui-tab active">Playlist <span class="pill pill-edited" style="margin-left:6px;">edited</span></div>
         <div class="ui-tab">E-Commerce</div>
@@ -280,15 +281,56 @@
       <li><strong>Section/element headers (slide editor, E-Commerce sections, Configure form, Notification templates)</strong> — "(Edited)" badge next to the header title. Not shown here; pattern is consistent across all tabs.</li>
       <li>Markers stay <strong>persistent</strong> across submit → return → re-edit cycles.</li>
     </ul>
-    <strong>Action:</strong> client clicks <strong>Submit for Review</strong> → Screen 5.
+    <strong>Action paths:</strong>
+    <ul>
+      <li>Clicks <strong>Submit for Review</strong> → Screen 6 (submit confirmation modal).</li>
+      <li>Clicks <strong>Save Draft</strong> → toast confirmation, stays in edit mode. Navigating back to the course list now shows the Draft badge → Screen 5.</li>
+      <li>Clicks <strong>Discard Draft</strong> → confirmation modal → returns to view mode (Screen 2) with no changes saved.</li>
+    </ul>
   </div>
 </section>
 
-<!-- ============ SCREEN 5 ============ -->
+<!-- ============ SCREEN 5 (NEW) ============ -->
 <section class="screen" id="s5">
   <div class="screen-head">
     <div>
       <div class="screen-num">Screen 5</div>
+      <div class="screen-title">Course list — WHMIS 2077 now shows a "Draft" badge</div>
+    </div>
+    <div class="screen-state">Saved draft, returning later</div>
+  </div>
+  <div class="mock">
+    <div class="ui-app">
+      <div class="ui-topnav"><span>Home</span><span>Profile</span><span>Store</span><span>Users</span><span>Reporting</span><span>Admin</span></div>
+      <div class="ui-subnav">Courses <span style="font-weight:400;font-size:11px;">+ Add Course</span></div>
+      <div class="ui-body">
+        <table class="ui-table">
+          <thead>
+            <tr><th>Title</th><th>Type</th><th>Source</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="name">First Aid Refresher</td><td>Regular</td><td>Local</td><td><span class="pill pill-approved">Active</span></td><td>···</td></tr>
+            <tr class="row-highlight"><td class="name">WHMIS 2077</td><td>Regular</td><td><strong>Network</strong></td><td><span class="pill pill-edited">Draft</span></td><td>···</td></tr>
+            <tr><td class="name">Fall Protection</td><td>Regular</td><td>Local</td><td><span class="pill pill-approved">Active</span></td><td>···</td></tr>
+            <tr><td class="name">Confined Space Entry</td><td>Regular</td><td>Network</td><td><span class="pill pill-approved">Active</span></td><td>···</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="annot">
+    <strong>What's new:</strong> after the client clicks <strong>Save Draft</strong> in edit mode (Screen 3 / Screen 4), the network course in the course list shows a <strong>"Draft" badge</strong> in the Status column. This is how the client knows there's work in progress they can come back to.<br>
+    <strong>Behavior:</strong> clicking the row with a Draft badge skips view mode and reopens the course directly in edit mode — the client picks up exactly where they left off. Inline change markers and the unsaved-changes state are preserved.<br>
+    <strong>Other status states that appear here:</strong> when the client submits, the badge flips to "Pending Review." Once approved, it returns to "Active." Path B drafts (Amanda direct edit) are <em>not</em> visible to the client — the row stays "Active" from their side.<br>
+    <strong>Open question (design):</strong> if a Path B draft is in progress on the same course, should the client see a "Locked by BIS" indicator instead of "Active" to explain why they can't open it? Discuss with Amanda + QA.
+  </div>
+</section>
+
+<!-- ============ SCREEN 6 ============ -->
+<section class="screen" id="s6">
+  <div class="screen-head">
+    <div>
+      <div class="screen-num">Screen 6</div>
       <div class="screen-title">Submit for Review — confirmation modal</div>
     </div>
     <div class="screen-state">Confirmation</div>
@@ -310,15 +352,15 @@
   </div>
   <div class="annot">
     <strong>Why a confirmation:</strong> submission is one-way until Amanda responds. The modal sets that expectation explicitly. Copy is borrowed from Erica's Apr 2 proposal.<br>
-    <strong>Action:</strong> client clicks <strong>Submit</strong> → Screen 6.
+    <strong>Action:</strong> client clicks <strong>Submit</strong> → Screen 7.
   </div>
 </section>
 
-<!-- ============ SCREEN 6 ============ -->
-<section class="screen" id="s6">
+<!-- ============ SCREEN 7 ============ -->
+<section class="screen" id="s7">
   <div class="screen-head">
     <div>
-      <div class="screen-num">Screen 6</div>
+      <div class="screen-num">Screen 7</div>
       <div class="screen-title">Pending Review state — read-only, change markers visible</div>
     </div>
     <div class="screen-state">Awaiting Amanda</div>
@@ -351,15 +393,15 @@
   </div>
   <div class="annot">
     <strong>State:</strong> the client can still see everything they submitted — including their change markers — but cannot edit. All inline actions are disabled.<br>
-    <strong>Next:</strong> Amanda receives an email and reviews. If she <em>returns</em> the draft, Screen 7. If she <em>approves</em>, Screen 9.
+    <strong>Next:</strong> Amanda receives an email and reviews. If she <em>returns</em> the draft, Screen 8. If she <em>approves</em>, Screen 10.
   </div>
 </section>
 
-<!-- ============ SCREEN 7 ============ -->
-<section class="screen" id="s7">
+<!-- ============ SCREEN 8 ============ -->
+<section class="screen" id="s8">
   <div class="screen-head">
     <div>
-      <div class="screen-num">Screen 7</div>
+      <div class="screen-num">Screen 8</div>
       <div class="screen-title">Rejection email — draft returned with comment</div>
     </div>
     <div class="screen-state">Returned</div>
@@ -374,22 +416,22 @@
         <p>Hi {First Name},</p>
         <p>Your draft for <strong>WHMIS 2077</strong> has been reviewed and returned with a comment. Please review the feedback below and resubmit your draft once the changes are made.</p>
         <p style="background:#fafafa;border-left:3px solid #b21f2d;padding:10px 14px;"><strong>Reviewer comment:</strong><br>The updated content in "Understanding WHMIS 2026" references the 2024 standard. Please update to reflect the 2026 standard before resubmitting.</p>
-        <p><a class="email-link" href="#s8">Open draft in builder →</a></p>
+        <p><a class="email-link" href="#s9">Open draft in builder →</a></p>
         <p style="color:#888;font-size:11px;">Your change markers are still visible in the draft so you can navigate to the flagged area.</p>
       </div>
     </div>
   </div>
   <div class="annot">
     <strong>What surfaces:</strong> Amanda's required comment, a deep link straight to the draft, and a note about persistent markers. The email is the primary handoff back to the client.<br>
-    <strong>Action:</strong> client clicks the link → Screen 8.
+    <strong>Action:</strong> client clicks the link → Screen 9.
   </div>
 </section>
 
-<!-- ============ SCREEN 8 ============ -->
-<section class="screen" id="s8">
+<!-- ============ SCREEN 9 ============ -->
+<section class="screen" id="s9">
   <div class="screen-head">
     <div>
-      <div class="screen-num">Screen 8</div>
+      <div class="screen-num">Screen 9</div>
       <div class="screen-title">Returned draft — back in edit mode with comment + persistent markers</div>
     </div>
     <div class="screen-state">Edit mode (post-rejection)</div>
@@ -397,7 +439,7 @@
   <div class="mock">
     <div class="ui-app">
       <div class="ui-topnav"><span>Home</span><span>Profile</span><span>Store</span><span>Users</span><span>Admin</span></div>
-      <div class="ui-subnav">WHMIS 2077 <span><button class="btn">Discard Draft</button> &nbsp; <button class="btn btn-primary">Submit for Review</button></span></div>
+      <div class="ui-subnav">WHMIS 2077 <span><button class="btn btn-danger">Discard Draft</button> &nbsp; <button class="btn">Save Draft</button> &nbsp; <button class="btn btn-primary">Submit for Review</button></span></div>
       <div class="ui-tabs">
         <div class="ui-tab active">Playlist <span class="pill pill-edited" style="margin-left:6px;">edited</span></div>
         <div class="ui-tab">E-Commerce</div>
@@ -423,15 +465,15 @@
   <div class="annot">
     <strong>Key UX point:</strong> Amanda's comment is the navigation aid — the client reads it, then uses the persistent change markers to jump to the flagged area. We are <em>not</em> auto-highlighting the rejected item (no inline thread or per-item flag) — all-or-nothing review is the pattern.<br>
     <strong>Open question (QA):</strong> if the client clicks a flagged element, should we auto-scroll/focus, or just rely on the markers? Worth discussing.<br>
-    <strong>Action:</strong> client makes the change → <strong>Submit for Review</strong> → loops back to Screen 5 / 6. On approval → Screen 9.
+    <strong>Action:</strong> client makes the change → <strong>Submit for Review</strong> (or <strong>Save Draft</strong> to keep working later) → loops back to Screen 6 / 7. On approval → Screen 10.
   </div>
 </section>
 
-<!-- ============ SCREEN 9 ============ -->
-<section class="screen" id="s9">
+<!-- ============ SCREEN 10 ============ -->
+<section class="screen" id="s10">
   <div class="screen-head">
     <div>
-      <div class="screen-num">Screen 9</div>
+      <div class="screen-num">Screen 10</div>
       <div class="screen-title">Approval email — changes are live</div>
     </div>
     <div class="screen-state">Approved &amp; live</div>
