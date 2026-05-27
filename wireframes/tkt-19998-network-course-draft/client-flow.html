@@ -236,6 +236,230 @@
   </div>
 </section>
 
-<!-- See full file at /wireframes/tkt-19998-network-course-draft/client-flow.html for screens 4-9 -->
+<!-- ============ SCREEN 4 ============ -->
+<section class="screen" id="s4">
+  <div class="screen-head">
+    <div>
+      <div class="screen-num">Screen 4</div>
+      <div class="screen-title">Edits in progress — change markers appear</div>
+    </div>
+    <div class="screen-state">Edit mode with changes</div>
+  </div>
+  <div class="mock">
+    <div class="ui-app">
+      <div class="ui-topnav"><span>Home</span><span>Profile</span><span>Store</span><span>Users</span><span>Admin</span></div>
+      <div class="ui-subnav">WHMIS 2077 <span><button class="btn">Discard Draft</button> &nbsp; <button class="btn btn-primary">Submit for Review</button></span></div>
+      <div class="ui-tabs">
+        <div class="ui-tab active">Playlist <span class="pill pill-edited" style="margin-left:6px;">edited</span></div>
+        <div class="ui-tab">E-Commerce</div>
+        <div class="ui-tab">Configure <span class="pill pill-edited" style="margin-left:6px;">edited</span></div>
+        <div class="ui-tab">Notification</div>
+        <div class="ui-tab">Advanced</div>
+      </div>
+      <div class="ui-body">
+        <table class="ui-table">
+          <thead>
+            <tr><th></th><th>Title</th><th>Type</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>▾</td><td><strong>Chapter 1: Introduction to WHMIS 2026</strong></td><td>—</td><td><span class="pill pill-approved">Optional</span></td><td>+</td></tr>
+            <tr><td></td><td>Understanding WHMIS 2026</td><td>Slide</td><td><span class="pill pill-edited">Edited</span></td><td>✏️ 🗑️</td></tr>
+            <tr><td></td><td>Key Components of WHMIS</td><td>Slide</td><td><span class="pill pill-pending">Pending</span></td><td>✏️ 🗑️</td></tr>
+            <tr><td></td><td>Updated Safety Protocols 2026</td><td>Slide</td><td><span class="pill pill-new">New</span></td><td>✏️ 🗑️</td></tr>
+            <tr><td></td><td><span style="text-decoration:line-through;color:#999;">WHMIS and Global Harmonization</span></td><td>Slide</td><td><span class="pill pill-deleted">Deleted</span></td><td>↩️</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="annot">
+    <strong>Change markers:</strong>
+    <ul>
+      <li><strong>Playlist elements</strong> — pill in the existing <strong>Status column</strong> ("Edited" / "New" / "Deleted"). Reuses the same column as today's "Approved" / "Pending" — no new UI region.</li>
+      <li><strong>Tab labels</strong> — "edited" pill next to each tab that contains changes, so the client (and Amanda later) can see at a glance which tabs are affected.</li>
+      <li><strong>Section/element headers (slide editor, E-Commerce sections, Configure form, Notification templates)</strong> — "(Edited)" badge next to the header title. Not shown here; pattern is consistent across all tabs.</li>
+      <li>Markers stay <strong>persistent</strong> across submit → return → re-edit cycles.</li>
+    </ul>
+    <strong>Action:</strong> client clicks <strong>Submit for Review</strong> → Screen 5.
+  </div>
+</section>
 
-</div></body></html>
+<!-- ============ SCREEN 5 ============ -->
+<section class="screen" id="s5">
+  <div class="screen-head">
+    <div>
+      <div class="screen-num">Screen 5</div>
+      <div class="screen-title">Submit for Review — confirmation modal</div>
+    </div>
+    <div class="screen-state">Confirmation</div>
+  </div>
+  <div class="mock">
+    <div class="modal-overlay">
+      <div class="modal">
+        <div class="modal-head">Submit Draft for Review</div>
+        <div class="modal-body">
+          <p>Have you finished updating your network course? A Network Course Manager will review your submission.</p>
+          <p>Once you submit, you can no longer make changes until the reviewer responds. Are you sure?</p>
+        </div>
+        <div class="modal-foot">
+          <button class="btn">Cancel</button>
+          <button class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="annot">
+    <strong>Why a confirmation:</strong> submission is one-way until Amanda responds. The modal sets that expectation explicitly. Copy is borrowed from Erica's Apr 2 proposal.<br>
+    <strong>Action:</strong> client clicks <strong>Submit</strong> → Screen 6.
+  </div>
+</section>
+
+<!-- ============ SCREEN 6 ============ -->
+<section class="screen" id="s6">
+  <div class="screen-head">
+    <div>
+      <div class="screen-num">Screen 6</div>
+      <div class="screen-title">Pending Review state — read-only, change markers visible</div>
+    </div>
+    <div class="screen-state">Awaiting Amanda</div>
+  </div>
+  <div class="mock">
+    <div class="ui-app">
+      <div class="ui-topnav"><span>Home</span><span>Profile</span><span>Store</span><span>Users</span><span>Admin</span></div>
+      <div class="ui-subnav">WHMIS 2077 <span><span class="pill pill-review">Pending Review</span></span></div>
+      <div class="ui-tabs">
+        <div class="ui-tab active">Playlist <span class="pill pill-edited" style="margin-left:6px;">edited</span></div>
+        <div class="ui-tab">E-Commerce</div>
+        <div class="ui-tab">Configure <span class="pill pill-edited" style="margin-left:6px;">edited</span></div>
+        <div class="ui-tab">Notification</div>
+        <div class="ui-tab">Advanced</div>
+      </div>
+      <div class="ui-body">
+        <div class="info-banner review">⏳ Your draft is pending review by a Network Course Manager. You'll receive an email with their response. Editing is paused until then.</div>
+        <table class="ui-table">
+          <thead>
+            <tr><th>Title</th><th>Type</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Understanding WHMIS 2026</td><td>Slide</td><td><span class="pill pill-edited">Edited</span></td><td>(disabled)</td></tr>
+            <tr><td>Updated Safety Protocols 2026</td><td>Slide</td><td><span class="pill pill-new">New</span></td><td>(disabled)</td></tr>
+            <tr><td><span style="text-decoration:line-through;color:#999;">WHMIS and Global Harmonization</span></td><td>Slide</td><td><span class="pill pill-deleted">Deleted</span></td><td>(disabled)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="annot">
+    <strong>State:</strong> the client can still see everything they submitted — including their change markers — but cannot edit. All inline actions are disabled.<br>
+    <strong>Next:</strong> Amanda receives an email and reviews. If she <em>returns</em> the draft, Screen 7. If she <em>approves</em>, Screen 9.
+  </div>
+</section>
+
+<!-- ============ SCREEN 7 ============ -->
+<section class="screen" id="s7">
+  <div class="screen-head">
+    <div>
+      <div class="screen-num">Screen 7</div>
+      <div class="screen-title">Rejection email — draft returned with comment</div>
+    </div>
+    <div class="screen-state">Returned</div>
+  </div>
+  <div class="mock">
+    <div class="email">
+      <div class="email-head">
+        <div><strong>From:</strong> notifications@bissafety.app</div>
+        <div><strong>Subject:</strong> Your WHMIS 2077 draft needs changes</div>
+      </div>
+      <div class="email-body">
+        <p>Hi {First Name},</p>
+        <p>Your draft for <strong>WHMIS 2077</strong> has been reviewed and returned with a comment. Please review the feedback below and resubmit your draft once the changes are made.</p>
+        <p style="background:#fafafa;border-left:3px solid #b21f2d;padding:10px 14px;"><strong>Reviewer comment:</strong><br>The updated content in "Understanding WHMIS 2026" references the 2024 standard. Please update to reflect the 2026 standard before resubmitting.</p>
+        <p><a class="email-link" href="#s8">Open draft in builder →</a></p>
+        <p style="color:#888;font-size:11px;">Your change markers are still visible in the draft so you can navigate to the flagged area.</p>
+      </div>
+    </div>
+  </div>
+  <div class="annot">
+    <strong>What surfaces:</strong> Amanda's required comment, a deep link straight to the draft, and a note about persistent markers. The email is the primary handoff back to the client.<br>
+    <strong>Action:</strong> client clicks the link → Screen 8.
+  </div>
+</section>
+
+<!-- ============ SCREEN 8 ============ -->
+<section class="screen" id="s8">
+  <div class="screen-head">
+    <div>
+      <div class="screen-num">Screen 8</div>
+      <div class="screen-title">Returned draft — back in edit mode with comment + persistent markers</div>
+    </div>
+    <div class="screen-state">Edit mode (post-rejection)</div>
+  </div>
+  <div class="mock">
+    <div class="ui-app">
+      <div class="ui-topnav"><span>Home</span><span>Profile</span><span>Store</span><span>Users</span><span>Admin</span></div>
+      <div class="ui-subnav">WHMIS 2077 <span><button class="btn">Discard Draft</button> &nbsp; <button class="btn btn-primary">Submit for Review</button></span></div>
+      <div class="ui-tabs">
+        <div class="ui-tab active">Playlist <span class="pill pill-edited" style="margin-left:6px;">edited</span></div>
+        <div class="ui-tab">E-Commerce</div>
+        <div class="ui-tab">Configure <span class="pill pill-edited" style="margin-left:6px;">edited</span></div>
+        <div class="ui-tab">Notification</div>
+        <div class="ui-tab">Advanced</div>
+      </div>
+      <div class="ui-body">
+        <div class="info-banner rejected">↩️ <strong>Draft returned by Amanda Burton</strong> · <em>"The updated content in 'Understanding WHMIS 2026' references the 2024 standard. Please update to reflect the 2026 standard before resubmitting."</em></div>
+        <table class="ui-table">
+          <thead>
+            <tr><th>Title</th><th>Type</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr style="background:#fff8e1"><td>Understanding WHMIS 2026 <span class="lock-icon">← flagged in comment</span></td><td>Slide</td><td><span class="pill pill-edited">Edited</span></td><td>✏️ 🗑️</td></tr>
+            <tr><td>Updated Safety Protocols 2026</td><td>Slide</td><td><span class="pill pill-new">New</span></td><td>✏️ 🗑️</td></tr>
+            <tr><td><span style="text-decoration:line-through;color:#999;">WHMIS and Global Harmonization</span></td><td>Slide</td><td><span class="pill pill-deleted">Deleted</span></td><td>↩️</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="annot">
+    <strong>Key UX point:</strong> Amanda's comment is the navigation aid — the client reads it, then uses the persistent change markers to jump to the flagged area. We are <em>not</em> auto-highlighting the rejected item (no inline thread or per-item flag) — all-or-nothing review is the pattern.<br>
+    <strong>Open question (QA):</strong> if the client clicks a flagged element, should we auto-scroll/focus, or just rely on the markers? Worth discussing.<br>
+    <strong>Action:</strong> client makes the change → <strong>Submit for Review</strong> → loops back to Screen 5 / 6. On approval → Screen 9.
+  </div>
+</section>
+
+<!-- ============ SCREEN 9 ============ -->
+<section class="screen" id="s9">
+  <div class="screen-head">
+    <div>
+      <div class="screen-num">Screen 9</div>
+      <div class="screen-title">Approval email — changes are live</div>
+    </div>
+    <div class="screen-state">Approved &amp; live</div>
+  </div>
+  <div class="mock">
+    <div class="email">
+      <div class="email-head">
+        <div><strong>From:</strong> notifications@bissafety.app</div>
+        <div><strong>Subject:</strong> Your WHMIS 2077 changes are now live</div>
+      </div>
+      <div class="email-body">
+        <p>Hi {First Name},</p>
+        <p>Your draft for <strong>WHMIS 2077</strong> has been approved by Amanda Burton and the changes are now live on your store.</p>
+        <p style="background:#fafafa;border-left:3px solid #155724;padding:10px 14px;"><strong>Reviewer comment:</strong><br>Thanks for the quick turnaround — changes look great.</p>
+        <p><a class="email-link" href="#s1">View live course →</a></p>
+      </div>
+    </div>
+  </div>
+  <div class="annot">
+    <strong>Final state:</strong> the client's draft is now the live course. Change markers are cleared. The course returns to standard view mode (Screen 2 state, but with the new content). A fresh draft can be created at any time by clicking Edit again.
+  </div>
+</section>
+
+<div class="foot">
+  TKT-19998 · Concept Review Wireframe · Path A · Client Flow<br>
+  Deliberately rough — not committed UI. Companion file: <code>amanda-flow.html</code>
+</div>
+
+</div>
+</body>
+</html>
