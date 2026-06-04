@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIS Admin — Redesign (matches Figma TKT-19305)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  /* ---- Design tokens (pulled from Figma: Admin-Page-Redesign) ---- */
+  :root{
+    --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+
+    --surface-default:#feffff;
+    --surface-warning-lightest:#fffcf2;
+    --surface-secondary-lightest:#f2f2f2;
+
+    --text-default:#191919;
+    --text-secondary:#666666;
+    --text-primary:#0078b3;        /* module name link */
+    --text-on-surface:#feffff;
+
+    --stroke-default:#b2b2b3;
+    --stroke-warning:#a1851f;
+
+    --icon-default:#4d4c4c;
+    --icon-default-light:#b2b2b3;  /* unfilled star + drag dots */
+    --icon-warning:#c29c14;        /* filled / highlighted star */
+
+    --header-bar:#443b5a;          /* dark Admin page header */
+
+    --radius-sm:2px;
+    --radius-md:8px;
+    --radius-round:80px;
+
+    --sp-xxs:4px; --sp-xs:6px; --sp-s:8px; --sp-base:12px; --sp-m:16px; --sp-l:24px;
+
+    --card-w:156px; --card-h:135px; --grid-gap:12px;
+  }
+
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font);background:#fff;color:var(--text-default);}
+
+  /* ============ GLOBAL HEADER (top nav — simplified to match redesign) ============ */
+  .global-header{height:108px;border-bottom:1px solid #e5e5e5;display:flex;flex-direction:column;}
+  .gh-top{flex:1;display:flex;align-items:center;justify-content:space-between;padding:0 20px;}
+  .gh-logo{display:flex;align-items:center;gap:8px;font-weight:700;color:#2b2b2b;}
+  .gh-logo .mark{width:30px;height:30px;border-radius:6px;background:linear-gradient(135deg,#7b61ff,#0078b3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;}
+  .gh-logo small{font-weight:400;color:#888;font-size:11px;line-height:1.1;}
+  .gh-right{display:flex;align-items:center;gap:16px;color:#888;}
+  .gh-search{display:flex;align-items:center;border:1px solid var(--stroke-default);border-radius:4px;height:30px;padding:0 8px;width:230px;color:#888;font-size:13px;gap:8px;}
+  .gh-search input{border:0;outline:0;flex:1;font-family:var(--font);font-size:13px;}
+  .gh-right .avatar{width:26px;height:26px;border-radius:50%;background:#d9d9d9;display:flex;align-items:center;justify-content:center;color:#fff;}
+  .gh-nav{height:38px;display:flex;align-items:center;gap:22px;padding:0 20px;font-size:14px;}
+  .gh-nav a{color:#2b2b2b;text-decoration:none;}
+  .gh-nav a.active{color:var(--text-primary);font-weight:600;}
+  .gh-info{margin-left:auto;background:var(--text-primary);color:#fff;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:3px;font-size:12px;}
+
+  /* ============ ADMIN PAGE HEADER BAR ============ */
+  .page-header{background:var(--header-bar);height:52px;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;}
+  .page-header h1{margin:0;color:var(--text-on-surface);font-size:24px;font-weight:600;line-height:32px;}
+  .ph-search{width:376px;height:32px;background:var(--surface-default);border:1px solid var(--stroke-default);border-radius:var(--radius-sm);display:flex;align-items:center;gap:8px;padding:4px 6px;}
+  .ph-search input{border:0;outline:0;flex:1;font-family:var(--font);font-size:16px;color:var(--text-secondary);}
+  .ph-search i{color:var(--text-secondary);font-size:15px;}
+
+  /* ============ PAGE BODY ============ */
+  .admin-body{padding:16px 48px 48px;}
+
+  /* ---- Favourites container ---- */
+  .favourites{background:var(--surface-warning-lightest);border:1px solid var(--stroke-warning);border-radius:var(--radius-md);padding:16px;margin-bottom:24px;}
+  .favourites .fav-title{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;margin-bottom:14px;color:var(--text-default);}
+  .favourites .fav-title i{color:var(--icon-warning);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,var(--card-w));gap:var(--grid-gap);justify-content:start;}
+
+  /* ---- Section header ---- */
+  .section-title{font-size:20px;font-weight:600;color:var(--text-default);margin:24px 0 16px;}
+
+  /* ============ MODULE CARD — two sections, fully clickable ============ */
+  .card{
+    width:var(--card-w);height:var(--card-h);
+    background:var(--surface-default);
+    border:1px solid var(--stroke-default);
+    border-radius:var(--radius-md);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--sp-base);
+    position:relative;padding:12px 8px;overflow:hidden;
+    text-decoration:none;color:inherit;cursor:pointer;
+    transition:border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+  }
+
+  /* --- HOVER: made obvious --- */
+  .card:hover{
+    border-color:var(--text-primary);
+    box-shadow:0 2px 8px rgba(0,120,179,.16);
+    transform:translateY(-1px);
+  }
+  .card:hover .card-name{color:#005a87;}
+  .card:focus-visible{outline:2px solid var(--text-primary);outline-offset:2px;}
+
+  /* Section 1: icon — top of a centered icon+label group (Google-console style); star/drag float in card corners */
+  .card-top{flex:none;display:flex;align-items:center;justify-content:center;}
+  .card-icon{font-size:45px;display:flex;align-items:center;justify-content:center;line-height:1;}
+
+  /* drag handle (2x3 dots) — favourites section only */
+  .drag{position:absolute;top:8px;left:8px;display:none;grid-template-columns:repeat(2,3px);grid-auto-rows:3px;gap:3px;}
+  .drag span{width:3px;height:3px;border-radius:50%;background:var(--icon-default-light);}
+  #fav-grid .card .drag{display:grid;}
+
+  /* star button — top-right corner */
+  .star-btn{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:var(--radius-round);border:0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--icon-default-light);opacity:0;transition:opacity .12s ease, background .12s ease, color .12s ease, transform .12s ease;}
+  .star-btn:hover{background:#fff6d8;color:var(--icon-warning);transform:scale(1.12);}
+  /* unselected: star only appears on card hover */
+  .card:hover .star-btn,
+  .star-btn:focus-visible{opacity:1;}
+  /* selected/favourited: star always visible + highlighted gold */
+  .card.is-fav .star-btn{opacity:1;color:var(--icon-warning);}
+
+  /* Section 2: name — natural height (1 or 2 lines), directly under the icon. The card centers the whole
+     icon+label group, so each card reads as visually centered; a two-line name just makes the group taller. */
+  .card-name{width:100%;text-align:center;padding:0 4px;font-size:14px;font-weight:600;line-height:18px;
+    color:var(--text-primary);word-break:break-word;}
+
+  .note{max-width:1332px;margin:28px auto 0;padding:14px 16px;background:var(--surface-secondary-lightest);border-radius:8px;font-size:13px;color:#555;line-height:1.5;}
+  .note code{background:#fff;padding:1px 5px;border-radius:4px;border:1px solid #ddd;}
+</style>
+</head>
+<body>
+
+<!-- ===== GLOBAL HEADER ===== -->
+<header class="global-header">
+  <div class="gh-top">
+    <div class="gh-logo">
+      <span class="mark">BIS</span>
+      <small>QAQC TEST<br>ENVIRONMENT</small>
+    </div>
+    <div class="gh-right">
+      <i class="fa-regular fa-newspaper" style="font-size:18px;"></i>
+      <div class="gh-search"><input placeholder="Search User"><i class="fa-solid fa-magnifying-glass"></i></div>
+      <i class="fa-regular fa-circle-question" style="font-size:18px;"></i>
+      <span class="avatar"><i class="fa-solid fa-user"></i></span>
+      <span>Log Out <i class="fa-solid fa-angle-right"></i></span>
+    </div>
+  </div>
+  <nav class="gh-nav">
+    <a>Home</a><a>Profile</a><a>Store</a><a>Rewards</a><a>Purchases</a><a>Users</a>
+    <a>Reporting</a><a>Calendar</a><a>Assets</a><a>Folders</a><a>QR</a><a class="active">Admin</a>
+    <span class="gh-info">i</span>
+  </nav>
+</header>
+
+<!-- ===== ADMIN PAGE HEADER BAR ===== -->
+<div class="page-header">
+  <h1>Admin</h1>
+  <div class="ph-search">
+    <input placeholder="Search module">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </div>
+</div>
+
+<!-- ===== BODY ===== -->
+<div class="admin-body">
+
+  <!-- Favourites -->
+  <section class="favourites">
+    <div class="fav-title"><i class="fa-solid fa-star"></i> Favourites</div>
+    <div class="grid" id="fav-grid"></div>
+    <div id="fav-empty" style="color:#999;font-size:13px;display:none;">No favourites yet — click the ☆ on any module to pin it here.</div>
+  </section>
+
+  <!-- System Modules -->
+  <h2 class="section-title">System Modules</h2>
+  <div class="grid" id="sys-grid"></div>
+
+  <!-- Global Modules -->
+  <h2 class="section-title">Global Modules</h2>
+  <div class="grid" id="global-grid"></div>
+
+  <div class="note">
+    <strong>Note on icons:</strong> the module icons here are Font&nbsp;Awesome stand-ins (the live site already loads Font Awesome). The BIS brand illustrations in your Figma would drop into the same <code>.card-icon</code> slot — the card layout, two-section split, clickable area, star highlight and hover are all matched to the redesign.
+  </div>
+</div>
+
+<script>
+  // [icon, color, name, isFavourite]
+  const FAV = [
+    ["fa-building-columns","#c0392b","Companies"],
+    ["fa-chart-bar","#e84393","Excel Report"],
+    ["fa-chart-line","#0078b3","Reporting Dashboard"],
+    ["fa-graduation-cap","#c0392b","Microlearning"],
+  ];
+  const SYS = [
+    ["fa-laptop","#0078b3","Online Courses"],
+    ["fa-server","#0078b3","Online Courses"],
+    ["fa-star","#f39c12","Course Codes"],
+    ["fa-users-gear","#0078b3","Bulk Course Assignment"],
+    ["fa-table-cells","#16a085","Training Matrix"],
+    ["fa-folder-tree","#16a085","Training Record Management"],
+    ["fa-gauge-high","#16a085","Training Dashboard"],
+    ["fa-book","#27ae60","Playbooks"],
+    ["fa-file-lines","#0078b3","Forms"],
+    ["fa-database","#16a085","Datasets"],
+    ["fa-calendar-check","#9b59b6","Event Management"],
+    ["fa-truck-fast","#2980b9","Assets"],
+    ["fa-folder","#f39c12","Folders"],
+    ["fa-calendar-days","#16a085","Classroom Calendar"],
+    ["fa-diagram-project","#2980b9","Project Management"],
+    ["fa-gift","#c0392b","Rewards"],
+    ["fa-location-dot","#27ae60","Site Access"],
+    ["fa-user-shield","#2980b9","Lone Worker"],
+    ["fa-box-open","#8e44ad","Physical Product Orders"],
+    ["fa-cart-shopping","#27ae60","E-Commerce Purchase Orders"],
+    ["fa-id-badge","#2980b9","ID Photo Upload"],
+    ["fa-magnifying-glass","#3498db","Search"],
+    ["fa-envelope","#2980b9","Email Log"],
+    ["fa-bell","#e67e22","System Updates"],
+  ];
+  const GLOBAL = [
+    ["fa-language","#7f8c8d","Translation"],
+    ["fa-chart-line","#9b59b6","Analytics"],
+    ["fa-user-check","#2980b9","Verification"],
+    ["fa-shield-halved","#34495e","Security"],
+  ];
+
+  const favGrid = document.getElementById("fav-grid");
+  const dragDots = `<span class="drag">${"<span></span>".repeat(6)}</span>`;
+
+  function buildCard([icon,color,name], homeId){
+    const a=document.createElement("a");
+    a.href="#"; a.className="card";
+    a.dataset.home=homeId;                 // the grid this card returns to when un-favourited
+    a.setAttribute("role","button");
+    a.setAttribute("aria-label",name);
+    a.innerHTML=`
+      <div class="card-top">
+        ${dragDots}
+        <div class="card-icon"><i class="fa-solid ${icon}" style="color:${color}"></i></div>
+        <button class="star-btn" title="Favourite" aria-label="Toggle favourite">
+          <i class="fa-regular fa-star"></i>
+        </button>
+      </div>
+      <div class="card-name">${name}</div>`;
+    a.addEventListener("click",e=>{ if(e.target.closest(".star-btn"))return; e.preventDefault(); });
+    a.querySelector(".star-btn").addEventListener("click",e=>{
+      e.preventDefault(); e.stopPropagation();
+      a.classList.contains("is-fav") ? toHome(a) : toFavourites(a);
+    });
+    return a;
+  }
+
+  function setStar(card,on){
+    card.classList.toggle("is-fav",on);
+    card.querySelector(".star-btn i").className="fa-"+(on?"solid":"regular")+" fa-star";
+  }
+
+  // MOVE semantics (matches live): favouriting removes the card from its list and drops it into Favourites
+  function toFavourites(card){
+    setStar(card,true);
+    favGrid.appendChild(card);             // appendChild MOVES the element out of its current grid
+    updateEmpty();
+  }
+  function toHome(card){
+    setStar(card,false);
+    document.getElementById(card.dataset.home).appendChild(card);   // returns it to its module list
+    updateEmpty();
+  }
+
+  // build the module lists
+  const place=(id,list)=>{const g=document.getElementById(id);list.forEach(d=>g.appendChild(buildCard(d,id)));};
+  place("sys-grid",SYS);
+  place("global-grid",GLOBAL);
+
+  // pre-pinned favourites (home = System Modules, so un-favouriting drops them back there)
+  FAV.forEach(d=>toFavourites(buildCard(d,"sys-grid")));
+
+  function updateEmpty(){
+    const empty=document.getElementById("fav-empty");
+    if(empty) empty.style.display = favGrid.children.length ? "none" : "block";
+  }
+  updateEmpty();
+</script>
+</body>
+</html>
