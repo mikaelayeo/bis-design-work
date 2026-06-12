@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIS Safety Software · Teams Restructure Wireframes</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+    background: #F5F5F4;
+    min-height: 100vh;
+    padding: 40px 20px;
+    color: #171717;
+  }
+
+  /* Header */
+  .page-header { text-align: center; margin-bottom: 32px; }
+  .page-header .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #A3A3A3; }
+  .page-header h1 { font-size: 22px; font-weight: 800; margin-top: 6px; letter-spacing: -0.02em; }
+  .page-header .subtitle { font-size: 13px; color: #737373; margin-top: 4px; }
+
+  /* Flow nav */
+  .flow-nav { display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .flow-pill { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; background: #E4E4E4; color: #737373; cursor: pointer; border: none; font-family: inherit; transition: all 0.15s; }
+  .flow-pill.active { background: #262626; color: #FFF; }
+  .flow-arrow { color: #CFCFCF; display: flex; align-items: center; }
+
+  /* Phone frame */
+  .phone-wrap { display: flex; justify-content: center; }
+  .phone {
+    width: 375px; height: 812px; border-radius: 40px; border: 2px solid #CFCFCF;
+    background: #FFF; overflow: hidden; position: relative;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+  .phone-notch { height: 54px; background: #FAFAFA; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; }
+  .phone-notch-bar { width: 120px; height: 5px; border-radius: 3px; background: #262626; }
+  .phone-content { height: 758px; overflow-y: auto; overflow-x: hidden; }
+  .phone-content::-webkit-scrollbar { width: 0; }
+
+  /* Screens */
+  .screen { display: none; min-height: 100%; }
+  .screen.active { display: block; }
+
+  /* Shared components */
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .status-dot.sm { width: 8px; height: 8px; }
+  .status-dot.xs { width: 6px; height: 6px; }
+  .status-compliant { background: #22C55E; }
+  .status-expiring { background: #F59E0B; }
+  .status-noncompliant { background: #EF4444; }
+  .status-inprogress { background: #3B82F6; }
+
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .status-badge.compliant { background: #DCFCE7; color: #166534; }
+  .status-badge.expiring { background: #FEF3C7; color: #92400E; }
+  .status-badge.noncompliant { background: #FEE2E2; color: #991B1B; }
+
+  .progress-bar { width: 100%; border-radius: 6px; background: #F0F0F0; overflow: hidden; }
+  .progress-bar .fill { height: 100%; border-radius: 6px; transition: width 0.3s; }
+
+  .section-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 20px 6px;
+  }
+  .section-header .label { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #262626; }
+  .section-header .count { font-size: 11px; font-weight: 600; color: #A3A3A3; background: #F0F0F0; padding: 2px 7px; border-radius: 10px; }
+  .section-header .action { font-size: 11px; font-weight: 600; color: #737373; cursor: pointer; }
+
+  /* Screen 1: Teams Landing */
+  .teams-header { padding: 16px 20px 0; }
+  .teams-title-row { display: flex; justify-content: space-between; align-items: center; }
+  .teams-title { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+  .scanner-btn {
+    width: 36px; height: 36px; border-radius: 10px; border: 1.5px solid #E4E4E4;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; background: none;
+  }
+  .search-bar {
+    margin-top: 14px; display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px; border-radius: 12px; background: #FAFAFA; border: 1.5px solid #E4E4E4;
+  }
+  .search-bar input {
+    border: none; background: none; outline: none; font-size: 13px; color: #262626;
+    width: 100%; font-family: inherit;
+  }
+  .search-bar input::placeholder { color: #A3A3A3; }
+
+  .tabs { display: flex; margin-top: 16px; border-bottom: 1.5px solid #F0F0F0; }
+  .tab-btn {
+    flex: 1; padding: 10px 0; font-size: 13px; font-weight: 600;
+    color: #A3A3A3; background: none; border: none; border-bottom: 2px solid transparent;
+    cursor: pointer; text-transform: capitalize; font-family: inherit; transition: all 0.15s;
+  }
+  .tab-btn.active { color: #171717; border-bottom-color: #171717; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* User list items */
+  .user-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px; cursor: pointer; border-bottom: 1px solid #F0F0F0;
+    transition: background 0.1s;
+  }
+  .user-card:hover { background: #FAFAFA; }
+  .user-avatar {
+    width: 44px; height: 44px; border-radius: 14px; background: #F0F0F0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: #A3A3A3; flex-shrink: 0;
+  }
+  .user-avatar.sm { width: 40px; height: 40px; border-radius: 12px; font-size: 14px; }
+  .user-avatar.lg { width: 72px; height: 72px; border-radius: 22px; font-size: 24px; }
+  .user-info { flex: 1; min-width: 0; }
+  .user-name-row { display: flex; align-items: center; gap: 8px; }
+  .user-name { font-size: 14px; font-weight: 600; }
+  .user-meta { font-size: 11px; color: #737373; margin-top: 2px; }
+  .user-progress { margin-top: 6px; display: flex; align-items: center; gap: 8px; }
+  .user-progress-label { font-size: 10px; color: #A3A3A3; font-weight: 600; white-space: nowrap; }
+  .chevron { color: #CFCFCF; }
+
+  /* Location cards */
+  .locations-list { padding: 12px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .location-card { padding: 16px; border-radius: 14px; border: 1.5px solid #E4E4E4; cursor: pointer; transition: border-color 0.15s; }
+  .location-card:hover { border-color: #A3A3A3; }
+  .location-name { font-size: 14px; font-weight: 700; }
+  .location-metrics { display: flex; gap: 10px; margin-top: 12px; }
+  .location-metric {
+    flex: 1; padding: 10px 12px; border-radius: 10px; background: #FAFAFA;
+    border: 1px solid #F0F0F0;
+  }
+  .location-metric-label { font-size: 10px; font-weight: 600; color: #737373; text-transform: uppercase; letter-spacing: 0.04em; }
+  .location-metric-val { font-size: 20px; font-weight: 800; margin-top: 2px; }
+
+  /* Per-form cards (Competence & Compliance tabs) */
+  .form-cards { padding: 12px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .form-card { padding: 14px 16px; border-radius: 12px; border: 1.5px solid #E4E4E4; background: #FFF; }
+  .form-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .form-card-name { font-size: 13px; font-weight: 700; color: #171717; line-height: 1.35; }
+  .form-card-asset-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-top: 6px; padding: 3px 8px; border-radius: 6px;
+    background: #F3E8FF; color: #7B4BA8;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .form-card-headline { text-align: right; flex-shrink: 0; }
+  .form-card-headline-val { font-size: 22px; font-weight: 800; color: #171717; line-height: 1; }
+  .form-card-headline-label { font-size: 10px; font-weight: 600; color: #737373; margin-top: 4px; }
+  .form-card-stats {
+    display: flex; gap: 6px; margin-top: 12px;
+    padding-top: 10px; border-top: 1px solid #F5F5F4;
+  }
+  .form-card-stat { flex: 1; }
+  .form-card-stat-val { font-size: 14px; font-weight: 800; }
+  .form-card-stat-label { font-size: 10px; font-weight: 600; color: #737373; margin-top: 1px; }
+  .form-card-stat.completed .form-card-stat-val { color: #22C55E; }
+  .form-card-stat.inprogress .form-card-stat-val { color: #3B82F6; }
+  .form-card-stat.incomplete .form-card-stat-val { color: #EF4444; }
+
+  .tab-intro { padding: 12px 20px 4px; font-size: 11px; color: #737373; }
+
+  /* Back nav */
+  .back-nav { padding: 8px 20px; display: flex; align-items: center; gap: 8px; }
+  .back-btn { background: none; border: none; cursor: pointer; padding: 4px; display: flex; }
+  .back-label { font-size: 13px; font-weight: 600; color: #737373; }
+
+  /* User profile */
+  .profile-header { padding: 8px 20px 20px; text-align: center; }
+  .profile-name { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; margin-top: 12px; }
+  .profile-detail { font-size: 12px; color: #737373; margin-top: 2px; }
+  .profile-badge { margin-top: 12px; }
+
+  .training-overview { padding: 0 20px; margin-bottom: 4px; }
+  .overview-card { padding: 14px 16px; border-radius: 14px; background: #FAFAFA; border: 1.5px solid #F0F0F0; }
+  .overview-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .overview-label { font-size: 12px; font-weight: 700; color: #262626; }
+  .overview-pct { font-size: 12px; font-weight: 700; color: #525252; }
+  .overview-stats { display: flex; justify-content: space-between; margin-top: 10px; }
+  .overview-stat { text-align: center; }
+  .overview-stat-val { font-size: 18px; font-weight: 800; }
+  .overview-stat-label { font-size: 10px; color: #737373; margin-top: 2px; }
+
+  /* Training items */
+  .training-list { padding: 0 20px; display: flex; flex-direction: column; gap: 6px; }
+  .training-item { padding: 12px 14px; border-radius: 12px; }
+  .training-item.red { border: 1.5px solid #FEE2E2; background: #FFF5F5; }
+  .training-item.amber { border: 1.5px solid #FEF3C7; background: #FFFBEB; }
+  .training-item.blue { border: 1.5px solid #DBEAFE; background: #EFF6FF; }
+  .training-item.gray { border: 1.5px solid #E4E4E4; background: #FAFAFA; }
+  .training-row { display: flex; justify-content: space-between; align-items: start; }
+  .training-name { font-size: 13px; font-weight: 600; color: #171717; }
+  .training-name.muted { color: #404040; }
+  .training-meta { font-size: 11px; color: #737373; margin-top: 2px; }
+  .training-tag { font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .training-tag.red { color: #EF4444; }
+  .training-tag.amber { color: #F59E0B; }
+  .training-tag.gray { color: #A3A3A3; }
+  .training-progress { margin-top: 8px; display: flex; align-items: center; gap: 8px; }
+  .training-progress-pct { font-size: 11px; font-weight: 600; color: #3B82F6; }
+
+  /* Forms section */
+  .forms-section { padding: 20px 20px 0; }
+  .forms-divider { border-top: 1.5px solid #F0F0F0; padding-top: 16px; }
+  .forms-title { font-size: 13px; font-weight: 700; color: #262626; margin-bottom: 10px; }
+  .forms-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #F0F0F0; }
+  .forms-label { font-size: 13px; color: #404040; }
+  .forms-val { font-size: 12px; color: #525252; font-weight: 600; text-align: right; }
+  .forms-sub { font-size: 11px; color: #EF4444; margin-top: 1px; }
+
+  /* Location view */
+  .loc-header { padding: 4px 20px 16px; }
+  .loc-title { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+  .loc-subtitle { font-size: 12px; color: #737373; margin-top: 4px; }
+
+  .stats-grid { padding: 0 20px 16px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .stat-card { padding: 14px 12px; border-radius: 12px; text-align: center; }
+  .stat-card.green { background: #DCFCE7; }
+  .stat-card.amber { background: #FEF3C7; }
+  .stat-card.red { background: #FEE2E2; }
+  .stat-val { font-size: 24px; font-weight: 800; }
+  .stat-val.green { color: #22C55E; }
+  .stat-val.amber { color: #F59E0B; }
+  .stat-val.red { color: #EF4444; }
+  .stat-label { font-size: 10px; font-weight: 600; margin-top: 2px; opacity: 0.8; }
+  .stat-label.green { color: #22C55E; }
+  .stat-label.amber { color: #F59E0B; }
+  .stat-label.red { color: #EF4444; }
+
+  .compliance-bar-section { padding: 0 20px 16px; }
+  .compliance-bar-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .compliance-bar-label { font-size: 12px; font-weight: 600; color: #525252; }
+  .compliance-bar-pct { font-size: 12px; font-weight: 700; color: #262626; }
+  .stacked-bar { display: flex; height: 10px; border-radius: 6px; overflow: hidden; background: #F0F0F0; }
+
+  .filter-chips { padding: 0 20px 8px; display: flex; gap: 6px; overflow-x: auto; }
+  .chip {
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    border: none; cursor: pointer; font-family: inherit; white-space: nowrap;
+    background: #F0F0F0; color: #525252; transition: all 0.15s;
+  }
+  .chip.active { background: #262626; color: #FFF; }
+
+  .empty-state { padding: 40px 20px; text-align: center; color: #A3A3A3; font-size: 13px; }
+
+  /* Annotations */
+  .annotations { max-width: 500px; margin: 32px auto 0; padding: 0 20px; font-size: 12px; color: #737373; line-height: 1.7; }
+  .annotations strong { color: #404040; }
+  .annotation { display: none; }
+  .annotation.active { display: block; }
+
+  /* Collapsed section */
+  .collapsed-content { display: none; }
+  .collapsed-content.expanded { display: flex; flex-direction: column; gap: 6px; }
+
+  /* ═══ See Users Button ═══ */
+  .see-users-btn {
+    display:flex; align-items:center; gap:5px;
+    padding:5px 12px; border-radius:8px; border:1.5px solid #E4E4E4;
+    background:none; font-size:11px; font-weight:600; color:#525252;
+    cursor:pointer; font-family:inherit; transition:all 0.15s;
+  }
+  .see-users-btn:hover { border-color:#A3A3A3; background:#FAFAFA; }
+
+  /* ═══ Location Tabs ═══ */
+  .loc-tabs { display:flex; margin:0 20px; border-bottom:1.5px solid #F0F0F0; }
+  .loc-tab {
+    flex:1; padding:10px 0; font-size:12px; font-weight:600;
+    color:#A3A3A3; background:none; border:none; border-bottom:2px solid transparent;
+    cursor:pointer; font-family:inherit; transition:all 0.15s;
+  }
+  .loc-tab.active { color:#171717; border-bottom-color:#171717; }
+  .loc-tab-content { display:none; }
+  .loc-tab-content.active { display:block; }
+
+  /* ═══ Location Progress Rows ═══ */
+  .loc-progress-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .loc-progress-label { font-size:11px; color:#525252; width:110px; flex-shrink:0; }
+  .loc-progress-track { flex:1; height:5px; border-radius:4px; background:#F0F0F0; overflow:hidden; }
+  .loc-progress-fill { height:100%; border-radius:4px; transition:width 0.3s; }
+  .loc-progress-pct { font-size:11px; font-weight:700; width:32px; text-align:right; }
+
+  /* ═══ Compliance Entities ═══ */
+  .compliance-entity {
+    display:flex; align-items:center; gap:10px;
+    padding:12px 0; border-bottom:1px solid #F0F0F0;
+  }
+  .compliance-entity:last-child { border-bottom:none; }
+  .ce-icon {
+    width:38px; height:38px; border-radius:8px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+    flex-shrink:0;
+  }
+  .ce-icon span { font-size:7px; font-weight:700; letter-spacing:0.3px; }
+  .ce-icon.form { background:#E3F2FD; color:#1E88E5; }
+  .ce-icon.folder { background:#EDE7F6; color:#7B4BA8; }
+  .ce-info { flex:1; min-width:0; }
+  .ce-name { font-size:12px; font-weight:600; color:#171717; }
+  .ce-meta { font-size:10px; color:#737373; margin-top:2px; }
+  .ce-badge {
+    padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; flex-shrink:0;
+  }
+  .ce-badge.compliant { background:#DCFCE7; color:#166534; }
+  .ce-badge.noncompliant { background:#FEE2E2; color:#991B1B; }
+  .ce-badge.pending { background:#FEF3C7; color:#92400E; }
+
+  /* ═══ Attendance Chart ═══ */
+  .att-chart { display:flex; justify-content:space-around; align-items:flex-end; height:60px; }
+  .att-day { display:flex; flex-direction:column; align-items:center; gap:4px; }
+  .att-day span { font-size:10px; font-weight:600; color:#737373; }
+  .att-bars { display:flex; flex-direction:column-reverse; gap:1px; }
+  .att-bar { width:28px; border-radius:3px; }
+  .att-bar.green { background:#22C55E; }
+  .att-bar.amber-bar { background:#F59E0B; }
+  .att-bar.red-bar { background:#EF4444; }
+  .att-legend { display:flex; gap:14px; justify-content:center; margin-top:10px; font-size:10px; color:#737373; }
+  .att-legend span { display:flex; align-items:center; gap:4px; }
+
+  /* ═══ Meeting Items ═══ */
+  .meeting-item { display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid #F0F0F0; }
+  .meeting-item:last-child { border-bottom:none; }
+  .meeting-icon {
+    width:38px; height:38px; border-radius:8px; background:#F5F5F4;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .meeting-info { flex:1; min-width:0; }
+  .meeting-name { font-size:12px; font-weight:600; color:#171717; }
+  .meeting-meta { font-size:10px; color:#737373; margin-top:2px; }
+  .meeting-right { text-align:right; flex-shrink:0; }
+  .meeting-signed { font-size:12px; font-weight:700; }
+  .meeting-flags { font-size:10px; margin-top:2px; }
+
+  /* ═══ Flagged Workers ═══ */
+  .flagged-worker { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #F0F0F0; }
+  .flagged-worker:last-child { border-bottom:none; }
+  .fw-avatar {
+    width:32px; height:32px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; flex-shrink:0;
+  }
+  .fw-info { flex:1; min-width:0; }
+  .fw-name { font-size:12px; font-weight:600; color:#171717; }
+  .fw-issue { font-size:10px; margin-top:1px; }
+  .fw-tag {
+    font-size:9px; font-weight:700; padding:3px 8px; border-radius:10px;
+    letter-spacing:0.3px; flex-shrink:0;
+  }
+  .fw-tag.red { background:#FEE2E2; color:#991B1B; }
+  .fw-tag.amber { background:#FEF3C7; color:#92400E; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="eyebrow">BIS Safety Software · Teams Restructure</div>
+  <h1>Wireframe Flow</h1>
+  <div class="subtitle">Click through the screens to see the connected flow</div>
+</div>
+
+<div class="flow-nav">
+  <button class="flow-pill active" data-screen="landing" onclick="showScreen('landing')">Teams Landing</button>
+  <span class="flow-arrow">→</span>
+  <button class="flow-pill" data-screen="profile" onclick="showScreen('profile')">User Profile</button>
+  <span class="flow-arrow">→</span>
+  <button class="flow-pill" data-screen="location" onclick="showScreen('location')">Location View</button>
+</div>
+
+<div class="phone-wrap">
+  <div class="phone">
+    <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+    <div class="phone-content">
+
+      <!-- ═══ SCREEN 1: TEAMS LANDING ═══ -->
+      <div class="screen active" id="screen-landing">
+        <div class="teams-header">
+          <div class="teams-title-row">
+            <span class="teams-title">Teams</span>
+          </div>
+          <div class="search-bar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A3A3A3" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" placeholder="Search name, email, ID, certificate..." id="searchInput" oninput="filterUsers()">
+          </div>
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="users" onclick="switchTab('users')">Users</button>
+            <button class="tab-btn" data-tab="locations" onclick="switchTab('locations')">Locations</button>
+          </div>
+        </div>
+
+        <!-- Users tab -->
+        <div class="tab-content active" id="tab-users"></div>
+
+        <!-- Locations tab -->
+        <div class="tab-content" id="tab-locations">
+          <div class="locations-list" id="locationsList"></div>
+        </div>
+      </div>
+
+      <!-- ═══ SCREEN 2: USER PROFILE ═══ -->
+      <div class="screen" id="screen-profile">
+        <div class="back-nav">
+          <button class="back-btn" onclick="goBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#525252" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span class="back-label">Teams</span>
+        </div>
+        <div class="profile-header">
+          <div class="user-avatar lg" id="profileAvatar" style="margin: 0 auto;"></div>
+          <div class="profile-name" id="profileName"></div>
+          <div class="profile-detail" id="profileRole"></div>
+          <div class="profile-detail" id="profileLocation"></div>
+          <div class="profile-detail" id="profileEmail"></div>
+          <div class="profile-badge" id="profileBadge"></div>
+        </div>
+
+        <div class="training-overview">
+          <div class="overview-card">
+            <div class="overview-top">
+              <span class="overview-label">Training Progress</span>
+              <span class="overview-pct" id="overviewPct"></span>
+            </div>
+            <div class="progress-bar" style="height:8px;" id="overviewBar"></div>
+            <div class="overview-stats" id="overviewStats"></div>
+          </div>
+        </div>
+
+        <!-- Not Completed -->
+        <div class="section-header">
+          <div class="label"><span style="color:#EF4444">⬤</span> Not Completed <span class="count">3</span></div>
+        </div>
+        <div class="training-list">
+          <div class="training-item red">
+            <div class="training-row">
+              <div><div class="training-name">Confined Space Entry</div><div class="training-meta">Topic · Required</div></div>
+              <div class="training-tag red">Due Mar 15, 2026</div>
+            </div>
+          </div>
+          <div class="training-item red">
+            <div class="training-row">
+              <div><div class="training-name">Fall Protection</div><div class="training-meta">Topic · Required</div></div>
+              <div class="training-tag red">Due Mar 20, 2026</div>
+            </div>
+          </div>
+          <div class="training-item red">
+            <div class="training-row">
+              <div><div class="training-name">WHMIS 2025</div><div class="training-meta">Certificate · Required</div></div>
+              <div class="training-tag red">Due Apr 1, 2026</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Expiring Soon -->
+        <div class="section-header">
+          <div class="label"><span style="color:#F59E0B">⬤</span> Expiring Soon <span class="count">1</span></div>
+        </div>
+        <div class="training-list">
+          <div class="training-item amber">
+            <div class="training-row">
+              <div><div class="training-name">H2S Alive</div><div class="training-meta">Certificate</div></div>
+              <div class="training-tag amber">13d left</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- In Progress -->
+        <div class="section-header">
+          <div class="label"><span style="color:#3B82F6">⬤</span> In Progress <span class="count">1</span></div>
+        </div>
+        <div class="training-list">
+          <div class="training-item blue">
+            <div class="training-name">Workplace Safety Orientation</div>
+            <div class="training-meta">Program · 3/5 modules</div>
+            <div class="training-progress">
+              <div class="progress-bar" style="height:5px;flex:1"><div class="fill" style="width:60%;background:#3B82F6;height:100%;border-radius:5px"></div></div>
+              <span class="training-progress-pct">60%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Completed (collapsed) -->
+        <div class="section-header" onclick="toggleCompleted()" style="cursor:pointer">
+          <div class="label"><span style="color:#22C55E">⬤</span> Completed <span class="count">3</span></div>
+          <span class="action" id="completedToggle">Expand ▼</span>
+        </div>
+        <div class="training-list collapsed-content" id="completedSection">
+          <div class="training-item gray">
+            <div class="training-row">
+              <div><div class="training-name muted">First Aid / CPR</div><div class="training-meta">Certificate · Completed Jan 12, 2026</div></div>
+              <div class="training-tag gray">Exp. Jan 12, 2028</div>
+            </div>
+          </div>
+          <div class="training-item gray">
+            <div class="training-row">
+              <div><div class="training-name muted">Ground Disturbance Level II</div><div class="training-meta">Certificate · Completed Dec 3, 2025</div></div>
+              <div class="training-tag gray">Exp. Dec 3, 2027</div>
+            </div>
+          </div>
+          <div class="training-item gray">
+            <div class="training-row">
+              <div><div class="training-name muted">TDG (Transportation of Dangerous Goods)</div><div class="training-meta">Topic · Completed Nov 18, 2025</div></div>
+              <div class="training-tag gray">Exp. Nov 18, 2028</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Forms -->
+        <div class="forms-section">
+          <div class="forms-divider">
+            <div class="forms-title">Forms & Documents</div>
+            <div class="forms-row">
+              <span class="forms-label">Form Submissions</span>
+              <div><div class="forms-val">12 completed</div><div class="forms-sub">2 overdue</div></div>
+            </div>
+            <div class="forms-row">
+              <span class="forms-label">Documents</span>
+              <div class="forms-val">5 uploaded</div>
+            </div>
+          </div>
+        </div>
+        <div style="height:40px"></div>
+      </div>
+
+      <!-- ═══ SCREEN 3: LOCATION VIEW ═══ -->
+      <div class="screen" id="screen-location">
+        <div class="back-nav">
+          <button class="back-btn" onclick="goBack()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#525252" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <span class="back-label">Locations</span>
+        </div>
+        <div class="loc-header">
+          <div class="loc-title" id="locTitle"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">
+            <div class="loc-subtitle" id="locSubtitle"></div>
+            <button class="see-users-btn" onclick="alert('Opens user list filtered to this location')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              See Users
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Location overview tabs (Attendance hidden — handled later) ── -->
+        <div class="loc-tabs">
+          <button class="loc-tab active" data-loctab="competence" onclick="switchLocTab('competence')">Competence</button>
+          <button class="loc-tab" data-loctab="compliance" onclick="switchLocTab('compliance')">Compliance</button>
+        </div>
+
+        <!-- ── COMPETENCE TAB — per-form completion ── -->
+        <div class="loc-tab-content active" id="loctab-competence">
+          <div class="tab-intro">Training forms tracked at this location · main # = users assigned</div>
+          <div class="form-cards">
+            <div class="form-card">
+              <div class="form-card-top">
+                <div><div class="form-card-name">WHMIS 2025</div></div>
+                <div class="form-card-headline">
+                  <div class="form-card-headline-val">20</div>
+                  <div class="form-card-headline-label">USERS ASSIGNED</div>
+                </div>
+              </div>
+              <div class="form-card-stats">
+                <div class="form-card-stat completed">
+                  <div class="form-card-stat-val">11</div>
+                  <div class="form-card-stat-label">Completed</div>
+                </div>
+                <div class="form-card-stat inprogress">
+                  <div class="form-card-stat-val">5</div>
+                  <div class="form-card-stat-label">In Progress</div>
+                </div>
+                <div class="form-card-stat incomplete">
+                  <div class="form-card-stat-val">4</div>
+                  <div class="form-card-stat-label">Incomplete</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-card">
+              <div class="form-card-top">
+                <div><div class="form-card-name">Fall Protection</div></div>
+                <div class="form-card-headline">
+                  <div class="form-card-headline-val">20</div>
+                  <div class="form-card-headline-label">USERS ASSIGNED</div>
+                </div>
+              </div>
+              <div class="form-card-stats">
+                <div class="form-card-stat completed">
+                  <div class="form-card-stat-val">8</div>
+                  <div class="form-card-stat-label">Completed</div>
+                </div>
+                <div class="form-card-stat inprogress">
+                  <div class="form-card-stat-val">4</div>
+                  <div class="form-card-stat-label">In Progress</div>
+                </div>
+                <div class="form-card-stat incomplete">
+                  <div class="form-card-stat-val">8</div>
+                  <div class="form-card-stat-label">Incomplete</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-card">
+              <div class="form-card-top">
+                <div><div class="form-card-name">Confined Space Entry</div></div>
+                <div class="form-card-headline">
+                  <div class="form-card-headline-val">12</div>
+                  <div class="form-card-headline-label">USERS ASSIGNED</div>
+                </div>
+              </div>
+              <div class="form-card-stats">
+                <div class="form-card-stat completed">
+                  <div class="form-card-stat-val">9</div>
+                  <div class="form-card-stat-label">Completed</div>
+                </div>
+                <div class="form-card-stat inprogress">
+                  <div class="form-card-stat-val">2</div>
+                  <div class="form-card-stat-label">In Progress</div>
+                </div>
+                <div class="form-card-stat incomplete">
+                  <div class="form-card-stat-val">1</div>
+                  <div class="form-card-stat-label">Incomplete</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-card">
+              <div class="form-card-top">
+                <div><div class="form-card-name">H2S Alive</div></div>
+                <div class="form-card-headline">
+                  <div class="form-card-headline-val">15</div>
+                  <div class="form-card-headline-label">USERS ASSIGNED</div>
+                </div>
+              </div>
+              <div class="form-card-stats">
+                <div class="form-card-stat completed">
+                  <div class="form-card-stat-val">14</div>
+                  <div class="form-card-stat-label">Completed</div>
+                </div>
+                <div class="form-card-stat inprogress">
+                  <div class="form-card-stat-val">1</div>
+                  <div class="form-card-stat-label">In Progress</div>
+                </div>
+                <div class="form-card-stat incomplete">
+                  <div class="form-card-stat-val">0</div>
+                  <div class="form-card-stat-label">Incomplete</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="height:20px"></div>
+        </div>
+
+        <!-- ── COMPLIANCE TAB — flagged forms + asset forms (merged) ── -->
+        <div class="loc-tab-content" id="loctab-compliance">
+          <div class="tab-intro">
+            Forms flagged as compliance-related (set on web) · asset forms shown together · main # = users to action
+          </div>
+          <div class="form-cards">
+
+            <!-- Compliance-flagged form: main # = incomplete users -->
+            <div class="form-card">
+              <div class="form-card-top">
+                <div><div class="form-card-name">FLHA — Field Level Hazard Assessment</div></div>
+                <div class="form-card-headline">
+                  <div class="form-card-headline-val" style="color:#EF4444">2</div>
+                  <div class="form-card-headline-label">INCOMPLETE</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-card">
+              <div class="form-card-top">
+                <div><div class="form-card-name">JHA — Job Hazard Analysis</div></div>
+                <div class="form-card-headline">
+                  <div class="form-card-headline-val" style="color:#EF4444">2</div>
+                  <div class="form-card-headline-label">INCOMPLETE</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Asset form: main # = in-progress users, ASSET tag visible -->
+            <div class="form-card">
+              <div class="form-card-top">
+                <div>
+                  <div class="form-card-name">Forklift Daily Inspection</div>
+                  <span class="form-card-asset-tag">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                    Asset · Forklift A
+                  </span>
+                </div>
+                <div class="form-card-headline">
+                  <div class="form-card-headline-val" style="color:#3B82F6">3</div>
+                  <div class="form-card-headline-label">IN PROGRESS</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-card">
+              <div class="form-card-top">
+                <div><div class="form-card-name">Emergency Contact Info</div></div>
+                <div class="form-card-headline">
+                  <div class="form-card-headline-val" style="color:#EF4444">9</div>
+                  <div class="form-card-headline-label">INCOMPLETE</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-card">
+              <div class="form-card-top">
+                <div>
+                  <div class="form-card-name">Scaffold Pre-Use Inspection</div>
+                  <span class="form-card-asset-tag">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                    Asset · Scaffold #14
+                  </span>
+                </div>
+                <div class="form-card-headline">
+                  <div class="form-card-headline-val" style="color:#3B82F6">1</div>
+                  <div class="form-card-headline-label">IN PROGRESS</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-card">
+              <div class="form-card-top">
+                <div><div class="form-card-name">Toolbox Talk Sign-Off</div></div>
+                <div class="form-card-headline">
+                  <div class="form-card-headline-val" style="color:#EF4444">4</div>
+                  <div class="form-card-headline-label">INCOMPLETE</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div style="height:20px"></div>
+        </div>
+
+        <!-- Attendance tab intentionally removed for now — handled in a later pass -->
+
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Annotations -->
+<div class="annotations">
+  <div class="annotation active" id="anno-landing">
+    <strong>Screen 1 — Teams Landing.</strong> Unified search bar replaces separate Verification search. Scanner removed from this page. User cards show compliance status dot + mini progress bar so admins can triage without tapping in. Location cards show aggregate compliance %. Try tapping a user or switching to the Locations tab.
+  </div>
+  <div class="annotation" id="anno-profile">
+    <strong>Screen 2 — Unified User Profile.</strong> All paths (search, scan, browse) land here. Information hierarchy is flipped: Not Completed shows first and most prominently. Compliance badge gives an instant verdict. Completed section is collapsed by default. Training topics from web are now surfaced in mobile.
+  </div>
+  <div class="annotation" id="anno-location">
+    <strong>Screen 3 — Location Overview (v3).</strong> Two tabs only — Attendance is hidden until later. <strong>Competence:</strong> one card per training form. Main # is total users assigned, with Completed / In Progress / Incomplete breakdown beneath. <strong>Compliance:</strong> single merged list — compliance-flagged forms (set via a new toggle in form settings on web) show <strong>incomplete</strong> as the headline; asset forms (auto-assigned by frequency) show <strong>in progress</strong> as the headline and carry a purple <em>Asset</em> tag identifying the source asset. Locations list is simplified to name + competency % + compliance %.
+  </div>
+</div>
+
+<script>
+// ─── Data ───
+const USERS = [
+  { id:1, name:"Marcus Rivera", role:"Electrician", empId:"EMP-4821", location:"Site Alpha - Edmonton", email:"m.rivera@email.com", status:"compliant", pct:100, missing:0, expiring:0 },
+  { id:2, name:"Sarah Chen", role:"Safety Officer", empId:"EMP-3192", location:"Site Alpha - Edmonton", email:"s.chen@email.com", status:"expiring", pct:75, missing:0, expiring:2 },
+  { id:3, name:"James Okafor", role:"Welder", empId:"EMP-5567", location:"Site Beta - Calgary", email:"j.okafor@email.com", status:"noncompliant", pct:50, missing:3, expiring:1 },
+  { id:4, name:"Priya Sharma", role:"Foreman", empId:"EMP-2284", location:"Site Alpha - Edmonton", email:"p.sharma@email.com", status:"compliant", pct:100, missing:0, expiring:0 },
+  { id:5, name:"Tyler Brooks", role:"Pipefitter", empId:"EMP-6103", location:"Site Beta - Calgary", email:"t.brooks@email.com", status:"noncompliant", pct:38, missing:4, expiring:1 },
+  { id:6, name:"Amina Hassan", role:"Scaffolder", empId:"EMP-7790", location:"Site Gamma - Red Deer", email:"a.hassan@email.com", status:"expiring", pct:88, missing:0, expiring:1 },
+];
+
+const LOCATIONS = [
+  { id:1, name:"Site Alpha - Edmonton", competency:79, compliance:85 },
+  { id:2, name:"Site Beta - Calgary",   competency:57, compliance:62 },
+  { id:3, name:"Site Gamma - Red Deer", competency:75, compliance:88 },
+];
+
+function pctColor(p) {
+  return p >= 80 ? "#22C55E" : p >= 60 ? "#F59E0B" : "#EF4444";
+}
+
+const STATUS_COLORS = { compliant:"#22C55E", expiring:"#F59E0B", noncompliant:"#EF4444", inprogress:"#3B82F6" };
+const STATUS_LABELS = { compliant:"Compliant", expiring:"Expiring Soon", noncompliant:"Non-Compliant" };
+
+let history = [];
+let currentScreen = "landing";
+let currentLocFilter = "all";
+
+// ─── Init ───
+function init() {
+  renderUsers(USERS);
+  renderLocations();
+}
+
+function initials(name) { return name.split(" ").map(n => n[0]).join(""); }
+
+// ─── Navigation ───
+function showScreen(id) {
+  history.push(currentScreen);
+  currentScreen = id;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  document.querySelectorAll('.flow-pill').forEach(p => p.classList.toggle('active', p.dataset.screen === id));
+  document.querySelectorAll('.annotation').forEach(a => a.classList.remove('active'));
+  document.getElementById('anno-' + id).classList.add('active');
+  // scroll to top
+  document.querySelector('.phone-content').scrollTop = 0;
+}
+
+function goBack() {
+  const prev = history.pop() || "landing";
+  currentScreen = prev;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + prev).classList.add('active');
+  document.querySelectorAll('.flow-pill').forEach(p => p.classList.toggle('active', p.dataset.screen === prev));
+  document.querySelectorAll('.annotation').forEach(a => a.classList.remove('active'));
+  document.getElementById('anno-' + prev).classList.add('active');
+}
+
+// ─── Tabs ───
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ─── Render Users ───
+function renderUsers(users) {
+  const container = document.getElementById('tab-users');
+  container.innerHTML = users.map(u => `
+    <div class="user-card" onclick="openProfile(${u.id})">
+      <div class="user-avatar">${initials(u.name)}</div>
+      <div class="user-info">
+        <div class="user-name-row">
+          <span class="user-name">${u.name}</span>
+          <span class="status-dot sm status-${u.status}"></span>
+        </div>
+        <div class="user-meta">${u.role} · ${u.empId}</div>
+        <div class="user-progress">
+          <div class="progress-bar" style="height:4px;flex:1"><div class="fill" style="width:${u.pct}%;background:${STATUS_COLORS[u.status]};height:100%;border-radius:4px"></div></div>
+          <span class="user-progress-label">${u.status === 'noncompliant' ? u.missing + ' missing' : u.status === 'expiring' ? u.expiring + ' expiring' : 'Up to date'}</span>
+        </div>
+      </div>
+      <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CFCFCF" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+    </div>
+  `).join('');
+}
+
+function filterUsers() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = USERS.filter(u =>
+    u.name.toLowerCase().includes(q) ||
+    u.empId.toLowerCase().includes(q) ||
+    u.email.toLowerCase().includes(q) ||
+    u.role.toLowerCase().includes(q)
+  );
+  renderUsers(filtered);
+}
+
+// ─── Render Locations ───
+function renderLocations() {
+  const container = document.getElementById('locationsList');
+  container.innerHTML = LOCATIONS.map(loc => `
+    <div class="location-card" onclick="openLocation(${loc.id})">
+      <div class="location-name">${loc.name}</div>
+      <div class="location-metrics">
+        <div class="location-metric">
+          <div class="location-metric-label">Competency</div>
+          <div class="location-metric-val" style="color:${pctColor(loc.competency)}">${loc.competency}%</div>
+        </div>
+        <div class="location-metric">
+          <div class="location-metric-label">Compliance</div>
+          <div class="location-metric-val" style="color:${pctColor(loc.compliance)}">${loc.compliance}%</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── Open Profile ───
+function openProfile(userId) {
+  const u = USERS.find(x => x.id === userId);
+  if (!u) return;
+
+  document.getElementById('profileAvatar').textContent = initials(u.name);
+  document.getElementById('profileName').textContent = u.name;
+  document.getElementById('profileRole').textContent = u.role + ' · ' + u.empId;
+  document.getElementById('profileLocation').textContent = u.location;
+  document.getElementById('profileEmail').textContent = u.email;
+  document.getElementById('profileBadge').innerHTML = `<span class="status-badge ${u.status}"><span class="status-dot sm status-${u.status}"></span>${STATUS_LABELS[u.status]}</span>`;
+  document.getElementById('overviewPct').textContent = u.pct + '%';
+  document.getElementById('overviewBar').innerHTML = `<div class="fill" style="width:${u.pct}%;background:${STATUS_COLORS[u.status]};height:8px;border-radius:6px"></div>`;
+
+  const stats = [
+    { label:"Missing", val:3, color:STATUS_COLORS.noncompliant },
+    { label:"Expiring", val:1, color:STATUS_COLORS.expiring },
+    { label:"In Progress", val:1, color:STATUS_COLORS.inprogress },
+    { label:"Completed", val:3, color:STATUS_COLORS.compliant },
+  ];
+  document.getElementById('overviewStats').innerHTML = stats.map(s => `
+    <div class="overview-stat">
+      <div class="overview-stat-val" style="color:${s.color}">${s.val}</div>
+      <div class="overview-stat-label">${s.label}</div>
+    </div>
+  `).join('');
+
+  // Reset completed section
+  document.getElementById('completedSection').classList.remove('expanded');
+  document.getElementById('completedToggle').textContent = 'Expand ▼';
+
+  showScreen('profile');
+}
+
+// ─── Toggle Completed ───
+function toggleCompleted() {
+  const section = document.getElementById('completedSection');
+  const toggle = document.getElementById('completedToggle');
+  const isExpanded = section.classList.toggle('expanded');
+  toggle.textContent = isExpanded ? 'Collapse ▲' : 'Expand ▼';
+}
+
+// ─── Location Tabs ───
+function switchLocTab(tab) {
+  document.querySelectorAll('.loc-tab').forEach(b => b.classList.toggle('active', b.dataset.loctab === tab));
+  document.querySelectorAll('.loc-tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('loctab-' + tab).classList.add('active');
+}
+
+// ─── Open Location ───
+function openLocation(locId) {
+  const loc = LOCATIONS.find(x => x.id === locId);
+  if (!loc) return;
+
+  document.getElementById('locTitle').textContent = loc.name;
+  document.getElementById('locSubtitle').textContent = `Competency ${loc.competency}% · Compliance ${loc.compliance}%`;
+
+  // Reset to competence tab
+  switchLocTab('competence');
+  showScreen('location');
+}
+
+// ─── Boot ───
+init();
+</script>
+
+</body>
+</html>
