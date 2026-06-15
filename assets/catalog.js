@@ -65,7 +65,7 @@ const CatalogHub = (() => {
   }
 
   function cardItem(it) {
-    return `<a class="card" href="${esc(it.path)}" target="_blank" rel="noopener">
+    return `<a class="card" href="${esc(it.path)}" target="_blank" rel="noopener" data-title="${esc(it.title)}">
       ${badgeFor(it)}
       <span class="name">${esc(it.title)}</span>
       <span class="meta">${esc(fmtDate(it.date))}</span>
@@ -182,6 +182,70 @@ const CatalogHub = (() => {
     root.querySelectorAll("[data-sort]").forEach(el => {
       el.addEventListener("click", () => { SORT = el.dataset.sort; render(); });
     });
+    // Item cards (and folder children) open in the preview window. Modifier-clicks
+    // still open the file directly in a new tab.
+    root.querySelectorAll("a.card").forEach(a => {
+      a.addEventListener("click", e => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        openPreview(a.getAttribute("href"), a.dataset.title || "");
+      });
+    });
+  }
+
+  // ---------- preview window ----------
+  let PV = null;
+  function ensureModal() {
+    if (PV) return PV;
+    const el = document.createElement("div");
+    el.className = "pv-overlay";
+    el.hidden = true;
+    el.innerHTML = `
+      <div class="pv-window" role="dialog" aria-modal="true" aria-label="Preview">
+        <div class="pv-bar">
+          <span class="pv-title"></span>
+          <span class="pv-controls">
+            <a class="pv-btn pv-open" target="_blank" rel="noopener" title="Open in new tab" aria-label="Open in new tab">↗</a>
+            <button class="pv-btn pv-full" title="Fullscreen" aria-label="Toggle fullscreen">▢</button>
+            <button class="pv-btn pv-close" title="Close" aria-label="Close">✕</button>
+          </span>
+        </div>
+        <div class="pv-body">
+          <div class="pv-loading">⏳ Loading…</div>
+          <iframe class="pv-frame" title="Preview" referrerpolicy="no-referrer"></iframe>
+        </div>
+      </div>`;
+    document.body.appendChild(el);
+    PV = {
+      overlay: el,
+      window: el.querySelector(".pv-window"),
+      title: el.querySelector(".pv-title"),
+      open: el.querySelector(".pv-open"),
+      frame: el.querySelector(".pv-frame"),
+      loading: el.querySelector(".pv-loading"),
+    };
+    el.querySelector(".pv-close").addEventListener("click", closePreview);
+    el.querySelector(".pv-full").addEventListener("click", () => PV.window.classList.toggle("full"));
+    el.addEventListener("click", e => { if (e.target === el) closePreview(); });
+    PV.frame.addEventListener("load", () => { PV.loading.hidden = true; });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && !el.hidden) closePreview(); });
+    return PV;
+  }
+  function openPreview(url, title) {
+    ensureModal();
+    PV.title.textContent = title || url.split("/").pop();
+    PV.open.href = url;
+    PV.loading.hidden = false;
+    PV.frame.src = url;
+    PV.overlay.hidden = false;
+    document.body.style.overflow = "hidden";
+  }
+  function closePreview() {
+    if (!PV) return;
+    PV.overlay.hidden = true;
+    PV.window.classList.remove("full");
+    PV.frame.src = "about:blank";
+    document.body.style.overflow = "";
   }
 
   function applyLabels() {
