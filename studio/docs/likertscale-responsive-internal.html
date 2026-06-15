@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Likert Scale — Responsive Rules (Internal)</title>
+<style>
+  :root {
+    --header-blue:#0078B3; --selected:#0078B3;
+    --stroke:#B2B2B3; --stroke-light:#E5E5E6; --surface:#FEFFFF;
+    --card-bg:#F8F8F9; --row-alt:#F2F2F2;
+    --text:#191919; --muted:#666666; --on:#FEFFFF; --green:#167B00;
+    --bg:#EEF1F4; --ink:#0E324E;
+    --warn-bg:#FEF3E6; --warn-fg:#B35A00;
+    --ok-bg:#E6F2EA; --ok-fg:#167B00;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Roboto",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg); color:var(--text); }
+  .wrap { max-width:1080px; margin:0 auto; padding:24px 22px 64px; }
+  .ribbon {
+    background:var(--ink); color:#fff; font-size:12px; font-weight:700; letter-spacing:.05em;
+    text-transform:uppercase; padding:8px 14px; border-radius:6px; display:inline-block; margin-bottom:18px;
+  }
+  h1 { font-size:24px; margin:0 0 6px; }
+  h2 { font-size:17px; margin:34px 0 12px; padding-bottom:6px; border-bottom:2px solid var(--stroke-light); }
+  h3 { font-size:14px; margin:20px 0 8px; }
+  p, li { font-size:14px; line-height:1.6; }
+  code { font-family:"JetBrains Mono",ui-monospace,Menlo,monospace; font-size:12.5px; background:#fff; border:1px solid var(--stroke-light); padding:1px 5px; border-radius:4px; }
+  .lead { font-size:15px; color:var(--muted); max-width:760px; }
+
+  .callout { background:#fff; border:1px solid var(--stroke); border-left:4px solid var(--header-blue); border-radius:8px; padding:16px 18px; margin:16px 0; }
+  .callout.rec { border-left-color:var(--green); }
+  .callout h3 { margin-top:0; }
+
+  table.grid { border-collapse:collapse; width:100%; background:#fff; border:1px solid var(--stroke-light); border-radius:8px; overflow:hidden; font-size:13px; }
+  table.grid th, table.grid td { text-align:left; padding:9px 12px; border-bottom:1px solid var(--stroke-light); vertical-align:top; }
+  table.grid th { background:#F8F8F9; color:var(--muted); font-weight:700; }
+  table.grid tr:last-child td { border-bottom:none; }
+  .pill { font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; white-space:nowrap; }
+  .pill.cards { background:var(--ok-bg); color:var(--ok-fg); }
+  .pill.table { background:#E7F0F7; color:#0E324E; }
+  .pill.na { background:#EFEFEF; color:#888; }
+
+  /* live demo */
+  .demo { background:#fff; border:1px solid var(--stroke); border-radius:10px; padding:18px; margin:16px 0; }
+  .demo .controls { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:14px; }
+  .demo input[type=range] { width:320px; }
+  .demo .readout { font-size:13px; font-weight:600; }
+  .demo .readout .layout { padding:2px 8px; border-radius:999px; }
+  .demo .stage { background:var(--bg); border:1px dashed var(--stroke); border-radius:8px; padding:14px; overflow:auto; }
+  .frame { margin:0 auto; background:#fff; border:1px solid var(--stroke); border-radius:6px; padding:14px; transition:width .08s; }
+  .frame .sec-title { font-size:15px; font-weight:700; margin:0 0 10px; }
+
+  /* table inside demo (fills container — tablet/desktop) */
+  .lgrid { display:grid; border:1px solid var(--stroke); border-radius:4px; overflow:hidden; }
+  .lgrid .c { border-right:1px solid var(--stroke-light); border-bottom:1px solid var(--stroke-light); display:flex; align-items:center; justify-content:center; padding:10px 6px; min-height:46px; font-size:14px; }
+  .lgrid .c.stmt { justify-content:flex-start; font-size:14px; }
+  .lgrid .c.stmt.alt, .lgrid .c.opt.alt { background:var(--row-alt); }
+  .lgrid .c.head { background:var(--header-blue); color:var(--on); font-weight:600; border-right:1px solid rgba(255,255,255,.25); border-bottom:none; }
+  .lgrid .c.lastcol { border-right:none; }
+  .lgrid .c.last { border-bottom:none; }
+  .rd { width:20px; height:20px; border-radius:50%; border:2px solid var(--stroke); }
+
+  /* cards inside demo (narrow — phone) */
+  .cards .cstmt { font-size:16px; line-height:24px; margin:0 0 8px; }
+  .cards .cblock { margin-bottom:16px; }
+  .ogrid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+  .ocard { border:1px solid var(--stroke); border-radius:4px; background:var(--card-bg); padding:11px 10px; text-align:center; font-size:16px; line-height:24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="ribbon">Internal · Devs &amp; PM · not client-facing</div>
+  <h1>Likert Scale — Responsive layout rules</h1>
+  <p class="lead">How the rating widget should switch between the <strong>table</strong> and <strong>card</strong> layouts
+  across phone and tablet. Companion to the client preview (which shows only the layouts, no rules). Token/spec hand-off is at the bottom.</p>
+
+  <div class="callout rec">
+    <h3>Recommendation</h3>
+    <p style="margin-bottom:6px"><strong>Switch on available width, not device model.</strong> Render <strong>cards</strong> when the
+    widget's available width is under <code>600&nbsp;dp</code>; render the <strong>table</strong> at <code>600&nbsp;dp</code> and above.</p>
+    <p style="margin:0">This maps cleanly onto the flags the component already has: <code>600</code> is the same threshold as
+    <code>isTypeTablet = Math.min(width,height) &gt;= 600</code> in <code>theme/sizes/spacing.ts</code>. In practice: <strong>phones get
+    cards, tablets get the table</strong> in both orientations.</p>
+  </div>
+
+  <h2>Try it — drag to resize</h2>
+  <div class="demo">
+    <div class="controls">
+      <label for="w">Available width</label>
+      <input id="w" type="range" min="320" max="1024" value="390" />
+      <span class="readout"><span id="px">390</span> dp → <span id="layoutPill" class="layout"></span></span>
+    </div>
+    <div class="stage"><div class="frame" id="frame"></div></div>
+    <p style="font-size:12.5px;color:var(--muted);margin:10px 0 0">Breakpoint at 600&nbsp;dp. Phone widths (≈320–430) land on cards;
+    tablet portrait (768) and up land on the table, which fits all four columns without horizontal scroll.</p>
+  </div>
+
+  <h2>The rule, by viewport</h2>
+  <table class="grid">
+    <thead><tr><th>Context</th><th>Orientation</th><th>Approx width</th><th>Layout</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Phone</td><td>Portrait</td><td>360–430 dp</td><td><span class="pill cards">Cards</span></td><td>Table can't fit a question column + 4 option columns without sideways scroll.</td></tr>
+      <tr><td>Phone</td><td>Landscape</td><td>—</td><td><span class="pill na">N/A</span></td><td>SafeTapp does not support phone landscape — no layout needed.</td></tr>
+      <tr><td>Tablet (incl. iPad mini)</td><td>Portrait</td><td>744–834 dp</td><td><span class="pill table">Table</span></td><td>≥600 dp: question + 4 columns fit comfortably, no scroll.</td></tr>
+      <tr><td>Tablet</td><td>Landscape</td><td>1024+ dp</td><td><span class="pill table">Table</span></td><td>Plenty of width; table is the most scannable.</td></tr>
+      <tr><td>Desktop / web</td><td>—</td><td>1024+ dp</td><td><span class="pill table">Table</span></td><td>Same as tablet landscape.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>What we learned from Microsoft Forms</h2>
+  <p>MS Forms only renders its card layout on narrow <strong>portrait</strong> viewports (portrait phone, portrait iPad mini) and
+  falls back to the matrix/table on anything wider. The takeaway isn't the exact device list — it's the principle:</p>
+  <ul>
+    <li><strong>Width decides, not device.</strong> A single breakpoint is simpler and more robust than enumerating models.</li>
+    <li><strong>Cards are the narrow-screen fallback,</strong> not a replacement. The table stays the default wherever it fits.</li>
+    <li><strong>One difference for BIS:</strong> MS shows cards on iPad mini portrait; we don't need to. At 768 dp the table fits all four
+    columns cleanly, so a 600 dp breakpoint keeps tablet portrait on the table. (If product wants the MS parity feel, raise the
+    breakpoint to ~768 — noted as an option, not the recommendation.)</li>
+    <li><strong>We have fewer cases to handle:</strong> no phone-landscape state, so the only switch is phone-portrait ↔ tablet.</li>
+  </ul>
+
+  <h2>Dev spec &amp; token hand-off</h2>
+  <p>Component lives at <code>src/components/Forms/Widgets/LikertScale/</code> (<code>index.tsx</code>, <code>style.ts</code>,
+  <code>controller.ts</code>, <code>types.ts</code>). Tokens from <code>theme/Colors.ts</code> and <code>theme/sizes/*</code>.</p>
+
+  <h3>“Smaller” variant — token deltas from current (phone resolution)</h3>
+  <table class="grid">
+    <thead><tr><th>Where (style.ts)</th><th>Current</th><th>→</th><th>Smaller</th><th>px</th></tr></thead>
+    <tbody>
+      <tr><td>Option header text — <code>inlineOptionHeaderText</code></td><td><code>Typography.label.base</code></td><td>→</td><td><code>Typography.label.small</code></td><td>16/20 → 14/18</td></tr>
+      <tr><td>Header wrap behaviour</td><td><code>overflow-wrap: anywhere</code> (breaks mid-letter)</td><td>→</td><td><code>word-break: normal</code> (wraps at spaces/hyphens)</td><td>—</td></tr>
+      <tr><td>Tooltip body — <code>tooltipText</code></td><td><code>Typography.body.base</code></td><td>→</td><td><code>Typography.body.small</code></td><td>16/24 → 14/22</td></tr>
+      <tr><td>Description padding — <code>descriptionBox</code></td><td><code>Spacing.small</code></td><td>→</td><td><code>Spacing.xsmall</code></td><td>8 → 4</td></tr>
+      <tr><td>Row cell padding (the fix)</td><td><em>too tight — radios crammed</em></td><td>→</td><td>vertical padding restored</td><td>~10 dp V</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12.5px;color:var(--muted)">Note: the row-alignment problem (statement column drifting out of sync with the
+  radio rows) is structural — render the matrix as a single grid (or per-row flex) so each row shares one height, rather than two
+  parallel stacks. The fixed statement column stays pinned with <code>position: sticky; left: 0</code>.</p>
+
+  <h3>Card layout spec</h3>
+  <table class="grid">
+    <thead><tr><th>Property</th><th>Token</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Statement + option text</td><td><code>Typography.body.base</code></td><td>16 / 24, weight 400</td></tr>
+      <tr><td>Card corner radius</td><td><code>Radius.base</code></td><td>4</td></tr>
+      <tr><td>Card background</td><td><code>Colors.surface.secondarySubtle</code></td><td>#F8F8F9 (neutrals 50)</td></tr>
+      <tr><td>Card border</td><td><code>Colors.stroke.default</code></td><td>#B2B2B3 (neutrals 300)</td></tr>
+      <tr><td>Selected card</td><td><code>Colors.surface.primary</code></td><td>#0078B3, text #FEFFFF</td></tr>
+      <tr><td>Option grid</td><td>—</td><td>2 columns, fixed width to screen, no stretch; extra rows keep the same column width</td></tr>
+      <tr><td>Gap</td><td><code>Spacing.small</code></td><td>8</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Implementation note</h3>
+  <ul>
+    <li>Drive the switch off the measured container width (or <code>useWindowDimensions</code>) against the <code>600</code> threshold; re-evaluate on rotation so tablets flip correctly.</li>
+    <li>The current <code>renderInlineGrid</code> path already covers the narrow case conceptually — the change is to render <em>cards</em> below the breakpoint instead of the horizontally-scrolling grid, and the standard table above it.</li>
+    <li>Many options (6+): even on tablet the table can get tight — keep the card fallback available if columns &gt; a sensible max, regardless of width.</li>
+  </ul>
+</div>
+
+<script>
+  const BP = 600;
+  const STATEMENTS = [
+    "Accessible laws and regulations?",
+    "Are radiation warning signs posted at the boundaries and access points of the storage area?",
+    "Emergency contact numbers posted?",
+  ];
+  const OPTIONS = ["Compliant", "Non-Compliant", "N/I", "N/A"];
+
+  const frame = document.getElementById('frame');
+  const slider = document.getElementById('w');
+  const pxOut = document.getElementById('px');
+  const pill = document.getElementById('layoutPill');
+
+  function tableHTML() {
+    let cells = '<div class="c head"></div>';
+    OPTIONS.forEach((o,i) => cells += `<div class="c head${i===OPTIONS.length-1?' lastcol':''}">${o}</div>`);
+    STATEMENTS.forEach((s, r) => {
+      const alt = r % 2 ? ' alt' : ''; const last = r === STATEMENTS.length-1 ? ' last' : '';
+      cells += `<div class="c stmt${alt}${last}">${s}</div>`;
+      OPTIONS.forEach((o,i) => cells += `<div class="c opt${alt}${last}${i===OPTIONS.length-1?' lastcol':''}"><span class="rd"></span></div>`);
+    });
+    return `<div class="lgrid" style="grid-template-columns:40% repeat(${OPTIONS.length},1fr)">${cells}</div>`;
+  }
+  function cardsHTML() {
+    let html = '<div class="cards">';
+    STATEMENTS.forEach(s => {
+      html += `<div class="cblock"><div class="cstmt">${s}</div><div class="ogrid">`;
+      OPTIONS.forEach(o => html += `<div class="ocard">${o}</div>`);
+      html += `</div></div>`;
+    });
+    return html + '</div>';
+  }
+
+  function draw() {
+    const w = parseInt(slider.value, 10);
+    frame.style.width = w + 'px';
+    pxOut.textContent = w;
+    const isCards = w < BP;
+    frame.innerHTML = '<div class="sec-title">Safety and storage requirements:</div>' + (isCards ? cardsHTML() : tableHTML());
+    pill.textContent = isCards ? 'Cards' : 'Table';
+    pill.style.background = isCards ? 'var(--ok-bg)' : '#E7F0F7';
+    pill.style.color = isCards ? 'var(--ok-fg)' : '#0E324E';
+  }
+  slider.addEventListener('input', draw);
+  draw();
+</script>
+</body>
+</html>

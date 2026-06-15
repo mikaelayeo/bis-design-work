@@ -369,6 +369,14 @@
       "kind": "item",
       "audience": "studio",
       "category": "docs",
+      "title": "Likert scale — responsive rules (internal)",
+      "date": "2026-06-15",
+      "path": "studio/docs/likertscale-responsive-internal.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "docs",
       "title": "Product trio",
       "date": "2026-05-20",
       "path": "studio/docs/product-trio.html"
