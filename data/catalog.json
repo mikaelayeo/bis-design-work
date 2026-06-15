@@ -86,7 +86,7 @@
       "kind": "item",
       "audience": "showcase",
       "category": "wireframes",
-      "title": "Ai panel",
+      "title": "AI panel",
       "date": "2026-06-15",
       "path": "showcase/wireframes/TKT-20792-ai-panel.html",
       "ticket": "TKT-20792"
@@ -262,7 +262,7 @@
       "kind": "item",
       "audience": "showcase",
       "category": "prototypes",
-      "title": "Home prototype v3 final ready for review",
+      "title": "Home prototype v3",
       "date": "2026-06-15",
       "path": "showcase/prototypes/home-prototype-v3-final%20ready%20for%20review.html"
     },
@@ -273,24 +273,6 @@
       "title": "Teams restructure v3",
       "date": "2026-06-15",
       "path": "showcase/prototypes/teams-restructure-v3.html"
-    },
-    {
-      "kind": "item",
-      "audience": "showcase",
-      "category": "docs",
-      "title": "Amanda flow",
-      "date": "2026-06-15",
-      "path": "showcase/docs/tkt-19998-amanda-flow.html",
-      "ticket": "TKT-19998"
-    },
-    {
-      "kind": "item",
-      "audience": "showcase",
-      "category": "docs",
-      "title": "Client flow",
-      "date": "2026-06-15",
-      "path": "showcase/docs/tkt-19998-client-flow.html",
-      "ticket": "TKT-19998"
     },
     {
       "kind": "item",
