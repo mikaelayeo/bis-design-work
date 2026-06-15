@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Rating Scale — Mobile Layouts</title>
+<style>
+  :root {
+    --appbar:      #565A86;
+    --header-blue: #0078B3;
+    --selected:    #0078B3;
+    --stroke:      #B2B2B3;
+    --stroke-light:#E5E5E6;
+    --surface:     #FEFFFF;
+    --card-bg:     #F8F8F9;   /* surface.secondarySubtle */
+    --row-alt:     #F2F2F2;
+    --text:        #191919;
+    --text-muted:  #666666;
+    --on-surface:  #FEFFFF;
+    --green:       #167B00;
+    --page-bg:     #EEF1F4;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--page-bg); color: var(--text); min-height: 100vh;
+  }
+  .page { padding: 26px 20px 48px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+  .intro { width: 100%; max-width: 880px; text-align: center; }
+  .intro h1 { font-size: 21px; margin: 0 0 6px; font-weight: 700; }
+  .intro p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+  .controls { display: flex; align-items: center; gap: 10px; }
+  .controls .label { font-size: 13px; font-weight: 600; }
+  .seg { display: inline-flex; border: 1px solid var(--stroke); border-radius: 8px; overflow: hidden; background: white; }
+  .seg button {
+    appearance: none; border: none; background: white; padding: 8px 18px;
+    font-size: 13px; font-weight: 500; cursor: pointer; border-right: 1px solid var(--stroke);
+    color: var(--text-muted); transition: background .15s, color .15s;
+  }
+  .seg button:last-child { border-right: none; }
+  .seg button.active { background: var(--header-blue); color: white; }
+
+  .compare { display: flex; gap: 36px; justify-content: center; flex-wrap: wrap; width: 100%; }
+  .col { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .col .caption { font-size: 14px; font-weight: 700; }
+
+  /* ---------- phone shell (mimics the form page) ---------- */
+  .phone {
+    width: 372px; height: 780px; background: white; border-radius: 30px;
+    border: 1px solid var(--stroke); box-shadow: 0 14px 40px rgba(0,0,0,.12);
+    overflow: hidden; position: relative; display: flex; flex-direction: column;
+  }
+  .appbar {
+    background: var(--appbar); color: white; padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between; flex: 0 0 auto;
+  }
+  .appbar .left { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; }
+  .appbar .chev { font-size: 20px; }
+  .appbar .more { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+  .appbar .more .plus { font-size: 17px; }
+
+  .form-body { flex: 1; overflow-y: auto; padding: 16px 14px 18px; }
+  .section-title { font-size: 16px; font-weight: 700; margin: 0 0 4px; }
+  .section-notes { font-size: 12.5px; font-style: italic; color: var(--text-muted); margin: 0 0 14px; line-height: 1.5; }
+
+  .footbar {
+    flex: 0 0 auto; border-top: 1px solid var(--stroke-light);
+    padding: 12px 14px; display: flex; gap: 12px; background: white;
+  }
+  .footbar button {
+    flex: 1; padding: 12px 0; border-radius: 4px; font-size: 15px; font-weight: 600;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .footbar .save { background: white; border: 1px solid var(--stroke); color: var(--text); }
+  .footbar .submit { background: var(--header-blue); border: 1px solid var(--header-blue); color: white; }
+
+  /* ---------- context skeleton fields (de-emphasised) ---------- */
+  .skel { opacity: .5; pointer-events: none; margin-bottom: 18px; }
+  .skel.after { margin: 18px 0 0; }
+  .field-label { font-size: 13px; font-weight: 700; margin: 0 0 2px; }
+  .field-sub { font-size: 13px; color: var(--text); margin: 0 0 8px; }
+  .dropdown {
+    border: 1px solid var(--stroke); border-radius: 4px; padding: 11px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+    color: var(--text-muted); font-size: 14px;
+  }
+  .chk { display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 5px 0; color: var(--text); }
+  .chk .box { width: 18px; height: 18px; border: 1.5px solid var(--stroke); border-radius: 3px; flex: 0 0 auto; }
+  .divider { height: 1px; background: var(--stroke-light); margin: 16px 0; }
+
+  /* ---------- TABLE layout ---------- */
+  .widget-frame { border: 1px solid var(--stroke); border-radius: 4px; background: white; overflow: hidden; }
+  .grid-row { display: flex; }
+  .stmt-col { flex-shrink: 0; border-right: 1px solid var(--stroke); background: var(--surface); }
+  .stmt-head { background: var(--surface); border-bottom: 1px solid var(--stroke); }
+  .stmt-cell {
+    display: flex; align-items: center; gap: 6px; padding: 10px 10px;
+    border-bottom: 1px solid var(--stroke-light); color: var(--text);
+    font-size: 14px; line-height: 20px; min-height: 56px;
+  }
+  .stmt-cell.alt { background: var(--row-alt); }
+  .stmt-cell.last { border-bottom: none; }
+  .stmt-cell .help { color: var(--green); cursor: pointer; flex: 0 0 auto; font-size: 13px; }
+
+  .resp-scroll { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; position: relative; flex: 1; }
+  .resp-scroll::-webkit-scrollbar { height: 8px; }
+  .resp-scroll::-webkit-scrollbar-track { background: #f0f0f0; }
+  .resp-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,.28); border-radius: 4px; }
+  .resp-inner { display: flex; flex-direction: column; width: max-content; min-width: 100%; }
+  .opt-head-row, .opt-cell-row { display: flex; }
+  .opt-head {
+    background: var(--header-blue); color: var(--on-surface);
+    border-right: 1px solid var(--stroke); border-bottom: 1px solid var(--stroke);
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    padding: 6px 4px; font-size: 14px; line-height: 18px; font-weight: 600;
+    overflow-wrap: normal; word-break: normal;   /* wrap at spaces/hyphens only */
+  }
+  .opt-cell {
+    border-right: 1px solid var(--stroke); border-bottom: 1px solid var(--stroke-light);
+    background: var(--surface); display: flex; align-items: center; justify-content: center;
+  }
+  .opt-cell.alt { background: var(--row-alt); }
+  .radio {
+    width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--stroke);
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+    background: white; flex: 0 0 auto; transition: border-color .15s;
+  }
+  .radio:hover { border-color: var(--selected); }
+  .radio.checked { border-color: var(--selected); }
+  .radio.checked::after { content: ""; width: 11px; height: 11px; border-radius: 50%; background: var(--selected); }
+  .scroll-hint {
+    position: absolute; top:0; right:0; bottom:0; width: 24px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,.96));
+    pointer-events: none; opacity: 0; transition: opacity .2s; z-index: 4;
+  }
+  .has-overflow .scroll-hint { opacity: 1; }
+
+  /* ---------- CARD layout ---------- */
+  .cards { display: flex; flex-direction: column; gap: 10px; }
+  .card { border: 1px solid var(--stroke); border-radius: 4px; background: var(--card-bg); padding: 12px; }
+  .card .card-stmt {
+    display: flex; align-items: flex-start; gap: 6px; color: var(--text);
+    margin-bottom: 12px; font-size: 16px; line-height: 24px; font-weight: 400;   /* body.base */
+  }
+  .card .card-stmt .help { color: var(--green); cursor: pointer; font-size: 13px; flex: 0 0 auto; margin-top: 3px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    flex: 1 1 auto; min-width: 96px; border: 1px solid var(--stroke); border-radius: 4px;
+    background: var(--surface); color: var(--text); padding: 10px 12px; cursor: pointer;
+    text-align: center; font-size: 16px; line-height: 24px; font-weight: 400;     /* body.base */
+    appearance: none; transition: background .12s, border-color .12s, color .12s;
+  }
+  .chip:hover { border-color: var(--selected); }
+  .chip.selected { background: var(--selected); border-color: var(--selected); color: var(--on-surface); }
+
+  .comment-label { font-size: 13px; color: var(--text); margin: 16px 0 6px; }
+  .comment-box {
+    border: 1px solid var(--stroke); border-radius: 4px; min-height: 64px;
+    padding: 10px; color: var(--text-muted); font-size: 13px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="intro">
+    <h1>Rating questions on mobile</h1>
+    <p>The same checklist, two layouts. Tap an answer to try each one.</p>
+  </div>
+
+  <div class="controls">
+    <span class="label">Response options</span>
+    <div class="seg" id="optCount">
+      <button data-n="3">3</button>
+      <button data-n="4" class="active">4</button>
+    </div>
+  </div>
+
+  <div class="compare">
+    <!-- TABLE -->
+    <div class="col">
+      <div class="caption">Table layout</div>
+      <div class="phone">
+        <div class="appbar">
+          <div class="left"><span class="chev">‹</span><span>Edit Form</span></div>
+          <div class="more"><span class="plus">⊕</span><span>More Actions</span></div>
+        </div>
+        <div class="form-body" id="body-table"></div>
+        <div class="footbar">
+          <button class="save">▢ Save</button>
+          <button class="submit">✓ Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="col">
+      <div class="caption">Card layout</div>
+      <div class="phone">
+        <div class="appbar">
+          <div class="left"><span class="chev">‹</span><span>Edit Form</span></div>
+          <div class="more"><span class="plus">⊕</span><span>More Actions</span></div>
+        </div>
+        <div class="form-body" id="body-cards"></div>
+        <div class="footbar">
+          <button class="save">▢ Save</button>
+          <button class="submit">✓ Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Real client checklist content
+  const SECTION_TITLE = "Safety and storage requirements:";
+  const SECTION_NOTES = [
+    "Notes:",
+    "- It is recommended to display nearby a poster containing the QR codes of the hyperlinks directing us to the laws and regulations.",
+    "- If you are using only a gamma measuring device, take into account an additional 30% for neutron radiation."
+  ];
+
+  const STATEMENTS = [
+    { id: 1, label: "Accessible laws and regulations?" },
+    { id: 2, label: "Are radiation warning signs posted at the boundaries and access points of the storage area?" },
+    { id: 3, label: "Emergency contact numbers posted?" },
+    { id: 4, label: "Copy of license and/or notice posted at entrances to facility?" },
+    { id: 5, label: "Copy of emergency procedures posted and/or available?" },
+  ];
+
+  const OPTION_SETS = {
+    3: ["Compliant", "Non-Compliant", "N/I"],
+    4: ["Compliant", "Non-Compliant", "N/I", "N/A"],
+  };
+
+  const W = 344;                 // logical width inside the form body
+  const state = { table: {}, cards: {} };
+  let nOptions = 4;
+
+  // ----- context skeleton fields (placed around the likert) -----
+  function skeletonBefore() {
+    return `
+      <div class="skel">
+        <div class="field-label">Title</div>
+        <div class="field-sub">Storage location</div>
+        <div class="dropdown"><span>Search location…</span><span>⌄</span></div>
+      </div>
+      <div class="divider"></div>`;
+  }
+  function skeletonAfter() {
+    return `
+      <div class="comment-label">Comments / additional information:</div>
+      <div class="comment-box">Tap to add a comment…</div>
+      <div class="divider"></div>
+      <div class="skel after">
+        <div class="field-label">Title</div>
+        <div class="field-sub">Check all that apply</div>
+        <label class="chk"><span class="box"></span> First Choice</label>
+        <label class="chk"><span class="box"></span> Second Choice</label>
+        <label class="chk"><span class="box"></span> Third Choice</label>
+      </div>`;
+  }
+  function sectionHeader() {
+    return `
+      <p class="section-title">${SECTION_TITLE}</p>
+      <p class="section-notes">${SECTION_NOTES.join('<br>')}</p>`;
+  }
+
+  function render() {
+    const opts = OPTION_SETS[nOptions];
+
+    const tb = document.getElementById('body-table');
+    tb.innerHTML = skeletonBefore() + sectionHeader() + '<div id="w-table"></div>' + skeletonAfter();
+    renderTable(opts, document.getElementById('w-table'), state.table);
+
+    const cb = document.getElementById('body-cards');
+    cb.innerHTML = skeletonBefore() + sectionHeader() + '<div id="w-cards"></div>' + skeletonAfter();
+    renderCards(opts, document.getElementById('w-cards'), state.cards);
+  }
+
+  function renderTable(opts, host, answers) {
+    host.innerHTML = '';
+    const stmtW = Math.round(W * 0.37);
+    const optW  = Math.round(W * 0.20);
+
+    const frame = document.createElement('div');
+    frame.className = 'widget-frame';
+    const row = document.createElement('div');
+    row.className = 'grid-row';
+
+    const col = document.createElement('div');
+    col.className = 'stmt-col';
+    col.style.width = stmtW + 'px';
+    const sHead = document.createElement('div');
+    sHead.className = 'stmt-head';
+    sHead.style.height = '52px';
+    col.appendChild(sHead);
+
+    STATEMENTS.forEach((s, i) => {
+      const cell = document.createElement('div');
+      cell.className = 'stmt-cell' + (i % 2 ? ' alt' : '') + (i === STATEMENTS.length - 1 ? ' last' : '');
+      const lbl = document.createElement('span');
+      lbl.textContent = s.label;
+      cell.appendChild(lbl);
+      if (s.tooltip) { const t = document.createElement('span'); t.className = 'help'; t.textContent = 'ⓘ'; cell.appendChild(t); }
+      col.appendChild(cell);
+    });
+    row.appendChild(col);
+
+    const scroll = document.createElement('div');
+    scroll.className = 'resp-scroll';
+    const inner = document.createElement('div');
+    inner.className = 'resp-inner';
+
+    const headRow = document.createElement('div');
+    headRow.className = 'opt-head-row';
+    opts.forEach(o => {
+      const h = document.createElement('div');
+      h.className = 'opt-head'; h.style.width = optW + 'px'; h.style.height = '52px';
+      h.textContent = o; headRow.appendChild(h);
+    });
+    inner.appendChild(headRow);
+
+    STATEMENTS.forEach((s, i) => {
+      const cellRow = document.createElement('div');
+      cellRow.className = 'opt-cell-row';
+      opts.forEach(o => {
+        const cell = document.createElement('div');
+        cell.className = 'opt-cell' + (i % 2 ? ' alt' : '');
+        cell.style.width = optW + 'px';
+        const radio = document.createElement('span');
+        radio.className = 'radio' + (answers[s.id] === o ? ' checked' : '');
+        radio.addEventListener('click', () => { answers[s.id] = answers[s.id] === o ? null : o; render(); });
+        cell.appendChild(radio); cellRow.appendChild(cell);
+      });
+      inner.appendChild(cellRow);
+    });
+
+    scroll.appendChild(inner);
+    const hint = document.createElement('div'); hint.className = 'scroll-hint';
+    frame.appendChild(row); row.appendChild(scroll); frame.appendChild(hint);
+    host.appendChild(frame);
+
+    scroll.addEventListener('wheel', (e) => {
+      if (scroll.scrollWidth <= scroll.clientWidth) return;
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { e.preventDefault(); scroll.scrollLeft += e.deltaY; }
+    }, { passive: false });
+    requestAnimationFrame(() => {
+      const update = () => {
+        const atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 4;
+        const overflow = scroll.scrollWidth > scroll.clientWidth + 4;
+        frame.classList.toggle('has-overflow', overflow && !atEnd);
+      };
+      update(); scroll.addEventListener('scroll', update);
+    });
+  }
+
+  function renderCards(opts, host, answers) {
+    host.innerHTML = '';
+    const wrap = document.createElement('div');
+    wrap.className = 'cards';
+    STATEMENTS.forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const stmt = document.createElement('div');
+      stmt.className = 'card-stmt';
+      const lbl = document.createElement('span'); lbl.textContent = s.label; stmt.appendChild(lbl);
+      if (s.tooltip) { const t = document.createElement('span'); t.className = 'help'; t.textContent = 'ⓘ'; stmt.appendChild(t); }
+      card.appendChild(stmt);
+      const chips = document.createElement('div');
+      chips.className = 'chips';
+      opts.forEach(o => {
+        const chip = document.createElement('button');
+        chip.className = 'chip' + (answers[s.id] === o ? ' selected' : '');
+        chip.textContent = o;
+        chip.addEventListener('click', () => { answers[s.id] = answers[s.id] === o ? null : o; render(); });
+        chips.appendChild(chip);
+      });
+      card.appendChild(chips);
+      wrap.appendChild(card);
+    });
+    host.appendChild(wrap);
+  }
+
+  document.querySelectorAll('#optCount button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#optCount button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      nOptions = parseInt(btn.dataset.n, 10);
+      state.table = {}; state.cards = {};
+      render();
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>

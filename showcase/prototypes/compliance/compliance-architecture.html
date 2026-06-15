@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compliance Module — System Architecture</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1e293b; background: #f8fafc; padding: 32px; }
+
+  .page { max-width: 980px; margin: 0 auto; }
+
+  .header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 2px solid #e2e8f0; }
+  .header-badge { font-size: 11px; font-weight: 700; color: #6366f1; text-transform: uppercase; letter-spacing: 1px; }
+  .header-title { font-size: 24px; font-weight: 800; color: #1e293b; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 28px; }
+  .tab { padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; background: #f1f5f9; color: #64748b; border: none; }
+  .tab.active { background: #1e293b; color: #fff; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  h1::after { content: ''; display: block; width: 40px; height: 3px; background: #6366f1; border-radius: 2px; margin-top: 6px; margin-bottom: 16px; }
+  h2 { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+  h3 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+
+  .desc { font-size: 13px; color: #64748b; line-height: 1.6; margin-bottom: 20px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px 16px; background: #fff; border-radius: 10px; margin-bottom: 24px; border: 1px solid #e2e8f0; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #475569; font-weight: 500; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+  /* Architecture Layers */
+  .layer { margin-bottom: 6px; }
+  .layer-label { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .layer-label-text { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; }
+  .layer-label-line { flex: 1; height: 1px; background: #e2e8f0; }
+
+  .layer-cards { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+  .card { border: 2px solid; border-radius: 12px; padding: 16px 20px; background: #fff; min-width: 180px; flex: 1; }
+  .card-sm { padding: 10px 14px; min-width: 120px; }
+  .card-title { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .card-sm .card-title { font-size: 13px; margin-bottom: 4px; }
+  .card-items { display: flex; flex-direction: column; gap: 3px; }
+  .card-item { font-size: 12px; color: #64748b; padding-left: 8px; border-left: 2px solid #e2e8f0; line-height: 1.4; }
+
+  .connector { display: flex; justify-content: center; align-items: center; gap: 10px; padding: 2px 0; }
+  .connector-line { width: 2px; height: 28px; background: #cbd5e1; }
+  .connector-label { font-size: 10px; color: #94a3b8; background: #f1f5f9; padding: 2px 10px; border-radius: 10px; white-space: nowrap; font-weight: 600; }
+  .connector-arrow { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid #cbd5e1; }
+
+  .cross-cutting { display: flex; gap: 16px; flex-wrap: wrap; padding: 16px; background: #fefce8; border-radius: 12px; border: 1px dashed #d97706; margin-top: 16px; }
+  .cross-section { flex: 1; min-width: 260px; }
+
+  /* Colors */
+  .c-dashboard { border-color: #6366f1; } .c-dashboard .card-title { color: #6366f1; } .c-dashboard .card-item { border-left-color: #a5b4fc; }
+  .c-framework { border-color: #1e293b; } .c-framework .card-title { color: #1e293b; } .c-framework .card-item { border-left-color: #475569; }
+  .c-requirement { border-color: #7c3aed; } .c-requirement .card-title { color: #7c3aed; } .c-requirement .card-item { border-left-color: #a78bfa; }
+  .c-measure { border-color: #0891b2; } .c-measure .card-title { color: #0891b2; } .c-measure .card-item { border-left-color: #67e8f9; }
+  .c-content { border-color: #059669; } .c-content .card-title { color: #059669; } .c-content .card-item { border-left-color: #6ee7b7; }
+  .c-scope { border-color: #d97706; } .c-scope .card-title { color: #d97706; } .c-scope .card-item { border-left-color: #fcd34d; }
+  .c-remediation { border-color: #dc2626; } .c-remediation .card-title { color: #dc2626; } .c-remediation .card-item { border-left-color: #fca5a5; }
+
+  /* Flow */
+  .flow-grid { display: flex; gap: 32px; flex-wrap: wrap; }
+  .flow-col { flex: 1; min-width: 320px; }
+  .flow-phase { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 6px 12px; border-radius: 6px; display: inline-block; margin-bottom: 16px; }
+  .flow-phase-setup { color: #6366f1; background: #eef2ff; }
+  .flow-phase-ops { color: #059669; background: #ecfdf5; }
+
+  .flow-step { display: flex; gap: 14px; margin-bottom: 4px; }
+  .flow-num { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 14px; flex-shrink: 0; }
+  .flow-line { width: 2px; height: 36px; background: #e2e8f0; margin: 0 auto; }
+  .flow-body { padding-bottom: 12px; }
+  .flow-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .flow-desc { font-size: 13px; color: #64748b; line-height: 1.5; margin-bottom: 6px; }
+  .flow-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+  .flow-tag { padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+
+  .callout { padding: 16px; border-radius: 12px; margin-top: 20px; }
+  .callout-danger { background: #fef2f2; border: 1px solid #fecaca; }
+  .callout-info { background: #f0f9ff; border: 1px solid #bae6fd; }
+  .callout-title { font-weight: 700; font-size: 14px; margin-bottom: 8px; }
+  .callout-danger .callout-title { color: #dc2626; }
+  .callout-info .callout-title { color: #0369a1; }
+  .callout-text { font-size: 12px; line-height: 1.6; }
+  .callout-danger .callout-text { color: #7f1d1d; }
+  .callout-info .callout-text { color: #0c4a6e; }
+  .callout-item { margin-bottom: 6px; }
+
+  .lifecycle { display: flex; gap: 8px; flex-wrap: wrap; font-size: 12px; align-items: center; margin-top: 4px; }
+  .lifecycle-badge { padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+
+  /* Data Model */
+  .entity-grid { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  .entity { border: 2px solid; border-radius: 12px; overflow: hidden; min-width: 220px; flex: 1; background: #fff; }
+  .entity-header { padding: 10px 16px; color: #fff; font-weight: 700; font-size: 14px; }
+  .entity-body { padding: 10px 16px; }
+  .entity-field { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; border-bottom: 1px solid #f1f5f9; }
+  .entity-field:last-child { border-bottom: none; }
+  .entity-field-name { color: #1e293b; }
+  .entity-field-name.key { font-weight: 700; }
+  .entity-field-name.key::before { content: '🔑 '; }
+  .entity-field-type { color: #94a3b8; font-size: 11px; }
+  .entity-relations { margin-top: 8px; padding-top: 8px; border-top: 2px dashed #e2e8f0; }
+  .entity-relations-title { font-size: 10px; font-weight: 700; color: #94a3b8; margin-bottom: 4px; }
+  .entity-rel { font-size: 11px; color: #6366f1; padding: 2px 0; }
+
+  .content-tags { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: 8px; }
+  .content-tags-title { font-weight: 700; font-size: 14px; margin-bottom: 8px; width: 100%; }
+  .content-tag { padding: 4px 10px; background: #ecfdf5; color: #059669; border-radius: 6px; font-size: 11px; font-weight: 600; border: 1px solid #bbf7d0; }
+
+  @media (max-width: 700px) {
+    body { padding: 16px; }
+    .flow-grid { flex-direction: column; }
+    .entity-grid { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="header">
+    <div>
+      <div class="header-badge">BIS Safety Software</div>
+      <div class="header-title">Compliance Module — System Map</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('arch')">Architecture</button>
+    <button class="tab" onclick="showTab('flow')">User Flow</button>
+    <button class="tab" onclick="showTab('data')">Data Model</button>
+  </div>
+
+  <!-- ========== ARCHITECTURE ========== -->
+  <div id="tab-arch" class="section active">
+    <h1>System Architecture</h1>
+    <p class="desc">The compliance module follows a strict hierarchy: Frameworks contain Requirements, which are satisfied by Control Measures, which map to your existing portal content. Worksites, Assets, and Remediation cut across all layers.</p>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div>Monitoring</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1e293b"></div>Frameworks</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>Requirements</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#0891b2"></div>Control Measures</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#059669"></div>Portal Content</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div>Scoping</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Remediation</div>
+    </div>
+
+    <!-- Layer 1: Dashboard -->
+    <div class="layer">
+      <div class="layer-cards" style="justify-content:center">
+        <div class="card c-dashboard" style="max-width:520px">
+          <div class="card-title">📊 Dashboard</div>
+          <div class="card-items">
+            <div class="card-item">Compliance status per active framework</div>
+            <div class="card-item">Pie charts: passing / failed / unaddressed</div>
+            <div class="card-item">My remediation tasks (logged-in user)</div>
+            <div class="card-item">One widget per active framework (draggable)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-line"></div></div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- Layer 2: Frameworks -->
+    <div class="layer">
+      <div class="layer-label"><div class="layer-label-text">Frameworks Layer</div><div class="layer-label-line"></div></div>
+      <div class="layer-cards">
+        <div class="card card-sm c-framework">
+          <div class="card-title">📋 ISO 27001</div>
+          <div class="card-items">
+            <div class="card-item">Has: Requirements</div>
+            <div class="card-item">Scoped to: Worksites + Assets</div>
+            <div class="card-item">Status: Active / Inactive / Deactivated</div>
+          </div>
+        </div>
+        <div class="card card-sm c-framework">
+          <div class="card-title">📋 NFPA 70</div>
+          <div class="card-items">
+            <div class="card-item">Has: Requirements</div>
+            <div class="card-item">Scoped to: Worksites + Assets</div>
+            <div class="card-item">Status: Active / Inactive / Deactivated</div>
+          </div>
+        </div>
+        <div class="card card-sm c-framework">
+          <div class="card-title">📋 AB OHS</div>
+          <div class="card-items">
+            <div class="card-item">Has: Requirements</div>
+            <div class="card-item">Scoped to: Worksites + Assets</div>
+            <div class="card-item">Status: Active / Inactive / Deactivated</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-line"></div><div class="connector-label">many-to-many</div><div class="connector-line"></div></div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- Layer 3: Requirements -->
+    <div class="layer">
+      <div class="layer-label"><div class="layer-label-text">Requirements Layer</div><div class="layer-label-line"></div></div>
+      <div class="layer-cards">
+        <div class="card card-sm c-requirement">
+          <div class="card-title">📌 GOV-001 Access Control</div>
+          <div class="card-items">
+            <div class="card-item">Type: Governance</div>
+            <div class="card-item">Owner: J. Smith</div>
+            <div class="card-item">Shared across frameworks</div>
+          </div>
+        </div>
+        <div class="card card-sm c-requirement">
+          <div class="card-title">📌 TRN-003 Safety Training</div>
+          <div class="card-items">
+            <div class="card-item">Type: Training</div>
+            <div class="card-item">Owner: M. Lee</div>
+            <div class="card-item">Location-scoped</div>
+          </div>
+        </div>
+        <div class="card card-sm c-requirement">
+          <div class="card-title">📌 HAZ-005 Hazard ID</div>
+          <div class="card-items">
+            <div class="card-item">Type: Hazard</div>
+            <div class="card-item">Owner: R. Chen</div>
+            <div class="card-item">Asset-scoped</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-line"></div><div class="connector-label">one-to-many</div><div class="connector-line"></div></div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- Layer 4: Control Measures -->
+    <div class="layer">
+      <div class="layer-label"><div class="layer-label-text">Control Measures Layer</div><div class="layer-label-line"></div></div>
+      <div class="layer-cards">
+        <div class="card card-sm c-measure"><div class="card-title">Accountability</div></div>
+        <div class="card card-sm c-measure"><div class="card-title">Program</div></div>
+        <div class="card card-sm c-measure"><div class="card-title">Policy</div></div>
+        <div class="card card-sm c-measure"><div class="card-title">Procedure</div></div>
+        <div class="card card-sm c-measure"><div class="card-title">Training</div></div>
+        <div class="card card-sm c-measure"><div class="card-title">PPE/Safety</div></div>
+        <div class="card card-sm c-measure"><div class="card-title">Verification</div></div>
+      </div>
+    </div>
+    <div class="connector"><div class="connector-line"></div><div class="connector-label">maps to</div><div class="connector-line"></div></div>
+    <div class="connector"><div class="connector-arrow"></div></div>
+
+    <!-- Layer 5: Content -->
+    <div class="layer">
+      <div class="layer-label"><div class="layer-label-text">Existing Portal Content</div><div class="layer-label-line"></div></div>
+      <div class="layer-cards">
+        <div class="card card-sm c-content">
+          <div class="card-title">📁 Folders & Docs</div>
+          <div class="card-items"><div class="card-item">Review frequency</div><div class="card-item">Terms & Conditions</div></div>
+        </div>
+        <div class="card card-sm c-content">
+          <div class="card-title">📝 Forms</div>
+          <div class="card-items"><div class="card-item">Active / scheduled</div><div class="card-item">Expiry tracking</div></div>
+        </div>
+        <div class="card card-sm c-content">
+          <div class="card-title">📖 Playbooks</div>
+          <div class="card-items"><div class="card-item">Chapters</div><div class="card-item">Update reminders</div></div>
+        </div>
+        <div class="card card-sm c-content">
+          <div class="card-title">🎓 Training</div>
+          <div class="card-items"><div class="card-item">Online / Classroom</div><div class="card-item">Location or Role</div></div>
+        </div>
+        <div class="card card-sm c-content">
+          <div class="card-title">🔧 Assets</div>
+          <div class="card-items"><div class="card-item">Required docs</div><div class="card-item">Sub-assets</div></div>
+        </div>
+        <div class="card card-sm c-content">
+          <div class="card-title">👤 Company Roles</div>
+          <div class="card-items"><div class="card-item">Training matrix</div><div class="card-item">Assignments</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cross-cutting -->
+    <div class="cross-cutting">
+      <div class="cross-section">
+        <h2>Cross-cutting: Scoping</h2>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div class="card card-sm c-scope" style="flex:1;min-width:200px">
+            <div class="card-title">🏭 Worksites</div>
+            <div class="card-items">
+              <div class="card-item">Mapped locations → worksite</div>
+              <div class="card-item">Custom worksites group locations</div>
+              <div class="card-item">Applied at framework level</div>
+              <div class="card-item">Requirements scope within</div>
+            </div>
+          </div>
+          <div class="card card-sm c-scope" style="flex:1;min-width:200px">
+            <div class="card-title">🔩 Asset Groups</div>
+            <div class="card-items">
+              <div class="card-item">Asset categories → groups</div>
+              <div class="card-item">Custom groups mix categories</div>
+              <div class="card-item">Applied at framework level</div>
+              <div class="card-item">Requirements scope within</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cross-section">
+        <h2>Cross-cutting: Remediation</h2>
+        <div class="card c-remediation">
+          <div class="card-title">🚨 Remediation Tasks</div>
+          <div class="card-items">
+            <div class="card-item">Created from failed control measures</div>
+            <div class="card-item">Assigned to users → Task Admin module</div>
+            <div class="card-item">Bidirectional sync with Task Admin</div>
+            <div class="card-item">Completing task ≠ measure passes</div>
+            <div class="card-item">Owner notified on failure</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== USER FLOW ========== -->
+  <div id="tab-flow" class="section">
+    <h1>Setup & Daily Use Flow</h1>
+    <p class="desc">Recommended order of operations. Steps 1–6 are initial setup. Steps 7–8 are ongoing operations.</p>
+
+    <div class="flow-grid">
+      <div class="flow-col">
+        <div class="flow-phase flow-phase-setup">Initial Setup</div>
+
+        <div class="flow-step">
+          <div><div class="flow-num" style="background:#d97706">1</div><div class="flow-line"></div></div>
+          <div class="flow-body">
+            <div class="flow-title">Define Worksites</div>
+            <div class="flow-desc">Map your portal locations to compliance worksites, or create custom worksites that group multiple locations together.</div>
+            <div class="flow-tags"><span class="flow-tag" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d">Map Locations</span><span class="flow-tag" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d">Custom Worksite</span></div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div><div class="flow-num" style="background:#d97706">2</div><div class="flow-line"></div></div>
+          <div class="flow-body">
+            <div class="flow-title">Define Asset Groups</div>
+            <div class="flow-desc">Map asset categories to compliance groups, or create custom groups with assets from multiple categories.</div>
+            <div class="flow-tags"><span class="flow-tag" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d">Map Categories</span><span class="flow-tag" style="background:#fef3c7;color:#92400e;border:1px solid #fcd34d">Custom Group</span></div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div><div class="flow-num" style="background:#7c3aed">3</div><div class="flow-line"></div></div>
+          <div class="flow-body">
+            <div class="flow-title">Configure Settings</div>
+            <div class="flow-desc">Set up requirement types (GOV, HAZ, TRN...) and control measure types (Policy, Procedure, Training...). Customize for your industry.</div>
+            <div class="flow-tags"><span class="flow-tag" style="background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd">Req. Types</span><span class="flow-tag" style="background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd">Measure Types</span></div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div><div class="flow-num" style="background:#7c3aed">4</div><div class="flow-line"></div></div>
+          <div class="flow-body">
+            <div class="flow-title">Create Requirements</div>
+            <div class="flow-desc">Build your compliance requirements. Assign owners, scope to locations/assets, and add control measures that map to your portal content.</div>
+            <div class="flow-tags">
+              <span class="flow-tag" style="background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd">Name & Describe</span>
+              <span class="flow-tag" style="background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd">Assign Owner</span>
+              <span class="flow-tag" style="background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd">Add Measures</span>
+              <span class="flow-tag" style="background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd">Map Content</span>
+            </div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div><div class="flow-num" style="background:#1e293b">5</div><div class="flow-line"></div></div>
+          <div class="flow-body">
+            <div class="flow-title">Create Frameworks</div>
+            <div class="flow-desc">Create compliance frameworks (starts as Inactive). Map worksites and asset groups. Select which requirements apply.</div>
+            <div class="flow-tags">
+              <span class="flow-tag" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1">New Framework</span>
+              <span class="flow-tag" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1">Map Sites</span>
+              <span class="flow-tag" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1">Map Assets</span>
+              <span class="flow-tag" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1">Add Requirements</span>
+            </div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div><div class="flow-num" style="background:#1e293b">6</div></div>
+          <div class="flow-body">
+            <div class="flow-title">Activate Framework</div>
+            <div class="flow-desc">When ready, activate the framework. The system begins testing control measures and surfacing compliance status on the dashboard.</div>
+            <div class="flow-tags">
+              <span class="flow-tag" style="background:#dcfce7;color:#166534;border:1px solid #86efac">Activate</span>
+              <span class="flow-tag" style="background:#dcfce7;color:#166534;border:1px solid #86efac">Tests Begin</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-col">
+        <div class="flow-phase flow-phase-ops">Ongoing Operations</div>
+
+        <div class="flow-step">
+          <div><div class="flow-num" style="background:#6366f1">7</div><div class="flow-line"></div></div>
+          <div class="flow-body">
+            <div class="flow-title">Monitor Dashboard</div>
+            <div class="flow-desc">View compliance status across all active frameworks. Pie charts show passing, failing, and unaddressed requirements. Check your personal remediation tasks.</div>
+            <div class="flow-tags">
+              <span class="flow-tag" style="background:#eef2ff;color:#4338ca;border:1px solid #a5b4fc">Review Status</span>
+              <span class="flow-tag" style="background:#eef2ff;color:#4338ca;border:1px solid #a5b4fc">Check Tasks</span>
+            </div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div><div class="flow-num" style="background:#dc2626">8</div></div>
+          <div class="flow-body">
+            <div class="flow-title">Remediate Failures</div>
+            <div class="flow-desc">When control measures fail, owners are notified. Admins create remediation tasks from failed measures. Assigned users complete tasks. Admins re-run tests to verify.</div>
+            <div class="flow-tags">
+              <span class="flow-tag" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5">Get Notified</span>
+              <span class="flow-tag" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5">Assign Task</span>
+              <span class="flow-tag" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5">Complete Task</span>
+              <span class="flow-tag" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5">Re-test</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-danger" style="margin-top:24px">
+          <div class="callout-title">⚠️ Key Gotchas</div>
+          <div class="callout-text">
+            <div class="callout-item"><b>Completing a task ≠ fixing the measure.</b> The task might say "update the policy" but the control measure won't pass until the actual document is updated in the portal.</div>
+            <div class="callout-item"><b>Editing a requirement affects ALL frameworks.</b> Requirements are shared objects. Changing control measures on one ripples everywhere.</div>
+            <div class="callout-item"><b>Tests are manual.</b> Admins must click "Run Test" — there's no continuous monitoring. Dashboard data can be stale.</div>
+            <div class="callout-item"><b>Deactivating ≠ deleting.</b> Deactivated frameworks/requirements retain all data. Purging requires a portal purge code.</div>
+          </div>
+        </div>
+
+        <div class="callout callout-info" style="margin-top:16px">
+          <div class="callout-title">🔄 Lifecycle States</div>
+          <div class="callout-text">
+            <div style="margin-bottom:8px">
+              <b>Frameworks:</b>
+              <div class="lifecycle">
+                <span class="lifecycle-badge" style="background:#fef3c7">Inactive</span> →
+                <span class="lifecycle-badge" style="background:#dcfce7">Active</span> →
+                <span class="lifecycle-badge" style="background:#f1f5f9">Deactivated</span> →
+                <span class="lifecycle-badge" style="background:#fee2e2">Purged</span>
+              </div>
+            </div>
+            <div>
+              <b>Requirements:</b>
+              <div class="lifecycle">
+                <span class="lifecycle-badge" style="background:#dcfce7">Active</span> →
+                <span class="lifecycle-badge" style="background:#f1f5f9">Deactivated</span> →
+                <span class="lifecycle-badge" style="background:#fee2e2">Purged</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== DATA MODEL ========== -->
+  <div id="tab-data" class="section">
+    <h1>Data Model (Conceptual)</h1>
+    <p class="desc">Key entities and their relationships. Not a database schema — a conceptual model showing how the pieces connect.</p>
+
+    <div class="entity-grid">
+      <div class="entity" style="border-color:#1e293b">
+        <div class="entity-header" style="background:#1e293b">Framework</div>
+        <div class="entity-body">
+          <div class="entity-field"><span class="entity-field-name key">ID</span><span class="entity-field-type">string (50)</span></div>
+          <div class="entity-field"><span class="entity-field-name">Name</span><span class="entity-field-type">string (200)</span></div>
+          <div class="entity-field"><span class="entity-field-name">Status</span><span class="entity-field-type">Active|Inactive|Deactivated</span></div>
+          <div class="entity-field"><span class="entity-field-name">Worksites</span><span class="entity-field-type">Worksite[]</span></div>
+          <div class="entity-field"><span class="entity-field-name">Asset Groups</span><span class="entity-field-type">AssetGroup[]</span></div>
+          <div class="entity-relations">
+            <div class="entity-relations-title">RELATIONSHIPS</div>
+            <div class="entity-rel">↗ has many → Requirements (M:N)</div>
+            <div class="entity-rel">↗ scoped to → Worksites</div>
+            <div class="entity-rel">↗ scoped to → Asset Groups</div>
+          </div>
+        </div>
+      </div>
+      <div class="entity" style="border-color:#7c3aed">
+        <div class="entity-header" style="background:#7c3aed">Requirement</div>
+        <div class="entity-body">
+          <div class="entity-field"><span class="entity-field-name key">ID</span><span class="entity-field-type">string (25)</span></div>
+          <div class="entity-field"><span class="entity-field-name">Name</span><span class="entity-field-type">string (200)</span></div>
+          <div class="entity-field"><span class="entity-field-name">Description</span><span class="entity-field-type">text (250 words)</span></div>
+          <div class="entity-field"><span class="entity-field-name">Type</span><span class="entity-field-type">RequirementType</span></div>
+          <div class="entity-field"><span class="entity-field-name">Owner</span><span class="entity-field-type">User</span></div>
+          <div class="entity-field"><span class="entity-field-name">Locations</span><span class="entity-field-type">Location[]</span></div>
+          <div class="entity-field"><span class="entity-field-name">Assets</span><span class="entity-field-type">Asset[]</span></div>
+          <div class="entity-relations">
+            <div class="entity-relations-title">RELATIONSHIPS</div>
+            <div class="entity-rel">↗ belongs to many → Frameworks (M:N)</div>
+            <div class="entity-rel">↗ has many → Control Measures</div>
+            <div class="entity-rel">↗ owned by → User</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="entity-grid">
+      <div class="entity" style="border-color:#0891b2">
+        <div class="entity-header" style="background:#0891b2">Control Measure</div>
+        <div class="entity-body">
+          <div class="entity-field"><span class="entity-field-name key">Type</span><span class="entity-field-type">MeasureType</span></div>
+          <div class="entity-field"><span class="entity-field-name">Description</span><span class="entity-field-type">text</span></div>
+          <div class="entity-field"><span class="entity-field-name">Content Mapping</span><span class="entity-field-type">varies by type</span></div>
+          <div class="entity-field"><span class="entity-field-name">Status</span><span class="entity-field-type">Pass | Fail</span></div>
+          <div class="entity-field"><span class="entity-field-name">Fail Message</span><span class="entity-field-type">string</span></div>
+          <div class="entity-relations">
+            <div class="entity-relations-title">RELATIONSHIPS</div>
+            <div class="entity-rel">↗ belongs to → Requirement</div>
+            <div class="entity-rel">↗ maps to → Portal Content</div>
+            <div class="entity-rel">↗ triggers → Remediation Tasks</div>
+          </div>
+        </div>
+      </div>
+      <div class="entity" style="border-color:#dc2626">
+        <div class="entity-header" style="background:#dc2626">Remediation Task</div>
+        <div class="entity-body">
+          <div class="entity-field"><span class="entity-field-name">Task Name</span><span class="entity-field-type">string</span></div>
+          <div class="entity-field"><span class="entity-field-name">Priority</span><span class="entity-field-type">enum</span></div>
+          <div class="entity-field"><span class="entity-field-name">Due Date</span><span class="entity-field-type">date</span></div>
+          <div class="entity-field"><span class="entity-field-name">Assigned To</span><span class="entity-field-type">User</span></div>
+          <div class="entity-field"><span class="entity-field-name">Status</span><span class="entity-field-type">Open | Complete</span></div>
+          <div class="entity-field"><span class="entity-field-name">Signature</span><span class="entity-field-type">file</span></div>
+          <div class="entity-field"><span class="entity-field-name">Proof</span><span class="entity-field-type">file (JPG/PNG/PDF)</span></div>
+          <div class="entity-relations">
+            <div class="entity-relations-title">RELATIONSHIPS</div>
+            <div class="entity-rel">↗ syncs with → Task Admin Module</div>
+            <div class="entity-rel">↗ linked to → Control Measure</div>
+            <div class="entity-rel">↗ linked to → Requirement</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="entity-grid">
+      <div class="entity" style="border-color:#d97706">
+        <div class="entity-header" style="background:#d97706">Worksite</div>
+        <div class="entity-body">
+          <div class="entity-field"><span class="entity-field-name">Name</span><span class="entity-field-type">string (unique)</span></div>
+          <div class="entity-field"><span class="entity-field-name">Type</span><span class="entity-field-type">Mapped | Custom</span></div>
+          <div class="entity-field"><span class="entity-field-name">Locations</span><span class="entity-field-type">Location[]</span></div>
+          <div class="entity-relations">
+            <div class="entity-relations-title">RELATIONSHIPS</div>
+            <div class="entity-rel">↗ mapped to → Frameworks</div>
+            <div class="entity-rel">↗ scopes → Requirements</div>
+          </div>
+        </div>
+      </div>
+      <div class="entity" style="border-color:#d97706">
+        <div class="entity-header" style="background:#d97706">Asset Group</div>
+        <div class="entity-body">
+          <div class="entity-field"><span class="entity-field-name">Name</span><span class="entity-field-type">string (unique)</span></div>
+          <div class="entity-field"><span class="entity-field-name">Type</span><span class="entity-field-type">Category | Custom</span></div>
+          <div class="entity-field"><span class="entity-field-name">Assets</span><span class="entity-field-type">Asset[]</span></div>
+          <div class="entity-relations">
+            <div class="entity-relations-title">RELATIONSHIPS</div>
+            <div class="entity-rel">↗ mapped to → Frameworks</div>
+            <div class="entity-rel">↗ scopes → Requirements</div>
+          </div>
+        </div>
+      </div>
+      <div class="entity" style="border-color:#6b7280">
+        <div class="entity-header" style="background:#6b7280">Settings</div>
+        <div class="entity-body">
+          <div class="entity-field"><span class="entity-field-name">Requirement Types</span><span class="entity-field-type">Name + ShortForm[]</span></div>
+          <div class="entity-field"><span class="entity-field-name">Measure Types</span><span class="entity-field-type">Name + ContentTypes[]</span></div>
+          <div class="entity-relations">
+            <div class="entity-relations-title">RELATIONSHIPS</div>
+            <div class="entity-rel">↗ configures → Requirements</div>
+            <div class="entity-rel">↗ configures → Control Measures</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-tags">
+      <div class="content-tags-title">Portal Content Types (mapped by Control Measures)</div>
+      <span class="content-tag">Folder</span>
+      <span class="content-tag">Folder Document</span>
+      <span class="content-tag">Form</span>
+      <span class="content-tag">Playbook</span>
+      <span class="content-tag">Playbook Chapter</span>
+      <span class="content-tag">Online Course</span>
+      <span class="content-tag">Classroom Course</span>
+      <span class="content-tag">Asset</span>
+      <span class="content-tag">Sub-asset</span>
+      <span class="content-tag">Asset Required Document</span>
+      <span class="content-tag">Company Role</span>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

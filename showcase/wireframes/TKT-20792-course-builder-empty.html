@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TKT-20792 — Course Builder empty state</title>
+<style>
+  :root{
+    --headerbar:#159fc6; --teal:#1aa3c9; --green:#5cb85c; --green-d:#4ca64c;
+    --blue:#2f8fc4; --red:#d9534f; --ink:#2a2a2a; --muted:#6b7280; --line:#e5e7eb;
+    --link:#1f7fc0; --accent:#6b3fd4; --accent-d:#5a32bd; --panelblue:#1aa3c9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;background:#dfe3e7;color:var(--ink);font-size:13px}
+  .controls{position:sticky;top:0;z-index:50;background:#1f2430;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+  .controls b{font-size:13px}
+  .controls .sp{flex:1}
+  .hint{font-size:11px;color:#9aa3b2}
+  .seg{display:inline-flex;border:1px solid #3a4150;border-radius:7px;overflow:hidden}
+  .seg button{background:#2a3140;color:#c7cdd8;border:0;padding:7px 13px;font-size:12px;cursor:pointer;font-family:inherit}
+  .seg button.on{background:#6b3fd4;color:#fff;font-weight:600}
+  .app{max-width:1280px;margin:18px auto;background:#fff;border:1px solid #c9ced4;box-shadow:0 4px 18px rgba(0,0,0,.12)}
+  .topnav{display:flex;align-items:center;gap:14px;padding:10px 16px;border-bottom:1px solid var(--line)}
+  .logo{display:flex;align-items:center;gap:6px;font-weight:800;font-size:16px}
+  .logo .leaf{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 60% 35%,#8bd04f,#3a8f3a)}
+  .logo small{font-weight:600;font-size:9px;letter-spacing:2px;color:#666;display:block;line-height:1}
+  .topnav .sp{flex:1}
+  .search{display:flex;align-items:center;border:1px solid #cfd5db;border-radius:4px;overflow:hidden}
+  .search input{border:0;padding:6px 9px;font-size:12px;width:160px;outline:none}
+  .search .mag{background:#eef1f4;padding:6px 9px;color:#7b8794}
+  .ic{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#5a6675;border:1px solid #d7dce2;font-size:12px}
+  .avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#f0a,#a0f)}
+  .logout{font-weight:600;font-size:12px}
+  .menubar{display:flex;gap:2px;padding:0 10px;border-bottom:2px solid #f0f2f4;flex-wrap:wrap}
+  .menubar a{padding:9px 12px;color:#3a3a3a;text-decoration:none;font-size:13px}
+  .menubar .info{margin-left:auto;background:var(--teal);color:#fff;padding:9px 12px}
+  .hbar{background:var(--headerbar);color:#fff;display:flex;align-items:center;gap:12px;padding:10px 16px}
+  .hbar .title{font-weight:700;font-size:16px}
+  .hbar .sp{flex:1}
+  .hbtn{border:0;border-radius:5px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .hbtn.ai{background:#3f7fa8;color:#fff} .hbtn.back{background:#3f7fa8;color:#fff}
+  .glow{box-shadow:0 0 0 3px rgba(255,255,255,.55)}
+  .tabsrow{display:flex;align-items:center;gap:8px;padding:12px 16px 0}
+  .tabs{display:flex;gap:4px}
+  .tab{border:1px solid #d4dadf;border-bottom:0;background:#f3f5f7;color:#5a6675;padding:8px 16px;border-radius:6px 6px 0 0;font-size:12.5px;cursor:pointer}
+  .tab.on{background:#fff;color:#1aa3c9;font-weight:600;border-color:#cfd5db}
+  .tabsrow .sp{flex:1}
+  .b-red{background:var(--red);color:#fff;border:0;border-radius:5px;padding:8px 13px;font-size:12px;font-weight:600;display:inline-flex;gap:6px;cursor:pointer}
+  .b-blue{background:var(--blue);color:#fff;border:0;border-radius:5px;padding:8px 13px;font-size:12px;font-weight:600;display:inline-flex;gap:6px;cursor:pointer}
+  .body{padding:0 16px 22px}
+  .panel{border:1px solid #bfe0ec;border-radius:8px;margin-top:14px;overflow:hidden}
+  .panel>.head{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid #e3eef3}
+  .panel>.head h3{margin:0;font-size:15px}
+  .panel>.head .sp{flex:1}
+  .panel>.head .ico{color:#6b7c88;font-size:14px;margin-left:12px}
+  .pltools{display:flex;align-items:center;padding:12px 16px;gap:14px}
+  .toggle2{display:inline-flex;border-radius:14px;overflow:hidden;border:1px solid #cfd5db}
+  .toggle2 button{border:0;padding:5px 14px;font-size:12px;cursor:pointer;background:#fff;color:#41566a}
+  .toggle2 button.on{background:#2f8fc4;color:#fff}
+  .pltools .sp{flex:1}
+  .switch{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:#41566a}
+  .sw{width:34px;height:18px;border-radius:10px;background:#e6a3a3;position:relative}
+  .sw:before{content:"";position:absolute;width:14px;height:14px;border-radius:50%;background:#fff;top:2px;left:2px}
+  /* table head */
+  .grid thead th{text-align:left;font-size:11px;color:#41566a;padding:11px 12px;background:#f3f5f7;font-weight:700;border-bottom:1px solid #e3e7eb}
+  .grid{width:100%;border-collapse:collapse}
+  .addrow td{padding:14px 12px;border-bottom:1px solid #eef1f4;color:#9aa3b2;font-style:italic;font-size:13px}
+  .footbtns{display:flex;align-items:center;gap:10px;padding:14px 4px 2px}
+  .footbtns .sp{flex:1}
+  .ob{border:1px solid #cfd5db;background:#fff;color:#5a6675;border-radius:5px;padding:8px 12px;font-size:12px;display:inline-flex;gap:6px;cursor:pointer}
+  .og{border:1px solid #5cb85c;color:#4ca64c;background:#fff;border-radius:5px;padding:8px 12px;font-size:12px;display:inline-flex;gap:6px;cursor:pointer}
+  .gn{background:#5cb85c;color:#fff;border:0;border-radius:5px;padding:8px 13px;font-size:12px;display:inline-flex;gap:6px;cursor:pointer}
+  .collap{border:1px solid #bfe0ec;border-radius:8px;margin-top:12px;padding:14px 16px;display:flex;align-items:center}
+  .collap h3{margin:0;font-size:15px} .collap .sp{flex:1} .collap .ico{color:#6b7c88}
+  /* ===== proposed AI empty state ===== */
+  .aiempty{padding:8px 4px 4px}
+  .gen{border:1px solid #d9ccff;background:linear-gradient(180deg,#faf7ff,#fff);border-radius:12px;padding:22px}
+  .gen .lead{display:flex;align-items:center;gap:9px;margin-bottom:4px}
+  .gen .lead .spk{width:30px;height:30px;border-radius:8px;background:#6b3fd4;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px}
+  .gen h2{margin:0;font-size:17px}
+  .gen .sub{color:#6b7280;font-size:13px;margin:6px 0 16px;max-width:560px;line-height:1.5}
+  .promptbox{border:1px solid #c9b9f2;border-radius:10px;background:#fff;padding:13px 14px}
+  .promptbox textarea{width:100%;border:0;outline:none;resize:none;font-family:inherit;font-size:13.5px;color:#2a2a2a;min-height:46px}
+  .promptbox .pf{display:flex;align-items:center;gap:10px;margin-top:8px;border-top:1px solid #f0ecfa;padding-top:10px}
+  .promptbox .pf .sp{flex:1}
+  .mini{font-size:11px;color:#9890b5;display:flex;align-items:center;gap:5px}
+  .genbtn{background:#6b3fd4;color:#fff;border:0;border-radius:7px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;gap:7px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .chiplbl{font-size:11px;color:#8a86a0;width:100%;margin-bottom:-4px}
+  .chip{border:1px solid #d9ccff;background:#fff;color:#5a4a8c;border-radius:16px;padding:6px 12px;font-size:12px;cursor:pointer}
+  .chip:hover{background:#f3eeff}
+  .example{margin-top:16px;border:1px dashed #cdbcf5;border-radius:10px;background:#fcfbff;overflow:hidden}
+  .example .eh{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f4efff;font-size:12px;color:#5a4a8c;font-weight:600}
+  .example .eh .sp{flex:1}
+  .example .eh a{color:#6b3fd4;font-weight:600;text-decoration:none;font-size:12px}
+  .exrow{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid #efeaf9;font-size:12.5px}
+  .exrow .nx{width:20px;height:20px;border-radius:5px;background:#ece4ff;color:#6b3fd4;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px}
+  .exrow .meta{margin-left:auto;color:#9890b5;font-size:11px}
+  .reassure{display:flex;gap:18px;margin-top:16px;flex-wrap:wrap}
+  .reassure div{display:flex;align-items:center;gap:7px;font-size:12px;color:#6b7280}
+  .reassure .tick{color:#4ca64c;font-weight:700}
+  .orline{display:flex;align-items:center;gap:12px;margin:18px 2px 4px;color:#9aa3b2;font-size:12px}
+  .orline:before,.orline:after{content:"";height:1px;background:#e5e7eb;flex:1}
+  .relwrap{position:relative}
+  .pin{position:absolute;z-index:40;background:#1f2430;color:#fff;font-size:11px;line-height:1.4;border-radius:8px;padding:9px 11px;max-width:235px;box-shadow:0 6px 18px rgba(0,0,0,.3);display:none}
+  .pin.show{display:block} .pin b{color:#c4b3ff}
+  .pin .num{display:inline-flex;width:18px;height:18px;border-radius:50%;background:#6b3fd4;color:#fff;align-items:center;justify-content:center;font-weight:700;font-size:11px;margin-right:6px}
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <b>TKT-20792 · Course Builder — empty state</b>
+  <span class="sp"></span>
+  <span class="hint">View:</span>
+  <div class="seg" id="seg">
+    <button data-v="current" class="on">Current (manual)</button>
+    <button data-v="ai">Proposed (AI first-run)</button>
+  </div>
+  <label class="hint" style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="annot"> annotations</label>
+</div>
+
+<div class="app relwrap" id="app">
+  <div class="topnav">
+    <div class="logo"><span class="leaf"></span><span>CLEAN<small>ENVIRONMENT</small></span></div>
+    <span class="sp"></span>
+    <div class="search"><input placeholder="Search User"><span class="mag">🔍</span></div>
+    <span class="ic">✉</span><span class="ic" style="border:0;background:#16a0c7;color:#fff">◑</span><span class="ic">?</span>
+    <span class="avatar"></span><span class="logout">Log Out ›</span>
+  </div>
+  <div class="menubar">
+    <a>Home</a><a>Profile</a><a>Store</a><a>Rewards</a><a>Purchases</a><a>Users</a>
+    <a>Reporting</a><a>Calendar</a><a>Assets</a><a>Folders</a><a>QR</a><a>Admin</a><a class="info">i</a>
+  </div>
+
+  <div class="hbar">
+    <span class="title" id="ctitle">WHMIS 2076</span>
+    <span class="sp"></span>
+    <button class="hbtn ai" id="aiHdr">✦ AI Course Builder</button>
+    <button class="hbtn back">‹ Back</button>
+  </div>
+
+  <div class="tabsrow">
+    <div class="tabs">
+      <div class="tab on">Playlist</div><div class="tab">E-Commerce</div>
+      <div class="tab">Configure</div><div class="tab">Notification</div><div class="tab">Advanced</div>
+    </div>
+    <span class="sp"></span>
+    <button class="b-red">⊘ Deactivate</button>
+    <button class="b-blue">👤 Assign</button>
+  </div>
+
+  <div class="body">
+    <div class="panel">
+      <div class="head"><h3>Playlist</h3><span class="sp"></span><span class="ico">🔓</span><span class="ico">⌃</span></div>
+
+      <div class="pltools">
+        <div class="toggle2"><button class="on">Activated</button><button>Deleted</button></div>
+        <span class="sp"></span>
+        <span class="switch"><span class="sw"></span> Enable Chapter Branching</span>
+      </div>
+
+      <!-- ===== CURRENT empty state ===== -->
+      <div id="currentView">
+        <table class="grid">
+          <thead><tr><th style="width:54px">⇅ ▢</th><th>Title</th><th style="width:120px">Type</th><th style="width:120px">Status</th><th style="width:90px">Action</th></tr></thead>
+          <tbody>
+            <tr class="addrow"><td>▾ ▢</td><td>⠿ Add Chapter Title ⓘ ✎</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <div class="footbtns">
+          <button class="ob">⬇ Download Questions</button>
+          <button class="ob">🖶 Print Exam</button>
+          <span class="sp"></span>
+          <button class="ob">✦ Generate Final Exam</button>
+          <button class="og">⊕ Chapter</button>
+          <button class="gn">⊕ Element</button>
+        </div>
+      </div>
+
+      <!-- ===== PROPOSED AI empty state ===== -->
+      <div id="aiView" style="display:none">
+        <div class="aiempty">
+          <div class="gen">
+            <div class="lead"><span class="spk">✦</span><h2>Let's build “WHMIS 2076” with AI</h2></div>
+            <p class="sub">Describe the course — topic, audience, and roughly how long it should be. The AI Course Builder drafts the chapters, content and exam. Nothing is published until you review and approve it.</p>
+
+            <div class="promptbox">
+              <textarea placeholder="e.g. A WHMIS 2015 refresher for warehouse staff. Cover hazard symbols, SDS sheets, and safe handling. About 30 minutes, ending with a 10-question exam."></textarea>
+              <div class="pf">
+                <span class="mini">🔒 Your input is used only to draft this course</span>
+                <span class="sp"></span>
+                <button class="genbtn">✦ Generate course draft</button>
+              </div>
+            </div>
+
+            <div class="chips">
+              <span class="chiplbl">Or start from a topic:</span>
+              <span class="chip">WHMIS 2015 Refresher</span>
+              <span class="chip">Fall Protection</span>
+              <span class="chip">Confined Space Entry</span>
+              <span class="chip">Fire Extinguisher Safety</span>
+              <span class="chip">Lockout / Tagout</span>
+            </div>
+
+            <div class="example">
+              <div class="eh">👁 Preview — example of what AI generates <span class="sp"></span><a>See full example ›</a></div>
+              <div class="exrow"><span class="nx">1</span> Introduction to WHMIS &amp; Why It Matters <span class="meta">3 slides · 2 questions</span></div>
+              <div class="exrow"><span class="nx">2</span> Hazard Classes &amp; Pictograms <span class="meta">5 slides · 4 questions</span></div>
+              <div class="exrow"><span class="nx">3</span> Safety Data Sheets (SDS) <span class="meta">4 slides · 3 questions</span></div>
+              <div class="exrow"><span class="nx">4</span> Final Exam <span class="meta">10 questions</span></div>
+            </div>
+
+            <div class="reassure">
+              <div><span class="tick">✓</span> You review &amp; edit every chapter</div>
+              <div><span class="tick">✓</span> Nothing assigned until you publish</div>
+              <div><span class="tick">✓</span> Switch to manual anytime</div>
+            </div>
+          </div>
+
+          <div class="orline">or build it yourself</div>
+          <div class="footbtns">
+            <span class="sp"></span>
+            <button class="og">⊕ Chapter</button>
+            <button class="gn">⊕ Element</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="collap"><h3>Upload Questions</h3><span class="sp"></span><span class="ico">⌄</span></div>
+    <div class="collap"><h3>Competency Evaluation</h3><span class="sp"></span><span class="ico">⌄</span></div>
+  </div>
+
+  <!-- annotations -->
+  <div class="pin" id="pinC" style="top:430px;left:30px"><span class="num">!</span><b>Current empty state.</b> A blank "Add Chapter Title" row — no guidance, no AI affordance unless you already know to click the header button. This is the blank-prompt anxiety point where first-timers bounce.</div>
+  <div class="pin" id="pinA1" style="top:300px;right:24px"><span class="num">1</span><b>Conversational entry, not a blank canvas.</b> The empty playlist becomes the AI prompt itself — describe the course in plain language.</div>
+  <div class="pin" id="pinA2" style="top:470px;right:24px"><span class="num">2</span><b>Topic chips.</b> Zero-typing start for the hesitant — one click pre-fills a relevant EHS topic.</div>
+  <div class="pin" id="pinA3" style="top:560px;right:24px"><span class="num">3</span><b>"Show me an example" preview.</b> Eva's research: the single biggest unlock for AI distrust in compliance contexts — see real output before committing.</div>
+  <div class="pin" id="pinA4" style="top:660px;right:24px"><span class="num">4</span><b>Trust reassurance + manual escape hatch.</b> Review-before-publish + a clear path back to manual building so AI never feels forced.</div>
+</div>
+
+<script>
+  const seg=document.getElementById('seg'), annot=document.getElementById('annot');
+  const cur=document.getElementById('currentView'), ai=document.getElementById('aiView');
+  const hdr=document.getElementById('aiHdr');
+  let view='current';
+  const pins={current:['pinC'],ai:['pinA1','pinA2','pinA3','pinA4']};
+  function render(){
+    cur.style.display=view==='current'?'block':'none';
+    ai.style.display=view==='ai'?'block':'none';
+    hdr.classList.toggle('glow',view==='ai');
+    ['pinC','pinA1','pinA2','pinA3','pinA4'].forEach(id=>document.getElementById(id).classList.remove('show'));
+    if(annot.checked)pins[view].forEach(id=>document.getElementById(id).classList.add('show'));
+  }
+  seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    [...seg.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');view=b.dataset.v;render();});
+  annot.addEventListener('change',render);
+  render();
+</script>
+</body>
+</html>

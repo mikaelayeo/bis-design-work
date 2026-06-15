@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toggl Deep Dive — Mika Kera, BIS Safety Software</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0C0E12;
+    --surface: #14171E;
+    --surface-2: #1B1F29;
+    --surface-3: #232834;
+    --border: #2A3040;
+    --border-light: #353D50;
+    --text: #E8ECF4;
+    --text-muted: #8892A6;
+    --text-dim: #5A6478;
+    --accent: #6C8CFF;
+    --accent-glow: #6C8CFF33;
+    --accent-2: #FF6C8C;
+    --accent-3: #8CFF6C;
+    --accent-4: #FFD06C;
+    --accent-5: #6CFFD0;
+    --y1: #6C8CFF;
+    --y2: #FF6C8C;
+    --ticket: #6C8CFF;
+    --initiative: #FF6C8C;
+    --overhead: #FFD06C;
+    --helping: #6CFFD0;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'DM Sans', -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-lg: 20px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 80px clamp(24px, 6vw, 120px) 64px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(170deg, #0C0E12 0%, #131824 40%, #1a1230 70%, #0C0E12 100%);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px 6px 8px;
+    font-size: 13px;
+    font-family: var(--mono);
+    color: var(--text-muted);
+    width: fit-content;
+    margin-bottom: 32px;
+    letter-spacing: 0.02em;
+  }
+
+  .hero-badge .dot {
+    width: 8px; height: 8px;
+    background: var(--accent-3);
+    border-radius: 50%;
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 1.05;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    max-width: 900px;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 span { color: var(--accent); }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--text-muted);
+    max-width: 600px;
+    line-height: 1.6;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 32px;
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .hero-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .hero-meta-item .label {
+    font-size: 11px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+  }
+
+  .hero-meta-item .value {
+    font-size: 20px;
+    font-weight: 600;
+    font-family: var(--mono);
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 clamp(24px, 6vw, 120px);
+  }
+
+  section {
+    padding: 80px 0;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+
+  .section-desc {
+    color: var(--text-muted);
+    font-size: 16px;
+    max-width: 640px;
+    margin-bottom: 48px;
+    line-height: 1.7;
+  }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: var(--border-light); }
+
+  .card-label {
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .card-value {
+    font-size: 36px;
+    font-weight: 700;
+    font-family: var(--mono);
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+
+  .card-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .card-change {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-family: var(--mono);
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-top: 12px;
+  }
+
+  .card-change.up {
+    color: var(--accent-3);
+    background: #8CFF6C15;
+  }
+
+  .card-change.down {
+    color: var(--accent-2);
+    background: #FF6C8C15;
+  }
+
+  .card-change.neutral {
+    color: var(--accent-4);
+    background: #FFD06C15;
+  }
+
+  /* ── CHARTS ── */
+  .chart-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    margin-bottom: 32px;
+    position: relative;
+  }
+
+  .chart-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .chart-subtitle {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+    font-family: var(--mono);
+  }
+
+  .chart-canvas-wrap {
+    position: relative;
+    width: 100%;
+    max-height: 400px;
+  }
+
+  /* ── STACKED BAR (custom) ── */
+  .stacked-bar-row {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .stacked-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stacked-row-label {
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .stacked-row-label .hrs {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .stacked-track {
+    height: 40px;
+    background: var(--surface-3);
+    border-radius: var(--radius-sm);
+    display: flex;
+    overflow: hidden;
+    gap: 2px;
+  }
+
+  .stacked-seg {
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-family: var(--mono);
+    font-weight: 600;
+    color: #000;
+    min-width: 28px;
+    transition: flex 0.4s ease;
+  }
+
+  .legend-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+  }
+
+  /* ── TABLE ── */
+  .data-table-wrap {
+    overflow-x: auto;
+    margin-bottom: 32px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead th {
+    text-align: left;
+    font-size: 11px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tbody tr:hover { background: var(--surface-2); }
+
+  .ticket-num {
+    font-family: var(--mono);
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 13px;
+  }
+
+  .hours-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hours-bar-fill {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--accent);
+    min-width: 4px;
+  }
+
+  .hours-bar-val {
+    font-family: var(--mono);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-family: var(--mono);
+    font-weight: 600;
+  }
+
+  .tag-y1 { background: #6C8CFF20; color: var(--y1); }
+  .tag-y2 { background: #FF6C8C20; color: var(--y2); }
+  .tag-both { background: #FFD06C20; color: var(--accent-4); }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 20px;
+  }
+
+  .callout.critical {
+    border-left-color: var(--accent-2);
+  }
+
+  .callout.success {
+    border-left-color: var(--accent-3);
+  }
+
+  .callout.warn {
+    border-left-color: var(--accent-4);
+  }
+
+  .callout-title {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .callout-body {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+
+  .callout-body strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ── HISTOGRAM ── */
+  .histogram {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    height: 220px;
+    padding-bottom: 40px;
+    position: relative;
+    margin-top: 24px;
+  }
+
+  .hist-bar-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .hist-bar {
+    width: 100%;
+    max-width: 80px;
+    border-radius: 6px 6px 2px 2px;
+    position: relative;
+    transition: height 0.5s ease;
+    min-height: 4px;
+  }
+
+  .hist-count {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+  }
+
+  .hist-label {
+    position: absolute;
+    bottom: -32px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text-dim);
+    white-space: nowrap;
+    text-align: center;
+    width: 100%;
+  }
+
+  /* ── ZOMBIE GRID ── */
+  .zombie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+
+  .zombie-chip {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .zombie-chip:hover {
+    border-color: var(--accent-4);
+    color: var(--accent-4);
+  }
+
+  /* ── TWO COL ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  @media (max-width: 768px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 48px 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+
+  /* ── ANIMATIONS ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+  .delay-4 { animation-delay: 0.4s; }
+  .delay-5 { animation-delay: 0.5s; }
+  .delay-6 { animation-delay: 0.6s; }
+
+  /* Big number accent */
+  .big-num {
+    font-family: var(--mono);
+    font-size: 72px;
+    font-weight: 700;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .insight-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 32px;
+  }
+
+  @media (max-width: 768px) {
+    .insight-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Initiatives bar chart (horizontal) */
+  .h-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .h-bar-label {
+    width: 160px;
+    min-width: 160px;
+    font-size: 13px;
+    text-align: right;
+    color: var(--text-muted);
+  }
+
+  .h-bar-track {
+    flex: 1;
+    height: 28px;
+    background: var(--surface-3);
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+
+  .h-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 12px;
+    font-family: var(--mono);
+    font-weight: 600;
+    color: #000;
+    transition: width 0.6s ease;
+  }
+
+  .h-bar-val {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-muted);
+    width: 60px;
+    min-width: 60px;
+    text-align: right;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════ HERO ═══════ -->
+<header class="hero">
+  <div class="hero-badge fade-in"><span class="dot"></span>Scaling Up Initiative — Design Workflow Assessment</div>
+  <h1 class="fade-in delay-1">Two years of design work,<br><span>tracked to the minute.</span></h1>
+  <p class="hero-sub fade-in delay-2">A comprehensive analysis of 3,692 hours of time tracking data from Toggl, revealing the structural reality of a one-person design team at BIS Safety Software.</p>
+  <div class="hero-meta fade-in delay-3">
+    <div class="hero-meta-item">
+      <span class="label">Analyst</span>
+      <span class="value">Mika Kera</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="label">Role</span>
+      <span class="value">Senior Product Designer</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="label">Period</span>
+      <span class="value">Mar 2024 — Mar 2026</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="label">Total Tracked</span>
+      <span class="value" style="color: var(--accent)">3,692 hrs</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════ 1. THE SHIFT ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-label fade-in">01 — The Transformation</div>
+    <div class="section-title fade-in delay-1">From ticket executor to strategic contributor</div>
+    <p class="section-desc fade-in delay-2">The single most important story in this data: in twelve months, design work shifted from reactive ticket execution (49% of time) to strategic initiative leadership (45%). This wasn't an accident — it was earned.</p>
+
+    <div class="card-grid">
+      <div class="card fade-in delay-2">
+        <div class="card-label">Year 1 — Ticket Work</div>
+        <div class="card-value" style="color: var(--y1)">49.3%</div>
+        <div class="card-sub">906.8 hrs of 1,840 total</div>
+      </div>
+      <div class="card fade-in delay-3">
+        <div class="card-label">Year 2 — Ticket Work</div>
+        <div class="card-value" style="color: var(--y2)">34.6%</div>
+        <div class="card-sub">641.8 hrs of 1,852 total</div>
+        <div class="card-change down">↓ 15 pts</div>
+      </div>
+      <div class="card fade-in delay-2">
+        <div class="card-label">Year 1 — Initiatives</div>
+        <div class="card-value" style="color: var(--y1)">23.9%</div>
+        <div class="card-sub">439.5 hrs of 1,840 total</div>
+      </div>
+      <div class="card fade-in delay-3">
+        <div class="card-label">Year 2 — Initiatives</div>
+        <div class="card-value" style="color: var(--y2)">44.6%</div>
+        <div class="card-sub">825.8 hrs of 1,852 total</div>
+        <div class="card-change up">↑ 21 pts</div>
+      </div>
+      <div class="card fade-in delay-4">
+        <div class="card-label">Year 1 — Overhead</div>
+        <div class="card-value" style="color: var(--accent-4)">25.5%</div>
+        <div class="card-sub">469.7 hrs</div>
+      </div>
+      <div class="card fade-in delay-5">
+        <div class="card-label">Year 2 — Overhead</div>
+        <div class="card-value" style="color: var(--accent-4)">16.2%</div>
+        <div class="card-sub">299.8 hrs</div>
+        <div class="card-change up">↓ 9 pts — more efficient</div>
+      </div>
+      <div class="card fade-in delay-4">
+        <div class="card-label">Year 1 — Helping People</div>
+        <div class="card-value" style="color: var(--accent-5)">1.3%</div>
+        <div class="card-sub">24.7 hrs</div>
+      </div>
+      <div class="card fade-in delay-5">
+        <div class="card-label">Year 2 — Helping People</div>
+        <div class="card-value" style="color: var(--accent-5)">4.6%</div>
+        <div class="card-sub">85.1 hrs</div>
+        <div class="card-change up">↑ 3.3 pts — team growth</div>
+      </div>
+    </div>
+
+    <!-- Stacked bars -->
+    <div class="chart-container fade-in delay-3">
+      <div class="chart-title">Year-over-Year Breakdown</div>
+      <div class="chart-subtitle">How 1,840 hrs (Y1) and 1,852 hrs (Y2) were spent</div>
+
+      <div class="stacked-bar-row">
+        <div class="stacked-row">
+          <div class="stacked-row-label">
+            Year 1 <span class="hrs">1,840 hrs</span>
+          </div>
+          <div class="stacked-track">
+            <div class="stacked-seg" style="flex: 49.3; background: var(--ticket);">49%</div>
+            <div class="stacked-seg" style="flex: 23.9; background: var(--initiative);">24%</div>
+            <div class="stacked-seg" style="flex: 25.5; background: var(--overhead);">26%</div>
+            <div class="stacked-seg" style="flex: 1.3; background: var(--helping);"></div>
+          </div>
+        </div>
+        <div class="stacked-row">
+          <div class="stacked-row-label">
+            Year 2 <span class="hrs">1,852 hrs</span>
+          </div>
+          <div class="stacked-track">
+            <div class="stacked-seg" style="flex: 34.6; background: var(--ticket);">35%</div>
+            <div class="stacked-seg" style="flex: 44.6; background: var(--initiative);">45%</div>
+            <div class="stacked-seg" style="flex: 16.2; background: var(--overhead);">16%</div>
+            <div class="stacked-seg" style="flex: 4.6; background: var(--helping);">5%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="legend-row">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--ticket)"></div> Ticket Work</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--initiative)"></div> Initiatives</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--overhead)"></div> Overhead</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--helping)"></div> Helping People</div>
+      </div>
+    </div>
+
+    <div class="chart-container fade-in delay-4">
+      <div class="chart-title">The Shift Visualized</div>
+      <div class="chart-subtitle">Category hours: Year 1 vs Year 2</div>
+      <div class="chart-canvas-wrap">
+        <canvas id="shiftChart" height="300"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════ 2. TICKET DISTRIBUTION ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-label fade-in">02 — Ticket Distribution</div>
+    <div class="section-title fade-in delay-1">356 tickets. Average 4.4 hours each.</div>
+    <p class="section-desc fade-in delay-2">The distribution is radically skewed: 63% of all tickets take under 2 hours, creating a treadmill of quick-touch work punctuated by rare marathon projects that consume hundreds of hours.</p>
+
+    <div class="chart-container fade-in delay-3">
+      <div class="chart-title">Ticket Size Distribution</div>
+      <div class="chart-subtitle">356 tickets across two years, grouped by hours spent</div>
+
+      <div class="histogram">
+        <div class="hist-bar-group">
+          <div class="hist-count">225</div>
+          <div class="hist-bar" style="height: 90%; background: linear-gradient(to top, var(--accent), #8CAFFF);"></div>
+          <div class="hist-label">&lt; 2 hrs</div>
+        </div>
+        <div class="hist-bar-group">
+          <div class="hist-count">62</div>
+          <div class="hist-bar" style="height: 25%; background: linear-gradient(to top, var(--accent), #8CAFFF);"></div>
+          <div class="hist-label">2 – 5 hrs</div>
+        </div>
+        <div class="hist-bar-group">
+          <div class="hist-count">34</div>
+          <div class="hist-bar" style="height: 14%; background: linear-gradient(to top, var(--accent), #8CAFFF);"></div>
+          <div class="hist-label">5 – 10 hrs</div>
+        </div>
+        <div class="hist-bar-group">
+          <div class="hist-count">22</div>
+          <div class="hist-bar" style="height: 9.5%; background: linear-gradient(to top, var(--accent-4), #FFE08C);"></div>
+          <div class="hist-label">10 – 20 hrs</div>
+        </div>
+        <div class="hist-bar-group">
+          <div class="hist-count">11</div>
+          <div class="hist-bar" style="height: 5%; background: linear-gradient(to top, var(--accent-2), #FF9CAF);"></div>
+          <div class="hist-label">20 – 50 hrs</div>
+        </div>
+        <div class="hist-bar-group">
+          <div class="hist-count">2</div>
+          <div class="hist-bar" style="height: 2.5%; background: linear-gradient(to top, #FF3366, #FF6C8C);"></div>
+          <div class="hist-label">50+ hrs</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top: 32px;">
+      <div class="callout fade-in delay-3">
+        <div class="callout-title">⚡ Quick-Touch Dominance</div>
+        <div class="callout-body"><strong>225 of 356 tickets (63%)</strong> take under 2 hours. This means the workflow is overwhelmingly reactive — constant context-switching across small asks, with no time to build design momentum.</div>
+      </div>
+      <div class="callout critical fade-in delay-4">
+        <div class="callout-title">🔴 The Long Tail</div>
+        <div class="callout-body">Just <strong>13 tickets (3.7%)</strong> over 20 hours account for a disproportionate share of total time. Two EPIC tickets alone — #14290 and #15958 — consumed <strong>286 hours</strong>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════ 3. TOP 15 TICKETS ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-label fade-in">03 — The Heavyweights</div>
+    <div class="section-title fade-in delay-1">Top 15 Tickets by Hours</div>
+    <p class="section-desc fade-in delay-2">These fifteen tickets represent 1,548.6 hours of design effort. The top entry alone — AI Course Builder — consumed 12% of an entire year.</p>
+
+    <div class="chart-container fade-in delay-3" style="padding: 0; overflow: hidden;">
+      <div style="padding: 28px 28px 4px;">
+        <div class="chart-title">Hours by Ticket</div>
+        <div class="chart-subtitle">Color-coded by year: <span style="color:var(--y1)">■</span> Y1 only&ensp;<span style="color:var(--y2)">■</span> Y2 only&ensp;<span style="color:var(--accent-4)">■</span> Spans both</div>
+      </div>
+      <div class="data-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Ticket</th>
+              <th>Name</th>
+              <th>Hours</th>
+              <th style="min-width: 180px;"></th>
+              <th>Year</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--text-dim)">1</td>
+              <td class="ticket-num">#14290</td>
+              <td>AI Course Builder</td>
+              <td><span class="hours-bar-val">224.9 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:100%; background: linear-gradient(90deg, var(--y1), var(--y2));"></div></div></td>
+              <td><span class="tag tag-both">Y1+Y2</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">2</td>
+              <td class="ticket-num">#15958</td>
+              <td>Virtual Proctoring</td>
+              <td><span class="hours-bar-val">61.2 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:27%; background: linear-gradient(90deg, var(--y1), var(--y2));"></div></div></td>
+              <td><span class="tag tag-both">Y1+Y2</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">3</td>
+              <td class="ticket-num">#8716</td>
+              <td>Micro-Learning Module</td>
+              <td><span class="hours-bar-val">44.8 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:20%; background: var(--y2);"></div></div></td>
+              <td><span class="tag tag-y2">Y2</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">4</td>
+              <td class="ticket-num">#17024</td>
+              <td>eCommerce Redesign</td>
+              <td><span class="hours-bar-val">42.7 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:19%; background: var(--y2);"></div></div></td>
+              <td><span class="tag tag-y2">Y2</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">5</td>
+              <td class="ticket-num">#18115</td>
+              <td>—</td>
+              <td><span class="hours-bar-val">42.6 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:19%; background: var(--y2);"></div></div></td>
+              <td><span class="tag tag-y2">Y2</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">6</td>
+              <td class="ticket-num">#14213</td>
+              <td>PM Tool Groups/Tasks</td>
+              <td><span class="hours-bar-val">35.9 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:16%; background: var(--y1);"></div></div></td>
+              <td><span class="tag tag-y1">Y1</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">7</td>
+              <td class="ticket-num">#16396</td>
+              <td>—</td>
+              <td><span class="hours-bar-val">32.0 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:14.2%; background: linear-gradient(90deg, var(--y1), var(--y2));"></div></div></td>
+              <td><span class="tag tag-both">Y1+Y2</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">8</td>
+              <td class="ticket-num">#10880</td>
+              <td>Default Data Points</td>
+              <td><span class="hours-bar-val">29.1 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:13%; background: linear-gradient(90deg, var(--y1), var(--y2));"></div></div></td>
+              <td><span class="tag tag-both">Y1+Y2</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">9</td>
+              <td class="ticket-num">#13351</td>
+              <td>—</td>
+              <td><span class="hours-bar-val">29.0 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:12.9%; background: var(--y1);"></div></div></td>
+              <td><span class="tag tag-y1">Y1</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">10</td>
+              <td class="ticket-num">#14094</td>
+              <td>AskAmy Chatbot</td>
+              <td><span class="hours-bar-val">28.6 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:12.7%; background: linear-gradient(90deg, var(--y1), var(--y2));"></div></div></td>
+              <td><span class="tag tag-both">Y1+Y2</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">11</td>
+              <td class="ticket-num">#16694</td>
+              <td>Form/Task Cards</td>
+              <td><span class="hours-bar-val">24.3 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:10.8%; background: var(--y2);"></div></div></td>
+              <td><span class="tag tag-y2">Y2</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">12</td>
+              <td class="ticket-num">#10446</td>
+              <td>PM Suggestions</td>
+              <td><span class="hours-bar-val">21.6 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:9.6%; background: var(--y1);"></div></div></td>
+              <td><span class="tag tag-y1">Y1</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">13</td>
+              <td class="ticket-num">#19627</td>
+              <td>AskAmy Live Chat</td>
+              <td><span class="hours-bar-val">21.3 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:9.5%; background: var(--y2);"></div></div></td>
+              <td><span class="tag tag-y2">Y2</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">14</td>
+              <td class="ticket-num">#12280</td>
+              <td>Forms File Upload</td>
+              <td><span class="hours-bar-val">19.2 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:8.5%; background: var(--y1);"></div></div></td>
+              <td><span class="tag tag-y1">Y1</span></td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-dim)">15</td>
+              <td class="ticket-num">#12551</td>
+              <td>—</td>
+              <td><span class="hours-bar-val">18.4 h</span></td>
+              <td><div class="hours-bar"><div class="hours-bar-fill" style="width:8.2%; background: var(--y2);"></div></div></td>
+              <td><span class="tag tag-y2">Y2</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout critical fade-in delay-4" style="margin-top: 24px;">
+      <div class="callout-title">🔴 The 14290 Effect</div>
+      <div class="callout-body">
+        AI Course Builder consumed <strong>224.9 hours</strong> — 12% of Year 1 alone. Pat's 1-on-1 estimated "~100 hours." The actual was <strong>2.25× that estimate</strong>. This ticket had a 20+ month lifecycle spanning both years, driven by cascading feedback loops (Erica's 100-point review, multiple proposal meetings, handoff to Techversant, and ongoing dev support). It represents the archetype of what happens when scope isn't bounded at the organizational level.
+      </div>
+    </div>
+
+    <div class="callout warn fade-in delay-5">
+      <div class="callout-title">⚠️ #17024 — Blocked for 10 Months</div>
+      <div class="callout-body">
+        eCommerce Redesign accumulated <strong>42.7 hours</strong> of design work and then never entered a dev sprint. 40+ hours of professional effort sitting on a shelf — a direct cost of having no prioritized design roadmap.
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════ 4. ZOMBIE TICKETS ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-label fade-in">04 — The Undead</div>
+    <div class="section-title fade-in delay-1">33 Zombie Tickets</div>
+    <p class="section-desc fade-in delay-2">These tickets span both Year 1 and Year 2 — work that never fully closed. They represent the long tail of scope creep, shifting priorities, and organizational indecision that keeps draining design capacity.</p>
+
+    <div class="zombie-grid fade-in delay-3">
+      <div class="zombie-chip">#14290</div>
+      <div class="zombie-chip">#15958</div>
+      <div class="zombie-chip">#16396</div>
+      <div class="zombie-chip">#10880</div>
+      <div class="zombie-chip">#14094</div>
+      <div class="zombie-chip">#14456</div>
+      <div class="zombie-chip">#15426</div>
+      <div class="zombie-chip">#14839</div>
+      <div class="zombie-chip">#14063</div>
+      <div class="zombie-chip">#14714</div>
+      <div class="zombie-chip">#5582</div>
+      <div class="zombie-chip">#4975</div>
+      <div class="zombie-chip">#13387</div>
+      <div class="zombie-chip">#2434</div>
+      <div class="zombie-chip">#13669</div>
+      <div class="zombie-chip">#12679</div>
+      <div class="zombie-chip">#14413</div>
+      <div class="zombie-chip">#14026</div>
+      <div class="zombie-chip">#13615</div>
+      <div class="zombie-chip">#16202</div>
+      <div class="zombie-chip">#14452</div>
+      <div class="zombie-chip">#11198</div>
+      <div class="zombie-chip">#15326</div>
+      <div class="zombie-chip">#13338</div>
+      <div class="zombie-chip">#14856</div>
+      <div class="zombie-chip">#13806</div>
+      <div class="zombie-chip">#16570</div>
+      <div class="zombie-chip">#14797</div>
+      <div class="zombie-chip">#15551</div>
+      <div class="zombie-chip">#11735</div>
+      <div class="zombie-chip">#16824</div>
+      <div class="zombie-chip">#16296</div>
+      <div class="zombie-chip">#16695</div>
+    </div>
+
+    <div class="callout fade-in delay-4" style="margin-top: 32px;">
+      <div class="callout-title">💀 What zombies cost</div>
+      <div class="callout-body">Every zombie ticket carries invisible overhead: context-switching to remember where you left off, re-reading old feedback, re-familiarizing with constraints. With 33 undead tickets, this represents a structural drag on design velocity that compounds over time.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════ 5. INITIATIVES ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-label fade-in">05 — Strategic Investments</div>
+    <div class="section-title fade-in delay-1">Where Initiative Hours Went</div>
+    <p class="section-desc fade-in delay-2">Initiative work nearly doubled from 440 hours (Y1) to 826 hours (Y2), representing a conscious shift toward design leadership, systems thinking, and cross-team investment.</p>
+
+    <div class="chart-container fade-in delay-3">
+      <div class="chart-title">Top Initiatives by Hours (Combined)</div>
+      <div class="chart-subtitle">Both years aggregated</div>
+      <div style="padding-top: 8px;">
+        <div class="h-bar-row">
+          <div class="h-bar-label">Design System</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:100%; background: var(--initiative);">112.8 h</div></div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">Planning</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:50.2%; background: var(--accent);">56.6 h</div></div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">MMM + Prep</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:44.4%; background: var(--accent-4);">50.1 h</div></div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">Learning</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:32.8%; background: var(--accent-5);">37.0 h</div></div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">CE Training</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:29.4%; background: var(--initiative);">33.2 h</div></div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">Mobile Sprint Planning</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:23.8%; background: var(--accent);">26.8 h</div></div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">Workshop Preparation</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:13.2%; background: var(--accent-4);">14.9 h</div></div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">AI Adoption</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:12.8%; background: var(--accent-3);">14.4 h</div></div>
+        </div>
+        <div class="h-bar-row">
+          <div class="h-bar-label">UX Debt</div>
+          <div class="h-bar-track"><div class="h-bar-fill" style="width:12.1%; background: var(--accent-2);">13.7 h</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="callout success fade-in delay-3">
+        <div class="callout-title">🟢 Design System: 113 Hours</div>
+        <div class="callout-body">The single largest initiative investment — <strong>58 hrs Y1 + 55 hrs Y2</strong> — and sustained across both years. This is foundational infrastructure work that's often invisible to leadership but compounds in value over time.</div>
+      </div>
+      <div class="callout fade-in delay-4">
+        <div class="callout-title">📚 Learning: 37 Hours</div>
+        <div class="callout-body">Nearly a full work week per year invested in professional growth — conferences, IxDF courses, self-directed learning. This investment directly feeds the strategic shift.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════ 6. COLLABORATION ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-label fade-in">06 — Collaboration & The Roadmap Gap</div>
+    <div class="section-title fade-in delay-1">Who you worked with — and what you searched for</div>
+
+    <div class="card-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: 32px;">
+      <div class="card fade-in delay-2">
+        <div class="card-label">Aymeric (Mobile)</div>
+        <div class="card-value" style="color: var(--accent-5)">54.3 h</div>
+        <div class="card-sub">Y1: 7.7 h → Y2: 46.6 h</div>
+        <div class="card-change up">↑ 6× deepened</div>
+      </div>
+      <div class="card fade-in delay-3">
+        <div class="card-label">Mahi (Mentoring)</div>
+        <div class="card-value" style="color: var(--accent-5)">14.4 h</div>
+        <div class="card-sub">Y2 only — onboarding</div>
+        <div class="card-change neutral">New in Y2</div>
+      </div>
+      <div class="card fade-in delay-4" style="border-color: var(--accent-2);">
+        <div class="card-label">"Looking for next ticket"</div>
+        <div class="card-value" style="color: var(--accent-2)">84.5 h</div>
+        <div class="card-sub">~2 full work weeks per year</div>
+        <div class="card-change down">No roadmap artifact</div>
+      </div>
+    </div>
+
+    <div class="callout critical fade-in delay-5" style="margin-top: 24px;">
+      <div class="callout-title">🔴 84.5 Hours Looking for Work</div>
+      <div class="callout-body">
+        This is the most damning number in the dataset. <strong>84.5 hours</strong> — over two full work weeks per year — spent searching for the next thing to do. This is a direct, measurable artifact of operating without a design roadmap or product management. It represents not just wasted time, but lost flow state and eroded morale.
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════ 7. KEY INSIGHTS ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-label fade-in">07 — Key Insights</div>
+    <div class="section-title fade-in delay-1">What the numbers prove</div>
+
+    <div class="insight-grid">
+      <div class="callout critical fade-in delay-2">
+        <div class="callout-title">1. The 14290 Effect</div>
+        <div class="callout-body">One ticket consumed <strong>12% of Year 1</strong>. Estimated at ~100 hrs, actual was 224.9. Estimation without a design lens will always undershoot complex creative work.</div>
+      </div>
+      <div class="callout fade-in delay-2">
+        <div class="callout-title">2. Quick-Touch Treadmill</div>
+        <div class="callout-body"><strong>63% of tickets are under 2 hours.</strong> The workflow is overwhelmingly reactive — punctuated by rare marathon projects that nobody plans for.</div>
+      </div>
+      <div class="callout success fade-in delay-3">
+        <div class="callout-title">3. Executor → Strategist</div>
+        <div class="callout-body">The shift from <strong>49% tickets to 45% initiatives</strong> is visible in the numbers, not just a feeling. This is a measurable career evolution.</div>
+      </div>
+      <div class="callout critical fade-in delay-3">
+        <div class="callout-title">4. The Roadmap Void</div>
+        <div class="callout-body"><strong>84 hours "looking for next ticket"</strong> — a direct artifact of no roadmap, no PM. Two weeks per year evaporating.</div>
+      </div>
+      <div class="callout warn fade-in delay-4">
+        <div class="callout-title">5. Design System = Invisible</div>
+        <div class="callout-body"><strong>113 hours</strong> invested in design systems — the single largest initiative — yet largely invisible to leadership. This needs a visibility strategy.</div>
+      </div>
+      <div class="callout success fade-in delay-4">
+        <div class="callout-title">6. Overhead Efficiency</div>
+        <div class="callout-body">Overhead dropped from <strong>25.5% → 16.2%</strong>. That's 170 fewer hours spent on non-productive activities in Year 2. You got sharper.</div>
+      </div>
+      <div class="callout warn fade-in delay-5">
+        <div class="callout-title">7. Zombie Drag</div>
+        <div class="callout-body"><strong>33 tickets spanning both years</strong> — work that never closes. Each one carries invisible context-switching costs that compound weekly.</div>
+      </div>
+      <div class="callout success fade-in delay-5">
+        <div class="callout-title">8. Collaboration is Growing</div>
+        <div class="callout-body">Aymeric time grew <strong>6×</strong> (7.7 → 46.6 hrs). Mahi onboarded at 14.4 hrs. The helping-people category tripled. You're becoming a force multiplier.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    Toggl Deep Dive Analysis — Mika Kera, Senior Product Designer, BIS Safety Software<br>
+    Data period: March 19, 2024 — March 19, 2026 · Generated March 2026<br>
+    Part of the <a href="#">Scaling Up: Design Workflow Assessment</a> initiative
+  </div>
+</footer>
+
+<script>
+// ── Shift Chart ──
+const shiftCtx = document.getElementById('shiftChart').getContext('2d');
+new Chart(shiftCtx, {
+  type: 'bar',
+  data: {
+    labels: ['Ticket Work', 'Initiatives', 'Overhead', 'Helping People'],
+    datasets: [
+      {
+        label: 'Year 1',
+        data: [906.8, 439.5, 469.7, 24.7],
+        backgroundColor: '#6C8CFF',
+        borderRadius: 6,
+        borderSkipped: false,
+      },
+      {
+        label: 'Year 2',
+        data: [641.8, 825.8, 299.8, 85.1],
+        backgroundColor: '#FF6C8C',
+        borderRadius: 6,
+        borderSkipped: false,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        align: 'end',
+        labels: {
+          color: '#8892A6',
+          font: { family: "'JetBrains Mono', monospace", size: 12 },
+          boxWidth: 12,
+          boxHeight: 12,
+          borderRadius: 3,
+          useBorderRadius: true,
+          padding: 16
+        }
+      },
+      tooltip: {
+        backgroundColor: '#1B1F29',
+        titleColor: '#E8ECF4',
+        bodyColor: '#8892A6',
+        borderColor: '#2A3040',
+        borderWidth: 1,
+        padding: 12,
+        cornerRadius: 8,
+        titleFont: { family: "'DM Sans', sans-serif", weight: '600' },
+        bodyFont: { family: "'JetBrains Mono', monospace", size: 12 },
+        callbacks: {
+          label: ctx => `${ctx.dataset.label}: ${ctx.raw.toLocaleString()} hrs`
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: '#1B1F2940' },
+        ticks: { color: '#5A6478', font: { family: "'DM Sans', sans-serif", size: 13 } },
+        border: { display: false }
+      },
+      y: {
+        grid: { color: '#1B1F29' },
+        ticks: {
+          color: '#5A6478',
+          font: { family: "'JetBrains Mono', monospace", size: 11 },
+          callback: v => v + ' h'
+        },
+        border: { display: false }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

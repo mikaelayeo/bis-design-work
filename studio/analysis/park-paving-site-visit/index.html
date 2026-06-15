@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Park Paving — Site Visit Takeaways</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1419;
+    --ink-soft: #2a3441;
+    --muted: #6b7785;
+    --line: #e4e7ec;
+    --bg: #fafaf7;
+    --card: #ffffff;
+    --accent: #1e3a5f;
+    --critical: #b3261e;
+    --critical-bg: #fdecea;
+    --high: #b25a0f;
+    --high-bg: #fdf2e3;
+    --medium: #8a7100;
+    --medium-bg: #fbf6dc;
+    --green: #2d6a4f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 72px 48px 96px;
+  }
+
+  /* Header */
+  header {
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 56px;
+  }
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    font-size: 52px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 20px;
+  }
+  .subhead {
+    font-size: 18px;
+    color: var(--ink-soft);
+    max-width: 620px;
+    line-height: 1.55;
+  }
+  .meta {
+    margin-top: 32px;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .meta span strong { color: var(--ink); font-weight: 600; }
+
+  /* Sections */
+  section { margin-bottom: 64px; }
+  h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  /* Context strip */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .stat {
+    background: var(--card);
+    padding: 24px 20px;
+  }
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.25;
+  }
+  .stat-note { font-size: 13px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+
+  /* Top-line takeaways — numbered list of statements */
+  .takeaways {
+    counter-reset: take;
+  }
+  .takeaway {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .takeaway:last-child { border-bottom: 0; }
+  .takeaway-num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 36px;
+    font-weight: 500;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .takeaway-headline {
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--ink);
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .takeaway-body {
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* Issue cards */
+  .issues { display: flex; flex-direction: column; gap: 12px; }
+  .issue {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 16px;
+    padding: 18px 22px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .issue.critical { border-left: 3px solid var(--critical); }
+  .issue.high { border-left: 3px solid var(--high); }
+  .issue.medium { border-left: 3px solid var(--medium); }
+  .issue-num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .issue-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .issue-evidence {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .issue-idea {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #f4f6f8;
+    border-radius: 6px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .issue-idea-label {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-right: 8px;
+    vertical-align: 1px;
+  }
+
+  .priority-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .pill.critical { background: var(--critical-bg); color: var(--critical); }
+  .pill.high { background: var(--high-bg); color: var(--high); }
+  .pill.medium { background: var(--medium-bg); color: var(--medium); }
+  .priority-tagline {
+    font-size: 14px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* Observations list */
+  .observations {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 28px 32px;
+  }
+  .observations ul { list-style: none; }
+  .observations li {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 15px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    padding-left: 20px;
+    position: relative;
+  }
+  .observations li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .observations li:first-child { padding-top: 0; }
+  .observations li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .observations li strong { color: var(--ink); font-weight: 600; }
+
+  /* Final framing */
+  .framing {
+    margin-top: 8px;
+    padding: 40px 44px;
+    background: var(--ink);
+    color: #f5f5f0;
+    border-radius: 10px;
+  }
+  .framing blockquote {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    color: #ffffff;
+    margin-bottom: 24px;
+    position: relative;
+    padding-left: 24px;
+  }
+  .framing blockquote::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    background: #d4af37;
+    border-radius: 2px;
+  }
+  .framing p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #c8ccd1;
+  }
+  .framing strong { color: #ffffff; }
+
+  /* Footer */
+  footer {
+    margin-top: 72px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  @media (max-width: 720px) {
+    .wrap { padding: 48px 24px 72px; }
+    h1 { font-size: 36px; }
+    h2 { font-size: 22px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .takeaway { grid-template-columns: 40px 1fr; gap: 14px; }
+    .takeaway-num { font-size: 28px; }
+    .framing { padding: 28px 24px; }
+    .framing blockquote { font-size: 20px; }
+  }
+
+  @media print {
+    body { background: #fff; }
+    .wrap { max-width: 100%; padding: 24px; }
+    section { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Site Visit Debrief · May 2026</div>
+    <h1>Park Paving</h1>
+    <p class="subhead">What we saw on-site, what's broken, and the direction we're proposing.</p>
+    <div class="meta">
+      <span><strong>Client</strong> Park Paving Ltd.</span>
+      <span><strong>Customer since</strong> Late 2022</span>
+      <span><strong>When things broke</strong> Mid-2025</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="section-eyebrow">Context at a glance</div>
+    <h2>The scale we're dealing with</h2>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Workforce</div>
+        <div class="stat-value">850</div>
+        <div class="stat-note">200–300 more incoming</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Jobs / year</div>
+        <div class="stat-value">80–120</div>
+        <div class="stat-note">Annual contracts, new job # each year</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">FLHAs last year</div>
+        <div class="stat-value">18,000+</div>
+        <div class="stat-note">Daily cadence across the workforce</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Assets auto-downloaded</div>
+        <div class="stat-value">314</div>
+        <div class="stat-note">Pushed to every one of the 850 devices</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Morning FLHA window</div>
+        <div class="stat-value">30 min</div>
+        <div class="stat-note">Currently eaten by app load times</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Crashes in a single morning</div>
+        <div class="stat-value">27</div>
+        <div class="stat-note">One worker — switched to paper</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-eyebrow">The story in six lines</div>
+    <h2>Top-line takeaways</h2>
+    <div class="takeaways">
+
+      <div class="takeaway">
+        <div class="takeaway-num">01</div>
+        <div>
+          <div class="takeaway-headline">The app is actively blocking their operations.</div>
+          <div class="takeaway-body">Workers and admins are visibly distressed. Some have normalized uninstalling and reinstalling daily just to keep it usable. One worker hit 27 crashes in a single morning and switched to paper.</div>
+        </div>
+      </div>
+
+      <div class="takeaway">
+        <div class="takeaway-num">02</div>
+        <div>
+          <div class="takeaway-headline">Auto-download of 314 assets to all 850 devices is the root cause.</div>
+          <div class="takeaway-body">The dev confirmed this on-site. After turning it off mid-visit, a device dropped from ~300 downloads to 14 and "ran a lot smoother."</div>
+        </div>
+      </div>
+
+      <div class="takeaway">
+        <div class="takeaway-num">03</div>
+        <div>
+          <div class="takeaway-headline">Tech-savvy users are already abandoning the app for the web browser.</div>
+          <div class="takeaway-body">"We don't have near the problems on the browser." That's the early-warning sign — the most capable users are routing around us.</div>
+        </div>
+      </div>
+
+      <div class="takeaway">
+        <div class="takeaway-num">04</div>
+        <div>
+          <div class="takeaway-headline">Our "download-first" data philosophy is the architectural problem.</div>
+          <div class="takeaway-body">It needs to flip to <strong>cloud-first with opt-in offline</strong> — reserve local storage for the few cases (like 28-day remote sites) that actually need it.</div>
+        </div>
+      </div>
+
+      <div class="takeaway">
+        <div class="takeaway-num">05</div>
+        <div>
+          <div class="takeaway-headline">Even when the app works, the workflows fight the user.</div>
+          <div class="takeaway-body">Bulletin sign-off is a 5-step trip. Submitting forms kicks admins to the home screen. Reporting numbers can't be trusted. They've been running a parallel Excel dashboard for 4 years because of it.</div>
+        </div>
+      </div>
+
+      <div class="takeaway">
+        <div class="takeaway-num">06</div>
+        <div>
+          <div class="takeaway-headline">This is a category-wide gap, not just Park Paving.</div>
+          <div class="takeaway-body">Floyd's reporting wishlist — FLRA trends, incidents, WCBs, lost-time, bulletin read rates — is what every HSE team needs.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="priority-row">
+      <span class="pill critical">● Critical</span>
+      <span class="priority-tagline">Operations are blocked.</span>
+    </div>
+    <h2>What's breaking the app today</h2>
+    <div class="issues">
+
+      <div class="issue critical">
+        <div class="issue-num">01</div>
+        <div>
+          <div class="issue-title">Auto-download of all assets crashes/lags the app to unusability</div>
+          <div class="issue-evidence">314 assets × 850 users. UI not clickable. 3–5 crashes/week typical, 27 in one morning peak.</div>
+          <div class="issue-idea"><span class="issue-idea-label">Direction</span>Loop in CS and CE. Continue building offline-management features — message modal, auto-remove after X days of no usage. Warning when a user is about to download a lot of data (e.g. "more than XXX assets will cause problems on your device").</div>
+        </div>
+      </div>
+
+      <div class="issue critical">
+        <div class="issue-num">02</div>
+        <div>
+          <div class="issue-title">Duplicate form submissions from lag and crashes</div>
+          <div class="issue-evidence">One worker had 9 duplicates of a single FLHA. Admins can't close or reopen them.</div>
+          <div class="issue-idea"><span class="issue-idea-label">Direction</span>Only save as in-progress when the user has actually taken an action — empty forms get a snackbar and are discarded. Let users delete duplicates, with multi-select remove.</div>
+        </div>
+      </div>
+
+      <div class="issue critical">
+        <div class="issue-num">03</div>
+        <div>
+          <div class="issue-title">Submit-button multi-tap sends duplicates</div>
+          <div class="issue-evidence">Closing duplicates kicks the user back to the home screen and forces full re-navigation. Demonstrated live.</div>
+          <div class="issue-idea"><span class="issue-idea-label">Direction</span>Asset redesign.</div>
+        </div>
+      </div>
+
+      <div class="issue critical">
+        <div class="issue-num">04</div>
+        <div>
+          <div class="issue-title">Job number input drops characters mid-typing</div>
+          <div class="issue-evidence">Recurring bug, triggered when typing during background download. Likely affects other fields too.</div>
+          <div class="issue-idea"><span class="issue-idea-label">Direction</span>File as a bug case — check whether attendance fields and other inputs have the same issue.</div>
+        </div>
+      </div>
+
+      <div class="issue critical">
+        <div class="issue-num">05</div>
+        <div>
+          <div class="issue-title">Tablets lock up and force re-login mid-form</div>
+          <div class="issue-evidence">Reproduced across multiple devices (T21, 92s, B7, 16108). Likely connected to auto-download pressure.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="priority-row">
+      <span class="pill high">● High</span>
+      <span class="priority-tagline">Workflows don't match reality.</span>
+    </div>
+    <h2>Where the design fights the user</h2>
+    <div class="issues">
+
+      <div class="issue high">
+        <div class="issue-num">07</div>
+        <div>
+          <div class="issue-title">"Download first, online later" — every tap downloads, no opt-out</div>
+          <div class="issue-evidence">Every interaction in the app implicitly downloads data, with no way to opt out. This will keep degrading performance long-term.</div>
+          <div class="issue-idea"><span class="issue-idea-label">Direction</span>Add an explicit "make available offline" toggle. Tapping data should <em>not</em> auto-download it. If an admin sets an asset as available offline, the user toggle is disabled. Look across other industries we serve to see how they handle this — think YouTube Music's recent files.</div>
+        </div>
+      </div>
+
+      <div class="issue high">
+        <div class="issue-num">08</div>
+        <div>
+          <div class="issue-title">Historical data bulks up the database with old jobs/FLRAs</div>
+          <div class="issue-evidence">Annual contracts mean prior-year data is rarely referenced. We need a better auto-archive / historical system.</div>
+          <div class="issue-idea"><span class="issue-idea-label">Direction</span>Same UX pattern as the offline feature — surface what's old enough to archive, let users (or admins) decide.</div>
+        </div>
+      </div>
+
+      <div class="issue high">
+        <div class="issue-num">09</div>
+        <div>
+          <div class="issue-title">Bulletin sign-off is multi-step when it should be one tap</div>
+          <div class="issue-evidence">Open → read → back → sign → submit. User's phrase: a "digital fingerprint" the moment they open it.</div>
+        </div>
+      </div>
+
+      <div class="issue high">
+        <div class="issue-num">10</div>
+        <div>
+          <div class="issue-title">FLRA email sends on end-of-day, not on morning fill-out</div>
+          <div class="issue-evidence">Latecomers can't review or sign remotely. Compliance is the reading and signing, not the physical presence.</div>
+          <div class="issue-idea"><span class="issue-idea-label">Direction</span>Attendance feature.</div>
+        </div>
+      </div>
+
+      <div class="issue high">
+        <div class="issue-num">11</div>
+        <div>
+          <div class="issue-title">No "form already submitted today" detection</div>
+          <div class="issue-evidence">System isn't aware of daily cadence. Smart dedupe + auto-delete extras + a "what you did today" history page would close the gap.</div>
+        </div>
+      </div>
+
+      <div class="issue high">
+        <div class="issue-num">12</div>
+        <div>
+          <div class="issue-title">Pending-forms triage flow is buried and ungrouped</div>
+          <div class="issue-evidence">Asset → on-demand form → pending → warning modal. Admins triage blind, with no date grouping.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="priority-row">
+      <span class="pill medium">● Medium</span>
+      <span class="priority-tagline">Reporting trust is broken.</span>
+    </div>
+    <h2>Why they built their own dashboard</h2>
+    <div class="issues">
+
+      <div class="issue medium">
+        <div class="issue-num">15</div>
+        <div>
+          <div class="issue-title">Counter widget numbers don't match reality</div>
+          <div class="issue-evidence">Numbers change between updates; duplicates skew them. Floyd wants trendable, presentable KPIs.</div>
+        </div>
+      </div>
+
+      <div class="issue medium">
+        <div class="issue-num">16</div>
+        <div>
+          <div class="issue-title">"Load more" just refreshes the same 20 rows</div>
+          <div class="issue-evidence">No real pagination on the drill-down.</div>
+        </div>
+      </div>
+
+      <div class="issue medium">
+        <div class="issue-num">17</div>
+        <div>
+          <div class="issue-title">Bulletin progress isn't trackable in-app</div>
+          <div class="issue-evidence">Floyd wants read-rate dashboards by folder.</div>
+        </div>
+      </div>
+
+      <div class="issue medium">
+        <div class="issue-num">18</div>
+        <div>
+          <div class="issue-title">Floyd already built the Excel he wants the app to replicate</div>
+          <div class="issue-evidence">Monday-manager weekly view plus a 25-tab reference file. He's willing to share it.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-eyebrow">Field notes</div>
+    <h2>What I saw on the floor</h2>
+    <div class="observations">
+      <ul>
+        <li>Users <strong>kept hitting "Submit" early just to see which fields were required</strong> — required-field visibility is failing upstream.</li>
+        <li>A worker with an older Android device (likely Samsung) struggled the most — <strong>performance baseline matters</strong>, our floor isn't where we think it is.</li>
+        <li>Young workers were <strong>handing tablets over to be signed without anyone reading the assessment</strong> — digitization is undermining the safety value itself, which is a product-design problem, not just a UX one.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-eyebrow">Closing framing</div>
+    <h2>What this means for us</h2>
+    <div class="framing">
+      <blockquote>"It should have never reached this point where their operations are halted due to our services."</blockquote>
+      <p>The trust dynamic is the underlying story: customers were so used to working around the product that the workarounds looked normal. <strong>Fixing the auto-download is the unlock</strong> — but it doesn't restore trust on its own. The workflow fixes — bulletin one-tap, dedupe logic, dashboard parity — are what prove we listened.</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>Park Paving site visit · Prepared by Mika</span>
+    <span>Source: Main Takeaways (Notion)</span>
+  </footer>
+
+</div>
+</body>
+</html>

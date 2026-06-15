@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compliance Centre — Wireframes</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1e293b; background: #f8fafc; }
+
+  .layout { display: flex; min-height: 100vh; }
+  .sidenav { width: 200px; min-width: 200px; background: #fff; border-right: 1px solid #e2e8f0; padding: 20px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .sidenav-title { padding: 0 16px 16px; font-weight: 800; font-size: 15px; color: #1e293b; }
+  .sidenav a { display: block; padding: 10px 16px; font-size: 13px; color: #64748b; text-decoration: none; border-left: 3px solid transparent; cursor: pointer; }
+  .sidenav a:hover { background: #f1f5f9; }
+  .sidenav a.active { font-weight: 700; color: #1e293b; background: #e2e8f0; border-left-color: #334155; }
+
+  .main { flex: 1; overflow-y: auto; }
+  .screen { display: none; padding: 32px; max-width: 1100px; }
+  .screen.active { display: block; }
+
+  h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  h2 { font-size: 17px; font-weight: 700; margin-bottom: 10px; color: #1e293b; }
+  h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; color: #334155; }
+
+  .note { background: #fffbeb; border: 1px dashed #f59e0b; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #92400e; margin-bottom: 16px; line-height: 1.5; }
+  .note::before { content: "💡 "; }
+
+  .pills { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .pill { padding: 6px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #f1f5f9; color: #475569; font-weight: 400; }
+  .pill.active { background: #334155; color: #fff; border-color: #334155; font-weight: 600; }
+
+  .toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .toolbar .spacer { flex: 1; }
+  .search { padding: 8px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; width: 240px; background: #f8fafc; }
+  select.field-select { padding: 8px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; background: #fff; }
+
+  .btn { padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500; border: 1px solid #cbd5e1; background: #fff; color: #334155; display: inline-flex; align-items: center; gap: 4px; }
+  .btn:hover { background: #f8fafc; }
+  .btn-primary { background: #334155; color: #fff; border-color: #334155; }
+  .btn-primary:hover { background: #1e293b; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  .btn-danger { color: #dc2626; border-color: #fecaca; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px; }
+  th { text-align: left; padding: 8px 10px; border-bottom: 2px solid #e2e8f0; color: #64748b; font-weight: 600; font-size: 12px; white-space: nowrap; }
+  td { padding: 10px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+  .req-name { font-weight: 700; }
+  .req-desc { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+  .badge { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .badge-pass { background: #dcfce7; color: #16a34a; }
+  .badge-fail { background: #fee2e2; color: #dc2626; }
+  .badge-warn { background: #fef3c7; color: #d97706; }
+  .badge-unaddr { color: #d97706; font-weight: 600; font-size: 12px; }
+
+  .widget { border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; background: #fff; }
+  .widget-title { font-weight: 700; font-size: 14px; margin-bottom: 14px; color: #1e293b; }
+
+  .flex { display: flex; }
+  .flex-wrap { flex-wrap: wrap; }
+  .gap-12 { gap: 12px; }
+  .gap-16 { gap: 16px; }
+  .gap-20 { gap: 20px; }
+  .gap-24 { gap: 24px; }
+  .mb-8 { margin-bottom: 8px; }
+  .mb-12 { margin-bottom: 12px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mb-20 { margin-bottom: 20px; }
+  .mb-24 { margin-bottom: 24px; }
+  .flex-1 { flex: 1; min-width: 0; }
+
+  .card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; background: #fff; }
+  .card-header { background: #f8fafc; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; margin: -16px -16px 12px; border-radius: 10px 10px 0 0; }
+  .card-header-title { font-weight: 700; font-size: 13px; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12px; font-weight: 600; color: #475569; margin-bottom: 4px; display: block; }
+  .form-label .req { color: #ef4444; }
+  .form-input { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; }
+  textarea.form-input { min-height: 60px; resize: vertical; }
+
+  .pie-wrap { display: flex; align-items: center; gap: 16px; }
+  .pie-legend { display: flex; flex-direction: column; gap: 4px; }
+  .pie-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .pie-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  .greyed { background: #f8fafc; border-radius: 6px; padding: 10px; }
+  .greyed-label { font-size: 11px; font-weight: 600; color: #94a3b8; margin-bottom: 4px; }
+  .greyed-item { font-size: 12px; color: #94a3b8; padding: 3px 0; }
+  .loc-label { font-size: 11px; font-weight: 600; color: #475569; margin-bottom: 4px; }
+  .check-item { display: flex; gap: 6px; font-size: 12px; padding: 2px 0; align-items: center; cursor: pointer; }
+
+  .cm-box { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+  .cm-header { background: #f8fafc; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
+  .cm-header-title { font-weight: 700; font-size: 13px; }
+  .cm-body { padding: 10px 14px; }
+  .cm-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+  .cm-row:last-child { border-bottom: none; }
+  .cm-name { font-weight: 500; }
+  .cm-meta { font-size: 11px; color: #94a3b8; }
+  .cm-actions { display: flex; gap: 6px; align-items: center; }
+
+  .drawer-overlay { display: none; position: fixed; top: 0; right: 0; bottom: 0; left: 200px; background: rgba(0,0,0,0.15); z-index: 10; }
+  .drawer-overlay.open { display: block; }
+  .drawer { position: fixed; top: 0; right: 0; width: 460px; height: 100%; background: #fff; border-left: 2px solid #e2e8f0; box-shadow: -4px 0 24px rgba(0,0,0,0.08); z-index: 11; display: flex; flex-direction: column; }
+  .drawer-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #e2e8f0; }
+  .drawer-header h3 { margin-bottom: 0; font-size: 16px; }
+  .drawer-close { cursor: pointer; font-size: 20px; color: #94a3b8; background: none; border: none; }
+  .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
+
+  .section-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 14px; }
+
+  .asset-layout { display: flex; gap: 16px; min-height: 300px; }
+  .asset-sidebar { width: 200px; border-right: 1px solid #e2e8f0; padding-right: 16px; }
+  .asset-sidebar-item { padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  .asset-sidebar-item:hover { background: #f1f5f9; }
+  .asset-sidebar-item.active { background: #e2e8f0; font-weight: 600; }
+
+  .settings-grid { display: flex; gap: 24px; flex-wrap: wrap; }
+  .settings-col { flex: 1; min-width: 300px; }
+
+  .status-overdue { color: #ef4444; font-weight: 600; font-size: 12px; }
+  .status-ontrack { color: #22c55e; font-size: 12px; }
+  .ctrl-pass { color: #22c55e; }
+  .ctrl-fail { color: #ef4444; }
+
+  .breadcrumb { font-size: 13px; color: #64748b; margin-bottom: 10px; cursor: pointer; }
+  .breadcrumb:hover { color: #334155; }
+
+  .big-number { font-size: 28px; font-weight: 700; color: #22c55e; }
+  .big-label { font-size: 12px; color: #64748b; }
+
+  .actions-cell { display: flex; gap: 4px; }
+
+  .empty-msg { color: #94a3b8; font-size: 13px; font-style: italic; padding: 20px 0; text-align: center; }
+
+  @media (max-width: 800px) {
+    .sidenav { display: none; }
+    .screen { padding: 16px; }
+    .drawer { width: 100%; }
+    .drawer-overlay { left: 0; }
+    .asset-layout { flex-direction: column; }
+    .asset-sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; padding-right: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <nav class="sidenav">
+    <div class="sidenav-title">Compliance Centre</div>
+    <a class="active" onclick="showScreen('dashboard')">Dashboard</a>
+    <a onclick="showScreen('frameworks')">Frameworks</a>
+    <a onclick="showScreen('requirements')">Requirements</a>
+    <a onclick="showScreen('remediation')">Remediation</a>
+    <a onclick="showScreen('worksites')">Worksites</a>
+    <a onclick="showScreen('assets')">Assets</a>
+  </nav>
+
+  <div class="main">
+
+    <!-- ========== DASHBOARD ========== -->
+    <div id="screen-dashboard" class="screen active">
+      <h1>Dashboard</h1>
+      <div class="note">One widget per active framework. Widgets are draggable. Inactive/deactivated frameworks don't appear. "My Remediation Tasks" shows tasks assigned to the logged-in user.</div>
+
+      <div class="flex flex-wrap gap-16 mb-20">
+        <div class="widget" style="flex:1;min-width:340px">
+          <div class="widget-title">ISO 27001 — Data Security Standard</div>
+          <div class="pie-wrap mb-12">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="50" fill="#e2e8f0"/>
+              <path d="M60,60 L60,10 A50,50 0 1,1 24.2,96.4 Z" fill="#22c55e" opacity="0.85"/>
+              <path d="M60,60 L24.2,96.4 A50,50 0 0,1 17.6,76.8 Z" fill="#ef4444" opacity="0.85"/>
+              <path d="M60,60 L17.6,76.8 A50,50 0 0,1 60,10 Z" fill="#eab308" opacity="0.8"/>
+            </svg>
+            <div class="pie-legend">
+              <div class="pie-legend-item"><div class="pie-dot" style="background:#22c55e"></div>88 Passing (93%)</div>
+              <div class="pie-legend-item"><div class="pie-dot" style="background:#ef4444"></div>3 Failed (3%)</div>
+              <div class="pie-legend-item"><div class="pie-dot" style="background:#eab308"></div>4 Unaddressed (4%)</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#64748b;font-weight:600;margin-bottom:6px">Failed / Unaddressed Requirements</div>
+          <table>
+            <tr><th>Requirement</th><th>Owner</th><th>Status</th></tr>
+            <tr><td>Access control policy</td><td>J. Smith</td><td><span class="badge badge-fail">Failed</span></td></tr>
+            <tr><td>Encryption standards</td><td>M. Lee</td><td><span class="badge badge-fail">Failed</span></td></tr>
+            <tr><td>Vendor assessment</td><td>—</td><td><span class="badge-unaddr">Unaddressed</span></td></tr>
+          </table>
+        </div>
+
+        <div class="widget" style="flex:1;min-width:340px">
+          <div class="widget-title">NFPA 70 — Fire Protection</div>
+          <div class="pie-wrap mb-12">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="50" fill="#e2e8f0"/>
+              <path d="M60,60 L60,10 A50,50 0 1,1 36,104 Z" fill="#22c55e" opacity="0.85"/>
+              <path d="M60,60 L36,104 A50,50 0 0,1 28,92 Z" fill="#ef4444" opacity="0.85"/>
+              <path d="M60,60 L28,92 A50,50 0 0,1 60,10 Z" fill="#eab308" opacity="0.8"/>
+            </svg>
+            <div class="pie-legend">
+              <div class="pie-legend-item"><div class="pie-dot" style="background:#22c55e"></div>42 Passing (93%)</div>
+              <div class="pie-legend-item"><div class="pie-dot" style="background:#ef4444"></div>1 Failed (2%)</div>
+              <div class="pie-legend-item"><div class="pie-dot" style="background:#eab308"></div>2 Unaddressed (5%)</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#64748b;font-weight:600;margin-bottom:6px">Failed / Unaddressed Requirements</div>
+          <table>
+            <tr><th>Requirement</th><th>Owner</th><th>Status</th></tr>
+            <tr><td>Hot work permit procedures</td><td>A. Patel</td><td><span class="badge badge-fail">Failed</span></td></tr>
+            <tr><td>Fire suppression training</td><td>—</td><td><span class="badge-unaddr">Unaddressed</span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="widget">
+        <div class="widget-title">My Remediation Tasks</div>
+        <table>
+          <tr><th>Task</th><th>Due</th><th>Requirement</th><th>Framework</th></tr>
+          <tr><td>Update access control policy</td><td>2026-03-01</td><td>Access control policy</td><td>ISO 27001</td></tr>
+          <tr><td>Develop site orientation course</td><td>2026-03-15</td><td>Work site training</td><td>NFPA 70, WHMIS</td></tr>
+          <tr><td>Review encryption documentation</td><td>2026-02-28</td><td>Encryption standards</td><td>ISO 27001</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== FRAMEWORKS ========== -->
+    <div id="screen-frameworks" class="screen">
+      <h1>Frameworks</h1>
+      <div class="note">Active = monitored & on dashboard. Inactive = under construction, no alerts. Deactivated = archived, can purge. Noncompliant frameworks sort to top.</div>
+
+      <div class="flex gap-16 mb-16" style="align-items:center;flex-wrap:wrap">
+        <div class="pills" style="margin-bottom:0">
+          <span class="pill active" onclick="showPill(this,'fw')">Active</span>
+          <span class="pill" onclick="showPill(this,'fw')">Inactive</span>
+          <span class="pill" onclick="showPill(this,'fw')">Deactivated</span>
+        </div>
+        <div style="flex:1"></div>
+        <input class="search" placeholder="Search frameworks">
+        <button class="btn btn-primary" onclick="showScreen('new-framework')">(+) New Framework</button>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <select class="field-select"><option>All Statuses</option><option>Compliant</option><option>Noncompliant</option></select>
+      </div>
+
+      <table>
+        <tr><th>ID</th><th>Name</th><th>Req.</th><th>Req. Covered</th><th>Measures</th><th>Meas. Covered</th><th>Status</th><th>Actions</th></tr>
+        <tr>
+          <td>ISO 27001</td><td>Data Security Standard</td><td>95</td><td>97%</td><td>142</td><td>138</td>
+          <td><span class="badge badge-fail">✕ Fail</span></td>
+          <td class="actions-cell"><button class="btn btn-sm" onclick="showScreen('framework-details')">Edit</button><button class="btn btn-sm">✕</button></td>
+        </tr>
+        <tr>
+          <td>NFPA 70</td><td>Fire Protection</td><td>45</td><td>93%</td><td>62</td><td>58</td>
+          <td><span class="badge badge-warn">⚠ Expiring</span></td>
+          <td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm">✕</button></td>
+        </tr>
+        <tr>
+          <td>AB OHS</td><td>Alberta OHS Code</td><td>120</td><td>100%</td><td>180</td><td>180</td>
+          <td><span class="badge badge-pass">✓ Pass</span></td>
+          <td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm">✕</button></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ========== NEW FRAMEWORK ========== -->
+    <div id="screen-new-framework" class="screen">
+      <div class="breadcrumb" onclick="showScreen('frameworks')">← Frameworks</div>
+      <h1>New Compliance Framework</h1>
+      <div class="note">Simple modal. New frameworks start as Inactive so admins can set them up before activating.</div>
+      <div style="max-width:440px;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:24px">
+        <h2>New Compliance Framework</h2>
+        <p style="font-size:12px;color:#64748b;margin-bottom:16px">Set up a new framework and select your requirements.</p>
+        <div class="form-group">
+          <label class="form-label">ID <span class="req">*</span></label>
+          <input class="form-input" placeholder="">
+          <div style="font-size:11px;color:#94a3b8;margin-top:4px;font-style:italic">e.g., BETA-1001</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Name <span class="req">*</span></label>
+          <input class="form-input">
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+          <button class="btn" onclick="showScreen('frameworks')">Cancel</button>
+          <button class="btn btn-primary" onclick="showScreen('framework-details')">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== FRAMEWORK DETAILS ========== -->
+    <div id="screen-framework-details" class="screen">
+      <div class="breadcrumb" onclick="showScreen('frameworks')">← Frameworks</div>
+      <h1>ISO 27001 — Data Security Standard</h1>
+      <div class="note">Edit framework info, see compliance widget, map worksites/assets, and manage requirements for this framework.</div>
+
+      <div class="flex flex-wrap gap-16 mb-20">
+        <div style="flex:1;min-width:200px">
+          <div class="form-group"><label class="form-label">ID</label><input class="form-input" value="ISO 27001"></div>
+          <div class="form-group"><label class="form-label">Name</label><input class="form-input" value="Data Security Standard"></div>
+        </div>
+        <div class="widget" style="flex:1;min-width:260px">
+          <div class="widget-title">Compliance Status</div>
+          <div class="pie-wrap">
+            <svg width="100" height="100" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="50" fill="#e2e8f0"/>
+              <path d="M60,60 L60,10 A50,50 0 1,1 24.2,96.4 Z" fill="#22c55e" opacity="0.85"/>
+              <path d="M60,60 L24.2,96.4 A50,50 0 0,1 17.6,76.8 Z" fill="#ef4444" opacity="0.85"/>
+              <path d="M60,60 L17.6,76.8 A50,50 0 0,1 60,10 Z" fill="#eab308" opacity="0.8"/>
+            </svg>
+            <div class="pie-legend">
+              <div class="pie-legend-item"><div class="pie-dot" style="background:#22c55e"></div>88 Passing</div>
+              <div class="pie-legend-item"><div class="pie-dot" style="background:#ef4444"></div>3 Failed</div>
+              <div class="pie-legend-item"><div class="pie-dot" style="background:#eab308"></div>4 Unaddressed</div>
+            </div>
+          </div>
+        </div>
+        <div class="widget" style="min-width:180px">
+          <div class="widget-title">Control Measures</div>
+          <div class="big-number">94%</div>
+          <div class="big-label">Passing Control Measures</div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-20 mb-24">
+        <div class="section-box" style="flex:1;min-width:260px">
+          <h3>Applicable Worksites</h3>
+          <input class="search" placeholder="Search worksites..." style="width:100%;margin-bottom:8px">
+          <div style="display:flex;gap:6px;margin-bottom:8px"><button class="btn btn-sm">Select All</button><button class="btn btn-sm">Deselect All</button></div>
+          <label class="check-item"><input type="checkbox" checked> Edmonton HQ</label>
+          <label class="check-item"><input type="checkbox" checked> Calgary Office</label>
+          <label class="check-item"><input type="checkbox"> Fort McMurray Site</label>
+        </div>
+        <div class="section-box" style="flex:1;min-width:260px">
+          <h3>Applicable Assets</h3>
+          <input class="search" placeholder="Search asset groups..." style="width:100%;margin-bottom:8px">
+          <div style="display:flex;gap:6px;margin-bottom:8px"><button class="btn btn-sm">Select All</button><button class="btn btn-sm">Deselect All</button></div>
+          <label class="check-item"><input type="checkbox" checked> Vehicles</label>
+          <label class="check-item"><input type="checkbox" checked> PPE Equipment</label>
+          <label class="check-item"><input type="checkbox"> IT Hardware</label>
+        </div>
+      </div>
+
+      <h2>Requirements</h2>
+      <div class="toolbar">
+        <input class="search" placeholder="Search requirements">
+        <button class="btn btn-primary" onclick="showScreen('add-requirement')">(+) New Requirement</button>
+      </div>
+      <table>
+        <tr><th>ID</th><th>Requirement</th><th>Owner</th><th>Location</th><th>Measures</th><th>Status</th><th>Actions</th></tr>
+        <tr>
+          <td>GOV-001</td>
+          <td><span class="req-name">Access control policy</span><div class="req-desc">Ensure access controls are documented and reviewed...</div></td>
+          <td>J. Smith</td><td>All</td><td>4</td>
+          <td><span class="badge badge-fail">✕ Fail</span></td>
+          <td class="actions-cell"><button class="btn btn-sm" onclick="showScreen('add-requirement')">Edit</button><button class="btn btn-sm">✕</button></td>
+        </tr>
+        <tr>
+          <td>TRN-003</td>
+          <td><span class="req-name">Security awareness training</span><div class="req-desc">All staff complete annual security awareness training...</div></td>
+          <td>M. Lee</td><td>Edmonton HQ</td><td>2</td>
+          <td><span class="badge badge-pass">✓ Pass</span></td>
+          <td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm">✕</button></td>
+        </tr>
+        <tr>
+          <td>REC-012</td>
+          <td><span class="req-name">Encryption standards</span><div class="req-desc">Data at rest and in transit must be encrypted...</div></td>
+          <td>A. Patel</td><td>All</td><td>3</td>
+          <td><span class="badge badge-warn">⚠ Expiring</span></td>
+          <td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm">✕</button></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ========== REQUIREMENTS LIST ========== -->
+    <div id="screen-requirements" class="screen">
+      <h1>Compliance Requirements</h1>
+      <div class="note">Global requirements pool. A requirement can belong to many frameworks. Editing here affects all frameworks where it's used.</div>
+
+      <div class="flex gap-16 mb-16" style="align-items:center;flex-wrap:wrap">
+        <div class="pills" style="margin-bottom:0">
+          <span class="pill active" onclick="showPill(this,'req')">Active</span>
+          <span class="pill" onclick="showPill(this,'req')">Deactivated</span>
+        </div>
+        <div style="flex:1"></div>
+        <input class="search" placeholder="Search requirements">
+        <button class="btn btn-primary" onclick="showScreen('add-requirement')">(+) New Requirement</button>
+        <button class="btn" onclick="showScreen('settings')">⚙ Settings</button>
+      </div>
+
+      <table>
+        <tr><th>ID</th><th>Requirement</th><th>Owner</th><th>Measures</th><th>% Passing</th><th>Frameworks</th><th>Actions</th></tr>
+        <tr>
+          <td>GOV-001</td>
+          <td><span class="req-name">Access control policy</span><div class="req-desc">Ensure access controls are documented...</div></td>
+          <td>J. Smith</td><td>4</td><td>75%</td><td>ISO 27001, SOC 2</td>
+          <td class="actions-cell"><button class="btn btn-sm" onclick="showScreen('add-requirement')">Edit</button><button class="btn btn-sm">✕</button></td>
+        </tr>
+        <tr>
+          <td>TRN-003</td>
+          <td><span class="req-name">Security awareness training</span><div class="req-desc">All staff complete annual security awareness...</div></td>
+          <td>M. Lee</td><td>2</td><td>100%</td><td>ISO 27001</td>
+          <td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm">✕</button></td>
+        </tr>
+        <tr>
+          <td>HAZ-005</td>
+          <td><span class="req-name">Hazard identification</span><div class="req-desc">All sites must have hazard assessment processes...</div></td>
+          <td>R. Chen</td><td>3</td><td>66%</td><td>AB OHS, NFPA 70</td>
+          <td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm">✕</button></td>
+        </tr>
+        <tr>
+          <td>CTRL-002</td>
+          <td><span class="req-name">Lock-out / tag-out</span><div class="req-desc">LOTO procedures documented and trained for all...</div></td>
+          <td>A. Patel</td><td>5</td><td>80%</td><td>NFPA 70</td>
+          <td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm">✕</button></td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ========== ADD/EDIT REQUIREMENT ========== -->
+    <div id="screen-add-requirement" class="screen">
+      <div class="breadcrumb" onclick="showScreen('requirements')">← Requirements</div>
+      <h1>Add / Edit Requirement</h1>
+      <div class="note">Control measure mapping opens as a <b>side drawer</b> instead of nested popups. The main form stays visible and in context.</div>
+
+      <div class="flex flex-wrap gap-24">
+        <!-- LEFT: Requirement Details -->
+        <div style="flex:1;min-width:300px;max-width:480px">
+          <div class="form-group"><label class="form-label">Name <span class="req">*</span></label><input class="form-input" placeholder="e.g., Access control policy"></div>
+          <div class="form-group"><label class="form-label">Description <span class="req">*</span></label><textarea class="form-input" placeholder="Describe the requirement..."></textarea></div>
+          <div class="flex gap-12">
+            <div class="form-group" style="flex:1"><label class="form-label">Type</label><select class="form-input"><option>-- Select type --</option><option>GOV</option><option>HAZ</option><option>TRN</option><option>CTRL</option></select></div>
+            <div class="form-group" style="flex:1"><label class="form-label">ID</label><input class="form-input" placeholder="e.g., GOV-001"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Owner <span class="req">*</span></label><select class="form-input"><option>Search for a user...</option></select></div>
+
+          <div class="section-box">
+            <h3>Applicable Worksites</h3>
+            <div style="font-size:11px;color:#64748b;margin-bottom:8px">Greyed-out worksites are set at the framework level. Select locations within them.</div>
+            <div class="flex gap-12">
+              <div class="greyed" style="flex:1">
+                <div class="greyed-label">WORKSITES (from framework)</div>
+                <div class="greyed-item">Edmonton HQ</div>
+                <div class="greyed-item">Calgary Office</div>
+              </div>
+              <div style="flex:1">
+                <div class="loc-label">LOCATIONS</div>
+                <label class="check-item"><input type="checkbox" checked> All</label>
+                <label class="check-item"><input type="checkbox"> Floor 1</label>
+                <label class="check-item"><input type="checkbox"> Floor 2</label>
+                <label class="check-item"><input type="checkbox"> IT Dept</label>
+                <label class="check-item"><input type="checkbox"> HR Dept</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-box">
+            <h3>Applicable Assets</h3>
+            <div class="flex gap-12">
+              <div class="greyed" style="flex:1">
+                <div class="greyed-label">ASSET GROUPS (from framework)</div>
+                <div class="greyed-item">Vehicles</div>
+                <div class="greyed-item">PPE Equipment</div>
+              </div>
+              <div style="flex:1">
+                <div class="loc-label">ASSETS</div>
+                <label class="check-item"><input type="checkbox" checked> All</label>
+                <label class="check-item"><input type="checkbox"> Truck #101</label>
+                <label class="check-item"><input type="checkbox"> Truck #102</label>
+                <label class="check-item"><input type="checkbox"> Hard hats</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Control Measures -->
+        <div style="flex:1;min-width:340px">
+          <h2>Control Measures</h2>
+          <div class="flex gap-8 mb-12">
+            <select class="form-input" style="flex:1">
+              <option>-- Select measure type --</option>
+              <option>Accountability</option><option>Program</option><option>Policy</option>
+              <option>Procedure</option><option>Training</option><option>PPE/Safety Device</option><option>Verification</option>
+            </select>
+            <button class="btn btn-primary">Add</button>
+          </div>
+
+          <!-- Policy Box -->
+          <div class="cm-box">
+            <div class="cm-header">
+              <span class="cm-header-title">Policy</span>
+              <span class="actions-cell"><button class="btn btn-sm" onclick="openDrawer('policy')">Edit</button><button class="btn btn-sm btn-danger">🗑</button></span>
+            </div>
+            <div class="cm-body">
+              <div class="cm-row">
+                <div><div class="cm-name">IT Security Policy v3.2</div><div class="cm-meta">Folder Document</div></div>
+                <div class="cm-actions"><span class="badge badge-pass">✓ Pass</span></div>
+              </div>
+              <div style="padding:8px 0"><button class="btn btn-sm" onclick="openDrawer('policy')">+ Add content</button></div>
+            </div>
+          </div>
+
+          <!-- Training Box -->
+          <div class="cm-box">
+            <div class="cm-header">
+              <span class="cm-header-title">Training</span>
+              <span class="actions-cell"><button class="btn btn-sm" onclick="openDrawer('training')">Edit</button><button class="btn btn-sm btn-danger">🗑</button></span>
+            </div>
+            <div class="cm-body">
+              <div class="cm-row">
+                <div><div class="cm-name">Security Awareness 101</div><div class="cm-meta">Online Course · All users</div></div>
+                <div class="cm-actions">
+                  <span class="badge badge-fail">✕ Fail</span>
+                  <button class="btn btn-sm">📋 Task</button>
+                  <button class="btn btn-sm">View Tasks</button>
+                </div>
+              </div>
+              <div style="padding:8px 0"><button class="btn btn-sm" onclick="openDrawer('training')">+ Add content</button></div>
+            </div>
+          </div>
+
+          <!-- Procedure Box -->
+          <div class="cm-box">
+            <div class="cm-header">
+              <span class="cm-header-title">Procedure</span>
+              <span class="actions-cell"><button class="btn btn-sm" onclick="openDrawer('procedure')">Edit</button><button class="btn btn-sm btn-danger">🗑</button></span>
+            </div>
+            <div class="cm-body">
+              <div class="cm-row">
+                <div><div class="cm-name">Access Request Form</div><div class="cm-meta">Form</div></div>
+                <div class="cm-actions"><span class="badge badge-pass">✓ Pass</span></div>
+              </div>
+              <div style="padding:8px 0"><button class="btn btn-sm" onclick="openDrawer('procedure')">+ Add content</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:24px">
+        <button class="btn" onclick="showScreen('requirements')">Cancel</button>
+        <button class="btn btn-primary" onclick="showScreen('requirements')">Save Requirement</button>
+      </div>
+
+      <!-- DRAWERS -->
+      <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
+      <div id="drawer-panel" class="drawer" style="display:none">
+        <div class="drawer-header">
+          <h3 id="drawer-title">Map Content</h3>
+          <button class="drawer-close" onclick="closeDrawer()">✕</button>
+        </div>
+        <div class="drawer-body" id="drawer-body"></div>
+      </div>
+    </div>
+
+    <!-- ========== REMEDIATION ========== -->
+    <div id="screen-remediation" class="screen">
+      <h1>Compliance Remediation</h1>
+      <div class="note">Tasks are created from failed control measures on the requirement edit screen. Tasks sync bidirectionally with the Task Admin module. Cannot create tasks from this page.</div>
+      <div class="toolbar">
+        <input class="search" placeholder="Search by user or task name">
+        <select class="field-select"><option>All Frameworks</option><option>ISO 27001</option><option>NFPA 70</option><option>AB OHS</option></select>
+      </div>
+      <table>
+        <tr><th>Task Name</th><th>Assigned To</th><th>Due Date</th><th>Status</th><th>Control Measure</th><th>Ctrl Status</th><th>Requirement</th><th>Frameworks</th></tr>
+        <tr>
+          <td>Update access policy</td><td>J. Smith</td><td>2026-03-01</td>
+          <td><span class="status-overdue">Overdue</span></td>
+          <td>IT Security Policy v3.2</td><td><span class="ctrl-fail">✕ Fail</span></td>
+          <td>Access control policy</td><td>ISO 27001</td>
+        </tr>
+        <tr>
+          <td>Upload encryption cert</td><td>A. Patel</td><td>2026-03-15</td>
+          <td><span class="status-ontrack">On track</span></td>
+          <td>Encryption Standard Doc</td><td><span class="ctrl-pass">○ Pass</span></td>
+          <td>Encryption standards</td><td>ISO 27001</td>
+        </tr>
+        <tr>
+          <td>Schedule LOTO training</td><td>R. Chen</td><td>2026-03-10</td>
+          <td><span class="status-ontrack">On track</span></td>
+          <td>LOTO Training Course</td><td><span class="ctrl-fail">✕ Fail</span></td>
+          <td>Lock-out/tag-out</td><td>NFPA 70</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ========== WORKSITES ========== -->
+    <div id="screen-worksites" class="screen">
+      <h1>Worksites</h1>
+      <div class="note">"Map Locations" = each portal location becomes its own worksite. "Custom Worksite" = group multiple locations under one name. Worksites are mapped to frameworks from the Framework Details page.</div>
+      <div class="toolbar">
+        <input class="search" placeholder="Search worksites">
+        <select class="field-select"><option>(+) Add Site</option><option>Map Locations</option><option>Custom Worksite</option></select>
+      </div>
+      <table>
+        <tr><th>Site</th><th>Locations</th><th>Frameworks</th><th>Actions</th></tr>
+        <tr><td>Edmonton HQ</td><td>Edmonton HQ</td><td>ISO 27001, AB OHS</td><td class="actions-cell"><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+        <tr><td>Calgary Office</td><td>Calgary Office</td><td>ISO 27001</td><td class="actions-cell"><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+        <tr><td><strong>Northern Sites</strong></td><td>Fort McMurray, Grande Prairie, Peace River</td><td>NFPA 70, AB OHS</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+      </table>
+      <div style="font-size:11px;color:#94a3b8;margin-top:8px">* "Northern Sites" is a custom worksite grouping 3 locations. Edit is only available for custom worksites.</div>
+    </div>
+
+    <!-- ========== ASSETS ========== -->
+    <div id="screen-assets" class="screen">
+      <h1>Assets</h1>
+      <div class="note">Similar to Worksites. "Map Asset Categories" = each category becomes a group. "Custom Asset Group" = mix assets from multiple categories. Asset groups are mapped to frameworks from the Framework Details page.</div>
+
+      <div class="asset-layout">
+        <div class="asset-sidebar">
+          <h3>Asset Groups</h3>
+          <input class="search" placeholder="Search groups" style="width:100%;margin-bottom:8px">
+          <div class="asset-sidebar-item active">Vehicles</div>
+          <div class="asset-sidebar-item">PPE Equipment</div>
+          <div class="asset-sidebar-item">IT Hardware</div>
+          <div class="asset-sidebar-item">Custom: Fire Safety</div>
+          <div style="margin-top:12px">
+            <select class="field-select" style="width:100%"><option>(+) Add Asset Group</option><option>Map Categories</option><option>Custom Group</option></select>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div class="flex mb-12" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <h2 style="margin-bottom:0">Vehicles — Assets</h2>
+            <div class="flex gap-8">
+              <button class="btn btn-sm">+ Add Assets</button>
+              <button class="btn btn-sm">Remove Selected</button>
+              <button class="btn btn-sm btn-danger">🗑 Delete Group</button>
+            </div>
+          </div>
+          <table>
+            <tr><th style="width:30px">☐</th><th>Name</th><th>Category</th><th>Type</th><th>Location</th><th>Assigned To</th></tr>
+            <tr><td>☐</td><td>Truck #101</td><td>Vehicles</td><td>Pickup</td><td>Edmonton HQ</td><td>J. Smith</td></tr>
+            <tr><td>☐</td><td>Truck #102</td><td>Vehicles</td><td>Pickup</td><td>Calgary Office</td><td>M. Lee</td></tr>
+            <tr><td>☐</td><td>Crane #001</td><td>Vehicles</td><td>Heavy Equip</td><td>Fort McMurray</td><td>Unassigned</td></tr>
+            <tr><td>☐</td><td>Van #205</td><td>Vehicles</td><td>Cargo Van</td><td>Edmonton HQ</td><td>A. Patel</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SETTINGS ========== -->
+    <div id="screen-settings" class="screen">
+      <div class="breadcrumb" onclick="showScreen('requirements')">← Requirements</div>
+      <h1>⚙ Requirement Settings</h1>
+      <div class="note">Configure requirement types and control measure types available in your portal. These appear in dropdowns when creating/editing requirements.</div>
+
+      <div class="settings-grid">
+        <div class="settings-col">
+          <h2>Requirement Types</h2>
+          <button class="btn btn-primary btn-sm mb-12">+ New Requirement Type</button>
+          <table>
+            <tr><th>Name</th><th>Short Form</th><th>Actions</th></tr>
+            <tr><td>Governance</td><td>GOV</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Hazard ID & Assessment</td><td>HAZ</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Hazard Controls</td><td>CTRL</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Training & Competency</td><td>TRN</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Communication</td><td>COMM</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Incident Reporting</td><td>IN</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Recordkeeping</td><td>REC</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Contractor Mgmt</td><td>CONT</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Emergency Preparedness</td><td>EMER</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Environmental</td><td>ENV</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>General</td><td>GEN</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+          </table>
+        </div>
+        <div class="settings-col">
+          <h2>Control Measure Types</h2>
+          <button class="btn btn-primary btn-sm mb-12">+ New Control Measure Type</button>
+          <table>
+            <tr><th>Name</th><th>Content Types</th><th>Actions</th></tr>
+            <tr><td>Accountability</td><td>Company Role</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Program</td><td>Folder, Folder Doc, Playbook</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Policy</td><td>Folder Doc, Playbook Chapter</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Procedure</td><td>Folder Doc, Form, Playbook Ch., Asset Doc</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Training</td><td>Training</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>PPE/Safety Device</td><td>Asset, Sub-asset</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+            <tr><td>Verification</td><td>Asset, User, Folder</td><td class="actions-cell"><button class="btn btn-sm">Edit</button><button class="btn btn-sm btn-danger">🗑</button></td></tr>
+          </table>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
+        <button class="btn" onclick="showScreen('requirements')">Cancel</button>
+        <button class="btn btn-primary" onclick="showScreen('requirements')">Save Settings</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('screen-' + id);
+  if (el) el.classList.add('active');
+
+  const navMap = {
+    'dashboard': 'Dashboard', 'frameworks': 'Frameworks', 'new-framework': 'Frameworks',
+    'framework-details': 'Frameworks', 'requirements': 'Requirements',
+    'add-requirement': 'Requirements', 'remediation': 'Remediation',
+    'worksites': 'Worksites', 'assets': 'Assets', 'settings': 'Requirements'
+  };
+  document.querySelectorAll('.sidenav a').forEach(a => {
+    a.classList.toggle('active', a.textContent.trim() === (navMap[id] || ''));
+  });
+  closeDrawer();
+}
+
+function showPill(el) {
+  el.parentElement.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+const drawerContent = {
+  policy: `
+    <div class="note">Map a policy document to this control measure.</div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" placeholder="Describe the policy obligation..."></textarea></div>
+    <div class="form-group"><label class="form-label">Policy Location</label><select class="form-input"><option>-- Select --</option><option>Folder Document</option><option>Playbook Chapter</option></select></div>
+    <div class="form-group"><label class="form-label">Folder</label><select class="form-input"><option>Search folders...</option></select></div>
+    <div class="form-group"><label class="form-label">Document</label><select class="form-input"><option>Search documents...</option></select></div>
+    <div style="display:flex;gap:8px;margin-top:20px"><button class="btn" onclick="closeDrawer()">Cancel</button><button class="btn btn-primary" onclick="closeDrawer()">Add</button></div>
+  `,
+  training: `
+    <div class="note">Map a training course to this control measure.</div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" placeholder="Describe the training requirement..."></textarea></div>
+    <div class="form-group"><label class="form-label">Training Type</label><select class="form-input"><option>-- Select --</option><option>Location-wide</option><option>Role-specific</option></select></div>
+    <div class="form-group"><label class="form-label">Course</label><select class="form-input"><option>Search courses...</option></select></div>
+    <div style="display:flex;gap:8px;margin-top:20px"><button class="btn" onclick="closeDrawer()">Cancel</button><button class="btn btn-primary" onclick="closeDrawer()">Add</button></div>
+  `,
+  procedure: `
+    <div class="note">Map a procedure to this control measure.</div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" placeholder="Describe the procedure..."></textarea></div>
+    <div class="form-group"><label class="form-label">Procedure Location</label><select class="form-input"><option>-- Select --</option><option>Folder Document</option><option>Form</option><option>Playbook Chapter</option><option>Asset Document</option></select></div>
+    <div class="form-group"><label class="form-label">Form</label><select class="form-input"><option>Search forms...</option></select></div>
+    <div style="display:flex;gap:8px;margin-top:20px"><button class="btn" onclick="closeDrawer()">Cancel</button><button class="btn btn-primary" onclick="closeDrawer()">Add</button></div>
+  `
+};
+
+const drawerTitles = { policy: 'Map Policy Content', training: 'Map Training Content', procedure: 'Map Procedure Content' };
+
+function openDrawer(type) {
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('drawer-panel').style.display = 'flex';
+  document.getElementById('drawer-title').textContent = drawerTitles[type] || 'Map Content';
+  document.getElementById('drawer-body').innerHTML = drawerContent[type] || '<p>Content mapping drawer</p>';
+}
+
+function closeDrawer() {
+  document.getElementById('drawer-overlay')?.classList.remove('open');
+  const panel = document.getElementById('drawer-panel');
+  if (panel) panel.style.display = 'none';
+}
+</script>
+</body>
+</html>

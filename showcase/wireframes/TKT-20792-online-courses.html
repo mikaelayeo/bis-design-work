@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TKT-20792 — Online Courses entry point</title>
+<style>
+  :root{
+    --nav:#ffffff; --navtext:#2a2a2a; --headerbar:#159fc6; --teal:#1aa3c9;
+    --green:#5cb85c; --green-d:#4ca64c; --blue:#2f8fc4; --blue-d:#2079ad;
+    --pink:#c2398e; --gold:#e6a519; --ink:#2a2a2a; --muted:#6b7280;
+    --line:#e5e7eb; --rowalt:#f4f6f8; --link:#1f7fc0;
+    --accent:#6b3fd4; --accent-d:#5a32bd; --accentbg:#f1 ebff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;background:#dfe3e7;color:var(--ink);font-size:13px}
+  /* ---- control bar (not part of the product) ---- */
+  .controls{position:sticky;top:0;z-index:50;background:#1f2430;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+  .controls b{font-size:13px;letter-spacing:.3px}
+  .controls .sp{flex:1}
+  .seg{display:inline-flex;border:1px solid #3a4150;border-radius:7px;overflow:hidden}
+  .seg button{background:#2a3140;color:#c7cdd8;border:0;padding:7px 13px;font-size:12px;cursor:pointer;font-family:inherit}
+  .seg button.on{background:#6b3fd4;color:#fff;font-weight:600}
+  .hint{font-size:11px;color:#9aa3b2}
+  /* ---- product frame ---- */
+  .app{max-width:1280px;margin:18px auto;background:#fff;border:1px solid #c9ced4;box-shadow:0 4px 18px rgba(0,0,0,.12)}
+  .topnav{display:flex;align-items:center;gap:14px;padding:10px 16px;border-bottom:1px solid var(--line)}
+  .logo{display:flex;align-items:center;gap:6px;font-weight:800;color:#1c1c1c;font-size:16px}
+  .logo .leaf{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 60% 35%,#8bd04f,#3a8f3a);display:inline-block}
+  .logo small{font-weight:600;font-size:9px;letter-spacing:2px;color:#666;display:block;line-height:1}
+  .topnav .sp{flex:1}
+  .search{display:flex;align-items:center;border:1px solid #cfd5db;border-radius:4px;overflow:hidden}
+  .search input{border:0;padding:6px 9px;font-size:12px;width:170px;outline:none}
+  .search .mag{background:#eef1f4;padding:6px 9px;color:#7b8794}
+  .ic{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#5a6675;border:1px solid #d7dce2;font-size:12px}
+  .avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#f0a,#a0f)}
+  .logout{color:#1c1c1c;font-weight:600;font-size:12px}
+  .menubar{display:flex;gap:2px;padding:0 10px;border-bottom:2px solid #f0f2f4;flex-wrap:wrap}
+  .menubar a{padding:9px 12px;color:#3a3a3a;text-decoration:none;font-size:13px}
+  .menubar a:hover{color:var(--link)}
+  .menubar .info{margin-left:auto;background:var(--teal);color:#fff;padding:9px 12px}
+  /* header bar */
+  .hbar{background:var(--headerbar);color:#fff;display:flex;align-items:center;gap:14px;padding:9px 16px}
+  .hbar .title{font-weight:700;font-size:15px;white-space:nowrap}
+  .portalsel{background:#fff;color:#333;border-radius:4px;padding:6px 10px;min-width:300px;display:flex;align-items:center;justify-content:space-between;font-size:13px}
+  .hbar .sp{flex:1}
+  .pill-btn{border:0;border-radius:5px;color:#fff;padding:8px 13px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .b-pink{background:var(--pink)} .b-gold{background:var(--gold)}
+  /* toolbar */
+  .toolbar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#eef6fa;flex-wrap:wrap}
+  .toolbar .sp{flex:1}
+  .field{display:flex;align-items:center;border:1px solid #cfd5db;border-radius:4px;background:#fff;overflow:hidden}
+  .field input,.field select{border:0;padding:7px 9px;font-size:12px;outline:none;background:transparent}
+  .funnel{background:var(--pink);color:#fff;padding:7px 9px;border-radius:4px}
+  .lbl{color:#5a6675;font-size:12px}
+  .toggle3{display:inline-flex;border:1px solid #cfd5db;border-radius:5px;overflow:hidden}
+  .toggle3 button{border:0;background:#fff;padding:7px 12px;font-size:12px;cursor:pointer;color:#41566a}
+  .toggle3 button.on{background:#1aa3c9;color:#fff}
+  .count{background:#fff;border:1px solid #cfd5db;border-radius:5px;padding:6px 11px;font-size:12px;color:#41566a}
+  .btn{border:0;border-radius:5px;padding:8px 13px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#fff}
+  .b-blue{background:var(--blue)} .b-green{background:var(--green)}
+  .b-accent{background:var(--accent);position:relative}
+  .b-accent:hover{background:var(--accent-d)}
+  .spark{font-size:13px;line-height:1}
+  /* table */
+  table{width:100%;border-collapse:collapse}
+  thead th{text-align:left;font-size:11px;color:#41566a;padding:12px 10px;border-bottom:2px solid #e7ebef;font-weight:700;vertical-align:bottom}
+  tbody td{padding:11px 10px;border-bottom:1px solid #eef1f4;font-size:12.5px;vertical-align:middle}
+  tbody tr:nth-child(even){background:var(--rowalt)}
+  .clink{color:var(--link);text-decoration:none}
+  .clink:hover{text-decoration:underline}
+  .ty{display:inline-block;width:22px;height:22px;border-radius:4px;color:#fff;text-align:center;line-height:22px;font-weight:700;font-size:11px}
+  .ty-v{background:#5cb85c} .ty-r{background:#1aa3c9}
+  .status{color:#374151}
+  .ai-badge{color:#6b3fd4;font-size:12px;margin-left:5px}
+  .cert{color:var(--gold);font-size:14px}
+  .act{display:inline-flex;gap:10px;color:#3f7fb0}
+  .act span{cursor:pointer}
+  .deco{color:#9aa3b2;font-style:italic}
+  /* empty state */
+  .empty{padding:46px 24px;text-align:center;display:none}
+  .empty .art{font-size:40px}
+  .empty h2{margin:14px 0 6px;font-size:18px;color:#2a2a2a}
+  .empty p{margin:0 auto 20px;color:#6b7280;max-width:440px;font-size:13px;line-height:1.5}
+  .empty .choices{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .card{border:1px solid #e0e4e9;border-radius:10px;padding:20px;width:240px;text-align:left;background:#fff}
+  .card.ai{border-color:#cdbcf5;background:linear-gradient(180deg,#faf7ff,#fff)}
+  .card h3{margin:0 0 6px;font-size:14px;display:flex;align-items:center;gap:6px}
+  .card p{font-size:12px;color:#6b7280;margin:0 0 14px;min-height:48px}
+  .card .go{width:100%;justify-content:center}
+  .rec{display:inline-block;background:#6b3fd4;color:#fff;font-size:9px;font-weight:700;letter-spacing:.5px;padding:2px 7px;border-radius:10px;margin-left:auto}
+  /* nudge */
+  #nudge{display:none;position:absolute;z-index:30;width:280px;background:#fff;border:1px solid #d9ccff;border-radius:10px;box-shadow:0 10px 30px rgba(60,30,120,.22);padding:15px 15px 13px}
+  #nudge:before{content:"";position:absolute;top:-9px;right:64px;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid #fff;filter:drop-shadow(0 -1px 0 #d9ccff)}
+  #nudge h4{margin:0 0 5px;font-size:13.5px;color:#3a2370;display:flex;align-items:center;gap:6px}
+  #nudge p{margin:0 0 12px;font-size:12px;color:#5a5570;line-height:1.45}
+  #nudge .row{display:flex;align-items:center;gap:8px}
+  #nudge .try{background:var(--accent);color:#fff;border:0;border-radius:5px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer}
+  #nudge .skip{background:none;border:0;color:#8a86a0;font-size:12px;cursor:pointer}
+  #nudge .dot{margin-left:auto;font-size:11px;color:#a39fb8}
+  /* annotation pins */
+  .pin{position:absolute;z-index:40;background:#1f2430;color:#fff;font-size:11px;line-height:1.4;border-radius:8px;padding:9px 11px;max-width:230px;box-shadow:0 6px 18px rgba(0,0,0,.3);display:none}
+  .pin b{color:#c4b3ff}
+  .pin.show{display:block}
+  .pin .num{display:inline-flex;width:18px;height:18px;border-radius:50%;background:#6b3fd4;color:#fff;align-items:center;justify-content:center;font-weight:700;font-size:11px;margin-right:6px}
+  .relwrap{position:relative}
+  .glow{box-shadow:0 0 0 3px rgba(107,63,212,.45);border-radius:6px}
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <b>TKT-20792 · Online Courses entry point</b>
+  <span class="hint">— proposed prong 2 + reworked prong 3</span>
+  <span class="sp"></span>
+  <span class="hint">View:</span>
+  <div class="seg" id="seg">
+    <button data-v="default" class="on">Populated list</button>
+    <button data-v="empty">Empty state</button>
+    <button data-v="nudge">First-run nudge</button>
+  </div>
+  <label class="hint" style="display:flex;align-items:center;gap:5px;cursor:pointer">
+    <input type="checkbox" id="annot"> annotations
+  </label>
+</div>
+
+<div class="app relwrap" id="app">
+
+  <!-- top nav -->
+  <div class="topnav">
+    <div class="logo"><span class="leaf"></span><span>CLEAN<small>ENVIRONMENT</small></span></div>
+    <span class="sp"></span>
+    <div class="search"><input placeholder="Search User"><span class="mag">🔍</span></div>
+    <span class="ic">✉</span>
+    <span class="ic" style="border:0;background:#16a0c7;color:#fff">◑</span>
+    <span class="ic">?</span>
+    <span class="avatar"></span>
+    <span class="logout">Log Out ›</span>
+  </div>
+
+  <!-- menu -->
+  <div class="menubar">
+    <a>Home</a><a>Profile</a><a>Store</a><a>Rewards</a><a>Purchases</a><a>Users</a>
+    <a>Reporting</a><a>Calendar</a><a>Assets</a><a>Folders</a><a>QR</a><a>Admin</a>
+    <a class="info">i</a>
+  </div>
+
+  <!-- blue header -->
+  <div class="hbar">
+    <span class="title">Online Courses, Tests, and Surveys</span>
+    <div class="portalsel"><span>Clean Environment Ltd</span><span>▾</span></div>
+    <span class="sp"></span>
+    <button class="pill-btn b-pink">🗂 Content Libraries</button>
+    <button class="pill-btn b-gold">🌐 Multilingual Courses</button>
+  </div>
+
+  <!-- toolbar -->
+  <div class="toolbar">
+    <div class="field"><input placeholder="Search course name or ID"><span class="mag" style="padding:7px 9px;color:#7b8794">🔍</span></div>
+    <span class="funnel">▼</span>
+    <span class="lbl">Category:</span>
+    <div class="field"><select><option>All</option></select></div>
+    <div class="toggle3"><button>All</button><button class="on">Active</button><button>Deactivated</button></div>
+    <span class="count">Total Courses: 86</span>
+    <span class="sp"></span>
+    <button class="btn b-blue">⬇ Download Course Report</button>
+    <button class="btn b-blue">≣ Manage Categories</button>
+    <!-- PROPOSED: AI entry point -->
+    <button class="btn b-accent" id="aiBtn"><span class="spark">✦</span> AI Course Builder</button>
+    <button class="btn b-green">⊕ New Course</button>
+  </div>
+
+  <!-- table (populated) -->
+  <div id="listView">
+  <table>
+    <thead><tr>
+      <th>Title</th><th>Launched on<br>Ecommerce Store</th><th>Launched on<br>Course Pool</th>
+      <th>Category</th><th>Price <span style="border:1px solid #cfd5db;border-radius:3px;padding:0 3px">CAD ▾</span></th>
+      <th>Status</th><th>Certificate</th><th>Type</th><th>Tries</th><th>Language</th><th>Actions</th>
+    </tr></thead>
+    <tbody>
+      <tr><td><a class="clink">01 - Accounting</a></td><td>–</td><td style="color:#4ca64c">✔</td><td>–</td><td>–</td><td class="status">Active</td><td>–</td><td><span class="ty ty-v">V</span></td><td>3</td><td>English</td><td><span class="act"><span>＄</span><span>✎</span><span>⚙</span></span></td></tr>
+      <tr><td><a class="clink">01 - Clean Environment Orientation</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td class="status">Active</td><td><span class="cert">✸</span></td><td><span class="ty ty-r">R</span></td><td>3</td><td>English</td><td><span class="act"><span>＄</span><span>✎</span><span>⚙</span></span></td></tr>
+      <tr><td><a class="clink">02 - First Aid Training</a></td><td>–</td><td>–</td><td>HSE Courses</td><td>–</td><td class="status">Active</td><td>–</td><td><span class="ty ty-r">R</span></td><td>3</td><td>English</td><td><span class="act"><span>＄</span><span>✎</span><span>⚙</span></span></td></tr>
+      <tr><td><a class="clink">03 - Privacy Training</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td class="status">Active</td><td>–</td><td><span class="ty ty-r">R</span></td><td>3</td><td>English</td><td><span class="act"><span>＄</span><span>✎</span><span>⚙</span></span></td></tr>
+      <tr><td><a class="clink">04 - Workplace Safety</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td class="status">Active</td><td>–</td><td><span class="ty ty-r">R</span></td><td>3</td><td>English</td><td><span class="act"><span>＄</span><span>✎</span><span>⚙</span></span></td></tr>
+      <tr><td><a class="clink">05 - Best Practices</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td class="deco">Decommissioned</td><td>–</td><td><span class="ty ty-r">R</span></td><td>3</td><td>English</td><td><span class="act"><span>＄</span><span>✎</span><span>⚙</span></span></td></tr>
+      <tr><td><a class="clink">AI Course 2</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td class="status">Active <span class="ai-badge" title="Built with AI Course Builder">✦</span></td><td>–</td><td><span class="ty ty-r">R</span></td><td>3</td><td>English</td><td><span class="act"><span>＄</span><span>✎</span><span>⚙</span></span></td></tr>
+      <tr><td><a class="clink">AI Course Test</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td class="status">Active <span class="ai-badge" title="Built with AI Course Builder">✦</span></td><td>–</td><td><span class="ty ty-r">R</span></td><td>3</td><td>English</td><td><span class="act"><span>＄</span><span>✎</span><span>⚙</span></span></td></tr>
+      <tr><td><a class="clink">An Introduction to Your Course Player</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td class="status">Active</td><td>–</td><td><span class="ty ty-r">R</span></td><td>3</td><td>English</td><td><span class="act"><span>＄</span><span>✎</span><span>⚙</span></span></td></tr>
+      <tr><td><a class="clink">Awareness of hazards in the workplace</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td class="status">Active</td><td>–</td><td><span class="ty ty-r">R</span></td><td>3</td><td>English</td><td><span class="act"><span>＄</span><span>✎</span><span>⚙</span></span></td></tr>
+      <tr><td><a class="clink">Biodiversity Survey</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td class="status">Active</td><td>–</td><td><span class="ty ty-v">V</span></td><td>3</td><td>English</td><td><span class="act"><span>＄</span><span>✎</span><span>⚙</span></span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- empty state -->
+  <div class="empty" id="emptyView">
+    <div class="art">📚</div>
+    <h2>No courses yet</h2>
+    <p>Create your first course — start from scratch, or let the AI Course Builder draft chapters and questions for you in minutes.</p>
+    <div class="choices">
+      <div class="card ai">
+        <h3><span style="color:#6b3fd4">✦</span> AI Course Builder <span class="rec">FASTEST</span></h3>
+        <p>Describe your topic and AI drafts the outline, chapters and exam. You review and edit.</p>
+        <button class="btn b-accent go"><span class="spark">✦</span> Build with AI</button>
+      </div>
+      <div class="card">
+        <h3>＋ New Course</h3>
+        <p>Build manually, chapter by chapter, with full control over every element.</p>
+        <button class="btn b-green go">⊕ New Course</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- first-run nudge -->
+  <div id="nudge">
+    <h4><span style="color:#6b3fd4">✦</span> New: build courses with AI</h4>
+    <p>The AI Course Builder is now available right here. Describe a topic and it drafts the whole course for you to review.</p>
+    <div class="row">
+      <button class="try">Try it</button>
+      <button class="skip">Maybe later</button>
+      <span class="dot">1 of 1</span>
+    </div>
+  </div>
+
+  <!-- annotation pins -->
+  <div class="pin" id="pin1" style="top:148px;right:150px"><span class="num">2</span><b>Surfaced entry point.</b> Same accented "AI Course Builder" button now lives on the list page — not buried inside an opened course. Visually distinct from green "New Course" so it reads as the recommended fast path.</div>
+  <div class="pin" id="pin2" style="top:300px;left:24px;display:none"><span class="num">3</span><b>Empty-state prompt.</b> Highest-intent moment for a new client. AI option is presented first and tagged "Fastest".</div>
+  <div class="pin" id="pin3" style="top:200px;right:120px;display:none"><span class="num">★</span><b>Reworked awareness.</b> One-time nudge fired on first visit after enablement — pointing at the real button, with a "Try it" that <i>routes in</i>. Replaces the passive admin-tab sparkle that goes nowhere.</div>
+
+</div>
+
+<script>
+  const seg=document.getElementById('seg');
+  const listView=document.getElementById('listView');
+  const emptyView=document.getElementById('emptyView');
+  const nudge=document.getElementById('nudge');
+  const aiBtn=document.getElementById('aiBtn');
+  const annot=document.getElementById('annot');
+  const pins={default:['pin1'],empty:['pin2'],nudge:['pin3']};
+  let view='default';
+
+  function place(){
+    // position nudge under the AI button
+    const a=aiBtn.getBoundingClientRect();
+    const app=document.getElementById('app').getBoundingClientRect();
+    nudge.style.top=(a.bottom-app.top+12)+'px';
+    nudge.style.left=(a.left-app.left-10)+'px';
+  }
+  function render(){
+    listView.style.display = view==='empty' ? 'none':'block';
+    emptyView.style.display = view==='empty' ? 'block':'none';
+    nudge.style.display = view==='nudge' ? 'block':'none';
+    aiBtn.classList.toggle('glow', view==='nudge');
+    if(view==='nudge') place();
+    // annotations
+    ['pin1','pin2','pin3'].forEach(id=>document.getElementById(id).classList.remove('show'));
+    if(annot.checked){pins[view].forEach(id=>document.getElementById(id).classList.add('show'));}
+  }
+  seg.addEventListener('click',e=>{
+    const b=e.target.closest('button'); if(!b)return;
+    [...seg.children].forEach(x=>x.classList.remove('on')); b.classList.add('on');
+    view=b.dataset.v; render();
+  });
+  annot.addEventListener('change',render);
+  window.addEventListener('resize',()=>{if(view==='nudge')place();});
+  render();
+</script>
+</body>
+</html>

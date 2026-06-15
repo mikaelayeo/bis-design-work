@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scaling Up: Solution Testing Phase — April 17 – May 22, 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --bg-card: #FFFFFF;
+    --bg-muted: #F3F2EE;
+    --text: #1A1A18;
+    --text-secondary: #6B6A65;
+    --text-tertiary: #9C9A92;
+    --border: #E5E4DE;
+    --border-strong: #D3D1C7;
+    --teal: #1D9E75;
+    --teal-light: #E1F5EE;
+    --teal-dark: #085041;
+    --coral: #D85A30;
+    --coral-light: #FAECE7;
+    --coral-dark: #712B13;
+    --purple: #7F77DD;
+    --purple-light: #EEEDFE;
+    --purple-dark: #3C3489;
+    --blue: #378ADD;
+    --blue-light: #E6F1FB;
+    --blue-dark: #0C447C;
+    --amber: #EF9F27;
+    --amber-light: #FAEEDA;
+    --amber-dark: #633806;
+    --green: #639922;
+    --green-light: #EAF3DE;
+    --green-dark: #27500A;
+    --pink: #D4537E;
+    --pink-light: #FBEAF0;
+    --pink-dark: #72243E;
+    --red-light: #FCEBEB;
+    --red-dark: #791F1F;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 40px 24px 80px;
+    max-width: 860px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header */
+  .doc-header {
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--text);
+  }
+  .doc-header .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 12px;
+  }
+  .doc-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .doc-header .subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+  }
+  .doc-header .meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .doc-header .meta-item {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .doc-header .meta-item strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* Section titles */
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin: 48px 0 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Timeline bar */
+  .timeline-header {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    margin-bottom: 4px;
+    padding: 0 0 0 0;
+  }
+  .timeline-header span {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-align: center;
+    padding: 4px 0;
+  }
+  .timeline-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+  .timeline-bar .bar {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--bg-muted);
+  }
+  .bar.active-teal { background: var(--teal); }
+  .bar.active-coral { background: var(--coral); }
+  .bar.active-purple { background: var(--purple); }
+  .bar.bleed { background: none; border: 1.5px dashed var(--border-strong); height: 8px; border-radius: 4px; }
+
+  /* Idea cards */
+  .idea-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .idea-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .idea-badge {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 4px 12px;
+    border-radius: 6px;
+  }
+  .badge-teal { background: var(--teal-light); color: var(--teal-dark); }
+  .badge-coral { background: var(--coral-light); color: var(--coral-dark); }
+  .badge-purple { background: var(--purple-light); color: var(--purple-dark); }
+  .badge-blue { background: var(--blue-light); color: var(--blue-dark); }
+  .badge-amber { background: var(--amber-light); color: var(--amber-dark); }
+  .badge-green { background: var(--green-light); color: var(--green-dark); }
+  .badge-pink { background: var(--pink-light); color: var(--pink-dark); }
+
+  .idea-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .owner-tag {
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-muted);
+    padding: 4px 12px;
+    border-radius: 6px;
+  }
+  .idea-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  /* Week blocks */
+  .week-block {
+    background: var(--bg-muted);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+  }
+  .week-block-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .week-date {
+    font-size: 12px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    min-width: 80px;
+  }
+  .week-date-teal { color: var(--teal-dark); }
+  .week-date-coral { color: var(--coral-dark); }
+  .week-date-purple { color: var(--purple-dark); }
+  .week-date-blue { color: var(--blue-dark); }
+
+  .week-title {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .week-who {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-style: italic;
+    white-space: nowrap;
+  }
+  .task-list {
+    list-style: none;
+    padding: 0;
+  }
+  .task-list li {
+    font-size: 13px;
+    color: var(--text);
+    padding: 4px 0 4px 24px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .task-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 3px;
+    background: var(--bg-card);
+  }
+  .deliverable {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: var(--bg-card);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    border-left: 3px solid var(--border-strong);
+  }
+  .deliverable strong { color: var(--text); font-weight: 500; }
+  .deliverable.del-teal { border-left-color: var(--teal); }
+  .deliverable.del-coral { border-left-color: var(--coral); }
+  .deliverable.del-purple { border-left-color: var(--purple); }
+  .deliverable.del-blue { border-left-color: var(--blue); }
+
+  /* Checkpoint */
+  .checkpoint {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .checkpoint h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin-bottom: 4px;
+  }
+  .checkpoint p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* Dependency card */
+  .dep-card {
+    background: var(--bg-muted);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+  }
+  .dep-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+  }
+  .dep-text {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* People grid */
+  .people-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .people-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .people-card h4 {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .people-card p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  /* Presentation block */
+  .pres-block {
+    background: var(--bg-card);
+    border: 2px solid var(--blue);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 24px 0;
+  }
+  .pres-block h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin-bottom: 8px;
+  }
+  .pres-block p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  /* Tools row */
+  .tools-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .tool-tag {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    background: var(--bg-muted);
+    color: var(--text-secondary);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* Print */
+  @media print {
+    body { padding: 20px; max-width: 100%; }
+    .idea-card { break-inside: avoid; }
+    .week-block { break-inside: avoid; }
+  }
+
+  @media (max-width: 600px) {
+    .people-grid { grid-template-columns: 1fr; }
+    .idea-header { flex-direction: column; align-items: flex-start; }
+    .owner-tag { margin-left: 0; }
+    .week-block-header { flex-wrap: wrap; }
+    .week-who { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="label">Scaling Up: Design Workflow Assessment</div>
+  <h1>Solution Testing Phase</h1>
+  <div class="subtitle">3 ideas to test over 4-5 weeks — from concept to leadership presentation</div>
+  <div class="meta">
+    <div class="meta-item"><strong>Testing:</strong> Apr 17 – May 8</div>
+    <div class="meta-item"><strong>Assessment:</strong> May 12 – 22</div>
+    <div class="meta-item"><strong>Race week:</strong> 5-8 of 13</div>
+    <div class="meta-item"><strong>Team:</strong> Mika (lead) + Mahi</div>
+  </div>
+</div>
+
+<!-- ===== TIMELINE OVERVIEW ===== -->
+<div class="section-title">Timeline overview</div>
+
+<div class="timeline-header">
+  <span>Apr 17-21</span><span>Apr 24-28</span><span>Apr 29 – May 2</span><span>May 5-8</span><span>May 12-22</span>
+</div>
+
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+  <span style="font-size:11px;font-weight:500;color:var(--teal-dark);min-width:60px;">Idea 1</span>
+  <div class="timeline-bar" style="flex:1;margin-bottom:0;">
+    <div class="bar active-teal"></div>
+    <div class="bar active-teal"></div>
+    <div class="bar active-teal"></div>
+    <div class="bar active-teal"></div>
+    <div class="bar bleed"></div>
+  </div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+  <span style="font-size:11px;font-weight:500;color:var(--coral-dark);min-width:60px;">Idea 2</span>
+  <div class="timeline-bar" style="flex:1;margin-bottom:0;">
+    <div class="bar active-coral"></div>
+    <div class="bar active-coral"></div>
+    <div class="bar active-coral"></div>
+    <div class="bar active-coral"></div>
+    <div class="bar bleed"></div>
+  </div>
+</div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;">
+  <span style="font-size:11px;font-weight:500;color:var(--purple-dark);min-width:60px;">Idea 3</span>
+  <div class="timeline-bar" style="flex:1;margin-bottom:0;">
+    <div class="bar active-purple"></div>
+    <div class="bar active-purple" style="opacity:.5"></div>
+    <div class="bar active-purple" style="opacity:.5"></div>
+    <div class="bar active-purple"></div>
+    <div class="bar bleed"></div>
+  </div>
+</div>
+
+<!-- ===== IDEA 1 ===== -->
+<div class="section-title">The three ideas</div>
+
+<div class="idea-card">
+  <div class="idea-header">
+    <span class="idea-badge badge-teal">IDEA 1</span>
+    <h2>AI ideation pipeline</h2>
+    <span class="owner-tag">Lead: Mika</span>
+  </div>
+  <p class="idea-desc">Claude generates HTML prototypes from ticket scope, cutting time on smaller tickets and enabling non-designers to self-serve. The pipeline: BIS PM MCP / Fellow MCP → Claude → HTML prototype → review → fast-track to dev or deeper design work.</p>
+
+  <div class="week-block">
+    <div class="week-block-header">
+      <span class="week-date week-date-teal">Apr 17-21</span>
+      <span class="week-title">Set up the studio</span>
+      <span class="week-who">Mika + Claude</span>
+    </div>
+    <ul class="task-list">
+      <li>Create a new Claude Project: "AI Ideation Pipeline"</li>
+      <li>Draft project instructions (Claude writes first pass, Mika refines)</li>
+      <li>Connect MCPs: BIS PM, Figma, Notion</li>
+      <li>Upload 3-5 sample HTML prototypes as knowledge files</li>
+      <li>Upload design system reference (tokens, component patterns)</li>
+    </ul>
+    <div class="deliverable del-teal"><strong>Deliverable:</strong> A working Claude Project that both Mika and Mahi can access with everything pre-loaded.</div>
+  </div>
+
+  <div class="week-block">
+    <div class="week-block-header">
+      <span class="week-date week-date-teal">Apr 24-28</span>
+      <span class="week-title">Mika runs the pipeline solo</span>
+      <span class="week-who">Mika solo</span>
+    </div>
+    <ul class="task-list">
+      <li>Pick 5 real tickets of varying complexity from the backlog</li>
+      <li>Run each through the pipeline: ticket → Claude → HTML prototype</li>
+      <li>Log what works and what breaks (prompt quality, output quality, missing context)</li>
+      <li>Refine the project instructions based on findings</li>
+      <li>Draft initial "ready for dev" vs "needs design" criteria from real examples</li>
+    </ul>
+    <div class="deliverable del-teal"><strong>Deliverable:</strong> 5 prototype examples + refined prompt template + first draft of decision criteria.</div>
+  </div>
+
+  <div class="checkpoint">
+    <h3>Checkpoint: is this worth continuing?</h3>
+    <p>If 3+ of the 5 tickets produced usable prototypes, proceed. If not, revisit the prompt or scope before expanding.</p>
+  </div>
+
+  <div class="week-block">
+    <div class="week-block-header">
+      <span class="week-date week-date-teal">Apr 29 – May 2</span>
+      <span class="week-title">Cross-test with Mahi</span>
+      <span class="week-who">Mika + Mahi</span>
+    </div>
+    <ul class="task-list">
+      <li>Mahi tests Mika's pipeline with 5 new tickets independently</li>
+      <li>Compare results — where did the pipeline behave differently?</li>
+      <li>Identify gaps: does the prompt assume knowledge only Mika has?</li>
+      <li>Refine project instructions to work for both designers</li>
+      <li>Solidify the decision criteria into a checklist</li>
+    </ul>
+    <div class="deliverable del-teal"><strong>Deliverable:</strong> 10 total prototypes, validated prompt template, decision checklist that works for both designers.</div>
+  </div>
+
+  <div class="week-block">
+    <div class="week-block-header">
+      <span class="week-date week-date-teal">May 5-8</span>
+      <span class="week-title">Test the "others" path</span>
+      <span class="week-who">Mika + Aymeric + 1 other</span>
+    </div>
+    <ul class="task-list">
+      <li>Invite Aymeric into the Claude Project (or build a simplified interface)</li>
+      <li>Give him 3 tickets to run through the pipeline independently</li>
+      <li>Test with one other stakeholder (dev lead, PM, or Techversant member)</li>
+      <li>Observe: where do non-designers get stuck? What do they miss?</li>
+      <li>Decide: does the "others" path need a simpler interface or guardrails?</li>
+    </ul>
+    <div class="deliverable del-teal"><strong>Deliverable:</strong> Clear answer on whether the "others" path works, and what it needs to scale.</div>
+  </div>
+
+  <div class="week-block">
+    <div class="week-block-header">
+      <span class="week-date week-date-blue">May 12-22</span>
+      <span class="week-title">Compile results for presentation</span>
+      <span class="week-who">Mika + Mahi</span>
+    </div>
+    <ul class="task-list">
+      <li>Quantify time saved per ticket vs Toggl baseline data</li>
+      <li>Compile before/after prototype examples</li>
+      <li>Document what the pipeline can and can't handle</li>
+      <li>Feed findings into final leadership presentation</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===== IDEA 2 ===== -->
+<div class="idea-card">
+  <div class="idea-header">
+    <span class="idea-badge badge-coral">IDEA 2</span>
+    <h2>AI-enhanced design-to-dev handoff</h2>
+    <span class="owner-tag">Lead: Mahi</span>
+  </div>
+  <p class="idea-desc">A two-sided handoff protocol (design checklist + dev acknowledgment) enhanced by AI-generated handoff packages — screenshots, specs, Storybook component recipes, starter code, and implementation notes. Kills the "limbo" problem where tickets sit between design and dev.</p>
+
+  <div class="week-block">
+    <div class="week-block-header">
+      <span class="week-date week-date-coral">Apr 17-21</span>
+      <span class="week-title">Build the checklist + component mapping</span>
+      <span class="week-who">Mahi + Mika</span>
+    </div>
+    <ul class="task-list">
+      <li>Draft the design-side handoff checklist (Figma deliverables, specs, context)</li>
+      <li>Draft the dev-side review acknowledgment checklist</li>
+      <li>Create component mapping spreadsheet: Figma component name → Storybook story path → import statement</li>
+      <li>Map your top 20-30 most-used components to start</li>
+      <li>Define ticket statuses: "Ready for dev review" → "In development"</li>
+    </ul>
+    <div class="deliverable del-coral"><strong>Deliverable:</strong> Design-side + dev-side checklists, component mapping spreadsheet.</div>
+  </div>
+
+  <div class="week-block">
+    <div class="week-block-header">
+      <span class="week-date week-date-coral">Apr 24-28</span>
+      <span class="week-title">Mahi tests AI handoff packages</span>
+      <span class="week-who">Mahi solo</span>
+    </div>
+    <ul class="task-list">
+      <li>Pick 3 real tickets that are ready for handoff (or recently handed off)</li>
+      <li>Generate AI handoff packages using Figma MCP + BIS PM MCP + mapping spreadsheet</li>
+      <li>Evaluate output quality: are specs accurate? Is the component recipe correct? Is the starter code useful?</li>
+      <li>Log component mapping accuracy — how often does Claude get the right Storybook component?</li>
+      <li>Refine the handoff package format based on findings</li>
+    </ul>
+    <div class="deliverable del-coral"><strong>Deliverable:</strong> 3 handoff package examples + accuracy log + refined package template.</div>
+  </div>
+
+  <div class="week-block">
+    <div class="week-block-header">
+      <span class="week-date week-date-coral">Apr 29 – May 2</span>
+      <span class="week-title">Cross-test with Mika</span>
+      <span class="week-who">Mahi + Mika</span>
+    </div>
+    <ul class="task-list">
+      <li>Mika tests Mahi's handoff pipeline with 3 new tickets</li>
+      <li>Compare outputs — is the checklist clear? Does the AI package vary in quality?</li>
+      <li>Identify what's missing: edge cases, design system gaps, unclear notes</li>
+      <li>Refine checklists and package format together</li>
+    </ul>
+    <div class="deliverable del-coral"><strong>Deliverable:</strong> 6 total handoff packages, refined checklists validated by both designers.</div>
+  </div>
+
+  <div class="week-block">
+    <div class="week-block-header">
+      <span class="week-date week-date-coral">May 5-8</span>
+      <span class="week-title">Devs receive real handoff packages</span>
+      <span class="week-who">Mahi + Aymeric, Vishnu C.S., or Jon</span>
+    </div>
+    <ul class="task-list">
+      <li>Give 2-3 devs actual AI-generated handoff packages for real tickets</li>
+      <li>Ask: Is this useful? What's missing? Would you use the Storybook links?</li>
+      <li>Test the dev-side acknowledgment checklist — does the handshake work?</li>
+      <li>Track: did the ticket move faster with this process vs. the old way?</li>
+      <li>Document component mapping accuracy rate (for Code Connect pitch)</li>
+    </ul>
+    <div class="deliverable del-coral"><strong>Deliverable:</strong> Dev feedback, mapping accuracy data, handoff speed comparison.</div>
+  </div>
+
+  <div class="week-block">
+    <div class="week-block-header">
+      <span class="week-date week-date-blue">May 12-22</span>
+      <span class="week-title">Compile results for presentation</span>
+      <span class="week-who">Mahi + Mika</span>
+    </div>
+    <ul class="task-list">
+      <li>Compile dev feedback and mapping accuracy rate</li>
+      <li>Document "before vs after" handoff experience</li>
+      <li>Build the Code Connect pitch with real data</li>
+      <li>Feed findings into final leadership presentation</li>
+    </ul>
+  </div>
+
+  <div class="dep-card">
+    <div class="dep-label">Sells next</div>
+    <div class="dep-text"><strong>Code Connect</strong> (Vishnu P) — pitched with mapping accuracy data from testing. "X% of component mappings needed manual correction. Code Connect eliminates this entirely, especially important for 30+ Techversant devs."</div>
+  </div>
+</div>
+
+<!-- ===== IDEA 3 ===== -->
+<div class="idea-card">
+  <div class="idea-header">
+    <span class="idea-badge badge-purple">IDEA 3</span>
+    <h2>System knowledge → Claude</h2>
+    <span class="owner-tag">Lead: Mika + Mahi</span>
+  </div>
+  <p class="idea-desc">Upload Ask Amy knowledge base docs so Claude designs with full system context. No deep dives needed. Upgrade to live feed when AI lead ships automated documentation sweep. Piggybacks on idea #1 setup — no separate timeline needed.</p>
+
+  <div class="week-block">
+    <div class="week-block-header">
+      <span class="week-date week-date-purple">Apr 17-21</span>
+      <span class="week-title">Get the KB docs into Claude</span>
+      <span class="week-who">Mika + Mahi</span>
+    </div>
+    <ul class="task-list">
+      <li>Ask devs if they can export the Ask Amy KB docs quickly</li>
+      <li>If not, copy-paste all relevant KB content into a consolidated doc yourselves</li>
+      <li>Upload top 15-20 most design-relevant KB docs to the Claude Project</li>
+      <li>Prioritize: user roles, asset categories, admin views, forms, troubleshooting, course builder</li>
+    </ul>
+    <div class="deliverable del-purple"><strong>Deliverable:</strong> KB docs uploaded to the Claude Project alongside idea #1 setup.</div>
+  </div>
+
+  <div class="week-block">
+    <div class="week-block-header">
+      <span class="week-date week-date-purple">Apr 24 – May 2</span>
+      <span class="week-title">Use passively during testing</span>
+      <span class="week-who">Mika + Mahi</span>
+    </div>
+    <ul class="task-list">
+      <li>Use KB context naturally while running idea #1 and #2 tests</li>
+      <li>Log when KB context helped Claude produce better designs</li>
+      <li>Log when KB context was missing, outdated, or incomplete</li>
+    </ul>
+  </div>
+
+  <div class="week-block">
+    <div class="week-block-header">
+      <span class="week-date week-date-purple">May 5-8</span>
+      <span class="week-title">Tally results + check future path</span>
+      <span class="week-who">Mika</span>
+    </div>
+    <ul class="task-list">
+      <li>Compile KB usage stats: times referenced, times it saved a deep dive, gaps found</li>
+      <li>Check in with AI lead on automated documentation sweep timeline</li>
+      <li>Include in final report</li>
+    </ul>
+  </div>
+
+  <div class="dep-card">
+    <div class="dep-label">Future upgrade path</div>
+    <div class="dep-text">When the AI lead's automated documentation sweep ships, that becomes the live source replacing manual KB uploads — seamless upgrade, no extra design team effort. If an Ask Amy API becomes available later, an MCP connector could make queries real-time.</div>
+  </div>
+</div>
+
+<!-- ===== PRESENTATION ===== -->
+<div class="section-title">Final assessment & presentation</div>
+
+<div class="pres-block">
+  <h3>May 12-22: Prepare and present to leadership</h3>
+  <p>Compile results across all three ideas into a single presentation. Include: quantified time savings (Toggl baseline vs AI pipeline), prototype examples (before/after), dev feedback on handoff packages, component mapping accuracy data, KB usage stats, and recommendations for what to scale, what to automate (Cowork), and what to invest in next (Code Connect, live KB connector).</p>
+</div>
+
+<!-- ===== DEPENDENCIES ===== -->
+<div class="section-title">What we need from other people</div>
+
+<div class="people-grid">
+  <div class="people-card">
+    <h4>Mika + Mahi</h4>
+    <p>Drive everything. All three ideas are fully within our control during testing. Mika leads #1, Mahi leads #2, both on #3.</p>
+  </div>
+  <div class="people-card">
+    <h4>Aymeric, Jon, Vishnu C.S.</h4>
+    <p>May 5-8: review AI handoff packages and test the "others" path. ~30 minutes each.</p>
+  </div>
+  <div class="people-card">
+    <h4>AI lead</h4>
+    <p>One check-in: timeline for automated documentation sweep. Not a blocker — just coordination so we're ready to plug it in.</p>
+  </div>
+  <div class="people-card">
+    <h4>Vishnu P</h4>
+    <p>After testing: Code Connect setup if the accuracy data supports it. Not needed during Apr 17 – May 8.</p>
+  </div>
+</div>
+
+<div style="margin-top:48px;padding-top:24px;border-top:1px solid var(--border);font-size:12px;color:var(--text-tertiary);">
+  Scaling Up: Design Workflow Assessment — Solution Testing Phase — Generated April 10, 2026
+</div>
+
+</body>
+</html>

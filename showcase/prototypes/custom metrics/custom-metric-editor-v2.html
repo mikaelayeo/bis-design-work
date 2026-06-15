@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Metric Editor — Improved UX</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f5f7;
+    --surface: #ffffff;
+    --surface-raised: #fafbfc;
+    --border: #e2e5e9;
+    --border-focus: #4f46e5;
+    --text-primary: #1a1d23;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --accent: #4f46e5;
+    --accent-light: #eef2ff;
+    --accent-hover: #4338ca;
+    --tag-field: #dbeafe;
+    --tag-field-text: #1e40af;
+    --tag-operator: #fef3c7;
+    --tag-operator-text: #92400e;
+    --tag-value: #d1fae5;
+    --tag-value-text: #065f46;
+    --tag-function: #ede9fe;
+    --tag-function-text: #5b21b6;
+    --tag-hours: #fce7f3;
+    --tag-hours-text: #9d174d;
+    --error-bg: #fef2f2;
+    --error-border: #fecaca;
+    --error-text: #dc2626;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --success-text: #16a34a;
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --warning-text: #d97706;
+    --ai-bg: linear-gradient(135deg, #eef2ff 0%, #faf5ff 100%);
+    --ai-border: #c7d2fe;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px 100px;
+  }
+
+  .editor-container {
+    width: 100%;
+    max-width: 720px;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  /* Header */
+  .editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .editor-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .header-actions { display: flex; gap: 8px; }
+
+  .btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--surface-raised); }
+
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); }
+
+  /* Name + Color Row */
+  .meta-row {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px 0;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .field-group.small { flex: 0 0 140px; }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .field-input {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .field-input:focus { border-color: var(--border-focus); }
+
+  .color-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+
+  .color-swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.1);
+    cursor: pointer;
+  }
+
+  .color-hex {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-secondary);
+    border: none;
+    outline: none;
+    width: 70px;
+  }
+
+  /* AI Assist Bar */
+  .ai-assist {
+    margin: 16px 24px 0;
+    padding: 12px 16px;
+    background: var(--ai-bg);
+    border: 1px solid var(--ai-border);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: text;
+    transition: box-shadow 0.2s;
+  }
+
+  .ai-assist:hover, .ai-assist:focus-within {
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+  }
+
+  .ai-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-icon svg { width: 12px; height: 12px; }
+
+  .ai-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text-primary);
+    outline: none;
+  }
+
+  .ai-input::placeholder { color: #a5b4fc; }
+
+  .ai-generate-btn {
+    flex-shrink: 0;
+    padding: 5px 12px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .ai-assist:focus-within .ai-generate-btn,
+  .ai-generate-btn.visible { opacity: 1; }
+
+  /* Formula Area */
+  .formula-section { padding: 16px 24px 0; }
+
+  .formula-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .formula-editor {
+    position: relative;
+    min-height: 72px;
+    padding: 12px 14px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 2;
+    cursor: text;
+    transition: border-color 0.15s;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    align-content: flex-start;
+  }
+
+  .formula-editor.focused { border-color: var(--border-focus); }
+  .formula-editor.has-error { border-color: var(--error-text); }
+  .formula-editor.is-valid { border-color: var(--success-text); }
+
+  .placeholder-text {
+    color: var(--text-muted);
+    pointer-events: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .tag-field { background: var(--tag-field); color: var(--tag-field-text); }
+  .tag-operator { background: var(--tag-operator); color: var(--tag-operator-text); }
+  .tag-value { background: var(--tag-value); color: var(--tag-value-text); }
+  .tag-function { background: var(--tag-function); color: var(--tag-function-text); }
+  .tag-hours { background: var(--tag-hours); color: var(--tag-hours-text); }
+
+  .formula-cursor {
+    display: inline-block;
+    width: 1.5px;
+    height: 18px;
+    background: var(--accent);
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* Validation Messages */
+  .validation-msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .validation-msg.error {
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
+    color: var(--error-text);
+  }
+
+  .validation-msg.success {
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    color: var(--success-text);
+  }
+
+  .validation-msg.warning {
+    background: var(--warning-bg);
+    border: 1px solid var(--warning-border);
+    color: var(--warning-text);
+  }
+
+  .validation-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+  }
+
+  .validation-msg strong { font-weight: 600; }
+
+  .validation-fix {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    padding: 4px 10px;
+    background: white;
+    border: 1px solid var(--error-border);
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--error-text);
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: inherit;
+  }
+
+  .validation-fix:hover { background: #fef2f2; }
+
+  /* Context Panel */
+  .context-panel {
+    margin: 16px 24px 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .context-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-raised);
+  }
+
+  .context-tab {
+    padding: 9px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .context-tab:hover { color: var(--text-secondary); }
+  .context-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .context-content {
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 4px 0;
+  }
+
+  .context-content::-webkit-scrollbar { width: 4px; }
+  .context-content::-webkit-scrollbar-track { background: transparent; }
+  .context-content::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
+
+  .context-section-title {
+    padding: 8px 14px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .context-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .context-item:hover { background: var(--surface-raised); }
+
+  .context-item-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .context-item-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .context-item-type {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .context-item-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  /* Preview */
+  .preview-section {
+    margin: 16px 24px 24px;
+    padding: 14px 16px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .preview-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .preview-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .preview-detail {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  /* Options */
+  .options-row { padding: 0 24px; margin-top: 12px; }
+
+  .checkbox-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  .checkbox-wrap input[type="checkbox"] {
+    accent-color: var(--accent);
+    width: 15px;
+    height: 15px;
+  }
+
+  .checkbox-wrap label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+
+  /* Scenario Switcher */
+  .scenario-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text-primary);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: var(--shadow-lg);
+    z-index: 100;
+    font-size: 12px;
+  }
+
+  .scenario-bar span { color: #9ca3af; font-weight: 500; }
+
+  .scenario-btn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: rgba(255,255,255,0.1);
+    color: white;
+  }
+
+  .scenario-btn:hover { background: rgba(255,255,255,0.2); }
+  .scenario-btn.active { background: var(--accent); color: white; }
+
+  /* AI loading */
+  .ai-loading-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--ai-bg);
+    border: 1px solid var(--ai-border);
+    border-radius: 6px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  .dot-pulse span {
+    animation: dotPulse 1.4s infinite;
+    display: inline-block;
+  }
+  .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+  .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes dotPulse {
+    0%, 80%, 100% { opacity: 0.3; }
+    40% { opacity: 1; }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="editor-container">
+  <!-- Header -->
+  <div class="editor-header">
+    <h2>Custom Metric</h2>
+    <div class="header-actions">
+      <button class="btn btn-ghost">Cancel</button>
+      <button class="btn btn-primary">Save</button>
+    </div>
+  </div>
+
+  <!-- Name + Color -->
+  <div class="meta-row">
+    <div class="field-group">
+      <span class="field-label">Name</span>
+      <input class="field-input" type="text" value="TRIF Rate" />
+    </div>
+    <div class="field-group small">
+      <span class="field-label">Colour</span>
+      <div class="color-input-wrap">
+        <input type="color" class="color-swatch" id="colorPicker" value="#4f46e5" />
+        <input type="text" class="color-hex" value="#4f46e5" id="colorHex" />
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Assist -->
+  <div class="ai-assist">
+    <div class="ai-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/></svg>
+    </div>
+    <input class="ai-input" id="aiInput" type="text" placeholder='Try "Calculate TRIF using injuries checkbox and location hours"' />
+    <button class="ai-generate-btn" id="aiBtn">Generate</button>
+  </div>
+
+  <!-- Formula Section -->
+  <div class="formula-section">
+    <div class="formula-label-row">
+      <span class="field-label">Formula</span>
+    </div>
+    <div class="formula-editor" id="formulaEditor"></div>
+    <div id="validationArea"></div>
+  </div>
+
+  <!-- Options -->
+  <div class="options-row">
+    <div class="checkbox-wrap">
+      <input type="checkbox" id="includeSubLoc" checked />
+      <label for="includeSubLoc">Include hours from sub-locations</label>
+    </div>
+  </div>
+
+  <!-- Context Panel -->
+  <div class="context-panel">
+    <div class="context-tabs" id="contextTabs"></div>
+    <div class="context-content" id="contextContent"></div>
+  </div>
+
+  <!-- Preview -->
+  <div class="preview-section">
+    <div class="preview-label">Live Preview — Site B (33 users)</div>
+    <div class="preview-value" id="previewValue">—</div>
+    <div class="preview-detail" id="previewDetail">No formula entered</div>
+  </div>
+</div>
+
+<!-- Scenario Switcher -->
+<div class="scenario-bar" id="scenarioBar"></div>
+
+<script>
+  // ── DATA ──
+  const formFields = [
+    { id: 'CB_9', name: 'Were there any injuries?', type: 'Checkbox', tagCls: 'tag-field' },
+    { id: 'DD_7', name: 'Incident Type', type: 'Dropdown', tagCls: 'tag-function' },
+    { id: 'TF_3', name: 'Description', type: 'Text', tagCls: 'tag-value' },
+    { id: 'TF_4', name: 'Hours Worked', type: 'Text (Numeric)', tagCls: 'tag-value' },
+  ];
+
+  const operatorList = [
+    { sym: '+', name: 'Add', desc: 'Sum two values' },
+    { sym: '-', name: 'Subtract', desc: 'Difference' },
+    { sym: '*', name: 'Multiply', desc: 'Product' },
+    { sym: '/', name: 'Divide', desc: 'Quotient' },
+    { sym: 'IN', name: 'In', desc: 'Check if field contains value' },
+    { sym: 'NOT IN', name: 'Not In', desc: 'Check if field excludes value' },
+    { sym: 'AND', name: 'And', desc: 'Both conditions true' },
+    { sym: 'OR', name: 'Or', desc: 'Either condition true' },
+    { sym: '(', name: 'Open paren', desc: 'Group expressions' },
+    { sym: ')', name: 'Close paren', desc: 'End group' },
+  ];
+
+  const templateList = [
+    { name: 'TRIF Rate', desc: '(Recordable Incidents × 200,000) ÷ Hours', key: 'trif' },
+    { name: 'Injury Rate %', desc: 'Injuries ÷ Total Forms × 100', key: 'injury' },
+    { name: 'Incident Count', desc: 'Count of specific incident types', key: 'count' },
+  ];
+
+  // ── FORMULA STATE ──
+  let formulaParts = [];
+
+  function renderFormula() {
+    const el = document.getElementById('formulaEditor');
+    if (formulaParts.length === 0) {
+      el.innerHTML = '<span class="placeholder-text">Click a field below or start typing...</span>';
+      return;
+    }
+    let html = '';
+    formulaParts.forEach(function(p) {
+      html += '<span class="tag ' + p.cls + '">' + p.label + '</span> ';
+    });
+    html += '<span class="formula-cursor"></span>';
+    el.innerHTML = html;
+  }
+
+  function addField(id, name) {
+    formulaParts.push({ label: name + ' (' + id + ')', cls: 'tag-field', raw: id });
+    renderFormula();
+  }
+
+  function addOperator(sym) {
+    formulaParts.push({ label: sym, cls: 'tag-operator', raw: sym });
+    renderFormula();
+  }
+
+  function addValue(val) {
+    formulaParts.push({ label: val, cls: 'tag-value', raw: val });
+    renderFormula();
+  }
+
+  function addHours() {
+    formulaParts.push({ label: '{Hours}', cls: 'tag-hours', raw: '{Hours}' });
+    renderFormula();
+  }
+
+  function setTrifFormula() {
+    formulaParts = [
+      { label: '(', cls: 'tag-operator', raw: '(' },
+      { label: 'Were there any injuries? (CB_9)', cls: 'tag-field', raw: 'CB_9' },
+      { label: 'IN', cls: 'tag-operator', raw: 'IN' },
+      { label: '(', cls: 'tag-operator', raw: '(' },
+      { label: 'Yes', cls: 'tag-value', raw: 'Yes' },
+      { label: ')', cls: 'tag-operator', raw: ')' },
+      { label: '*', cls: 'tag-operator', raw: '*' },
+      { label: '200000', cls: 'tag-value', raw: '200000' },
+      { label: ')', cls: 'tag-operator', raw: ')' },
+      { label: '/', cls: 'tag-operator', raw: '/' },
+      { label: '{Hours}', cls: 'tag-hours', raw: '{Hours}' },
+    ];
+    renderFormula();
+  }
+
+  // ── TAB RENDERING ──
+  var activeTab = 'fields';
+
+  function buildTabs() {
+    var tabs = [
+      { key: 'fields', label: 'Fields' },
+      { key: 'operators', label: 'Operators' },
+      { key: 'functions', label: 'Functions' },
+      { key: 'templates', label: 'Templates' },
+    ];
+    var container = document.getElementById('contextTabs');
+    container.innerHTML = '';
+    tabs.forEach(function(t) {
+      var btn = document.createElement('button');
+      btn.className = 'context-tab' + (t.key === activeTab ? ' active' : '');
+      btn.textContent = t.label;
+      btn.addEventListener('click', function() {
+        activeTab = t.key;
+        buildTabs();
+        renderTabContent();
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  function renderTabContent() {
+    var el = document.getElementById('contextContent');
+    var html = '';
+
+    if (activeTab === 'fields') {
+      html += '<div class="context-section-title">Form Fields</div>';
+      formFields.forEach(function(f, i) {
+        html += '<div class="context-item" data-action="field" data-idx="' + i + '">' +
+          '<span class="context-item-tag ' + f.tagCls + '">' + f.id + '</span>' +
+          '<span class="context-item-name">' + f.name + '</span>' +
+          '<span class="context-item-type">' + f.type + '</span></div>';
+      });
+      html += '<div class="context-section-title" style="margin-top:4px">System</div>';
+      html += '<div class="context-item" data-action="hours">' +
+        '<span class="context-item-tag tag-hours">{Hours}</span>' +
+        '<span class="context-item-name">Location Hours</span>' +
+        '<span class="context-item-type">System</span></div>';
+    }
+
+    if (activeTab === 'operators') {
+      html += '<div class="context-section-title">Operators</div>';
+      operatorList.forEach(function(o, i) {
+        html += '<div class="context-item" data-action="operator" data-idx="' + i + '">' +
+          '<span class="context-item-tag tag-operator">' + o.sym + '</span>' +
+          '<span class="context-item-name">' + o.name + '</span>' +
+          '<span class="context-item-desc">' + o.desc + '</span></div>';
+      });
+    }
+
+    if (activeTab === 'functions') {
+      html += '<div class="context-section-title">Available Functions</div>';
+      html += '<div class="context-item" data-action="hours">' +
+        '<span class="context-item-tag tag-hours">{Hours}</span>' +
+        '<span class="context-item-name">Total location hours for the selected filter period</span></div>';
+    }
+
+    if (activeTab === 'templates') {
+      html += '<div class="context-section-title">Common Formulas</div>';
+      templateList.forEach(function(t, i) {
+        html += '<div class="context-item" data-action="template" data-idx="' + i + '">' +
+          '<span class="context-item-name" style="color:var(--accent)">' + t.name + '</span>' +
+          '<span class="context-item-desc">' + t.desc + '</span></div>';
+      });
+    }
+
+    el.innerHTML = html;
+
+    // Attach click handlers
+    el.querySelectorAll('.context-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        var action = this.getAttribute('data-action');
+        var idx = parseInt(this.getAttribute('data-idx'));
+        if (action === 'field') { addField(formFields[idx].id, formFields[idx].name); }
+        if (action === 'operator') { addOperator(operatorList[idx].sym); }
+        if (action === 'hours') { addHours(); }
+        if (action === 'template') { applyTemplate(templateList[idx].key); }
+      });
+    });
+  }
+
+  function applyTemplate(key) {
+    if (key === 'trif') {
+      setTrifFormula();
+      showSuccess();
+      setPreview('5,882.35', '(2 × 200,000) ÷ 68 = 5,882.35 — based on current data');
+    }
+  }
+
+  // ── VALIDATION ──
+  function clearValidation() {
+    document.getElementById('validationArea').innerHTML = '';
+    document.getElementById('formulaEditor').classList.remove('has-error', 'is-valid');
+  }
+
+  function showSyntaxError() {
+    var editor = document.getElementById('formulaEditor');
+    editor.classList.add('has-error');
+    editor.classList.remove('is-valid');
+
+    document.getElementById('validationArea').innerHTML =
+      '<div class="validation-msg error fade-in">' +
+        '<svg class="validation-icon" viewBox="0 0 16 16" fill="#dc2626"><circle cx="8" cy="8" r="8"/><text x="8" y="12" text-anchor="middle" fill="white" font-size="11" font-weight="bold">!</text></svg>' +
+        '<div>' +
+          '<strong>Missing closing parenthesis.</strong><br/>' +
+          'The <span class="tag tag-operator" style="display:inline;font-size:11px">(</span> opened after ' +
+          '<span class="tag tag-field" style="display:inline;font-size:11px">CB_9</span> is never closed. ' +
+          'Add a <span class="tag tag-operator" style="display:inline;font-size:11px">)</span> after your value.' +
+          '<br/><button class="validation-fix" id="autoFixBtn">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>' +
+            ' Auto-fix</button>' +
+        '</div>' +
+      '</div>';
+
+    document.getElementById('autoFixBtn').addEventListener('click', function() {
+      switchTo('valid');
+    });
+  }
+
+  function showDivZeroWarning() {
+    var editor = document.getElementById('formulaEditor');
+    editor.classList.add('has-error');
+    editor.classList.remove('is-valid');
+
+    document.getElementById('validationArea').innerHTML =
+      '<div class="validation-msg warning fade-in">' +
+        '<svg class="validation-icon" viewBox="0 0 16 16" fill="#d97706"><path d="M8 1L1 14h14L8 1z"/><text x="8" y="12.5" text-anchor="middle" fill="white" font-size="8" font-weight="bold">!</text></svg>' +
+        '<div>' +
+          '<strong>{Hours} is 0 for the selected location.</strong><br/>' +
+          'Division by zero will return no result. Make sure the location filter on your dashboard has hours entered in <em>Location Hours</em>.' +
+        '</div>' +
+      '</div>';
+  }
+
+  function showSuccess() {
+    var editor = document.getElementById('formulaEditor');
+    editor.classList.remove('has-error');
+    editor.classList.add('is-valid');
+
+    document.getElementById('validationArea').innerHTML =
+      '<div class="validation-msg success fade-in">' +
+        '<svg class="validation-icon" viewBox="0 0 16 16" fill="#16a34a"><circle cx="8" cy="8" r="8"/><path d="M5 8l2 2 4-4" stroke="white" stroke-width="2" fill="none"/></svg>' +
+        '<div><strong>Formula is valid.</strong> Showing live preview below.</div>' +
+      '</div>';
+  }
+
+  // ── PREVIEW ──
+  function setPreview(value, detail) {
+    document.getElementById('previewValue').textContent = value;
+    document.getElementById('previewDetail').textContent = detail;
+  }
+
+  function resetPreview() {
+    setPreview('—', 'No formula entered');
+  }
+
+  // ── SCENARIOS ──
+  var scenarios = ['empty', 'building', 'error', 'valid', 'ai'];
+  var scenarioLabels = { empty: 'Empty', building: 'Building', error: 'Error', valid: 'Valid', ai: 'AI Assist' };
+  var currentScenario = 'empty';
+
+  function buildScenarioBar() {
+    var bar = document.getElementById('scenarioBar');
+    var html = '<span>State:</span>';
+    scenarios.forEach(function(s) {
+      html += '<button class="scenario-btn' + (s === currentScenario ? ' active' : '') + '" data-sc="' + s + '">' + scenarioLabels[s] + '</button>';
+    });
+    bar.innerHTML = html;
+
+    bar.querySelectorAll('.scenario-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        switchTo(this.getAttribute('data-sc'));
+      });
+    });
+  }
+
+  function switchTo(scenario) {
+    currentScenario = scenario;
+    formulaParts = [];
+    clearValidation();
+    resetPreview();
+    document.getElementById('aiInput').value = '';
+
+    if (scenario === 'empty') {
+      renderFormula();
+    }
+
+    if (scenario === 'building') {
+      formulaParts = [
+        { label: '(', cls: 'tag-operator', raw: '(' },
+        { label: 'Were there any injuries? (CB_9)', cls: 'tag-field', raw: 'CB_9' },
+        { label: 'IN', cls: 'tag-operator', raw: 'IN' },
+        { label: '(', cls: 'tag-operator', raw: '(' },
+        { label: 'Yes', cls: 'tag-value', raw: 'Yes' },
+        { label: ')', cls: 'tag-operator', raw: ')' },
+        { label: '*', cls: 'tag-operator', raw: '*' },
+        { label: '200000', cls: 'tag-value', raw: '200000' },
+      ];
+      renderFormula();
+    }
+
+    if (scenario === 'error') {
+      formulaParts = [
+        { label: '(', cls: 'tag-operator', raw: '(' },
+        { label: 'Were there any injuries? (CB_9)', cls: 'tag-field', raw: 'CB_9' },
+        { label: 'IN', cls: 'tag-operator', raw: 'IN' },
+        { label: '(', cls: 'tag-operator', raw: '(' },
+        { label: 'Yes', cls: 'tag-value', raw: 'Yes' },
+        { label: '*', cls: 'tag-operator', raw: '*' },
+        { label: '200000', cls: 'tag-value', raw: '200000' },
+        { label: ')', cls: 'tag-operator', raw: ')' },
+        { label: '/', cls: 'tag-operator', raw: '/' },
+        { label: '{Hours}', cls: 'tag-hours', raw: '{Hours}' },
+      ];
+      renderFormula();
+      showSyntaxError();
+      setPreview('—', 'Fix formula errors to see preview');
+    }
+
+    if (scenario === 'valid') {
+      setTrifFormula();
+      showSuccess();
+      setPreview('5,882.35', '(2 × 200,000) ÷ 68 = 5,882.35 — based on current data');
+    }
+
+    if (scenario === 'ai') {
+      document.getElementById('aiInput').value = 'Calculate TRIF rate using injury checkbox and total hours';
+      renderFormula();
+
+      document.getElementById('validationArea').innerHTML =
+        '<div class="ai-loading-bar fade-in">' +
+          '<div class="ai-icon" style="width:18px;height:18px;border-radius:4px">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" width="11" height="11"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/></svg>' +
+          '</div>' +
+          'Building your formula<span class="dot-pulse"><span>.</span><span>.</span><span>.</span></span>' +
+        '</div>';
+
+      setTimeout(function() {
+        setTrifFormula();
+        showSuccess();
+        setPreview('5,882.35', '(2 × 200,000) ÷ 68 = 5,882.35 — based on current data');
+        document.getElementById('aiInput').value = '';
+        buildScenarioBar();
+      }, 2000);
+    }
+
+    buildScenarioBar();
+  }
+
+  // ── COLOR SYNC ──
+  document.getElementById('colorPicker').addEventListener('input', function(e) {
+    document.getElementById('colorHex').value = e.target.value;
+  });
+
+  // ── INIT ──
+  buildTabs();
+  renderTabContent();
+  renderFormula();
+  buildScenarioBar();
+</script>
+
+</body>
+</html>

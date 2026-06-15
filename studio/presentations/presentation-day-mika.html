@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Out of the Black Box — Mika's Presentation Day deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#f6edda; --bg2:#f1e7d2;
+    --sidebar:#efe5cf; --sidebar-border:#e2d5ba;
+    --ink:#2f2517; --body:#4a3d2e; --muted:#94836b; --muted2:#a8987e;
+    --accent:#b4502e; --accent-soft:#c9794f; --pink:#e0608c;
+    --card:#fcf8ee; --card-border:#e9dcc2; --pill:#fbf7ec; --pill-border:#e7d9bf;
+    --ready-bg:#e9f1dc; --ready-tx:#4a6d18; --ready-bd:#c2d79c;
+    --revise-bg:#faeeda; --revise-tx:#9a6209; --revise-bd:#e6cd9a;
+    --disc-bg:#e1ebf3; --disc-tx:#3a6184; --disc-bd:#b6cde0;
+    --shadow:0 1px 2px rgba(70,52,30,.04), 0 10px 30px rgba(70,52,30,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',system-ui,sans-serif;color:var(--body);background:linear-gradient(135deg,var(--bg),var(--bg2));-webkit-font-smoothing:antialiased;overflow:hidden;}
+
+  /* sidebar */
+  .sidebar{position:fixed;top:0;left:0;width:288px;height:100vh;overflow-y:auto;background:var(--sidebar);border-right:1px solid var(--sidebar-border);padding:32px 20px 50px;z-index:10;}
+  .brand{font-family:'DM Serif Display',serif;font-size:23px;color:var(--ink);line-height:1.15;display:flex;align-items:center;gap:8px;}
+  .brand .heart{color:var(--pink);font-size:17px;}
+  .brand-sub{font-size:12px;color:var(--muted);margin-top:6px;}
+  .nav-label{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);font-weight:700;margin:24px 0 7px 8px;}
+  .nav a{display:flex;align-items:center;gap:9px;padding:6px 10px;border-radius:8px;margin-bottom:1px;color:var(--body);text-decoration:none;font-size:13.5px;cursor:pointer;transition:background .15s,color .15s;}
+  .nav a .ico{width:17px;text-align:center;flex:0 0 17px;font-size:13.5px;}
+  .nav a .nm{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);margin-left:auto;}
+  .nav a:hover{background:#e7dcc3;}
+  .nav a.active{background:var(--pill);border:1px solid var(--pill-border);color:var(--ink);font-weight:500;}
+
+  /* stage */
+  .main{margin-left:288px;height:100vh;overflow-y:auto;}
+  .slide{display:none;min-height:100vh;padding:60px 72px 110px;max-width:1040px;animation:fade .45s ease;}
+  .slide.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  .eyebrow{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;display:flex;gap:12px;align-items:center;}
+  .timing{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--accent);background:#f3e8d2;border:1px solid var(--pill-border);border-radius:20px;padding:2px 9px;letter-spacing:0;text-transform:none;}
+  h1{font-family:'DM Serif Display',serif;font-size:58px;line-height:1.03;color:var(--ink);margin:16px 0 18px;letter-spacing:-.01em;}
+  h2{font-family:'DM Serif Display',serif;font-size:36px;line-height:1.08;color:var(--ink);margin:12px 0 16px;letter-spacing:-.01em;}
+  .lede{font-size:18px;color:#6a5945;max-width:640px;line-height:1.55;}
+  .point{margin:12px 0;padding-left:20px;position:relative;font-size:16px;color:var(--body);line-height:1.55;max-width:780px;}
+  .point::before{content:"";position:absolute;left:3px;top:11px;width:5px;height:5px;border-radius:50%;background:var(--accent-soft);}
+  .point.sub{margin-left:18px;font-size:15px;}
+  .point b{color:var(--ink);}
+  .say{border-left:3px solid var(--accent-soft);background:#f8f0dd;border-radius:0 10px 10px 0;padding:12px 18px;margin:15px 0;font-style:italic;color:#5b4a37;font-size:16px;max-width:790px;line-height:1.5;}
+  .small{font-size:13px;color:var(--muted);}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  /* OPEN callout + skill/agent tags */
+  .opencall{background:#f3e3d6;border:1px solid #e3c3a8;border-left:3px solid var(--accent);border-radius:10px;padding:11px 15px;margin:13px 0;max-width:790px;}
+  .opencall .oc-t{font-weight:700;color:var(--accent);font-size:13.5px;}
+  .opencall .oc-t a{color:var(--accent);text-decoration:underline;text-underline-offset:2px;}
+  .opencall .oc-d{font-size:13px;color:var(--body);margin-top:3px;}
+  .tags{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap;}
+  .skilltag{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--disc-tx);background:var(--disc-bg);border:1px solid var(--disc-bd);border-radius:20px;padding:3px 10px;}
+  .agenttag{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--accent);background:#f3e3d6;border:1px solid #e3c3a8;border-radius:20px;padding:3px 10px;}
+
+  /* cards */
+  .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;margin-top:20px;}
+  .grid.two{grid-template-columns:1fr 1fr;}
+  .card{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:20px;box-shadow:var(--shadow);position:relative;}
+  .card .ico{font-size:22px;}
+  .card h3{font-size:15.5px;color:var(--ink);font-weight:700;margin:9px 0 6px;}
+  .card p{font-size:13.5px;color:var(--muted);line-height:1.55;}
+  .card .star{position:absolute;top:14px;right:14px;font-size:14px;}
+  .card .fix{margin-top:10px;font-size:12px;color:var(--accent);font-weight:500;}
+
+  /* stats + time bar */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:8px 0 18px;}
+  .stat{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:16px;box-shadow:var(--shadow);}
+  .stat .v{font-family:'DM Serif Display',serif;font-size:32px;color:var(--accent);line-height:1;}
+  .stat .l{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.4;}
+  .timebar{display:flex;height:44px;border-radius:9px;overflow:hidden;margin:8px 0;border:1px solid var(--card-border);}
+  .timebar .seg{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace;}
+  .tlegend{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);}
+  .tlegend span{display:flex;align-items:center;gap:6px;}
+  .tlegend i{width:11px;height:11px;border-radius:3px;display:inline-block;}
+  .chartcard{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:16px 20px 8px;box-shadow:var(--shadow);margin:16px 0 8px;}
+  .chartcard .ct{font-size:14px;font-weight:700;color:var(--ink);}
+  .chartcard .cs{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:10px;}
+  .chartwrap{position:relative;height:230px;}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted2);font-weight:700;padding:9px 12px;border-bottom:1px solid var(--sidebar-border);}
+  td{padding:10px 12px;border-bottom:1px solid var(--card-border);vertical-align:top;color:var(--body);line-height:1.45;}
+  td.tk{font-family:'JetBrains Mono',monospace;color:var(--accent);font-weight:500;white-space:nowrap;}
+  .chip{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+  .chip.ready{background:var(--ready-bg);color:var(--ready-tx);border:1px solid var(--ready-bd);}
+  .chip.revise{background:var(--revise-bg);color:var(--revise-tx);border:1px solid var(--revise-bd);}
+  .chip.disc{background:var(--disc-bg);color:var(--disc-tx);border:1px solid var(--disc-bd);}
+
+  /* callout / layers / routes */
+  .callout{background:#f8f0dd;border:1px solid var(--card-border);border-radius:14px;padding:16px 22px;box-shadow:var(--shadow);margin-top:16px;}
+  .callout .pin{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:8px;}
+  .callout li{list-style:none;position:relative;padding-left:18px;margin:7px 0;font-size:14.5px;}
+  .callout li::before{content:"";position:absolute;left:2px;top:10px;width:5px;height:5px;border-radius:50%;background:var(--accent-soft);}
+  .layer{border-radius:12px;padding:14px 18px;margin:9px 0;border:1px solid var(--card-border);box-shadow:var(--shadow);}
+  .layer .lt{font-weight:700;color:var(--ink);font-size:15px;}
+  .layer .ld{font-size:13px;color:var(--muted);margin-top:3px;}
+  .layer.l1{background:#efe5cf;} .layer.l2{background:#f3e3d6;border-color:#e3c3a8;} .layer.l3{background:#eef0e3;border-color:#d4dcb8;}
+  .handoff{text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);margin:5px 0;}
+  .routes{display:flex;gap:12px;margin:14px 0;flex-wrap:wrap;}
+  .route{flex:1;min-width:170px;border-radius:12px;padding:14px;border:1px solid;}
+  .route.ready{background:var(--ready-bg);border-color:var(--ready-bd);} .route.revise{background:var(--revise-bg);border-color:var(--revise-bd);} .route.disc{background:var(--disc-bg);border-color:var(--disc-bd);}
+  .route h4{font-size:14.5px;margin-bottom:3px;}
+  .route.ready h4{color:var(--ready-tx);} .route.revise h4{color:var(--revise-tx);} .route.disc h4{color:var(--disc-tx);}
+  .route p{font-size:12px;color:var(--body);}
+  .gatewrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;}
+
+  /* phase map */
+  .prow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:7px 0;}
+  .lane{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted2);width:84px;flex:0 0 84px;text-transform:uppercase;letter-spacing:.05em;}
+  .pchip{background:#efe5cf;border:1px solid var(--pill-border);border-radius:8px;padding:6px 10px;font-size:12.5px;color:var(--body);}
+  .pchip.gate{background:var(--disc-bg);border-color:var(--disc-bd);color:var(--disc-tx);font-weight:700;}
+  .pchip.gate2{background:var(--ready-bg);border-color:var(--ready-bd);color:var(--ready-tx);font-weight:700;}
+  .parrow{color:var(--muted2);font-size:12px;}
+
+  /* before/after flow */
+  .flowcol{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);}
+  .flowcol h3{font-size:14px;font-weight:700;margin-bottom:10px;}
+  .flowstep{font-family:'JetBrains Mono',monospace;font-size:12.5px;padding:7px 11px;border-radius:8px;margin:5px 0;background:#efe5cf;color:var(--body);}
+  .flowstep.box{background:#3a2e21;color:#cdbfa6;}
+  .flowstep.gate{background:#e1ebf3;color:#3a6184;border:1px solid #b6cde0;}
+  .flowstep.gate2{background:#e9f1dc;color:#4a6d18;border:1px solid #c2d79c;}
+  .flowarrow{text-align:center;color:var(--muted2);font-size:11px;}
+
+  .spot{float:right;margin:-6px 0 14px 26px;}
+  svg .lbl{font-family:'DM Sans',sans-serif;font-size:13px;fill:var(--ink);font-weight:700;}
+  svg .sub{font-family:'DM Sans',sans-serif;font-size:11px;fill:var(--muted);}
+
+  /* foot nav */
+  .footnav{position:fixed;bottom:20px;right:28px;display:flex;align-items:center;gap:12px;z-index:20;}
+  .counter{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);background:var(--pill);border:1px solid var(--pill-border);border-radius:20px;padding:6px 12px;}
+  .navbtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--pill-border);background:var(--pill);color:var(--accent);font-size:17px;cursor:pointer;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;}
+  .navbtn:hover{background:#f3e8d2;} .navbtn:disabled{opacity:.35;cursor:default;}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">Out of the Black Box <span class="heart">&#9825;</span></div>
+  <div class="brand-sub">Mika's deck &middot; Presentation Day &middot; May 2026</div>
+  <div class="nav-label">Start here</div><nav class="nav" id="navStart"></nav>
+  <div class="nav-label">The intro &middot; 5 min</div><nav class="nav" id="navIntro"></nav>
+  <div class="nav-label">The problem &middot; research &amp; validation</div><nav class="nav" id="navProblem"></nav>
+  <div class="nav-label">The solution</div><nav class="nav" id="navSolution"></nav>
+  <div class="nav-label">Wrap-up</div><nav class="nav" id="navClose"></nav>
+</aside>
+
+<main class="main" id="main">
+
+  <!-- 0 TITLE -->
+  <section class="slide active">
+    <div class="eyebrow">BIS Safety &middot; Presentation Day</div>
+    <h1>Out of the<br>Black Box</h1>
+    <p class="lede">How a 13-week initiative to build a faster wireframe tool turned into a pipeline that strengthens the front and back of our design process &mdash; and what it taught me about where design's value actually lives.</p>
+    <div class="callout"><div class="pin">&#128205; In one breath</div>
+      <ul>
+        <li>I set out to automate wireframes. I ended up fixing <b>where the time actually goes.</b></li>
+        <li>Design has been a <b>black box</b> &mdash; ticket in, finished file out, no one can react in between.</li>
+        <li>The fix: two <b>windows</b> into that box &mdash; a review on the way in, and on the way out.</li>
+        <li>Not about automating design. About <b>making space to think before we design.</b></li>
+      </ul></div>
+  </section>
+
+  <!-- 1 HOW TO READ -->
+  <section class="slide">
+    <div class="eyebrow">Start here</div>
+    <h2>How to read this deck</h2>
+    <p class="lede">It's my speaking deck &mdash; I talk from what's on each slide. Conventions:</p>
+    <div class="point">Lines in <i>italic boxes</i> are said close to word-for-word.</div>
+    <div class="opencall"><div class="oc-t">&#9654; OPEN boxes</div><div class="oc-d">cue me to pull up a real artifact live &mdash; a FigJam, a doc, or a ticket. Tags below them show <span class="skilltag">which skill</span> or <span class="agenttag">agent</span> I used.</div></div>
+    <div class="point">The <span class="timing">~min</span> badges pace me. ~30 min total: 5 intro + 25 walkthrough.</div>
+    <div class="point"><b>Navigate:</b> click the left panel, use <span class="mono">&larr; &rarr;</span>, or the buttons bottom-right.</div>
+  </section>
+
+  <!-- 2 GOAL -->
+  <section class="slide">
+    <div class="eyebrow">The intro <span class="timing">~30s</span></div>
+    <h2>The initial goal</h2>
+    <div class="say" style="font-size:20px;">"Scale and optimize our design operations to deliver faster, higher-quality outputs using AI and automation."</div>
+    <div class="point">The original mandate, word for word. That's the promise we set out to keep.</div>
+    <div class="say">"Hold onto the word 'higher-quality' &mdash; that's the half of the goal that quietly redirected this whole project."</div>
+  </section>
+
+  <!-- 3 DISCOVERY -->
+  <section class="slide">
+    <div class="eyebrow">The intro <span class="timing">~1.5 min</span></div>
+    <h2>Discovery &mdash; documenting the real workflow</h2>
+    <div class="point"><b>Week 1.</b> We documented how work <i>actually</i> moves through our process today &mdash; not how we assume it does.</div>
+    <div class="point"><b>Week 2.</b> We mapped our combined workflows in FigJam, then <b>graded and colour-coded which parts frustrate us most.</b></div>
+    <div class="opencall"><div class="oc-t">&#9654; OPEN &mdash; "13 Week Race: Identification" (FigJam)</div><div class="oc-d">The combined-workflow map + the frustration heat-map that pointed us at the real problems.</div></div>
+    <div class="point"><b>Week 3.</b> That heat-map gave us three problem areas &mdash; next slide.</div>
+    <div class="point"><b>Weeks 4&ndash;8.</b> Creating and testing the solution &mdash; the agents, skills, and gates you're about to see.</div>
+    <div class="opencall"><div class="oc-t">&#9654; OPEN &mdash; "Scaling Up: Solution Testing Phase" (HTML)</div><div class="oc-d">Where we built and pressure-tested the pipeline pieces before trusting them.</div></div>
+  </section>
+
+  <!-- 4 PROBLEM AREAS -->
+  <section class="slide">
+    <div class="eyebrow">The intro &middot; week 3</div>
+    <h2>Our three problem areas</h2>
+    <div class="grid">
+      <div class="card"><span class="star">&#11088;</span><div class="ico">&#129516;</div><h3>1. Ideation from scope with AI</h3><p>Going from a rough scope to a real direction &mdash; for ourselves, and for the people who hand us work.</p><div class="fix">&rarr; Asa + the clarity check</div></div>
+      <div class="card"><span class="star">&#11088;</span><div class="ico">&#129309;</div><h3>2. Hand-off to devs</h3><p>We don't have one. So designs and tickets sometimes just sit in limbo &mdash; finished, but going nowhere.</p><div class="fix">&rarr; The two gates + directive hand-off</div></div>
+      <div class="card"><div class="ico">&#128218;</div><h3>3. A system knowledge base</h3><p>No shared source of truth on how our system works that Claude (or anyone) can draw on. We don't have this yet.</p><div class="fix">&rarr; Still on the list</div></div>
+    </div>
+    <div class="say">"Two of these I built for. The third is still open."</div>
+  </section>
+
+  <!-- 5 AGENTS & SKILLS -->
+  <section class="slide">
+    <div class="eyebrow">The intro <span class="timing">~1.5 min</span></div>
+    <h2>Building it was a learning process</h2>
+    <div class="grid">
+      <div class="card"><div class="ico">&#128679;</div><h3>Pipeline</h3><p>A set of agents and skills that run a workflow end to end.</p></div>
+      <div class="card"><div class="ico">&#129302;</div><h3>Agent</h3><p>A specialized worker with its own rules and boundaries.</p></div>
+      <div class="card"><div class="ico">&#129513;</div><h3>Skill</h3><p>The instructions for a specific job, carried out by an agent.</p></div>
+    </div>
+    <div class="point" style="margin-top:18px;"><b>We wired real pipelines into our stack</b> through MCPs and APIs &mdash; Figma, GitHub, Notion, our PM system &mdash; plus manual inputs like pasted-in Fellow transcripts.</div>
+    <div class="point"><b>And we learned to be critical of the tickets we receive</b> &mdash; to spot where the gap isn't a missing screen but a problem that hasn't been discovered yet.</div>
+  </section>
+
+  <!-- 6 WHAT 13 WEEKS -->
+  <section class="slide">
+    <div class="eyebrow">The intro &middot; the turn <span class="timing">~1 min</span></div>
+    <h2>What 13 weeks taught us &#11088;</h2>
+    <div class="grid">
+      <div class="card"><div class="ico">&#128736;&#65039;</div><h3>Automate the right part</h3><p>The value isn't drawing the wireframe &mdash; it's deciding if the problem is real and the approach is right.</p></div>
+      <div class="card"><div class="ico">&#129513;</div><h3>Three artifacts, one field</h3><p>A ticket is forced to be a problem, a scope, and a spec at once. So design does forensic work every time.</p></div>
+      <div class="card"><div class="ico">&#128208;</div><h3>Design <i>is</i> the scope</h3><p>Complexity is discovered, not predicted. Designing the thing is what reveals how big it really is.</p></div>
+      <div class="card"><div class="ico">&#127912;</div><h3>Not a UI artist</h3><p>Design is upstream &mdash; defining what the solution is, not just rendering how it looks.</p></div>
+      <div class="card"><div class="ico">&#128181;</div><h3>The cost of the wrong thing</h3><p>Building the wrong thing costs orders of magnitude more than finding out first.</p></div>
+      <div class="card"><div class="ico">&#129694;</div><h3>Review is a thread, not a gate</h3><p>Review at escalating fidelity, eng + QA in early &mdash; not one big reveal at the end.</p></div>
+    </div>
+    <div class="say">"To actually use agents and skills day-to-day, you start from scratch &mdash; the rawest form of your workflow. I'll show you mine; then Mahi shows hers."</div>
+  </section>
+
+  <!-- 7 THE PIVOT -->
+  <section class="slide">
+    <div class="eyebrow">The problem <span class="timing">~3 min</span></div>
+    <h2>The pivot</h2>
+    <div class="say">"My first idea was simple: an automatic wireframe generator. Feed it a ticket, get wireframes out &mdash; faster output, just like the goal said."</div>
+    <div class="opencall"><div class="oc-t">&#9654; OPEN &mdash; <a href="https://www.bissafety.app/pm/tickets#!/18984" target="_blank">Ticket 18984</a> (comment + generated wireframe)</div><div class="oc-d">A good <i>starting point</i> &mdash; but not usable for production. The tool can draw; it can't decide if it's the right thing.</div><div class="tags"><span class="skilltag">skill: draft-wireframe</span><span class="agenttag">agent: Lia</span></div></div>
+    <div class="say">"The expensive, valuable work isn't producing the wireframe. It's figuring out whether the problem is even real, and whether this is the right solution. Automating the wireframe automates the wrong part."</div>
+    <div class="point">So the project changed: not "make design faster" &mdash; <b>"make sure design is solving the right problem before it starts."</b></div>
+  </section>
+
+  <!-- 8 BLACK BOX -->
+  <section class="slide">
+    <div class="eyebrow">The problem <span class="timing">~2 min</span></div>
+    <h2>Design is a black box</h2>
+    <svg viewBox="0 0 820 264" width="100%" style="max-width:820px;margin:6px 0;">
+      <rect x="150" y="90" width="520" height="100" rx="14" fill="#3a2e21"/>
+      <text x="410" y="146" text-anchor="middle" fill="#cdbfa6" style="font-family:'JetBrains Mono',monospace;font-size:13px;">the design process (nobody can see in)</text>
+      <text x="60" y="146" text-anchor="middle" class="lbl">ticket</text>
+      <path d="M105 140 L148 140" stroke="#b4502e" stroke-width="2.5" marker-end="url(#ar)"/>
+      <text x="752" y="146" text-anchor="middle" class="lbl">finished<tspan x="752" dy="15">file</tspan></text>
+      <path d="M672 140 L712 140" stroke="#b4502e" stroke-width="2.5" marker-end="url(#ar)"/>
+      <rect x="190" y="40" width="150" height="40" rx="9" fill="#e1ebf3" stroke="#b6cde0"/>
+      <text x="265" y="58" text-anchor="middle" class="lbl" style="fill:#3a6184;">Concept Direction</text>
+      <text x="265" y="73" text-anchor="middle" class="sub" style="fill:#3a6184;">is this the right approach?</text>
+      <path d="M265 80 L265 90" stroke="#3a6184" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <rect x="480" y="40" width="150" height="40" rx="9" fill="#e9f1dc" stroke="#c2d79c"/>
+      <text x="555" y="58" text-anchor="middle" class="lbl" style="fill:#4a6d18;">Proposed Changes</text>
+      <text x="555" y="73" text-anchor="middle" class="sub" style="fill:#4a6d18;">confirm what we're building</text>
+      <path d="M555 80 L555 90" stroke="#4a6d18" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <g stroke="#b4502e" stroke-width="1.6" fill="none" stroke-linecap="round">
+        <circle cx="60" cy="206" r="4.5" fill="#b4502e" stroke="none"/><path d="M60 211 L60 224"/><path d="M53 216 L67 216"/><path d="M60 224 L54 233"/><path d="M60 224 L66 233"/>
+        <circle cx="265" cy="206" r="4.5" fill="#3a6184" stroke="none"/><path d="M265 211 L265 224" stroke="#3a6184"/><path d="M258 216 L272 216" stroke="#3a6184"/><path d="M265 224 L259 233" stroke="#3a6184"/><path d="M265 224 L271 233" stroke="#3a6184"/>
+        <circle cx="555" cy="206" r="4.5" fill="#4a6d18" stroke="none"/><path d="M555 211 L555 224" stroke="#4a6d18"/><path d="M548 216 L562 216" stroke="#4a6d18"/><path d="M555 224 L549 233" stroke="#4a6d18"/><path d="M555 224 L561 233" stroke="#4a6d18"/>
+      </g>
+      <text x="60" y="250" text-anchor="middle" class="sub">designer</text>
+      <text x="265" y="250" text-anchor="middle" class="sub" style="fill:#3a6184;">reviewers in early</text>
+      <text x="555" y="250" text-anchor="middle" class="sub" style="fill:#4a6d18;">QA &amp; dev confirm</text>
+      <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 z" fill="#b4502e"/></marker></defs>
+    </svg>
+    <div class="say">"A ticket goes in one end, a finished design comes out the other &mdash; and people only react after I've done all the thinking. Too late to change direction, and it makes design look like 'just making it pretty.'"</div>
+  </section>
+
+  <!-- 9 LIVE CHAT EXAMPLE -->
+  <section class="slide">
+    <div class="eyebrow">The problem &middot; a real example <span class="timing">~2 min</span></div>
+    <h2>Example: Live Chat</h2>
+    <div class="opencall"><div class="oc-t">&#9654; OPEN &mdash; <a href="https://www.bissafety.app/pm/tickets#!/19627" target="_blank">Ticket 19627</a> (Ask Amy &rarr; Live Chat escalation)</div><div class="oc-d">The black box in real life.</div></div>
+    <div class="point">1. We ran many meetings, and Mahi and I worked <b>separately</b> &mdash; one on the end-user product, one on the admin product.</div>
+    <div class="point">2. Sachin reviewed it and told us <b>half of our work wasn't applicable.</b></div>
+    <div class="point">3. &#11088; <b>We should have caught this earlier.</b></div>
+    <div class="opencall"><div class="oc-t">What I did after</div><div class="oc-d">Ran it through the clarity check to see whether the scope was solid or needed extra stakeholder validation &mdash; exactly the catch that should have happened on day one.</div><div class="tags"><span class="skilltag">skill: pm-brief-clarity-check</span></div></div>
+    <div class="say">"Weeks of work, then someone upstream tells you half of it doesn't apply. The whole pipeline exists to surface that at the start, not at week six."</div>
+  </section>
+
+  <!-- 10 DESIGN IS THE SCOPE -->
+  <section class="slide">
+    <div class="eyebrow">The problem &middot; value</div>
+    <h2>Design <i>is</i> the scope</h2>
+    <div style="display:flex;gap:30px;align-items:center;flex-wrap:wrap;">
+      <svg viewBox="0 0 300 260" width="280">
+        <circle cx="150" cy="95" r="78" fill="#b4502e" fill-opacity="0.18" stroke="#b4502e" stroke-opacity="0.5"/>
+        <circle cx="108" cy="165" r="78" fill="#3a6184" fill-opacity="0.18" stroke="#3a6184" stroke-opacity="0.5"/>
+        <circle cx="192" cy="165" r="78" fill="#4a6d18" fill-opacity="0.18" stroke="#4a6d18" stroke-opacity="0.5"/>
+        <text x="150" y="62" text-anchor="middle" class="lbl" style="fill:#8a3a1f;">Problem</text>
+        <text x="78" y="195" text-anchor="middle" class="lbl" style="fill:#3a6184;">Scope</text>
+        <text x="222" y="195" text-anchor="middle" class="lbl" style="fill:#4a6d18;">Spec</text>
+        <text x="150" y="140" text-anchor="middle" class="sub" style="font-weight:700;">one ticket</text>
+        <text x="150" y="155" text-anchor="middle" class="sub" style="font-weight:700;">field</text>
+      </svg>
+      <div style="flex:1;min-width:300px;">
+        <div class="point"><b>The three-artifact problem:</b> a ticket is asked to be a problem, a scope, and a spec &mdash; three artifacts, three authors, collapsed into one field.</div>
+        <div class="say">"Scope gets written before design &mdash; but design <i>is</i> the detailed scope. Complexity is discovered, not predicted. Offline and SSO looked medium. Designing them revealed they were large."</div>
+        <div class="point" style="font-size:15px;"><b>This is exactly why we built the front of the pipeline</b> &mdash; to separate the problem from the scope from the spec, instead of asking one ticket to be all three.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 WHERE TIME GOES -->
+  <section class="slide">
+    <div class="eyebrow">The problem &middot; the data <span class="timing">~2 min</span></div>
+    <h2>Where the time actually goes</h2>
+    <p class="small" style="margin-bottom:6px;">From my own Toggl + Notion deep-dive &mdash; 2 years, 3,692 hrs tracked.</p>
+    <div class="timebar"><div class="seg" style="flex:13;background:#b4502e;">10&ndash;15%</div><div class="seg" style="flex:87;background:#cdbfa6;color:#5b4a37;">85&ndash;90% &mdash; waiting, rework, meetings, scope churn, dev support</div></div>
+    <div class="tlegend"><span><i style="background:#b4502e;"></i>Active design</span><span><i style="background:#cdbfa6;"></i>Everything else</span></div>
+    <div class="stats" style="margin-top:22px;">
+      <div class="stat"><div class="v">10&ndash;15%</div><div class="l">of calendar time is active design &mdash; the rest is the system around it</div></div>
+      <div class="stat"><div class="v">42.7h</div><div class="l">eCommerce redesign &mdash; designed, then blocked 10 months, never shipped</div></div>
+      <div class="stat"><div class="v">2.25&times;</div><div class="l">AI Course Builder: est. ~100h, actual 224.9h &mdash; complexity discovered late</div></div>
+      <div class="stat"><div class="v">84.5h</div><div class="l">per year just "looking for the next ticket" &mdash; no roadmap, no hand-off</div></div>
+    </div>
+    <div class="chartcard"><div class="ct">356 tickets, two years &mdash; the quick-touch treadmill</div><div class="cs">63% take under 2 hours; a tiny long tail eats the calendar</div><div class="chartwrap"><canvas id="distChart"></canvas></div></div>
+    <div class="say">"The bottleneck was never design capacity. It's the waiting, the rework, and the limbo around design."</div>
+  </section>
+
+  <!-- 12 PARK PAVING -->
+  <section class="slide">
+    <div class="eyebrow">The problem &middot; the proof <span class="timing">~1.5 min</span></div>
+    <svg class="spot" width="110" height="130" viewBox="0 0 110 130" aria-hidden="true">
+      <g stroke="#b4502e" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M34 40 a21 21 0 0 1 42 0" fill="#b4502e" fill-opacity="0.15"/><path d="M30 40 L80 40"/><line x1="55" y1="30" x2="55" y2="22"/>
+        <circle cx="55" cy="52" r="11"/><path d="M55 63 L55 95"/><path d="M55 70 L36 84"/><path d="M55 70 L74 84"/><path d="M55 95 L43 120"/><path d="M55 95 L67 120"/>
+        <rect x="74" y="78" width="16" height="20" rx="2" fill="#fcf8ee"/>
+      </g>
+    </svg>
+    <h2>Park Paving</h2>
+    <div class="say">"One 3-hour site visit surfaced at least five issues more critical than our entire June sprint. Workers were uninstalling and reinstalling a paid app every single morning."</div>
+    <div class="point"><b>That's not a UX nitpick &mdash; it's churn risk.</b> One sprint costs $30&ndash;60k; that visit cost a drive and a few hours.</div>
+    <div class="point"><b>Why it's a business problem:</b> captive users hide costs &mdash; bad FLHA data is a <i>safety</i> problem, not just friction. Buyers aren't users. Competitors like Procore and SafetyCulture win on field UX.</div>
+    <div class="say">"The cost of building the wrong thing is orders of magnitude higher than the cost of finding out first."</div>
+  </section>
+
+  <!-- 13 BEFORE / AFTER -->
+  <section class="slide">
+    <div class="eyebrow">The solution</div>
+    <h2>From a black box to a thread</h2>
+    <p class="lede" style="font-size:17px;">Review stops being one big reveal at the end. It becomes a thread &mdash; the right people see the right thing at the right fidelity.</p>
+    <div class="grid two" style="margin-top:16px;">
+      <div class="flowcol"><h3 style="color:var(--muted);">Before</h3>
+        <div class="flowstep">ticket</div><div class="flowarrow">&darr;</div>
+        <div class="flowstep box">design (black box)</div><div class="flowarrow">&darr;</div>
+        <div class="flowstep">dev</div>
+        <p class="small" style="margin-top:10px;">One hand-off. Feedback lands too late to change direction.</p>
+      </div>
+      <div class="flowcol"><h3 style="color:var(--accent);">After</h3>
+        <div class="flowstep">brief</div><div class="flowarrow">&darr;</div>
+        <div class="flowstep">clarity check &middot; route reviewers</div><div class="flowarrow">&darr;</div>
+        <div class="flowstep gate">&#129512; Concept Direction &mdash; right approach?</div><div class="flowarrow">&darr;</div>
+        <div class="flowstep">design</div><div class="flowarrow">&darr;</div>
+        <div class="flowstep gate2">&#129513; Proposed Changes &mdash; confirm build</div><div class="flowarrow">&darr;</div>
+        <div class="flowstep">dev</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 THREE LAYERS -->
+  <section class="slide">
+    <div class="eyebrow">The solution <span class="timing">~3 min</span></div>
+    <h2>The solution: three layers</h2>
+    <p class="lede" style="font-size:17px;">Not a replacement &mdash; a way to strengthen the front and back of the process we already have.</p>
+    <div class="layer l1"><div class="lt">Layer 1 &mdash; our BIS SDLC <span class="small" style="font-weight:400;">(unchanged)</span></div><div class="ld">Discovery &rarr; Review &amp; Planning &rarr; Development &rarr; Testing &rarr; Live</div></div>
+    <div class="layer l2"><div class="lt">Layer 2 &mdash; Discovery &amp; Review Pipeline <span class="small" style="font-weight:400;">(new &middot; agent: Asa)</span></div><div class="ld">draft the brief &rarr; clarity-check it &rarr; route it to the right reviewers</div></div>
+    <div class="handoff">&darr;&nbsp;&nbsp;hand-off = ticket status "Ready for Design"&nbsp;&nbsp;&darr;</div>
+    <div class="layer l3"><div class="lt">Layer 3 &mdash; the Design Pipeline <span class="small" style="font-weight:400;">(existing &middot; agent: Lia)</span></div><div class="ld">ideation &rarr; wireframe &rarr; final design</div></div>
+  </section>
+
+  <!-- 15 THE FULL PIPELINE -->
+  <section class="slide">
+    <div class="eyebrow">The solution &middot; the whole pipeline <span class="timing">~4 min</span></div>
+    <h2>The pipeline, end to end</h2>
+    <div class="opencall"><div class="oc-t">&#9654; OPEN &mdash; <a href="https://www.figma.com/board/R3IupiaIEcgx6DYFx5Pm3L/Claude-Pipelines" target="_blank">"Claude Pipelines" FigJam (v3)</a></div><div class="oc-d">Walk the whole board &mdash; the major phases below, with the two new gates highlighted.</div></div>
+    <div class="prow"><span class="lane">Asa</span><span class="pchip">draft brief</span><span class="parrow">&rarr;</span><span class="pchip">clarity check</span><span class="parrow">&rarr;</span><span class="pchip">route reviewers</span></div>
+    <div class="handoff">&darr;&nbsp;&nbsp;"Ready for Design"&nbsp;&nbsp;&darr;</div>
+    <div class="prow"><span class="lane">Lia</span><span class="pchip">triage</span><span class="parrow">&rarr;</span><span class="pchip">ideation</span><span class="parrow">&rarr;</span><span class="pchip gate">&#129512; Concept Direction</span><span class="parrow">&rarr;</span><span class="pchip">wireframe</span><span class="parrow">&rarr;</span><span class="pchip">final design</span><span class="parrow">&rarr;</span><span class="pchip gate2">&#129513; Proposed Changes</span><span class="parrow">&rarr;</span><span class="pchip">dev</span></div>
+    <div class="routes" style="margin-top:16px;">
+      <div class="route ready"><h4>&#9989; READY</h4><p>Clear enough &mdash; fast-lane to design.</p></div>
+      <div class="route revise"><h4>&#9888;&#65039; REVISE</h4><p>Loops back for one fix, then design.</p></div>
+      <div class="route disc"><h4>&#128300; DISCOVERY</h4><p>Needs research before any wireframe.</p></div>
+    </div>
+    <div class="point" style="font-size:14.5px;"><b>The two highlighted gates are the heart &mdash; more on the next slide.</b> <span class="small">Hand-off is directive-based: Asa posts a comment, my area-bucketed morning scan surfaces it, I hit Watch. (The PM tool's MCP can't set status itself &mdash; yet.)</span></div>
+  </section>
+
+  <!-- 16 VALIDATION -->
+  <section class="slide">
+    <div class="eyebrow">The solution &middot; the clarity check in action <span class="timing">~3 min</span></div>
+    <h2>I scored 5 real tickets</h2>
+    <table>
+      <thead><tr><th>Ticket</th><th>What it was</th><th>Level</th><th>Route &amp; catch</th></tr></thead>
+      <tbody>
+        <tr><td class="tk">20133</td><td>Activation Code Expiry on Edit View &mdash; existing pattern, internal users</td><td><span class="chip ready">READY 5/7</span></td><td>Fast-lane. <b>But</b> clear text &ne; correct solution &mdash; the AI mockup missed system logic; a human still validated.</td></tr>
+        <tr><td class="tk">19662</td><td>Translate System Updates by Default &mdash; avoid untranslated compliance emails (Law 25)</td><td><span class="chip revise">REVISE 3/7</span></td><td>Confirm direction + add success signal. Compliance flag &rarr; Erica, early.</td></tr>
+        <tr><td class="tk">19627</td><td>Ask Amy &rarr; Live Chat escalation &mdash; EPIC across Ask Amy + Zendesk + dashboard</td><td><span class="chip disc">DISCOVERY 3/7 +override</span></td><td>Cross-module flag &rarr; Sachin. Would have surfaced the architecture constraint <i>before</i> design.</td></tr>
+        <tr><td class="tk">16824</td><td>Decommissioned Course Notification &mdash; brief was 8 sections of solution UI</td><td><span class="chip disc">DISCOVERY 1/7</span></td><td>Reframe + bound scope. Caught before 8 sections got drawn &mdash; it pivoted 3 months later.</td></tr>
+        <tr><td class="tk">19008</td><td>New Compliance Module &mdash; one line of description, spec in an external doc</td><td><span class="chip disc">DISCOVERY 0/7 +override</span></td><td>Validate the mental model beyond oil &amp; gas before any wireframe. New module, new persona.</td></tr>
+      </tbody>
+    </table>
+    <div class="opencall"><div class="oc-t">This whole table is pipeline output</div><div class="oc-d">Each score + route came from running the brief through the clarity check. From here, reviewers get auto-tagged by the constraint flags (Erica for compliance, Sachin for cross-module&hellip;).</div><div class="tags"><span class="skilltag">skill: pm-brief-clarity-check</span><span class="skilltag">skill: pm-brief-route-reviewers</span></div></div>
+    <div class="say">"Only 1 of 5 was clean enough to fast-lane &mdash; and even that one needed a human for system validation. The other four needed upstream work that happened anyway, just later and more expensively."</div>
+  </section>
+
+  <!-- 17 WHY THE GATES MATTER -->
+  <section class="slide">
+    <div class="eyebrow">The solution &middot; why the gates matter <span class="timing">~5 min</span></div>
+    <h2>Two windows into the box</h2>
+    <div class="gatewrap">
+      <div class="card" style="border-color:#b6cde0;background:#eef4f9;"><div class="ico">&#129512;</div><h3 style="color:#3a6184;">Concept Direction &mdash; entry</h3><p>Before polished design: problem, approach in plain steps, rough greyscale sketches, open questions tagged to reviewers. <b>"Is this the right approach?"</b> Catches wrong turns when changing course is cheap.</p></div>
+      <div class="card" style="border-color:#c2d79c;background:#f1f4e8;"><div class="ico">&#129513;</div><h3 style="color:#4a6d18;">Proposed Changes &mdash; exit</h3><p>At finalization, before dev: exactly what's changing, behavior + state level. QA turns it into test cases; dev builds from it. <b>"Confirm exactly what we're building."</b></p></div>
+    </div>
+    <div class="opencall"><div class="oc-t">&#9654; OPEN &mdash; <a href="https://www.bissafety.app/pm/tickets#!/19998" target="_blank">Ticket 19998</a> (Concept Direction, first real use)</div><div class="oc-d">The banner + workflows table + greyscale wireframes + tagged open questions. Reviewers get auto-routed to the concept and the wireframes.</div><div class="tags"><span class="skilltag">skill: pm-brief-route-reviewers</span></div></div>
+    <div class="point"><b>You're not inventing this:</b> mature orgs review as a <i>thread, not a gate</i> &mdash; Shape Up, Amazon working-backwards, Stripe/Figma/Linear. <b>The roughness is the point</b> &mdash; greyscale tells reviewers to critique direction, not styling.</div>
+    <div class="callout" style="border-left:3px solid var(--accent);"><div class="pin">&#9888;&#65039; The honest caveat &mdash; say it before anyone asks</div>
+      <div class="say" style="margin:0;border:0;background:none;padding:0;">"Right now I author both gates and I'm the only reviewer &mdash; so today it's me reviewing me. The windows fix the <i>timing</i> problem; real independent review only starts with a second person. That's the argument for this being a team discipline, not my personal QA."</div></div>
+  </section>
+
+  <!-- 18 EXAMPLES ON REAL TICKETS -->
+  <section class="slide">
+    <div class="eyebrow">The solution &middot; the pipeline on real tickets <span class="timing">~2 min</span></div>
+    <h2>What it actually produces</h2>
+    <p class="lede" style="font-size:16px;">The artifacts aren't theoretical &mdash; here's where to open real output, by phase.</p>
+    <div class="point" style="font-weight:700;color:#3a6184;margin-top:14px;">Planning / Discovery</div>
+    <div class="opencall"><div class="oc-t">&#11088; &#9654; OPEN &mdash; <a href="https://www.bissafety.app/pm/tickets#!/19998" target="_blank">19998</a> &mdash; Drafts for Network Courses</div><div class="oc-d">The flagship Concept Direction artifact.</div></div>
+    <div class="point" style="font-weight:700;color:var(--accent);">Wireframe</div>
+    <div class="opencall" style="margin:8px 0;"><div class="oc-t">&#9654; OPEN &mdash; <a href="https://www.bissafety.app/pm/tickets#!/20277" target="_blank">20277</a> &mdash; Personal Catalog Dashboard &nbsp;&middot;&nbsp; <a href="https://www.bissafety.app/pm/tickets#!/18984" target="_blank">18984</a> &mdash; Mobile File Upload</div><div class="tags"><span class="skilltag">skill: draft-wireframe</span></div></div>
+    <div class="point" style="font-weight:700;color:#4a6d18;">Post-design</div>
+    <div class="opencall" style="margin:8px 0;"><div class="oc-t">&#9654; OPEN &mdash; <a href="https://www.bissafety.app/pm/tickets#!/20395" target="_blank">20395</a> &mdash; SSO &nbsp;&middot;&nbsp; <a href="https://www.bissafety.app/pm/tickets#!/20133" target="_blank">20133</a> &mdash; Activation Code Expiry</div><div class="oc-d">Proposed Changes specs &mdash; what QA and dev build from.</div></div>
+  </section>
+
+  <!-- 19 WHAT'S NEXT -->
+  <section class="slide">
+    <div class="eyebrow">Wrap-up &middot; what's next <span class="timing">~1 min</span></div>
+    <h2>Rough ideas for what's next</h2>
+    <div class="grid">
+      <div class="card"><div class="ico">&#9855;</div><h3>Compliance audit</h3><p>A WCAG / accessibility pass on our high-risk AI features &mdash; scoped properly, as a project, not squeezed into sprint work.</p></div>
+      <div class="card"><div class="ico">&#127912;</div><h3>Design-system pipeline</h3><p>The next pipeline to design &mdash; start thinking it through next week.</p></div>
+      <div class="card"><div class="ico">&#128257;</div><h3>Improve &amp; test these two</h3><p>Keep refining both pipelines, run them on real tickets, and &mdash; hopefully &mdash; get other people interacting with them.</p></div>
+    </div>
+    <div class="say">"None of these are finished. They're the next windows to cut &mdash; and good fuel for the discussion at the end."</div>
+  </section>
+
+  <!-- 20 CLOSE -->
+  <section class="slide">
+    <div class="eyebrow">Close &middot; value &amp; ask <span class="timing">~2 min</span></div>
+    <h2>Why this matters</h2>
+    <div class="say">"This didn't come from nothing. It came from 13 weeks of analyzing how we actually work."</div>
+    <div class="point">The shift I'm making &mdash; and asking us to make &mdash; is from doing all the work myself to <b>building the conditions for the work to happen.</b></div>
+    <div class="chartcard" style="max-width:560px;"><div class="ct">My own two years, operationalized</div><div class="cs">share of time, Year 1 &rarr; Year 2</div><div class="chartwrap" style="height:200px;"><canvas id="shiftChart"></canvas></div></div>
+    <div class="say">"For Luke: Technical Review keeps missing things not because the review is weak &mdash; but because the input is too vague to evaluate. Cleaner briefs upstream let you catch issues at your stage. You're the beneficiary, not the cost."</div>
+    <div class="say">"We're not optimizing for craft &mdash; we're operationalizing the discipline that grows the company. Mahi's going to show you how this looks on her side." &#9825;</div>
+  </section>
+
+</main>
+
+<div class="footnav">
+  <span class="counter" id="counter">01 / 21</span>
+  <button class="navbtn" id="prev" aria-label="Previous">&#8249;</button>
+  <button class="navbtn" id="next" aria-label="Next">&#8250;</button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const main = document.getElementById('main');
+  const counter = document.getElementById('counter');
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+
+  const items = [
+    ['Title','&#10024;','start'],
+    ['How to read this','&#129517;','start'],
+    ['The initial goal','&#127919;','intro'],
+    ['Discovery','&#128269;','intro'],
+    ['Three problem areas','&#11088;','intro'],
+    ['Agents &amp; skills','&#129513;','intro'],
+    ['What 13 weeks taught us','&#128173;','intro'],
+    ['The pivot','&#8617;&#65039;','problem'],
+    ['The black box','&#128371;&#65039;','problem'],
+    ['Example: Live Chat','&#128172;','problem'],
+    ['Design is the scope','&#128208;','problem'],
+    ['Where time goes','&#9201;&#65039;','problem'],
+    ['Park Paving','&#128205;','problem'],
+    ['Black box &rarr; thread','&#128279;','solution'],
+    ['Three layers','&#127959;&#65039;','solution'],
+    ['The full pipeline','&#128737;&#65039;','solution'],
+    ['Clarity check in action','&#9989;','solution'],
+    ['Why the gates matter','&#129694;','solution'],
+    ['On real tickets','&#128193;','solution'],
+    ["What's next",'&#128640;','close'],
+    ['Close','&#9825;','close'],
+  ];
+  const groups = {start:'navStart', intro:'navIntro', problem:'navProblem', solution:'navSolution', close:'navClose'};
+  items.forEach((it,i)=>{
+    const a=document.createElement('a');
+    a.dataset.index=i;
+    a.innerHTML='<span class="ico">'+it[1]+'</span><span class="nm-t">'+it[0]+'</span><span class="nm">'+String(i+1).padStart(2,'0')+'</span>';
+    a.addEventListener('click',()=>go(i));
+    document.getElementById(groups[it[2]]).appendChild(a);
+  });
+  const navLinks = Array.from(document.querySelectorAll('.nav a'));
+
+  let cur=0;
+  function go(i){
+    cur=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===cur));
+    navLinks.forEach((a,k)=>a.classList.toggle('active',k===cur));
+    counter.textContent=String(cur+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+    prevBtn.disabled=cur===0; nextBtn.disabled=cur===slides.length-1;
+    main.scrollTo({top:0,behavior:'auto'});
+    const an=navLinks[cur]; if(an) an.scrollIntoView({block:'nearest'});
+    maybeChart(cur);
+  }
+  prevBtn.addEventListener('click',()=>go(cur-1));
+  nextBtn.addEventListener('click',()=>go(cur+1));
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'){e.preventDefault();go(cur+1);}
+    if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(cur-1);}
+    if(e.key==='Home'){go(0);} if(e.key==='End'){go(slides.length-1);}
+  });
+
+  // charts (lazy)
+  const built={};
+  const cream={grid:'#e2d5ba',tick:'#94836b'};
+  function axes(pct){return{
+    x:{grid:{display:false},ticks:{color:cream.tick,font:{family:"'DM Sans',sans-serif",size:13}},border:{display:false}},
+    y:{grid:{color:cream.grid},ticks:{color:cream.tick,font:{family:"'JetBrains Mono',monospace",size:11},callback:v=>pct?v+'%':v},border:{display:false}}
+  };}
+  function maybeChart(i){
+    if(built[i]||!window.Chart) return;
+    if(i===11){built[i]=true;new Chart(document.getElementById('distChart'),{
+      type:'bar',data:{labels:['<2h','2–5h','5–10h','10–20h','20–50h','50+h'],
+        datasets:[{data:[225,62,34,22,11,2],borderRadius:6,backgroundColor:['#b4502e','#c9794f','#c9794f','#cdbfa6','#cdbfa6','#3a6184']}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+' tickets'}}},scales:axes(false)}});}
+    if(i===20){built[i]=true;new Chart(document.getElementById('shiftChart'),{
+      type:'bar',data:{labels:['Reactive tickets','Strategic initiatives'],
+        datasets:[{label:'Year 1',data:[49,24],backgroundColor:'#cdbfa6',borderRadius:6},{label:'Year 2',data:[35,45],backgroundColor:'#b4502e',borderRadius:6}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'top',align:'end',labels:{color:cream.tick,font:{family:"'JetBrains Mono',monospace",size:11},boxWidth:12,boxHeight:12,useBorderRadius:true,borderRadius:3,padding:14}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw+'%'}}},scales:axes(true)}});}
+  }
+
+  go(0);
+</script>
+</body>
+</html>

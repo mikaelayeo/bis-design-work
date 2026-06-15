@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rethinking Sprint Planning — SafeTapp Mobile Trio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --bg-elev: #161618;
+    --bg-elev-2: #1c1c20;
+    --border: #2a2a2c;
+    --border-soft: #1f1f22;
+    --text: #e8e8e8;
+    --text-muted: #8a8a8e;
+    --text-dim: #5e5e62;
+    --accent: #c9a36a;
+    --accent-soft: #c9a36a22;
+    --new: #7eb3c4;
+    --new-soft: #7eb3c422;
+    --warn: #c47e7e;
+    --warn-soft: #c47e7e22;
+    --green: #8ab97a;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 80px 32px 120px;
+  }
+
+  /* Typography */
+  h1, h2, h3, h4 { font-family: 'DM Serif Display', serif; font-weight: 400; }
+
+  h1 {
+    font-size: 56px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 24px;
+  }
+
+  h2 {
+    font-size: 36px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0 0 16px;
+  }
+
+  h3 {
+    font-size: 24px;
+    line-height: 1.25;
+    margin: 0 0 12px;
+  }
+
+  h4 {
+    font-size: 18px;
+    line-height: 1.3;
+    margin: 0 0 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+  }
+
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  p { margin: 0 0 16px; color: var(--text); }
+  p.muted { color: var(--text-muted); }
+
+  em { font-style: italic; color: var(--accent); }
+  strong { color: var(--text); font-weight: 600; }
+
+  /* Sections */
+  section { margin-bottom: 96px; }
+
+  .hero {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 56px;
+    margin-bottom: 80px;
+  }
+
+  .hero p.lede {
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--text-muted);
+    max-width: 640px;
+  }
+
+  .hero .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 40px;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .hero .meta span::before { content: '— '; color: var(--accent); }
+
+  /* Callout boxes */
+  .callout {
+    background: var(--bg-elev);
+    border-left: 2px solid var(--accent);
+    padding: 24px 28px;
+    margin: 32px 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .callout.new { border-left-color: var(--new); }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout.green { border-left-color: var(--green); }
+
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0 32px;
+    font-size: 15px;
+  }
+
+  th, td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-soft);
+    vertical-align: top;
+  }
+
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  td.num {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  /* Time bars */
+  .bars { margin: 24px 0 32px; }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 80px;
+    gap: 16px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 14px;
+  }
+  .bar-row:last-child { border-bottom: none; }
+  .bar-label { color: var(--text); }
+  .bar-track {
+    height: 8px;
+    background: var(--bg-elev-2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+  .bar-fill.warn { background: var(--warn); }
+  .bar-fill.new { background: var(--new); }
+  .bar-fill.green { background: var(--green); }
+  .bar-val {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: right;
+  }
+
+  /* Comparison grid */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .compare-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px;
+  }
+
+  .compare-card.current { border-top: 2px solid var(--warn); }
+  .compare-card.proposed { border-top: 2px solid var(--new); }
+
+  .compare-card h4 {
+    margin-bottom: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .compare-card.current h4 { color: var(--warn); }
+  .compare-card.proposed h4 { color: var(--new); }
+
+  .compare-card ul {
+    padding-left: 0;
+    list-style: none;
+    margin: 0;
+  }
+
+  .compare-card li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .compare-card li:last-child { border-bottom: none; }
+
+  /* Meeting cards (3-up) */
+  .meeting-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .meeting-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 24px;
+  }
+
+  .meeting-card .meta-col {
+    border-right: 1px solid var(--border-soft);
+    padding-right: 24px;
+  }
+
+  .meeting-card .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--new);
+    margin-bottom: 8px;
+  }
+
+  .meeting-card .when {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .meeting-card h3 {
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .meeting-card .purpose {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+
+  .meeting-card .rules {
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .meeting-card .rules div { padding: 4px 0; }
+  .meeting-card .rules .yes::before {
+    content: '+ ';
+    color: var(--green);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .meeting-card .rules .no::before {
+    content: '− ';
+    color: var(--warn);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Role cards */
+  .roles {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin: 32px 0;
+  }
+
+  .role {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px 32px;
+  }
+
+  .role header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 14px;
+  }
+
+  .role .role-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+  }
+
+  .role .role-person {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .role .mode {
+    margin-bottom: 16px;
+  }
+
+  .role .mode-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  .role .mode.bis .mode-label { color: var(--new); }
+  .role .mode.notdo .mode-label { color: var(--warn); }
+
+  .role ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  .role li { padding: 3px 0; }
+
+  /* Stat blocks */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 32px 0;
+  }
+
+  .stat {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px;
+    text-align: left;
+  }
+
+  .stat .big {
+    font-family: 'DM Serif Display', serif;
+    font-size: 40px;
+    line-height: 1;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .stat .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* Steps */
+  .steps {
+    counter-reset: step;
+    margin: 32px 0;
+  }
+
+  .step {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 50px 1fr;
+    gap: 24px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .step::before {
+    content: counter(step, decimal-leading-zero);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .step h4 { margin-bottom: 8px; }
+  .step p { margin: 0; color: var(--text-muted); font-size: 15px; }
+
+  /* Footer note */
+  .closing {
+    margin-top: 96px;
+    padding-top: 56px;
+    border-top: 1px solid var(--border);
+  }
+
+  .closing p {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.5;
+    color: var(--text-muted);
+    max-width: 640px;
+  }
+
+  /* Section dividers */
+  .divider {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    .wrap { padding: 48px 20px 80px; }
+    h1 { font-size: 40px; }
+    h2 { font-size: 28px; }
+    .compare { grid-template-columns: 1fr; }
+    .meeting-card { grid-template-columns: 1fr; }
+    .meeting-card .meta-col { border-right: none; border-bottom: 1px solid var(--border-soft); padding: 0 0 16px; padding-right: 0; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .bar-row { grid-template-columns: 1fr; gap: 6px; }
+    .bar-row .bar-val { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HERO -->
+<header class="hero">
+  <span class="eyebrow">SafeTapp Mobile Trio · Proposal</span>
+  <h1>Rethinking how we plan sprints.</h1>
+  <p class="lede">Our planning meetings run 1–2 hours and most of that time isn't actually planning. This is a proposal to split the work into the right shapes, with clear role expectations, while honouring the reality that BIS is harder to design for than a textbook SaaS.</p>
+  <div class="meta">
+    <span>Authored by Mika</span>
+    <span>For Anita, Aymeric, Udayan</span>
+    <span>Discuss · don't decide</span>
+  </div>
+</header>
+
+<!-- WHY THIS EXISTS -->
+<section>
+  <p class="divider">01 · Premise</p>
+  <h2>BIS isn't a textbook SaaS — and our process should reflect that.</h2>
+  <p>Most "how to run a sprint" advice assumes a documented system, a self-service product, and a PM who can fully specify before handoff. None of those are fully true at BIS, and pretending they are is part of why our meetings feel heavy.</p>
+
+  <div class="callout">
+    <p><strong>The honest premise:</strong> the BIS codebase is large, lightly documented, and the behaviour of existing features lives mostly in the heads of the people who built or tested them. Every non-trivial ticket starts with <em>system archaeology</em> before any product work can begin.</p>
+    <p>That archaeology is real work — but the team doesn't currently name it as work. It happens invisibly inside discovery, inside design, inside dev. When estimates feel wrong and sprints feel heavy, this is usually why.</p>
+  </div>
+
+  <h3 style="margin-top:40px;">Every role at BIS runs in two modes</h3>
+  <table>
+    <thead>
+      <tr><th>Mode</th><th>What it is</th><th>When it happens</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Standard product work</strong></td>
+        <td>Investigate users, design solutions, build, test, ship.</td>
+        <td>Visible. Expected.</td>
+      </tr>
+      <tr>
+        <td><strong>System archaeology</strong></td>
+        <td>Figuring out how the existing BIS system already works because there's no spec to read.</td>
+        <td>Invisible. Unaccounted for.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="muted">Naming the second mode is the first step. Once we can call it "archaeology," we can estimate it, schedule it, and capture its output as durable documentation instead of throwaway meeting talk.</p>
+</section>
+
+<!-- WHAT'S HAPPENING NOW -->
+<section>
+  <p class="divider">02 · Diagnosis</p>
+  <h2>What our "sprint planning" meetings actually do.</h2>
+  <p>Looking across recent planning meetings (~4 hours of footage), one pattern jumped out: the meeting carries four jobs at once, and the one it's named for is the smallest piece of it.</p>
+
+  <div class="bars">
+    <div class="bar-row">
+      <span class="bar-label">Discovery &amp; brainstorming</span>
+      <div class="bar-track"><div class="bar-fill" style="width:78%"></div></div>
+      <span class="bar-val">~39%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Status &amp; ticket admin</span>
+      <div class="bar-track"><div class="bar-fill" style="width:48%"></div></div>
+      <span class="bar-val">~24%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Design walkthrough &amp; critique</span>
+      <div class="bar-track"><div class="bar-fill" style="width:40%"></div></div>
+      <span class="bar-val">~20%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Social &amp; waiting</span>
+      <div class="bar-track"><div class="bar-fill warn" style="width:22%"></div></div>
+      <span class="bar-val">~11%</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Actual sprint planning</span>
+      <div class="bar-track"><div class="bar-fill green" style="width:12%"></div></div>
+      <span class="bar-val">~6%</span>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat">
+      <div class="big">6%</div>
+      <div class="lbl">Of the meeting is sprint planning</div>
+    </div>
+    <div class="stat">
+      <div class="big">4</div>
+      <div class="lbl">Distinct jobs in one meeting</div>
+    </div>
+    <div class="stat">
+      <div class="big">~2</div>
+      <div class="lbl">Follow-up meetings spawned each time</div>
+    </div>
+    <div class="stat">
+      <div class="big">0</div>
+      <div class="lbl">Tickets estimated by size</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:48px;">Why it feels heavy — even though everyone is working hard</h3>
+  <p>None of the four jobs is wrong. Each is real work. The problem is that they belong in different containers:</p>
+  <ul>
+    <li><strong>Discovery</strong> needs prep, focus, and the right people — not an ambush mid-meeting.</li>
+    <li><strong>Status</strong> is async work — a Slack thread does it in 2 minutes instead of 25.</li>
+    <li><strong>Design walkthroughs</strong> deserve their own slot so they're not rushed.</li>
+    <li><strong>Sprint planning</strong> only works when tickets are <em>already ready</em>. Otherwise it becomes scoping.</li>
+  </ul>
+  <p>And because everything happens at once, sprint planning itself ends up squeezed into the last 5 minutes — which is exactly when we lock in commitments we can't actually deliver.</p>
+</section>
+
+<!-- PROPOSED STRUCTURE -->
+<section>
+  <p class="divider">03 · Proposal</p>
+  <h2>Three smaller meetings, each doing one job well.</h2>
+  <p>Same total time — possibly less. But the work happens in the right container, so each one is faster and clearer.</p>
+
+  <div class="meeting-grid">
+
+    <div class="meeting-card">
+      <div class="meta-col">
+        <div class="label">Meeting 01</div>
+        <div class="when">
+          Weekly<br>
+          30–45 min<br>
+          PM + Trio
+        </div>
+      </div>
+      <div>
+        <h3>Backlog Grooming</h3>
+        <p class="purpose">Get tickets <em>ready</em> for a future sprint. No commitments made here.</p>
+        <div class="rules">
+          <div class="yes">Walk the not-yet-ready list</div>
+          <div class="yes">Identify what each ticket is missing (design, AC, estimate, backend input)</div>
+          <div class="yes">Assign the missing piece with a deadline</div>
+          <div class="no">No solutioning</div>
+          <div class="no">No discovery brainstorms</div>
+          <div class="no">No status updates on in-flight work</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meeting-card">
+      <div class="meta-col">
+        <div class="label">Meeting 02</div>
+        <div class="when">
+          Every 2 weeks<br>
+          30–45 min · hard cap<br>
+          Whole trio + QA
+        </div>
+      </div>
+      <div>
+        <h3>Sprint Planning</h3>
+        <p class="purpose">Pick what fits. Commit. Stop.</p>
+        <div class="rules">
+          <div class="yes">Confirm capacity (PTO, partial allocation, holidays)</div>
+          <div class="yes">Walk pre-prioritised list of <em>ready</em> tickets only</div>
+          <div class="yes">Pull from the top until capacity is full</div>
+          <div class="yes">Flag dependencies and risks</div>
+          <div class="no">No ticket creation</div>
+          <div class="no">No design walkthroughs</div>
+          <div class="no">No brainstorming</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meeting-card">
+      <div class="meta-col">
+        <div class="label">Meeting 03</div>
+        <div class="when">
+          As needed<br>
+          45–90 min<br>
+          Trio (small group)
+        </div>
+      </div>
+      <div>
+        <h3>Discovery / Trio Brainstorm</h3>
+        <p class="purpose">Think together in the problem space. Deliberate, with prep.</p>
+        <div class="rules">
+          <div class="yes">PM brings a hypothesis (not just a hunch)</div>
+          <div class="yes">Designer brings current-state map of the system area</div>
+          <div class="yes">Dev brings feasibility &amp; system constraints</div>
+          <div class="yes">Output is a decision <em>and</em> a written summary</div>
+          <div class="no">No status, no admin, no scoping unrelated tickets</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <h3 style="margin-top:48px;">Before / After</h3>
+  <div class="compare">
+    <div class="compare-card current">
+      <h4>What we do today</h4>
+      <ul>
+        <li>One ~2 hour weekly meeting</li>
+        <li>Everything happens at once</li>
+        <li>Brainstorms ambush the agenda</li>
+        <li>Status walk-through ticket-by-ticket</li>
+        <li>Tickets created live, in-meeting</li>
+        <li>Sprint commits made by feel, no capacity check</li>
+        <li>Output: "let's schedule another meeting"</li>
+      </ul>
+    </div>
+    <div class="compare-card proposed">
+      <h4>What we'd try</h4>
+      <ul>
+        <li>Three smaller meetings, one job each</li>
+        <li>Grooming &amp; planning separated</li>
+        <li>Discovery scheduled deliberately, with prep</li>
+        <li>Status moves async (Slack thread)</li>
+        <li>Ticket admin happens outside meetings</li>
+        <li>Sprint commits sized against real capacity</li>
+        <li>Output: decisions, with written artifacts</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout new">
+    <p><strong>Note on QA.</strong> QA isn't in our weekly today, but sprint planning is where their capacity matters most. The version of "too heavy for QA" we hit recently is exactly what gets solved when QA is in the room to size the test surface — not after the fact.</p>
+  </div>
+</section>
+
+<!-- ROLE EXPECTATIONS -->
+<section>
+  <p class="divider">04 · Roles</p>
+  <h2>What each of us brings — and where we can lean on each other.</h2>
+  <p>Each role has standard expectations plus a BIS-specific layer. The BIS layer is where most of the friction lives, so it's worth naming explicitly.</p>
+
+  <div class="roles">
+
+    <div class="role">
+      <header>
+        <div class="role-name">Product Manager</div>
+        <div class="role-person">// Anita</div>
+      </header>
+      <div class="mode">
+        <div class="mode-label">Standard mode</div>
+        <ul>
+          <li>Owns the <em>what</em> and <em>why</em> — synthesises client signals into priorities</li>
+          <li>Writes problem statements, not solutions</li>
+          <li>Prioritises the backlog</li>
+          <li>Coordinates stakeholders (Luke, Erica, Alex, backend leads)</li>
+          <li>Owns release timing &amp; trade-offs</li>
+        </ul>
+      </div>
+      <div class="mode bis">
+        <div class="mode-label">BIS-specific</div>
+        <ul>
+          <li>Brings a <em>hypothesis</em> to discovery — even one sentence anchors the session</li>
+          <li>Cross-client synthesis — only PM sees the full picture across portals</li>
+          <li>Negotiates partial-allocation backend capacity</li>
+          <li>Holds the through-line when work cuts across modules</li>
+        </ul>
+      </div>
+      <div class="mode notdo">
+        <div class="mode-label">Not on the PM</div>
+        <ul>
+          <li>Investigating implementation alone</li>
+          <li>Writing the design solution</li>
+          <li>Knowing the system end-to-end (nobody does)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="role">
+      <header>
+        <div class="role-name">Designer</div>
+        <div class="role-person">// Mika</div>
+      </header>
+      <div class="mode">
+        <div class="mode-label">Standard mode</div>
+        <ul>
+          <li>Owns the <em>experience</em> — problem → flow → screen</li>
+          <li>Investigates user behaviour &amp; existing flows</li>
+          <li>Generates and refines solutions through critique</li>
+          <li>Produces final design + acceptance criteria alignment</li>
+        </ul>
+      </div>
+      <div class="mode bis">
+        <div class="mode-label">BIS-specific</div>
+        <ul>
+          <li>Maps cross-module impact — every design touches more than its ticket</li>
+          <li>Synthesises the trio's tribal knowledge into one shared user story</li>
+          <li>Documents the existing flow during discovery (durable value for next time)</li>
+          <li>Translates ambiguous hunches into concrete scenarios</li>
+        </ul>
+      </div>
+      <div class="mode notdo">
+        <div class="mode-label">Not on the designer</div>
+        <ul>
+          <li>Setting business priority</li>
+          <li>Deciding what fits the sprint technically</li>
+          <li>Being the only one who knows how a feature should work — write it down</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="role">
+      <header>
+        <div class="role-name">Front-end Dev</div>
+        <div class="role-person">// Aymeric</div>
+      </header>
+      <div class="mode">
+        <div class="mode-label">Standard mode</div>
+        <ul>
+          <li>Owns the client-side <em>how</em> — implements design with quality &amp; performance</li>
+          <li>Estimates effort honestly (S / M / L / XL)</li>
+          <li>Stress-tests designs for feasibility</li>
+          <li>Owns front-end architecture &amp; component decisions</li>
+        </ul>
+      </div>
+      <div class="mode bis">
+        <div class="mode-label">BIS-specific</div>
+        <ul>
+          <li>Source of truth on how existing features actually behave</li>
+          <li>Flags when "small change" hits big system complexity</li>
+          <li>Investigates client configurations when discovery needs grounding</li>
+          <li>Asks "what's the user story?" before implementation — and is allowed to hold the line</li>
+        </ul>
+      </div>
+      <div class="mode notdo">
+        <div class="mode-label">Not on the front-end dev</div>
+        <ul>
+          <li>Carrying the entire institutional memory in their head alone</li>
+          <li>Making product decisions</li>
+          <li>Skipping the user story to get to code</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="role">
+      <header>
+        <div class="role-name">Back-end Dev</div>
+        <div class="role-person">// Udayan</div>
+      </header>
+      <div class="mode">
+        <div class="mode-label">Standard mode</div>
+        <ul>
+          <li>Owns API contracts &amp; data layer</li>
+          <li>Estimates back-end effort</li>
+          <li>Coordinates with the India backend team</li>
+        </ul>
+      </div>
+      <div class="mode bis">
+        <div class="mode-label">BIS-specific</div>
+        <ul>
+          <li>Translates mobile needs into the India team's priorities &amp; timezone</li>
+          <li>Surfaces schema constraints <em>during</em> design, not after</li>
+          <li>Liaison when partial allocation creates blockers</li>
+          <li>Knows what's possible in the existing data model</li>
+        </ul>
+      </div>
+      <div class="mode notdo">
+        <div class="mode-label">Not on the back-end dev</div>
+        <ul>
+          <li>Single-handedly fixing backend partial-allocation pain</li>
+          <li>Being a passive recipient of finalised design</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="role">
+      <header>
+        <div class="role-name">QA</div>
+        <div class="role-person">// Test team</div>
+      </header>
+      <div class="mode">
+        <div class="mode-label">Standard mode</div>
+        <ul>
+          <li>Tests against acceptance criteria</li>
+          <li>Reports bugs with reproducible steps</li>
+          <li>Owns regression coverage</li>
+          <li>Sign-off authority for release</li>
+        </ul>
+      </div>
+      <div class="mode bis">
+        <div class="mode-label">BIS-specific</div>
+        <ul>
+          <li>Second institutional memory after senior devs — knows edge cases nobody else does</li>
+          <li>Catches cross-module regressions other roles miss</li>
+          <li>Should size the <em>test surface</em> at sprint planning, not discover it mid-sprint</li>
+        </ul>
+      </div>
+      <div class="mode notdo">
+        <div class="mode-label">Not on QA</div>
+        <ul>
+          <li>Being the last line of defence for "does this feature make sense"</li>
+          <li>Being handed an overloaded sprint without a voice in commit</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SYSTEM ARCHAEOLOGY -->
+<section>
+  <p class="divider">05 · The archaeology problem</p>
+  <h2>"We need a dev or QA to explain features" — that's a real constraint, not a flaw.</h2>
+  <p>This deserves its own section because it's the thing that makes BIS feel different. In a textbook SaaS, the PM and designer can self-serve: read the spec, look at the data, understand the system. At BIS, the spec doesn't exist for most older features. The only people who can explain how mileage scheduling, attendance widgets, or asset on-demand forms actually behave are the ones who built or tested them.</p>
+
+  <p>That means:</p>
+  <ul>
+    <li>Asking the dev "how does this work?" is part of the job. It's not a sign of underpreparation.</li>
+    <li>Investigation time has to be factored into estimates — a ticket touching four existing features genuinely takes longer than one touching one.</li>
+    <li>Discovery sessions have to start with "what does it currently do?" before "what should we build?"</li>
+  </ul>
+
+  <div class="callout warn">
+    <p><strong>What's not okay:</strong> running the same investigation twice. If we figure out how mileage scheduling works on Monday and have to figure it out again on Friday, that's preventable waste. The fix is documentation as a byproduct of discovery.</p>
+  </div>
+
+  <h3 style="margin-top:40px;">What we systematise over time</h3>
+  <table>
+    <thead>
+      <tr><th>Habit</th><th>What it produces</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Feature anatomy docs</strong></td>
+        <td>One page per major feature — current behaviour, edge cases, related features. Living docs, contributed to by whoever last touched the area.</td>
+      </tr>
+      <tr>
+        <td><strong>Discovery → written summary</strong></td>
+        <td>Every brainstorm ends with a paragraph: problem statement, current state, proposed direction, open questions. Not a recording — a doc.</td>
+      </tr>
+      <tr>
+        <td><strong>"How does X work?" gaps tracked</strong></td>
+        <td>If the question gets asked and there's no doc, that's a gap worth a 30-min capture session before the area is touched again.</td>
+      </tr>
+      <tr>
+        <td><strong>Estimation includes investigation</strong></td>
+        <td>A ticket's size accounts for "how much archaeology does this need?" — that's how heavy sprints stop being a surprise.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="muted">This isn't fast or glamorous — it's compound interest. Six months from now, the trio that does this has a knowledge base. The one that doesn't is still asking Aymeric the same questions every sprint.</p>
+</section>
+
+<!-- WHAT TO TRY FIRST -->
+<section>
+  <p class="divider">06 · Trial run</p>
+  <h2>What we could try first — without a full overhaul.</h2>
+  <p>Three concrete moves we can pilot for one month and reassess. None of them require permission, tools, or political capital.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div>
+        <h4>Split the Monday meeting into two slots</h4>
+        <p>30 min grooming on one day, 30 min planning on another. Use the existing time slot — just two halves with different jobs and a hard agenda for each.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div>
+        <h4>Define what "ready" means</h4>
+        <p>Agree on a short checklist: problem statement, acceptance criteria, design final (if needed), estimate. Tickets that don't pass don't enter sprint planning — they go back to grooming.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div>
+        <h4>Schedule discovery, don't ambush it</h4>
+        <p>When a brainstorm impulse hits mid-meeting, say "let's park it and schedule a focused session." The PM brings a hypothesis, the designer brings current-state context, the dev brings feasibility. 60 min focused beats 90 min unfocused, every time.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout green">
+    <p><strong>What I'm offering on my side:</strong> I'll write a short design-handoff summary at the end of each design — "what's the same as the original scope, what changed during design, what was open that I closed." That makes my work visible to dev and QA before estimation, instead of surfacing mid-sprint. That's the trade I'd put on the table.</p>
+  </div>
+</section>
+
+<!-- CLOSING -->
+<section class="closing">
+  <p>"Trio before scope. The ticket was a multiple sign-off field. The output was a new tracking module."</p>
+  <p style="font-family:'DM Sans',sans-serif; font-style:normal; font-size:15px; color:var(--text-dim); margin-top:24px;">— from the brainstorm that worked. The structural goal of this proposal is to make that the rule, not the exception.</p>
+</section>
+
+</div>
+</body>
+</html>

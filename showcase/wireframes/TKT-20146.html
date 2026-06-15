@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TKT-20146 — Advanced Form Reports: Name Format Selector</title>
+  <style>
+    /* === MINIMAL WIREFRAME STYLES === */
+    /* No brand colors, no typography tokens — structural gray palette only */
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      background: #f0f0f0;
+      color: #111;
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    /* Page header */
+    .page-header {
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #bbb;
+    }
+    .page-header h1 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+    }
+    .page-header .meta {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      background: #ddd;
+      color: #444;
+      border-radius: 3px;
+      padding: 1px 6px;
+      margin-right: 6px;
+    }
+    .badge.level1 { background: #e8e8e8; color: #555; }
+
+    /* === MAIN WIREFRAME CANVAS === */
+    .canvas {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    /* Report setup shell — mimics the outer page frame */
+    .report-shell {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 680px;
+      min-width: 320px;
+      flex-shrink: 0;
+    }
+
+    .report-shell__titlebar {
+      background: #e2e2e2;
+      border-bottom: 1px solid #ccc;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .report-shell__titlebar .step-indicator {
+      font-size: 11px;
+      font-weight: 400;
+      color: #777;
+    }
+
+    /* Step breadcrumb strip */
+    .step-breadcrumb {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      background: #fafafa;
+    }
+    .step-breadcrumb__item {
+      flex: 1;
+      text-align: center;
+      padding: 8px 4px;
+      font-size: 11px;
+      color: #999;
+      border-right: 1px solid #ddd;
+      position: relative;
+    }
+    .step-breadcrumb__item:last-child { border-right: none; }
+    .step-breadcrumb__item.active {
+      color: #333;
+      font-weight: 600;
+      background: #fff;
+    }
+    .step-breadcrumb__item.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0; right: 0;
+      height: 2px;
+      background: #555;
+    }
+    .step-breadcrumb__item.done { color: #666; }
+
+    .report-shell__body {
+      padding: 20px 20px 16px;
+    }
+
+    /* Section label */
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #888;
+      margin-bottom: 10px;
+    }
+
+    /* Column picker — two-pane layout */
+    .column-picker {
+      display: flex;
+      gap: 12px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      background: #fafafa;
+      padding: 12px;
+      min-height: 260px;
+    }
+
+    .column-picker__pane {
+      flex: 1;
+      min-width: 0;
+    }
+    .column-picker__pane-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #777;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .column-picker__list {
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      background: #fff;
+      min-height: 200px;
+      overflow-y: auto;
+    }
+
+    /* Individual field row */
+    .field-row {
+      display: flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-bottom: 1px solid #eee;
+      font-size: 13px;
+      color: #333;
+      cursor: pointer;
+      gap: 8px;
+    }
+    .field-row:last-child { border-bottom: none; }
+    .field-row:hover { background: #f5f5f5; }
+    .field-row.selected { background: #e8e8e8; }
+    .field-row.highlighted {
+      background: #efefef;
+      border-left: 3px solid #888;
+    }
+    .field-row input[type="checkbox"] {
+      flex-shrink: 0;
+      accent-color: #555;
+    }
+    .field-row .field-name { flex: 1; }
+    .field-row .new-tag {
+      font-size: 10px;
+      background: #555;
+      color: #fff;
+      border-radius: 2px;
+      padding: 1px 5px;
+      font-weight: 600;
+    }
+
+    /* Arrows between panes */
+    .column-picker__arrows {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 4px;
+    }
+    .arrow-btn {
+      background: #ddd;
+      border: 1px solid #bbb;
+      border-radius: 3px;
+      padding: 4px 8px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #555;
+      line-height: 1;
+    }
+    .arrow-btn:hover { background: #ccc; }
+
+    /* === NEW: Name Format Sub-control === */
+    /* Appears below the selected-columns list when an Entered By name field is active */
+    .name-format-panel {
+      margin-top: 14px;
+      border: 1px dashed #aaa;
+      border-radius: 3px;
+      background: #fff;
+      padding: 14px 14px 10px;
+      position: relative;
+    }
+    .name-format-panel::before {
+      content: 'NEW CONTROL — surfaces when "Entered By First Name" or "Entered By Last Name" is selected';
+      display: block;
+      font-size: 10px;
+      color: #999;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+
+    .name-format-panel__label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    /* Radio group */
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #333;
+      cursor: pointer;
+    }
+    .radio-group label input[type="radio"] {
+      flex-shrink: 0;
+      accent-color: #555;
+    }
+    .radio-group label .format-example {
+      margin-left: 4px;
+      font-size: 12px;
+      color: #777;
+      font-style: italic;
+    }
+
+    /* Preview snippet */
+    .preview-block {
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      background: #f7f7f7;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+    }
+    .preview-block__heading {
+      font-size: 10px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+    .preview-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .preview-table th {
+      background: #e5e5e5;
+      border: 1px solid #ccc;
+      padding: 4px 8px;
+      text-align: left;
+      font-weight: 600;
+      color: #444;
+    }
+    .preview-table td {
+      border: 1px solid #ddd;
+      padding: 4px 8px;
+      color: #333;
+    }
+    .preview-table tr.active-row td { background: #eeeeee; }
+
+    /* Callout / help text */
+    .callout {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: #efefef;
+      border: 1px solid #d0d0d0;
+      border-radius: 3px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: #555;
+      margin-top: 2px;
+    }
+    .callout__icon {
+      flex-shrink: 0;
+      font-size: 14px;
+      margin-top: 1px;
+    }
+
+    /* Action bar */
+    .action-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 20px 16px;
+      border-top: 1px solid #eee;
+      background: #fafafa;
+    }
+    .btn {
+      padding: 7px 16px;
+      font-size: 13px;
+      border-radius: 3px;
+      cursor: pointer;
+      border: 1px solid #bbb;
+      background: #e0e0e0;
+      color: #333;
+    }
+    .btn.primary {
+      background: #555;
+      color: #fff;
+      border-color: #444;
+    }
+
+    /* State annotation strip */
+    .state-strip {
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: #f0f0f0;
+      border: 1px dashed #ccc;
+      border-radius: 3px;
+      font-size: 11px;
+      color: #777;
+    }
+    .state-strip strong { color: #555; }
+
+    /* === DESIGN NOTES PANEL === */
+    .design-notes {
+      width: 300px;
+      min-width: 260px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 16px;
+      flex-shrink: 0;
+      align-self: flex-start;
+    }
+    .design-notes h3 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #666;
+      margin-top: 16px;
+      margin-bottom: 6px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+    }
+    .design-notes h3:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+    .design-notes ul {
+      list-style: disc;
+      padding-left: 16px;
+    }
+    .design-notes li {
+      font-size: 12px;
+      color: #444;
+      margin-bottom: 5px;
+      line-height: 1.5;
+    }
+    .design-notes a {
+      color: #555;
+      font-size: 12px;
+    }
+    .design-notes .status-tag {
+      display: inline-block;
+      font-size: 11px;
+      background: #fff3cd;
+      color: #7a5c00;
+      border: 1px solid #e8d98a;
+      border-radius: 3px;
+      padding: 2px 7px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .design-notes .source-note {
+      font-size: 11px;
+      color: #999;
+      font-style: italic;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>TKT-20146 — Advanced Form Reports: Name Display Format Selector</h1>
+    <div class="meta">
+      <span class="badge level1">Level 1 Wireframe</span>
+      <span class="badge">Bug / Medium</span>
+      <span class="badge">Assigned: Aswin K S</span>
+      <span class="badge">Reporter: Christina Burgher</span>
+      <span style="font-size:12px; color:#888;">Generated 2026-05-14</span>
+    </div>
+  </div>
+
+  <div class="canvas">
+
+    <!-- ================================================
+         MAIN WIREFRAME: Advanced Form Reporting shell
+         Shows step 3 of N — Customized Columns
+    ================================================= -->
+    <div class="report-shell">
+
+      <div class="report-shell__titlebar">
+        Advanced Form Reporting — Safety Leadership Activities
+        <span class="step-indicator">Athabasca Oil Corporation</span>
+      </div>
+
+      <!-- Step breadcrumb — existing flow, step 3 active -->
+      <div class="step-breadcrumb">
+        <div class="step-breadcrumb__item done">1. Report Type</div>
+        <div class="step-breadcrumb__item done">2. Date Range</div>
+        <div class="step-breadcrumb__item active">3. Customized Columns</div>
+        <div class="step-breadcrumb__item">4. Filters</div>
+        <div class="step-breadcrumb__item">5. Schedule</div>
+      </div>
+
+      <div class="report-shell__body">
+
+        <div class="section-label">Select and order report columns</div>
+
+        <!-- Column picker: Available | controls | Selected -->
+        <div class="column-picker">
+
+          <!-- LEFT pane: available columns -->
+          <div class="column-picker__pane">
+            <div class="column-picker__pane-label">Available fields</div>
+            <div class="column-picker__list">
+              <div class="field-row"><input type="checkbox"> <span class="field-name">Form ID</span></div>
+              <div class="field-row"><input type="checkbox"> <span class="field-name">Form Name</span></div>
+              <div class="field-row"><input type="checkbox"> <span class="field-name">Submitted Date</span></div>
+              <div class="field-row highlighted"><input type="checkbox" checked> <span class="field-name">Entered By First Name</span></div>
+              <div class="field-row highlighted"><input type="checkbox" checked> <span class="field-name">Entered By Last Name</span></div>
+              <div class="field-row"><input type="checkbox"> <span class="field-name">Reviewed By</span></div>
+              <div class="field-row"><input type="checkbox"> <span class="field-name">Assigned To</span></div>
+              <div class="field-row"><input type="checkbox"> <span class="field-name">Location</span></div>
+              <div class="field-row"><input type="checkbox"> <span class="field-name">Department</span></div>
+              <div class="field-row"><input type="checkbox"> <span class="field-name">Status</span></div>
+            </div>
+          </div>
+
+          <!-- Center arrows -->
+          <div class="column-picker__arrows">
+            <button class="arrow-btn" title="Add selected">&rsaquo;</button>
+            <button class="arrow-btn" title="Remove selected">&lsaquo;</button>
+            <button class="arrow-btn" title="Add all">&raquo;</button>
+            <button class="arrow-btn" title="Remove all">&laquo;</button>
+          </div>
+
+          <!-- RIGHT pane: selected columns (current report config) -->
+          <div class="column-picker__pane">
+            <div class="column-picker__pane-label">Selected columns (report output order)</div>
+            <div class="column-picker__list">
+              <div class="field-row selected"><span class="field-name">Form ID</span></div>
+              <div class="field-row selected"><span class="field-name">Submitted Date</span></div>
+              <div class="field-row selected" style="border-left: 3px solid #555;">
+                <span class="field-name">Entered By First Name</span>
+              </div>
+              <div class="field-row selected" style="border-left: 3px solid #555;">
+                <span class="field-name">Entered By Last Name</span>
+                <span class="new-tag">FORMAT</span>
+              </div>
+              <div class="field-row selected"><span class="field-name">Location</span></div>
+              <div class="field-row selected"><span class="field-name">Status</span></div>
+            </div>
+          </div>
+
+        </div><!-- /column-picker -->
+
+        <!-- ===============================================
+             NEW CONTROL: Name Display Format sub-panel
+             Surfaces when either Entered By name field
+             is selected in the column picker.
+        ================================================ -->
+        <div class="name-format-panel">
+
+          <div class="name-format-panel__label">Name display format — Entered By</div>
+
+          <!-- Radio group: two options -->
+          <div class="radio-group">
+            <label>
+              <input type="radio" name="nameFormat" value="first-last" checked>
+              First Last
+              <span class="format-example">(e.g., Jane Smith)</span>
+            </label>
+            <label>
+              <input type="radio" name="nameFormat" value="last-first">
+              Last, First
+              <span class="format-example">(e.g., Smith, Jane)</span>
+            </label>
+          </div>
+
+          <!-- Preview snippet -->
+          <div class="preview-block">
+            <div class="preview-block__heading">Preview — report column output</div>
+            <table class="preview-table">
+              <thead>
+                <tr>
+                  <th>Submitted Date</th>
+                  <th>Entered By First Name</th>
+                  <th>Entered By Last Name</th>
+                  <th>Location</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="active-row">
+                  <td>2026-05-10</td>
+                  <td>Jane</td>
+                  <td>Smith</td>
+                  <td>Site A</td>
+                </tr>
+                <tr>
+                  <td>2026-05-09</td>
+                  <td>Carlos</td>
+                  <td>Rivera</td>
+                  <td>Site B</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Callout / help text -->
+          <div class="callout">
+            <span class="callout__icon">i</span>
+            <span>
+              The selected format will be applied consistently across all report runs,
+              including scheduled weekly reports. The format will not change unless
+              you update this setting and save.
+            </span>
+          </div>
+
+        </div><!-- /name-format-panel -->
+
+        <!-- State annotations -->
+        <div class="state-strip">
+          <strong>State annotations:</strong>
+          Name Format panel — visible state: either "Entered By" field is in the Selected columns list.
+          Hidden state: neither field is selected.
+          Disabled state: n/a (panel only renders when relevant fields are present).
+          Empty state: no columns selected yet — show default placeholder list in Selected pane.
+        </div>
+
+      </div><!-- /report-shell__body -->
+
+      <!-- Action bar -->
+      <div class="action-bar">
+        <button class="btn">Back</button>
+        <button class="btn">Save as Draft</button>
+        <button class="btn primary">Next: Filters</button>
+      </div>
+
+    </div><!-- /report-shell -->
+
+
+    <!-- ================================================
+         DESIGN NOTES PANEL
+    ================================================= -->
+    <aside class="design-notes">
+
+      <div class="status-tag">Draft — pending designer review</div>
+      <div class="source-note">Auto-drafted from design-ideation pipeline (Easy classification).</div>
+      <div class="source-note">Figma session: <a href="https://www.figma.com/design/FB9hCbx3gDSNDJHP2wAQYB/AI-Ideation-Pipeline" target="_blank">AI-Ideation-Pipeline — 2026-05-14</a></div>
+
+      <h3>Design Decisions</h3>
+      <ul>
+        <li>Format selector placed as a per-column sub-control inside Customized Columns, consistent with the ticket's proposed solution. Flagged as open question below.</li>
+        <li>Radio group used for the two format options (not a dropdown) because two choices are better expressed as always-visible radio buttons. Revisit if additional formats are added.</li>
+        <li>The "Entered By First Name" and "Entered By Last Name" fields remain as two separate columns in the picker. The format setting controls how values render in each column, not whether they are merged. Merging into a single "Entered By" combined column is a separate open question.</li>
+        <li>Preview table reflects current selected state (First Last default). Interactive state swap not implemented in this Level 1 artifact.</li>
+        <li>Callout help text is placed directly inside the sub-panel so it is contextually tied to the setting, not buried in a global help section.</li>
+        <li>Layout: report shell uses a fixed-width column-picker with two panes and center arrow controls — mirrors the existing Advanced Form Reporting UI pattern as described.</li>
+      </ul>
+
+      <h3>Figma Component References</h3>
+      <ul>
+        <li>Column picker — verify against Figma: "Reports/Customized Columns/Column Picker" (unverified — Figma MCP not queried for Level 1)</li>
+        <li>Sub-control drawer / inline panel — verify against Figma: "Forms/Sub-control Panel" or "Reports/Inline Config Block"</li>
+        <li>Radio group — verify against Figma: "Forms/Radio Group" or "Inputs/Radio"</li>
+        <li>Callout / help text — verify against Figma: "Feedback/Callout/Info"</li>
+        <li>Step breadcrumb — verify against Figma: "Navigation/Step Breadcrumb"</li>
+        <li><a href="https://www.figma.com/design/FB9hCbx3gDSNDJHP2wAQYB/AI-Ideation-Pipeline" target="_blank">Figma session page (2026-05-14)</a></li>
+      </ul>
+
+      <h3>Open Questions</h3>
+      <ul>
+        <li><strong>Q1 (scope):</strong> Should the format setting live per-column inside Customized Columns (this wireframe's approach), or as a user/account-level preference? Per-column gives report-specific control but adds friction if Athabasca always wants the same format everywhere.</li>
+        <li><strong>Q2 (default):</strong> For existing saved reports that have these columns, what is the default on first deploy — preserve whatever is currently rendering, or force "First Last"? Impacts whether Athabasca needs to re-save all their scheduled reports.</li>
+        <li><strong>Q3 (field scope):</strong> Does the format selector apply only to "Entered By" name fields, or should it also appear for "Reviewed By", "Assigned To", and other name fields? Ticket implies Entered By only — confirm with Aswin / Christina before expanding.</li>
+        <li><strong>Q4 (column merge):</strong> Should "Entered By First Name" and "Entered By Last Name" stay as two separate columns (current model, wireframed here), or offer a merged "Entered By" single column with the format selector controlling the combined output? The merged approach may be cleaner for PowerBI ingestion.</li>
+        <li><strong>Q5 (scheduled reports):</strong> When a scheduled report runs, does the format setting read from the saved report config at time of run, or from user preferences at time of run? Important for Athabasca's automated weekend reporting.</li>
+        <li><strong>Q6 (Figma components):</strong> Figma MCP was not queried for this Level 1 artifact. Component names above are inferred from known BIS patterns. Designer should verify against the design system before Level 2.</li>
+      </ul>
+
+    </aside>
+
+  </div><!-- /canvas -->
+
+</body>
+</html>

@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Upper Bound '26 ♡ Mahi's notes</title>
+<style>
+  :root {
+    --bg: #f5ead4;
+    --surface: #fff8ec;
+    --surface-2: #fdf3df;
+    --surface-3: #f8ecd3;
+    --border: rgba(138, 104, 69, 0.16);
+    --border-strong: rgba(138, 104, 69, 0.30);
+
+    --ink: #3a2a1c;
+    --ink-soft: #5e4632;
+    --muted: #8a7762;
+    --muted-2: #a89579;
+
+    --rose: #b86a78;
+    --rose-soft: rgba(184, 106, 120, 0.14);
+    --peach: #c97f5a;
+    --peach-soft: rgba(201, 127, 90, 0.14);
+    --gold: #b88838;
+    --gold-soft: rgba(184, 136, 56, 0.16);
+    --lilac: #8d6e85;
+    --lilac-soft: rgba(141, 110, 133, 0.14);
+    --sage: #6f8568;
+    --sage-soft: rgba(111, 133, 104, 0.16);
+    --sky: #5e7d9c;
+    --sky-soft: rgba(94, 125, 156, 0.14);
+    --brown: #8a6845;
+    --brown-soft: rgba(138, 104, 69, 0.12);
+
+    --shadow-sm: 0 1px 3px rgba(138, 104, 69, 0.12);
+    --shadow-md: 0 6px 20px rgba(138, 104, 69, 0.14);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    background-image: radial-gradient(ellipse at top right, rgba(201, 127, 90, 0.10), transparent 55%),
+                      radial-gradient(ellipse at bottom left, rgba(94, 125, 156, 0.07), transparent 55%);
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* Layout */
+  .app {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 36px 24px;
+    border-right: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255, 248, 236, 0.7), rgba(248, 236, 211, 0.4));
+    backdrop-filter: blur(8px);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+  .brand {
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .brand h2 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 22px;
+    margin: 0 0 4px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .brand .sparkle {
+    color: var(--rose);
+    margin-left: 4px;
+  }
+  .brand p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .nav-group { margin-bottom: 22px; }
+  .nav-group h4 {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--muted-2);
+    margin: 0 0 10px 8px;
+    font-weight: 700;
+  }
+  .nav-group ul { list-style: none; margin: 0; padding: 0; }
+  .nav-group li { margin-bottom: 1px; }
+  .nav-link {
+    display: block;
+    padding: 8px 12px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 13.5px;
+    line-height: 1.4;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .nav-link:hover {
+    background: var(--surface-2);
+    color: var(--ink);
+  }
+  .nav-link.active {
+    background: linear-gradient(135deg, var(--peach-soft), var(--gold-soft));
+    color: var(--ink);
+    border-color: var(--border-strong);
+    font-weight: 600;
+  }
+  .nav-link .nav-emoji {
+    display: inline-block;
+    width: 22px;
+    margin-right: 4px;
+    text-align: center;
+  }
+
+  /* Main */
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 64px 56px 96px;
+    max-width: 820px;
+  }
+
+  /* Section wrapper */
+  .section {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .section.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Hero block */
+  .hero-block {
+    padding: 12px 0 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+  .hero-block .eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--peach);
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .hero-block h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 44px;
+    line-height: 1.1;
+    margin: 0 0 14px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--ink) 20%, var(--peach) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-block p.lead {
+    margin: 0;
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 580px;
+  }
+
+  /* Talk header */
+  .talk-header {
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .talk-header h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 32px;
+    line-height: 1.2;
+    margin: 0 0 8px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .talk-header .talk-meta {
+    color: var(--muted);
+    font-size: 13.5px;
+    margin: 0 0 12px;
+    font-style: italic;
+  }
+  .gist {
+    background: var(--peach-soft);
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin: 12px 0 0;
+    font-size: 15px;
+    color: var(--ink);
+    border: 1px solid var(--border);
+  }
+  .gist::before {
+    content: "✨ ";
+  }
+
+  .summary-card {
+    background: linear-gradient(135deg, var(--surface-2), var(--surface-3));
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin: 22px 0 32px;
+    box-shadow: var(--shadow-sm);
+  }
+  .summary-card h5 {
+    margin: 0 0 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--brown);
+    font-weight: 700;
+  }
+  .summary-card ul { margin: 0; padding-left: 20px; }
+  .summary-card li {
+    margin-bottom: 6px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .summary-card li::marker {
+    color: var(--peach);
+  }
+
+  /* Vibe tags row */
+  .vibes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .vibe {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+  }
+  .v-fund { background: var(--sky-soft); color: var(--sky); }
+  .v-prod { background: var(--peach-soft); color: var(--peach); }
+  .v-design { background: var(--rose-soft); color: var(--rose); }
+  .v-trust { background: var(--sage-soft); color: var(--sage); }
+  .v-research { background: var(--lilac-soft); color: var(--lilac); }
+  .v-business { background: var(--gold-soft); color: var(--gold); }
+
+  /* Body content */
+  h2 {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 24px;
+    margin: 36px 0 12px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  h3 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 28px 0 12px;
+    font-weight: 700;
+    color: var(--peach);
+  }
+  p { margin: 0 0 14px; color: var(--ink-soft); }
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin-bottom: 8px; color: var(--ink-soft); }
+  li::marker { color: var(--peach); }
+  ol li::marker { color: var(--brown); font-weight: 600; }
+  strong { color: var(--ink); font-weight: 600; }
+  em { font-style: italic; color: var(--ink); }
+  a { color: var(--peach); text-decoration: underline; text-underline-offset: 2px; }
+
+  .highlight {
+    background: linear-gradient(120deg, transparent 0%, var(--gold-soft) 30%, var(--gold-soft) 70%, transparent 100%);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--ink);
+  }
+
+  /* Pull quote */
+  blockquote.pq {
+    font-family: "Iowan Old Style", Georgia, serif;
+    font-size: 22px;
+    line-height: 1.4;
+    margin: 28px 0;
+    padding: 16px 22px;
+    border-left: 3px solid var(--peach);
+    background: linear-gradient(90deg, var(--peach-soft), transparent);
+    border-radius: 0 12px 12px 0;
+    color: var(--ink);
+    font-style: italic;
+    font-weight: 500;
+  }
+  blockquote.pq .who {
+    display: block;
+    margin-top: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    font-style: normal;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  /* Audience callouts */
+  .callout {
+    margin: 24px 0;
+    padding: 18px 22px;
+    border-radius: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+  }
+  .audience-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .audience {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .a-design { background: var(--rose-soft); color: var(--rose); }
+  .a-dev { background: var(--sky-soft); color: var(--sky); }
+  .a-all { background: var(--sage-soft); color: var(--sage); }
+  .a-leadership { background: var(--gold-soft); color: var(--gold); }
+  .callout h4 {
+    margin: 0 0 10px;
+    font-size: 15px;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .callout p:last-child, .callout ul:last-child { margin-bottom: 0; }
+
+  /* Honest disclosure box */
+  .honest {
+    background: linear-gradient(135deg, var(--gold-soft), transparent);
+    border: 1px dashed var(--border-strong);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    color: var(--muted);
+    margin: 16px 0;
+    line-height: 1.55;
+  }
+  .honest strong { color: var(--gold); }
+
+  /* Vibe-note box (informational primer) */
+  .vibe-note {
+    background: var(--lilac-soft);
+    border: 1px solid var(--border-strong);
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin: 18px 0;
+    line-height: 1.6;
+  }
+  .vibe-note strong { color: var(--lilac); }
+
+  /* Side-by-side framework cards */
+  .duo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 18px 0;
+  }
+  .duo .card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .duo .card h5 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--peach);
+    font-weight: 700;
+  }
+  .duo .card ul { margin: 0; padding-left: 18px; font-size: 14px; }
+  .duo .card li { margin-bottom: 5px; }
+
+  /* Big idea cards on intro page */
+  .idea-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+    margin: 24px 0;
+  }
+  .idea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  .idea:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .idea .emoji {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .idea h4 {
+    margin: 0 0 6px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .idea p {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Journal section (notes to myself) — softer, more personal */
+  .journal {
+    background: linear-gradient(180deg, var(--surface), transparent 800px);
+    padding: 8px 4px;
+    border-radius: 16px;
+  }
+  .journal .talk-header h1 {
+    font-size: 36px;
+    background: linear-gradient(135deg, var(--ink) 10%, var(--rose) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .journal h3 {
+    font-size: 18px;
+    text-transform: none;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+    margin: 36px 0 14px;
+    font-family: "Iowan Old Style", Georgia, serif;
+    font-weight: 600;
+  }
+  .journal p {
+    color: var(--ink-soft);
+    font-size: 16.5px;
+    line-height: 1.72;
+  }
+  .journal blockquote.pq {
+    background: linear-gradient(90deg, var(--rose-soft), transparent);
+    border-left-color: var(--rose);
+  }
+  .quote-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .quote-stack blockquote {
+    margin: 0;
+    padding: 14px 18px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--peach);
+    border-radius: 0 10px 10px 0;
+    font-family: "Iowan Old Style", Georgia, serif;
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .quote-stack blockquote .who {
+    display: block;
+    margin-top: 8px;
+    font-family: -apple-system, sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    font-style: normal;
+  }
+
+  /* Application grid for journal */
+  .apply-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+    margin: 18px 0;
+  }
+  .apply-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .apply-card h5 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--peach);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .apply-card ul { padding-left: 18px; margin-bottom: 0; }
+  .apply-card li { font-size: 14px; margin-bottom: 6px; }
+
+  /* Footer */
+  .footer {
+    margin-top: 80px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+    color: var(--muted-2);
+    font-size: 12px;
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  /* Mobile menu */
+  .menu-toggle {
+    display: none;
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    z-index: 100;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    color: var(--ink);
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* Mobile */
+  @media (max-width: 880px) {
+    .menu-toggle { display: block; }
+    .sidebar {
+      position: fixed;
+      left: -300px;
+      top: 0;
+      width: 280px;
+      z-index: 99;
+      background: var(--surface);
+      transition: left 0.25s ease;
+      box-shadow: var(--shadow-md);
+    }
+    .sidebar.open { left: 0; }
+    .main { padding: 72px 22px 60px; max-width: 100%; }
+    .hero-block h1 { font-size: 32px; }
+    .talk-header h1 { font-size: 24px; }
+    .journal .talk-header h1 { font-size: 28px; }
+    .duo { grid-template-columns: 1fr; }
+    blockquote.pq { font-size: 18px; padding: 14px 16px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-block h1 { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <h2>Upper Bound '26<span class="sparkle"> ♡</span></h2>
+      <p>Mahi's notes · Edmonton, May 2026</p>
+    </div>
+
+    <div class="nav-group">
+      <h4>Start here</h4>
+      <ul>
+        <li><a class="nav-link" data-section="intro"><span class="nav-emoji">✨</span>Big ideas</a></li>
+        <li><a class="nav-link" data-section="how-to-read"><span class="nav-emoji">🧭</span>How to read this</a></li>
+      </ul>
+    </div>
+
+    <div class="nav-group">
+      <h4>The talks</h4>
+      <ul>
+        <li><a class="nav-link" data-section="t1"><span class="nav-emoji">🤖</span>What makes AI agents successful</a></li>
+        <li><a class="nav-link" data-section="t2"><span class="nav-emoji">🧠</span>LLMs → AI agents</a></li>
+        <li><a class="nav-link" data-section="t3"><span class="nav-emoji">🚀</span>Pilot to production (Jobber)</a></li>
+        <li><a class="nav-link" data-section="t5"><span class="nav-emoji">🌐</span>Everything, everywhere</a></li>
+        <li><a class="nav-link" data-section="t6"><span class="nav-emoji">📚</span>AI &amp; knowledge management</a></li>
+        <li><a class="nav-link" data-section="t7"><span class="nav-emoji">🪞</span>AI confidence crisis</a></li>
+        <li><a class="nav-link" data-section="t8"><span class="nav-emoji">⚙️</span>Demo to production gap</a></li>
+        <li><a class="nav-link" data-section="t9"><span class="nav-emoji">🎛️</span>The Vibe Box (Hazel)</a></li>
+        <li><a class="nav-link" data-section="t10"><span class="nav-emoji">🔍</span>Retrieval &amp; summarization</a></li>
+        <li><a class="nav-link" data-section="t11"><span class="nav-emoji">⭐</span>Agentic intelligence at work</a></li>
+        <li><a class="nav-link" data-section="t12"><span class="nav-emoji">🏔️</span>Vertical AI (Ultimarii)</a></li>
+        <li><a class="nav-link" data-section="t13"><span class="nav-emoji">💰</span>$16B gap (closing)</a></li>
+        <li><a class="nav-link" data-section="t14"><span class="nav-emoji">🧬</span>RL beyond control</a></li>
+        <li><a class="nav-link" data-section="t15"><span class="nav-emoji">🔐</span>Accountable agents</a></li>
+        <li><a class="nav-link" data-section="t16"><span class="nav-emoji">🛠️</span>Innovation meets execution</a></li>
+        <li><a class="nav-link" data-section="t17"><span class="nav-emoji">💗</span>Responsible AI as moat</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- INTRO -->
+    <section class="section active" id="intro">
+      <div class="hero-block">
+        <div class="eyebrow">Edmonton · May 2026</div>
+        <h1>Upper Bound '26</h1>
+        <p class="lead">My notes from two days at Canada's biggest AI conference. 17 talks, one notebook, lots of stars in the margins. ✨</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>Two days at Upper Bound 2026, written from a product designer's POV (me, at BIS Safety)</li>
+          <li>Six through-lines emerged across totally different talks — they're the spine of everything below</li>
+          <li>Each talk has its own tab in the sidebar with what was said + how I'm bringing it to BIS</li>
+          <li>The whole doc ties back to the Ace + Mia handoff agents I'm building 💗</li>
+        </ul>
+      </div>
+
+      <h2>The six ideas that kept coming back 💫</h2>
+      <p>By Day 2 I noticed the same six themes echoing across totally different talks. The pattern was loud enough that I'm treating these as the through-lines for everything below.</p>
+
+      <div class="idea-grid">
+        <div class="idea">
+          <span class="emoji">🤖</span>
+          <h4>LLM ≠ Agent</h4>
+          <p>Copilot = reactive, prompt-dependent. Agent = goal-oriented, autonomous, has memory. Most "AI features" are copilots dressed up.</p>
+        </div>
+        <div class="idea">
+          <span class="emoji">💗</span>
+          <h4>Trust &gt; accuracy</h4>
+          <p>In vertical AI, users don't need the smartest answer — they need traceable reasoning, consistent behavior, clear off-ramps.</p>
+        </div>
+        <div class="idea">
+          <span class="emoji">🪜</span>
+          <h4>PoC ≠ Production</h4>
+          <p>Demos optimize for the showcase. Production has zero failure tolerance and a giant risk surface. The gap eats most AI projects.</p>
+        </div>
+        <div class="idea">
+          <span class="emoji">👎</span>
+          <h4>Thumbs up/down is theatre</h4>
+          <p>Useless aggregate signal. If a user thumbs-down, what does it mean? Tone? Format? Accuracy? You can't act on it. Design the follow-up instead.</p>
+        </div>
+        <div class="idea">
+          <span class="emoji">📝</span>
+          <h4>Designers transcribe life</h4>
+          <p>We don't invent workflows. We observe how people already work, transcribe it faithfully, then ask what AI can remove.</p>
+        </div>
+        <div class="idea">
+          <span class="emoji">🎨</span>
+          <h4>Hire for taste</h4>
+          <p>Every panel said the same thing about new grads: not credentials, not GPAs — creativity, originality, finding what AI can't do yet.</p>
+        </div>
+      </div>
+
+      <blockquote class="pq">
+        "Treat deployment as the start of learning, not the end of the project."
+        <span class="who">— Ultimarii closing slide. Line of the conference for me.</span>
+      </blockquote>
+
+      <p style="color: var(--muted); margin-top: 28px;">Tap any talk in the sidebar to jump in. Each one has what was said, what stuck with me, and who I want to share that bit with at BIS. 💌</p>
+    </section>
+
+    <!-- HOW TO READ -->
+    <section class="section" id="how-to-read">
+      <div class="talk-header">
+        <h1>How to read this 🧭</h1>
+        <p class="gist">A quick map so you can grab the parts you need without reading the whole thing.</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li><strong>Audience tags</strong> = who each takeaway is for (designers / devs / everyone / leadership)</li>
+          <li><strong>Vibe pills</strong> = what kind of talk it was (Fundamentals / Production / Design / Trust / Research / Business)</li>
+          <li><strong>Honest boxes</strong> = where I didn't lock in or couldn't follow the speaker</li>
+          <li><strong>Ace + Mia</strong> = my BIS Safety design-to-dev handoff agents (referenced throughout)</li>
+        </ul>
+      </div>
+
+      <h3>The audience tags</h3>
+      <p>Each callout has a tag so you know who that takeaway is really for:</p>
+      <div class="audience-row" style="margin: 16px 0 24px;">
+        <span class="audience a-design">🎨 For designers</span>
+        <span class="audience a-dev">💻 For devs</span>
+        <span class="audience a-all">🤝 For everyone</span>
+        <span class="audience a-leadership">📊 For leadership</span>
+      </div>
+
+      <h3>The vibe pills</h3>
+      <p>Each talk has 1–3 vibe pills so you can scan for what kind of talk it was:</p>
+      <div class="vibes" style="margin: 16px 0 24px;">
+        <span class="vibe v-fund">Fundamentals</span>
+        <span class="vibe v-prod">Production</span>
+        <span class="vibe v-design">Design</span>
+        <span class="vibe v-trust">Trust</span>
+        <span class="vibe v-research">Research</span>
+        <span class="vibe v-business">Business</span>
+      </div>
+
+      <h3>Where I'm honest</h3>
+      <p>Some talks I sat in for 10 minutes. One I literally couldn't follow because of the speaker's accent. When that happened, you'll see a gold dashed box that flags it. ✨ No pretending I locked in when I didn't.</p>
+
+      <h3>What I'm building in the background</h3>
+      <div class="vibe-note">
+        <strong>Quick context</strong> for anyone reading this who isn't in my head — I'm currently <em>agentifying the entire design-to-dev handoff process</em> at BIS Safety. Two AI agents — <strong>Ace</strong> (design side) and <strong>Mia</strong> (dev side) — that turn approved designs into ready-to-ship code packages. Every "bringing it to BIS" callout below ties back to this work. 💗
+      </div>
+    </section>
+
+    <!-- TALK 1 -->
+    <section class="section" id="t1">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-fund">Fundamentals</span>
+          <span class="vibe v-prod">Production</span>
+        </div>
+        <h1>🤖 What Makes AI Agents Successful</h1>
+        <p class="talk-meta">AWS presenters · Amii main stage</p>
+        <p class="gist">The talk that set the tone for two days. Cleanest "LLM vs Agent" definition I've heard in ages.</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>LLM vs Agent: <strong>Copilot</strong> (reactive, prompt-dependent) vs <strong>Autopilot</strong> (autonomous, holds memory, orchestrates tools)</li>
+          <li>Real wins: Mayo Clinic — 30% faster diagnostics. Siemens — 20% lower maintenance costs.</li>
+          <li>Why agents aren't shipped everywhere: PoC has wide failure tolerance, production has none + a huge risk surface</li>
+          <li>"Genius with Amnesia" — LLM without memory or proprietary context = production failure</li>
+          <li><strong>BIS lens:</strong> most BIS "AI features" are L2 / copilot; Ace + Mia are Level 3 agents — different design problems</li>
+        </ul>
+      </div>
+
+      <h3>What they said</h3>
+      <p>Opened with real customer quotes like <em>"I upload docs to ChatGPT — doesn't that mean I'm using an agent?"</em> Then dropped the framework I'm using forever now:</p>
+
+      <div class="duo">
+        <div class="card">
+          <h5>Copilot · Generative AI</h5>
+          <ul>
+            <li>Reactive &amp; prompt-dependent</li>
+            <li>Stateless &amp; scripted</li>
+            <li>Waits for instructions</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h5>Autopilot · Agentic AI</h5>
+          <ul>
+            <li>Goal-oriented &amp; autonomous</li>
+            <li>Semantic reasoning</li>
+            <li>Persistent memory</li>
+            <li>Dynamically orchestrates tools</li>
+          </ul>
+        </div>
+      </div>
+
+      <p>Then the receipts — real enterprise wins:</p>
+      <ul>
+        <li>🏥 <strong>Mayo Clinic</strong> — 30% faster diagnostics (cross-referencing notes, labs, images)</li>
+        <li>🏭 <strong>Siemens</strong> — 20% lower maintenance costs (predictive turbine monitoring)</li>
+      </ul>
+
+      <p>Then the slide that landed harder than anything else that morning:</p>
+
+      <blockquote class="pq">"If agentic AI is so great, why isn't it being used everywhere?"</blockquote>
+
+      <p>Their answer: <strong>"PoC without Flexibility"</strong> — demos have wide failure tolerance, production has zero. Then a slide called <strong>"Unintended Consequences"</strong> — a wall of news headlines:</p>
+      <ul>
+        <li>Air Canada chatbot — sold tickets at bad prices, airline got sued 😬</li>
+        <li>Replit's vibe-coding service — deleted a user's production DB <em>and lied about it</em></li>
+        <li>NYC chatbot — told businesses to break the law</li>
+        <li>McDonald's AI ordering — killed after viral order mix-ups</li>
+        <li>McKinsey chatbot — hacked by another agent in 2 hours</li>
+      </ul>
+
+      <h3>The diagnosis</h3>
+      <ul>
+        <li>🧠 <strong>"The Genius with Amnesia"</strong> — High-IQ LLM + no memory + no proprietary context = production failure</li>
+        <li>🧩 <strong>Anatomy of an Agent</strong> — harness + model + memory + tools + data + orchestration. An LLM is one part. Not the whole thing.</li>
+      </ul>
+
+      <p>Closed with another framework:</p>
+      <div class="duo">
+        <div class="card">
+          <h5>Workflow · Level 2</h5>
+          <ul>
+            <li>Predefined paths</li>
+            <li>Hard-coded logic</li>
+            <li>Fails on errors</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h5>Agent · Level 3</h5>
+          <ul>
+            <li>Dynamic routing</li>
+            <li>LLM-driven reasoning</li>
+            <li>Self-corrects &amp; iterates</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>🔑 Most "AI features" at BIS are L2 or copilot. That's fine — but the design problem is different from Level 3 agent design.</li>
+        <li>🔑 Ace + Mia are actually Level 3 agents (goal-oriented, dynamic tool use, memory across sessions). The BIS AI summarization feature is a copilot. Different UX language for each.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-design">🎨 Designers</span>
+          <span class="audience a-dev">💻 Devs</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <ul>
+          <li>Use Copilot/Autopilot vocab on the team — stop calling everything "agentic" 🙃</li>
+          <li>Redraw the "PoC vs Prod tolerance" diagram for our internal docs</li>
+          <li>The "Genius with Amnesia" framing = literally <em>why</em> Ace needs the pre-flight skill and Mia reads the codebase before generating. Without that, we're handing devs a brilliant amnesiac.</li>
+        </ul>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>Which BIS features <em>should</em> graduate from L2 → L3, and which should stay scripted because the risk surface isn't worth the autonomy?</li>
+      </ul>
+    </section>
+
+    <!-- TALK 2 -->
+    <section class="section" id="t2">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-fund">Fundamentals</span>
+          <span class="vibe v-research">Research</span>
+        </div>
+        <h1>🧠 From LLMs to AI Agents: From Words to Action</h1>
+        <p class="talk-meta">Liu Asminov, LLM Builder at OnRamp AI · ATB / TELUS stage</p>
+        <p class="gist">Technical walkthrough of how modern LLMs are actually trained. Way clearer than anything I'd read before.</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>Modern LLMs are trained in 4 stages: <strong>Pre-training → SFT → RLHF → RLVR</strong></li>
+          <li>DeepSeek-R1-Zero example: model generates 4 code candidates, an automatic verifier picks the one that runs</li>
+          <li>"By 2030 it'll be 1 month, by 2050 — 1 week" — training cycle compression coming fast</li>
+          <li><strong>BIS lens:</strong> my Ace + Mia skill files are basically SFT data. Quality of examples matters more than cleverness of prompts.</li>
+        </ul>
+      </div>
+
+      <h3>What they said</h3>
+      <p>Opened with a contrast — <em>one-shot Q&amp;A</em> (easy, LLM does it alone) vs <em>"solve GitHub issue #104"</em> (hard, needs agent loop, multi-tool calls). The leap between those is the leap from LLM → agent.</p>
+
+      <p>Then the modern training pipeline, in one beautiful slide:</p>
+      <ol>
+        <li><strong>Pre-training</strong> — predict next token on basically the entire internet. Raw world knowledge gets baked in.</li>
+        <li><strong>SFT (Supervised Fine-Tuning)</strong> — show the model human prompt/response pairs. Teaches it the <em>shape</em> of a good answer.</li>
+        <li><strong>RLHF</strong> — generate 2 completions, humans pick the better one, model learns the preference.</li>
+        <li><strong>RLVR</strong> — newer. Instead of human ranking, a <em>verifier</em> (unit test, math solver) judges. DeepSeek-R1-Zero generates 4 candidate Python fns, picks the one that runs. This is how reasoning models get good at code.</li>
+      </ol>
+
+      <p>The line I scribbled fast: <em>"by 2030 it'll be 1 month, by 2050 — 1 week."</em> He was talking about training cycle compression. Used the industrial revolution analogy — steam → meat refrigeration → electronics → AI. Each one collapses time faster than the last.</p>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>💡 I don't need to train a model. But I need to understand <em>why</em> a model behaves the way it does — and that's a function of training.</li>
+        <li>💡 SFT vs RLHF = different design questions. SFT asks "what does good look like?" RLHF asks "which of these two is better?" The second is what I do in user research every day.</li>
+        <li>💡 <span class="highlight">My skill files for Ace and Mia are basically SFT data</span>. Every example I write is a piece of fine-tuning. Quality of examples &gt; cleverness of prompts.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-design">🎨 Designers</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <p>Treat my Ace + Mia skill files like training data, not docs. Every example is SFT. Doing a quality pass on existing skill files with this lens this week. ✨</p>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>For BIS AI features that generate text — could we use RLVR with verifiable design-system rules instead of relying on human eval?</li>
+        <li>What does "eval harness" mean for an agent workflow? How would Jobber or Anthropic measure that Ace + Mia are <em>actually</em> producing good packages?</li>
+      </ul>
+    </section>
+
+    <!-- TALK 3 -->
+    <section class="section" id="t3">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-design">Design</span>
+          <span class="vibe v-prod">Production</span>
+        </div>
+        <h1>🚀 Pilot to Production: Scaling AI in the Real World</h1>
+        <p class="talk-meta">Elizabeth McGuane · Forrest Zeisler · David Ferris · Divya Ramanarayanan — all Jobber</p>
+        <p class="gist">The one I came for. An actual Distinguished Product Designer on stage with her CTO, PM, and Principal Eng — the dynamic between them was the whole point.</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>The only AI panel I saw with a real Distinguished Product Designer on stage (Elizabeth McGuane)</li>
+          <li>"Designers can just transcribe how they live" — observe how work actually happens, don't invent workflows</li>
+          <li>CTO: "as engineers we forget about the practical job — the designer does it"</li>
+          <li>Early-stage collab (eng + design + product, day one) is the model — no over-the-wall handoffs</li>
+          <li>Jobber's internal tool <strong>"Amplify"</strong> has design system + conventions baked in so anyone can build with it — exactly what Ace + Mia are for BIS 🥹</li>
+        </ul>
+      </div>
+
+      <div class="honest"><strong>Quick correction:</strong> my notes say "Jasper" — that's me mishearing. It's <strong>Jobber</strong>, the field-service software company. 😅</div>
+
+      <h3>What they said</h3>
+      <ul>
+        <li>🎭 <strong>The dynamic was the takeaway.</strong> Elizabeth answered every question by talking about <em>users</em>, not features. Forrest backed her up. Divya never made it about implementation difficulty. The PM stitched it. This is what I want for design at BIS.</li>
+        <li>🗣️ Forrest (CTO): <em>"as engineers we forget about the practical job — the designer does it."</em> ⭐⭐</li>
+        <li>👀 Elizabeth: did user research, then <em>refused to build the obvious request</em> because it wasn't the real need.</li>
+      </ul>
+
+      <blockquote class="pq">
+        "Designers can just transcribe how they live."
+        <span class="who">— Elizabeth McGuane (paraphrased)</span>
+      </blockquote>
+
+      <h3>Their "great product" framework</h3>
+      <ul>
+        <li>Can users use it? (basic usability)</li>
+        <li>Share of the product — how visible in the flow?</li>
+        <li>Discovery — how do users find it?</li>
+        <li>How will users use it? — the actual interaction</li>
+        <li>Delightful? — does it feel good ⭐⭐⭐⭐⭐</li>
+      </ul>
+
+      <h3>Their model for shipping AI</h3>
+      <ul>
+        <li>🤝 <strong>Collab happens at early stage.</strong> Eng + design + product, day one, same room. No throwing mocks over the wall.</li>
+        <li>✨ Internal tool called <strong>Amplify</strong> — anyone at Jobber can code with it because it has the design system + conventions baked in. <em>This is almost word-for-word what Ace + Mia do.</em></li>
+      </ul>
+
+      <h3>From the engineer's slide ("Constraints to Spec")</h3>
+      <div class="duo">
+        <div class="card">
+          <h5>Before you build, ask:</h5>
+          <ul>
+            <li>Will it run? (memory, latency)</li>
+            <li>Can we afford it? (cost/user-hour)</li>
+            <li>Can we bound it? (guardrails)</li>
+            <li>Can we test it? (eval harness)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h5>Mic-drop line:</h5>
+          <ul>
+            <li>"Games aren't built around models. Models are trained to fit the specs."</li>
+            <li>Same logic = features.</li>
+            <li>We define what the product needs. The model fits.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>💞 The "act of listening builds trust" thread — both directions. Designers listen to users; the team listens to the designer.</li>
+        <li>💞 Jobber's <em>Amplify</em> validated my entire Ace + Mia thesis on a major SaaS company's main-stage talk. Felt very 🥹.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-all">🤝 Everyone</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <ul>
+          <li>📋 <strong>Constraints to Spec</strong> as a pre-build checklist for every AI feature. Can't answer all four? Not ready.<br/><span style="color: var(--muted); font-size: 14px; font-style: italic;">→ Jobber's 4 questions before building: <em>Will it run? Can we afford it? Can we bound it? Can we test it?</em> Make this a gate in every AI feature spec.</span></li>
+          <li>🤝 <strong>Early-stage collab</strong> as default, not exception. Day one, same room — Ace's pre-flight skill does this in software form; we need the human version too.<br/><span style="color: var(--muted); font-size: 14px; font-style: italic;">→ Eng + design + product co-defining AI features from day one, not the design-throws-mocks-over-the-wall model. Software collab can't replace the human conversation.</span></li>
+          <li>✨ <strong>Ace + Mia as our Amplify.</strong> Same value prop: "anyone can build with it because the design knowledge is baked in."<br/><span style="color: var(--muted); font-size: 14px; font-style: italic;">→ Amplify is Jobber's internal tool with their design system + conventions baked in, so anyone there can build prototypes that respect the system. Exactly what Ace + Mia do for us. 🥹</span></li>
+        </ul>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>How does Jobber handle "design system changed but Amplify still has old patterns memorized"? My system doesn't yet.</li>
+        <li>What does Elizabeth do when an AI feature has non-deterministic behavior? Is there a pattern Jobber landed on?</li>
+      </ul>
+    </section>
+
+    <!-- TALK 5 -->
+    <section class="section" id="t5">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-design">Design</span>
+          <span class="vibe v-business">Business</span>
+        </div>
+        <h1>🌐 Everything, Everywhere, All at Once</h1>
+        <p class="talk-meta">Panel · 2:00 PM</p>
+        <p class="gist">The talk where I asked myself mid-session: "wait, is my job description changing tomorrow?" The new-hire question alone was worth showing up for.</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>AI is showing up <em>everywhere at once</em> in companies, but no single team "owns" it</li>
+          <li>"Measuring everything matters" — you can't kill an AI feature you didn't measure</li>
+          <li>New-hire question landed hardest: "creativity &amp; great ideas &gt; GPAs"</li>
+          <li><strong>BIS lens:</strong> designer's new job = designing the <em>boundary</em> between AI and human (which side handles what)</li>
+        </ul>
+      </div>
+
+      <h3>What they said</h3>
+      <ul>
+        <li>🌍 AI shows up <em>everywhere at once</em> — not as a single feature but as a horizontal capability rippling through product, eng, support, marketing, sales, ops</li>
+        <li>📊 <em>"Measuring everything matters when it comes to AI."</em> Without measurement you can't ship confidently and you can't <em>kill</em> a feature confidently when it's not working</li>
+        <li>🧠 <em>"Human-computer interaction is needed"</em> — said in response to "what do you want from new grads"</li>
+      </ul>
+
+      <h3>The new-hire question 💫</h3>
+      <p>Best moment of the session. The audience asked the whole panel what they look for in new hires:</p>
+
+      <blockquote class="pq">
+        "Yes we look at GPAs — but more importantly we look for creativity and great ideas. We need people who can spend a day innovating on what AI <strong>can't</strong> do — we already know what it can."
+        <span class="who">— one of the panelists</span>
+      </blockquote>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>🎯 My job as a designer is shifting from "design the UI" to "design the boundary." Which side does AI handle and which side does the human? <em>That's</em> the new core design problem.</li>
+        <li>🎯 Good designers find the boundary that serves the user. Not the boundary that's easiest to build.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-design">🎨 Designers</span>
+          <span class="audience a-leadership">📊 Leadership</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <ul>
+          <li>🪢 <strong>Every AI feature spec gets an explicit boundary line:</strong> "What does AI do? What does the human do? What's the handoff between them?"</li>
+        </ul>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>What does a "measurement layer" look like for an AI design feature? Most analytics tools count clicks and conversions, not "did the AI output match user intent?"</li>
+      </ul>
+    </section>
+
+    <!-- TALK 6 -->
+    <section class="section" id="t6">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-design">Design</span>
+          <span class="vibe v-business">Business</span>
+          <span class="vibe v-trust">Trust</span>
+        </div>
+        <h1>📚 AI &amp; Knowledge Management</h1>
+        <p class="talk-meta">Stacey McLennan-Waldal (ATB) · Mukul Ahuja (Deloitte) · Sawan Dhaliwal (WSP) · Chris Hogg (Digital Journal) · 3:00 PM</p>
+        <p class="gist">The panel that explained why most enterprise AI rollouts fail — and gave me the thumbs-up/down moment I've been waiting for someone to say out loud on a stage. 🔥</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>AI in enterprise ≠ tech rollout, it's <strong>behavior change</strong></li>
+          <li>First-time confidence kills trust — users don't give AI a second chance</li>
+          <li>"Thumbs up/down is not great feedback. What does it mean? It's useless." 🔥 (the moment I yelled internally)</li>
+          <li>Future of enterprise AI = ecosystem of specialized agents, not one big assistant</li>
+          <li><strong>BIS lens:</strong> audit every thumbs widget at BIS, design a "first-run" UX for Ace, reframe Ace + Mia as "the design-handoff layer of BIS's AI ecosystem"</li>
+        </ul>
+      </div>
+
+      <h3>What they said</h3>
+      <ul>
+        <li>🌱 <strong>AI in big orgs ≠ tech rollout, it's behavior change.</strong> Different problem entirely.</li>
+        <li>🕊️ <strong>First-time confidence kills trust.</strong> Sawan: <em>if it's not right the first time, users won't give it a second chance.</em> The first interaction <em>is</em> the entire reputation.</li>
+      </ul>
+
+      <h3>The thumbs-up/down moment 💥</h3>
+      <blockquote class="pq">
+        "Thumbs up or thumbs down is not great feedback. What does it mean? It's useless."
+        <span class="who">— Sawan (probably)</span>
+      </blockquote>
+
+      <p>I literally wrote <em>"I LOVE THAT I'VE BEEN SAYING THIS!!"</em> in my notebook, underlined, three stars. Because I <strong>have</strong> been saying this. The thumbs widget is signal theatre — you can't act on a thumbs-down without asking five follow-ups. So why didn't you design those follow-ups in the first place? 😤</p>
+
+      <h3>The ecosystem framing</h3>
+      <p>Mukul (probably): <em>"Copilots reduce the best, the worst, and everything in between — we need the ability to find the bots that fit."</em></p>
+      <p>The future of enterprise AI isn't <em>one</em> assistant. It's a <strong>knowledge ecosystem</strong> of specialized agents. Helping people find the right one for the moment becomes an information architecture problem dressed up as an AI problem. ✨</p>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>👀 Industry-wide, we're shipping bad feedback systems and calling it "user feedback." Flying blind.</li>
+        <li>👀 Ace + Mia being <em>two</em> agents wasn't an accident. The panel just validated the multi-agent ecosystem model.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-design">🎨 Designers</span>
+          <span class="audience a-all">🤝 Everyone</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <ul>
+          <li>🔍 <strong>Audit every thumbs widget at BIS.</strong> Replace with a thumbs-down → one-question follow-up. "What was wrong — tone, accuracy, format, length?" Five seconds, 10× the signal.</li>
+          <li>👋 <strong>Design a "first-run" UX for Ace.</strong> The first time a designer runs it on a real ticket, it should ask <em>more</em> questions than usual. First impression = whole reputation.</li>
+          <li>♻️ <strong>Reframe the Ace + Mia pitch internally</strong> — not "an AI assistant for design handoff" but <em>"the design-handoff layer of BIS's AI ecosystem."</em> Same work, way more accurate to the future.</li>
+        </ul>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>Survey "good structured feedback" patterns — Anthropic, OpenAI, Notion, Linear, Cursor.</li>
+        <li>How do I measure whether Ace + Mia have <em>earned</em> trust at BIS vs being tolerated?</li>
+      </ul>
+    </section>
+
+    <!-- TALK 7 -->
+    <section class="section" id="t7">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-trust">Trust</span>
+          <span class="vibe v-fund">Fundamentals</span>
+        </div>
+        <h1>🪞 The AI Confidence Crisis</h1>
+        <p class="talk-meta">Single speaker · main stage, Day 2 morning</p>
+        <p class="gist">A talk about authenticity in the age of generative media. The moment "is this real?" became a design problem instead of a content-moderation problem.</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>Go has more possible move sequences than atoms in the universe — AI cracked it in 2016</li>
+          <li>AI vs real images, video, ideas — the room got it wrong more often than they admitted</li>
+          <li><strong>Provenance UI will be a real design discipline within 18 months</strong> — where info came from, how confident the system is, what backs it up</li>
+          <li><strong>BIS lens:</strong> every Mia output gets a provenance footer (from codebase / design system / inferred / proposed)</li>
+        </ul>
+      </div>
+
+      <h3>What they said</h3>
+      <ul>
+        <li>♟️ Opening stat that became a meme by lunch: <strong>the game of Go has more possible move sequences than there are atoms in the observable universe.</strong> AI cracked it in 2016. Yet here we are still arguing about whether AI can write a paragraph correctly.</li>
+        <li>🖼️ Showed AI images vs real photos. Room was wrong more often than they admitted. Then AI video. Then AI <em>ideas</em>.</li>
+        <li>❓ The framing: <em>how do we know what's real vs AI?</em> And for designers: <em>how do we help users know?</em></li>
+      </ul>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>🪪 <strong>Provenance UI is going to be a real design discipline within 18 months.</strong> Not just watermarks — actual interface conventions for where info came from, how confident the system is, what citations back it.</li>
+        <li>🪪 The confidence crisis isn't just deepfakes — it's the everyday erosion of trust when users can't tell whether AI output is hallucination or fact.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-design">🎨 Designers</span>
+          <span class="audience a-dev">💻 Devs</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <p>Mia's outputs need a <strong>provenance + confidence pattern</strong> on every artifact:</p>
+        <ul>
+          <li>📦 Code pulled from BIS repo → "from codebase"</li>
+          <li>🎨 Storybook components → "design system component"</li>
+          <li>🆕 New components Mia proposes → "proposed — needs review"</li>
+          <li>🔮 Migration steps inferred from patterns → "inferred from convention"</li>
+        </ul>
+        <p>Same pattern applies to every customer-facing AI summary at BIS. <strong>Every AI output gets a provenance footer. Always.</strong></p>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>Look at C2PA, Google's SynthID, Adobe Content Credentials — borrow the patterns into Mia.</li>
+      </ul>
+    </section>
+
+    <!-- TALK 8 -->
+    <section class="section" id="t8">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-prod">Production</span>
+        </div>
+        <h1>⚙️ From Demo to Production: The Reality Gap in Shipping AI Agents</h1>
+        <p class="talk-meta">Panel · Day 2</p>
+        <p class="gist">The "why does it work in the demo and not in production" talk. Echoes Day 1's AWS talk but from operators who've been bitten. 🩹</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>Demos optimize for the showcase. Production has zero failure tolerance + huge risk surface</li>
+          <li>The reality gap: scale, messy data, edge cases, latency, cost, failure handling</li>
+          <li>Most internal AI demos have this gap baked in (including some of mine 🙈)</li>
+          <li><strong>BIS lens:</strong> define an explicit production-quality bar for Ace + Mia — not "the agent runs," but "80%+ of packages used as-is by a tired dev on a real ticket"</li>
+        </ul>
+      </div>
+
+      <h3>The reality-gap, line by line</h3>
+      <ul>
+        <li>📈 <strong>Scale</strong> — demo handled 5 users; prod needs 500 or 5,000. Behavior <em>changes</em> under load.</li>
+        <li>🧹 <strong>Messy data</strong> — demo data was clean. Customer data is not. Performance curve is different.</li>
+        <li>🦊 <strong>Edge cases</strong> — the long tail is huge. Model has to handle them or fail safely.</li>
+        <li>⏱️ <strong>Latency</strong> — 12 seconds is fine in a demo, unacceptable in prod.</li>
+        <li>💰 <strong>Cost</strong> — running an agent per user request adds up fast. Most demos haven't done the math.</li>
+        <li>🚨 <strong>Failure handling</strong> — when the agent fails (it will), friendly fallback or 500 page?</li>
+      </ul>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>🙈 Most internal AI demos I've seen (including some of mine) have the demo-to-prod gap baked in. They're sized for the showcase.</li>
+        <li>🙉 For Ace + Mia: I've been treating "Mia produces a working package" as success. That's the <em>demo state</em>. Production state is: <em>a tired dev on a Tuesday afternoon uses the package as-is 80%+ of the time on a real ticket.</em></li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-dev">💻 Devs</span>
+          <span class="audience a-all">🤝 Everyone</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <p>Define an <strong>explicit production-quality bar</strong> for Ace + Mia. Not "the agent runs without error." More like: <em>"80%+ of generated packages are used as-is, no rework needed, by devs on real tickets in real conditions."</em> Measure against this.</p>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>What does "production-quality" mean for an internal AI tool used by 5–10 people vs a customer-facing AI feature used by thousands? Discipline of asking matters even if the numbers differ.</li>
+      </ul>
+    </section>
+
+    <!-- TALK 9 -->
+    <section class="section" id="t9">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-design">Design</span>
+          <span class="vibe v-business">Business</span>
+        </div>
+        <h1>🎛️ The Vibe Box: The Missing Half of Software DevOps in the Age of AI</h1>
+        <p class="talk-meta">Hazel team · Day 2</p>
+        <p class="gist">A pretty up-front pitch for Hazel's product — but underneath, the best <em>before/after</em> of how devs actually write code in 2026.</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>Vibe coding (describe intent, AI handles syntax) is now the default mode for many devs</li>
+          <li>The "missing half" — CI/CD, evals, rollback, observability — is still designed for human-paced code</li>
+          <li>Ace + Mia <em>are</em> vibe coding, just for design-to-dev instead of dev-only</li>
+          <li><strong>BIS lens:</strong> build the missing half for Ace + Mia → eval/QA step, rollback path, measurement layer</li>
+        </ul>
+      </div>
+
+      <h3>What they said</h3>
+      <ul>
+        <li>🌊 Vibe coding (Karpathy coined it early 2025) went from meme → default working mode for many devs in &lt;2 years</li>
+        <li>🗣️ Devs describe <em>intent</em> in natural language. AI handles syntax. Dev's job moves up the stack: specifying behavior, reviewing output, integrating.</li>
+        <li>🔌 <strong>Hazel's thesis:</strong> the "code" half changed completely — but the <strong>"Ops" half hasn't caught up</strong>. CI/CD, evals, observability, rollout, rollback are still designed for human-paced code. That's the "missing half."</li>
+        <li>👀 Showed a before/after — devs in 2022 writing line by line vs devs in 2026 prompting once. The around-the-code infra is now the bottleneck.</li>
+      </ul>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>🪞 This talk is the closest one to my actual work. Ace + Mia <em>are</em> vibe coding — except for design-to-dev, not just dev.</li>
+        <li>🪞 The bottleneck at BIS isn't the agents — it's everything <em>around</em> them. How does the package get into the codebase? Reviewed? Rolled back?</li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-dev">💻 Devs</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <p>The Ace + Mia "ops layer" is still informal. Need to build:</p>
+        <ul>
+          <li>🧪 <strong>Eval/QA step</strong> between Mia output and dev review (currently me eyeballing — doesn't scale)</li>
+          <li>↩️ <strong>Rollback path</strong> — if devs find Mia got something wrong, where does feedback go? Right now: Slack to me. Need a structured channel.</li>
+          <li>📊 <strong>Measurement layer</strong> — how many packages used as-is vs heavily modified? That's the only signal that matters.</li>
+        </ul>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>How are Cursor / Copilot Workspace / Replit designing their around-the-code infrastructure? Borrow patterns.</li>
+      </ul>
+    </section>
+
+    <!-- TALK 10 -->
+    <section class="section" id="t10">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-research">Research</span>
+          <span class="vibe v-fund">Fundamentals</span>
+        </div>
+        <h1>🔍 Structured Information Retrieval &amp; Summarization in the Era of LLMs</h1>
+        <p class="talk-meta">RBC Borealis researchers · Day 2</p>
+        <p class="gist">Research-flavoured. Not super design-applicable, but the cost/privacy argument matters for regulated industries (= us).</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>LLMs at runtime are expensive, slow, and <em>leak data</em></li>
+          <li>EBCAR: cross-passage structure encoded into embeddings → 29× faster reranker</li>
+          <li>FACTS: SQL + template logic precomputed per schema → 7× cheaper, privacy-preserving table summarization</li>
+          <li>Thesis: move heavy lifting <em>offline</em>, keep data in-house</li>
+          <li><strong>BIS lens:</strong> add to AI feature checklist — "do we need an LLM at runtime, or can we precompute at indexing time?"</li>
+        </ul>
+      </div>
+
+      <h3>What they said</h3>
+      <p>Two systems they presented:</p>
+      <ul>
+        <li>⚡ <strong>EBCAR</strong> — encodes cross-passage structure into embeddings. Reranker is <strong>29× faster</strong> than LLM-based methods at state-of-the-art accuracy.</li>
+        <li>🔒 <strong>FACTS</strong> — for table summarization. Generates SQL + template logic <em>once per schema</em>. Runtime needs no LLM call. <strong>7× cheaper</strong>, privacy-preserving.</li>
+      </ul>
+
+      <h3>The thesis</h3>
+      <ol>
+        <li>LLMs are powerful but costly. Querying at runtime is slow, expensive, <em>leaks data</em>.</li>
+        <li>Structure in data is a free signal. Cross-passage relations + table schemas can be used directly.</li>
+        <li><strong>Move heavy lifting offline.</strong> Precompute at indexing time. Decouple cost from query volume. Keep data in-house.</li>
+      </ol>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>🛡️ "LLM at runtime is wasteful" is the right framing for BIS. We deal with sensitive training records, compliance data, incident reports — exactly the stuff you don't want sent to a third-party LLM.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-dev">💻 Devs</span>
+          <span class="audience a-leadership">📊 Leadership</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <p>Add to the AI-feature pre-build checklist: <strong>"Do we actually need an LLM call at runtime, or can we precompute at indexing time?"</strong> Hybrid patterns where the heavy lifting happens at upload-time and runtime is just retrieval are often safer + cheaper.</p>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>Which existing BIS AI features could be "precompute at indexing, lightweight at runtime"? Especially the ones touching customer data.</li>
+      </ul>
+    </section>
+
+    <!-- TALK 11 -->
+    <section class="section" id="t11">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-business">Business</span>
+          <span class="vibe v-design">Design</span>
+        </div>
+        <h1>⭐ Why Agentic Intelligence Is the Future of AI in the Workforce</h1>
+        <p class="talk-meta">Day 2</p>
+        <p class="gist">One of my favorites of Day 2. Maturity ladder from LLMs → workflows → agents → multi-agent. And the talk that made me sit with the question: <em>what's the future of design at BIS?</em> 💭</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>Maturity ladder: LLMs as utilities → automated workflows → agents → <strong>multi-agent systems</strong></li>
+          <li>Start with well-defined tedious work. Measure outcomes, not activity. Trust earned in inches.</li>
+          <li>The big question I'm sitting with: <strong>what's the future of design at BIS?</strong></li>
+          <li>Working answer: designers move up the stack — specifying intent, setting taste, owning the system that produces design work</li>
+          <li><strong>BIS lens:</strong> Ace + Mia are the prototype for what design at BIS becomes — not a side project, the future of the role</li>
+        </ul>
+      </div>
+
+      <h3>The maturity ladder</h3>
+      <ol>
+        <li><strong>LLMs as utilities</strong> — humans use them ad hoc. Anecdotal savings.</li>
+        <li><strong>Automated workflows</strong> — LLMs embedded in scripted flows. Most "AI features" today live here. Measurable but capped.</li>
+        <li><strong>AI agents</strong> — goal-oriented, autonomous, multi-step. Own outcomes, not tasks. Non-linear savings.</li>
+        <li><strong>Multi-agent systems</strong> — specialized agents handing off to each other. <em>This is the workforce future.</em></li>
+      </ol>
+
+      <h3>Their tips</h3>
+      <ul>
+        <li>🛠️ Start with workflows that are <em>well-defined but tedious</em>. Don't agentify creative/judgment work first.</li>
+        <li>📈 Measure outcomes, not activity. "Agent did 30 things" = meaningless. "Reduced turnaround on X by Y" = signal.</li>
+        <li>👥 Design for human-in-the-loop. Agent doesn't replace the human — it reshapes what their job looks like.</li>
+        <li>🐢 Trust is earned in inches. Expand agent autonomy gradually as evidence builds.</li>
+      </ul>
+
+      <h3>What stuck (the big one)</h3>
+      <p>This talk is the one I haven't stopped thinking about. <strong>What is the future of AI for the BIS design team?</strong></p>
+
+      <p>Not "what tools will designers use" — that's a small question. The big question is: <em>what becomes the designer's job when agents are doing most of the production work?</em></p>
+
+      <p>My working answer: the designer's job becomes <strong>specifying intent, setting taste, and owning the system that produces design work</strong>. Less time pushing pixels, more time defining what "good" looks like and making sure the agents converge on it.</p>
+
+      <p>Which is — surprise — exactly what I've been doing with Ace + Mia. 🥹</p>
+
+      <div class="callout" style="border-color: var(--gold); background: linear-gradient(135deg, var(--surface), var(--gold-soft));">
+        <div class="audience-row">
+          <span class="audience a-design">🎨 Designers</span>
+          <span class="audience a-leadership">📊 Leadership</span>
+        </div>
+        <h4>The big question I'm sitting with 💭</h4>
+        <p><strong>What is the future of AI for the BIS design team?</strong></p>
+        <p>Tentative answer: <em>the design team becomes the system designers of the AI tooling that does the production design work.</em> Designers don't disappear — we move up the stack. The deliverable shifts from "a screen" to "the system that produces the screens."</p>
+        <p>This deserves its own essay. I want to write it and share with the team. Strategy conversation we need to have in the next quarter, not in five years.</p>
+      </div>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-design">🎨 Designers</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <ul>
+          <li>🪴 Treat Ace + Mia as the <strong>prototype for what design at BIS becomes</strong>. Not a side project — the future of the role.</li>
+          <li>📓 Document <em>everything</em> I'm learning building agents. Skill patterns, prompt patterns, failure modes, eval criteria. This is the operating manual of next-gen design.</li>
+          <li>💬 Have the real conversation with the design team about where each of us fits in this future. Some will love it. Some won't. Both valid. But we need to be honest.</li>
+        </ul>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>What are the specific skill files the BIS design team will maintain together over the next 2 years? List them.</li>
+        <li>What's the right team structure for a design org running agents at scale?</li>
+      </ul>
+    </section>
+
+    <!-- TALK 12 -->
+    <section class="section" id="t12">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-prod">Production</span>
+          <span class="vibe v-design">Design</span>
+          <span class="vibe v-trust">Trust</span>
+        </div>
+        <h1>🏔️ From Experimental LLM Research to Production-Grade Vertical AI</h1>
+        <p class="talk-meta">Ultimarii · ultimarii.com · Day 2</p>
+        <p class="gist">The talk that taught me the difference between vertical and horizontal AI. Quietly one of the best of the conference — and the source of THE slide of the conference. 🏆</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li><strong>Vertical AI</strong> = specialized for one domain (BIS Safety). <strong>Horizontal AI</strong> = generalist (ChatGPT).</li>
+          <li>4-stage maturity model: research prototype → pilot workflow → production service → operational system</li>
+          <li><strong>THE slide of the conference:</strong> "In vertical AI, user trust matters more than isolated model accuracy."</li>
+          <li>Closing line: "Treat deployment as the start of learning, not the end of the project."</li>
+          <li><strong>BIS lens:</strong> trust &gt; accuracy = the new design north star. Adopt the 4-stage maturity model team-wide. Ace + Mia are at "pilot" — define gates to "production service."</li>
+        </ul>
+      </div>
+
+      <div class="vibe-note">
+        <strong>Vertical vs Horizontal AI · quick primer (because I didn't know the difference either before this talk):</strong><br/>
+        🌐 <strong>Horizontal AI</strong> — generalist. ChatGPT, Claude, Gemini. Useful for anyone.<br/>
+        🏔️ <strong>Vertical AI</strong> — specialized. Deep in one domain. AI for safety training, legal contracts, radiology.<br/>
+        <strong>BIS Safety is vertical AI.</strong> Most of Day 2 was aimed at vertical-AI builders.
+      </div>
+
+      <h3>Why their research → production worked (and was hard)</h3>
+      <div class="duo">
+        <div class="card">
+          <h5>Worked because</h5>
+          <ul>
+            <li>Research with production constraints from day one</li>
+            <li>Freedom to test task framings</li>
+            <li>Credible pathway from research to product</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h5>Hard because</h5>
+          <ul>
+            <li>Prototype success ≠ operational readiness</li>
+            <li>Users wanted consistency, not novelty</li>
+            <li>Customer environments = messy data + edge cases</li>
+            <li>Commercial = uptime, speed, cost requirements</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>The four-stage maturity model 🪜</h3>
+      <ol>
+        <li><strong>Research prototype</strong> — capable, validated at small scale</li>
+        <li><strong>Pilot workflow</strong> — usable, limited controls</li>
+        <li><strong>Production service</strong> — reliable, measured SLAs</li>
+        <li><strong>Operational system</strong> — governed, repeatable outcomes</li>
+      </ol>
+      <p>Each step adds constraints easy to ignore during research. Success criteria shift from <em>"can it work?"</em> to <em>"can we trust and operate it every day?"</em></p>
+
+      <h3>The slide of the conference 🏆</h3>
+      <blockquote class="pq">
+        "In vertical AI, user trust matters more than isolated model accuracy."
+        <span class="who">— Ultimarii. I put my pen down for this one.</span>
+      </blockquote>
+
+      <div class="duo">
+        <div class="card">
+          <h5>Users need</h5>
+          <ul>
+            <li>Traceable reasoning</li>
+            <li>Consistent behavior</li>
+            <li>Clear uncertainty boundaries</li>
+            <li>Outputs that fit existing workflow</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h5>Design implications</h5>
+          <ul>
+            <li>Optimize full decision experience, not benchmarks</li>
+            <li>Expose provenance, confidence, fallbacks</li>
+            <li>Prefer stable behavior over fragile peak performance</li>
+            <li>Design for recoverability when the model is wrong</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Closing playbook</h3>
+      <ul>
+        <li>📐 Define the decision workflow first, then fit the model</li>
+        <li>🚪 Create explicit readiness gates for data quality, eval, latency, failure handling</li>
+        <li>📡 Instrument the pipeline <em>before</em> scale exposes unknown failure modes</li>
+        <li>🪤 Design for fallback + human review where trust thresholds aren't met</li>
+        <li>🌱 <strong>Treat deployment as the start of learning, not the end of the project.</strong></li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-all">🤝 Everyone</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <ul>
+          <li>🪧 <strong>Trust &gt; accuracy</strong> becomes the BIS AI north star. One-pager going out to design + eng + product.</li>
+          <li>🪜 <strong>Adopt the 4-stage maturity model</strong> as how we talk about every AI feature: "What stage is this at? What's the readiness gate to move?"</li>
+          <li>📋 <strong>Add a "trust UX" section</strong> to every AI feature spec: traceable reasoning, consistent behavior, uncertainty, workflow fit.</li>
+          <li>🛤️ Ace + Mia are at "pilot." Define gates to "production service" explicitly: eval coverage, failure handling, latency, uptime.</li>
+        </ul>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>Read more from Ultimarii's site / published case studies. The framing is too useful to absorb in one talk.</li>
+        <li>What does an "explicit readiness gate" look like, concretely, for Ace + Mia?</li>
+      </ul>
+    </section>
+
+    <!-- TALK 13 -->
+    <section class="section" id="t13">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-business">Business</span>
+        </div>
+        <h1>💰 Closing the $16 Billion Gap</h1>
+        <p class="talk-meta">Sponsored closing keynote · Day 2</p>
+        <p class="gist">It was an ad. Polished, well-produced, still an ad. Took notes because I'm absorbing every framing being used in the enterprise AI conversation.</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>Sponsored closing keynote — I bounced halfway through</li>
+          <li>BUT: the AI adoption gap they described is real (tools shipped without workflow integration, no training, no measurement, pilots that never ship)</li>
+          <li>The measurement framing matters → if you can't measure what AI is delivering, you can't defend the investment</li>
+          <li><strong>BIS lens:</strong> capture baseline handoff metrics <em>before</em> Ace + Mia roll out — time-to-handoff, dev impl time, post-handoff rework rate</li>
+        </ul>
+      </div>
+
+      <div class="honest"><strong>Honest read:</strong> the $16B number was almost certainly an analyst-report scare stat. I bounced halfway through. ✌️</div>
+
+      <h3>What was said (the parts worth pulling)</h3>
+      <p>The premise — that there's a huge gap between AI's theoretical productivity impact and its actual realized impact — is real. The reasons they cited (which I agree with):</p>
+      <ul>
+        <li>🔌 AI tools shipped without integration into actual workflows</li>
+        <li>🚫 No training or change management around adoption</li>
+        <li>📉 No measurement framework</li>
+        <li>🪦 Pilots that never make it to production</li>
+      </ul>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>📊 The measurement framing. If we can't measure what AI is delivering, we'll never defend the investment internally.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-leadership">📊 Leadership</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <p><strong>Capture baseline handoff metrics before Ace + Mia roll out.</strong> Time-to-handoff, dev implementation time per ticket, post-handoff rework rate. We need a "before" to compare against the "after."</p>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>Baseline metric set for the current handoff process — capture before the rollout changes them.</li>
+      </ul>
+    </section>
+
+    <!-- TALK 14 -->
+    <section class="section" id="t14">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-research">Research</span>
+        </div>
+        <h1>🧬 RL Beyond Control: Decision Making for Learning Under Imperfect Supervision</h1>
+        <p class="talk-meta">IBM Research / Pendro · Day 2 · stage 7</p>
+        <p class="gist">A research talk I genuinely couldn't follow. Speaker's accent was too tough for me — the slides salvaged it. 🥲</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>Couldn't follow live (speaker's accent) — built this section from the slide photos</li>
+          <li>Thesis: RL isn't just for control problems — it's a unifying framework for <strong>learning under imperfect supervision</strong></li>
+          <li>How humans learn → maps to RL: sparse rewards, exploration, adaptive correction</li>
+          <li><strong>BIS lens:</strong> the feedback designers give Ace + Mia is exactly "sparse imperfect supervision" — even if we can't run RL today, structure the feedback collection the way RL expects</li>
+        </ul>
+      </div>
+
+      <div class="honest"><strong>Honest disclaimer:</strong> I lost the thread about four minutes in. Working entirely from the slides I photographed.</div>
+
+      <h3>The thesis (from slides)</h3>
+      <p>RL isn't just for control problems. It's a unifying framework for <strong>learning under imperfect supervision</strong> — which is what most real-world data is.</p>
+
+      <h3>How humans learn → maps to RL</h3>
+      <ul>
+        <li>🌱 Sparse rewards ↔ infrequent supervision</li>
+        <li>🔍 Exploration ↔ active trial and discovery</li>
+        <li>📐 Policy gradient ↔ adaptive correction</li>
+      </ul>
+
+      <p>The "RL as Unified Adaptive Learning Framework" slide chained three problems together as different supervision regimes:</p>
+      <ol>
+        <li>Pseudo-labeling (SSL)</li>
+        <li>Label correction (noisy labels)</li>
+        <li>Failure data curation, continual learning, RLAIF</li>
+      </ol>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>💡 The feedback designers give Ace + Mia as they use them is <em>exactly</em> "sparse, imperfect, multi-source supervision."</li>
+        <li>💡 Even if I can't run RL today, I can <em>structure the feedback collection</em> the way RL expects, so future-me has clean signal.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-design">🎨 Designers</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <p>Not actionable today — research-flavored. But when designing Ace + Mia's feedback widgets, structure them as if future-RL will consume them. Don't lose the signal even if we can't use it yet.</p>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>Find a recorded version of the talk / her papers — the framing is too good to lose to a language barrier.</li>
+      </ul>
+    </section>
+
+    <!-- TALK 15 -->
+    <section class="section" id="t15">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-trust">Trust</span>
+          <span class="vibe v-prod">Production</span>
+        </div>
+        <h1>🔐 Accountable Agents: A Protocol for Trust in Autonomous AI</h1>
+        <p class="talk-meta">ACEteam.ai · Day 2</p>
+        <p class="gist">What happens when agents start calling other agents across organizational boundaries. The future shape of agentic systems. 🌍</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>Cross-org agent workflows are coming: consulting firm's agent → research firm's agent → vendor's agent</li>
+          <li>Agents need identity, proof of delegated authority, audit trails — <em>"OAuth, but for agents"</em></li>
+          <li>Liability gets weird fast when agents take actions you didn't explicitly approve</li>
+          <li><strong>BIS lens:</strong> Mia pushing to bis-ship is already a trust boundary. Formalize agent-generated labeling + provenance trail now, not after the lawyers ask.</li>
+        </ul>
+      </div>
+
+      <h3>What they said</h3>
+      <p>As agentic AI moves to production, the next big problem is <strong>cross-org agent workflows</strong>. A consulting firm's agent calls a research firm's agent calls a vendor's agent. Each is autonomous, each is acting on behalf of someone — and each needs to <em>prove</em> who it is and what authority it has.</p>
+
+      <p>It's harder than human identity because:</p>
+      <ul>
+        <li>🤔 Agents make autonomous decisions — "who approved this action" is fuzzier</li>
+        <li>⚡ Agents talk to agents at machine speed — audit logs have to scale</li>
+        <li>⚖️ Liability gets weird when an agent takes an action you didn't explicitly approve</li>
+      </ul>
+
+      <p>Their pitch: a protocol where agents identify themselves, prove delegated authority, and leave verifiable audit trails. <em>OAuth, but for agents.</em></p>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>🪞 My Ace + Mia setup is the toy version of this problem. Ace hands off to Mia <em>inside</em> my private repo — fine. But when Mia pushes to <strong>bis-ship</strong>, that's a different repo, shared with devs. There's a trust boundary being crossed.</li>
+        <li>🪞 Right now that boundary is implicit (I trust myself, I trust Mia because I review her). At scale, in a real org, it needs to be explicit.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-dev">💻 Devs</span>
+          <span class="audience a-leadership">📊 Leadership</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <ul>
+          <li>🏷️ <strong>Near-term:</strong> Mia's commits + PR descriptions need <em>unmistakable agent-generated labels</em> + provenance back to the design-handoff source. Formalize this as part of Mia's push step.</li>
+          <li>🛡️ <strong>Further out:</strong> if BIS ever builds customer-facing agents that touch customer data, build identity + authority + audit in from day one. Not after the lawyers ask.</li>
+        </ul>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>What does "agent ID + delegation chain" <em>look like</em>, designed for humans to read? Real design problem coming up.</li>
+      </ul>
+    </section>
+
+    <!-- TALK 16 -->
+    <section class="section" id="t16">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-research">Research</span>
+          <span class="vibe v-business">Business</span>
+        </div>
+        <h1>🛠️ Innovation Meets Execution: Making a Smarter AI Real</h1>
+        <p class="talk-meta">Deployment success story · Day 2</p>
+        <p class="gist">Hardware + infra co-optimization story. Not super design-applicable, but I sat in and absorbed because I was curious how AI ships at the metal level.</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>At scale, AI is a <strong>systems problem</strong> (model + chips + infra + caching), not a model problem</li>
+          <li>You can't slap a model on generic infra and expect it to work</li>
+          <li><strong>BIS lens:</strong> awareness shift — be in infra conversations even when I'm not driving them, because infra constraints shape the UX in ways eng won't always surface</li>
+        </ul>
+      </div>
+
+      <h3>What they said</h3>
+      <ul>
+        <li>🔧 Co-optimize across model + chips + networking + memory + caching</li>
+        <li>📦 At scale, AI is a <strong>systems problem, not a model problem</strong></li>
+      </ul>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>📡 When people say "the AI works," they usually mean the model. When people say "the AI is in production," they mean a stack of decisions across hardware, infra, networking, caching, software — most of which the model team didn't make.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-leadership">📊 Leadership</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <p>Mostly an awareness shift. When BIS scales AI features, the "does this work" question isn't just design or model — it's the full stack. <strong>I should be in those infra conversations even when I'm not driving them</strong>, because the constraints often shape the user experience in ways eng won't surface unless asked.</p>
+      </div>
+    </section>
+
+    <!-- TALK 17 -->
+    <section class="section" id="t17">
+      <div class="talk-header">
+        <div class="vibes">
+          <span class="vibe v-trust">Trust</span>
+          <span class="vibe v-prod">Production</span>
+        </div>
+        <h1>💗 Responsible AI Isn't a Constraint, It's a Business Model</h1>
+        <p class="talk-meta">Healthcare AI startup · Day 2 closing-ish</p>
+        <p class="gist">The talk that reframed "responsible AI" from a checkbox into a competitive advantage. Closing argument of the conference for me.</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>Healthcare AI startup: <strong>"AI doesn't fail because of model performance. It fails because of trust."</strong></li>
+          <li>In regulated industries, accuracy alone doesn't drive adoption — safety, transparency, accountability do</li>
+          <li>Reframe: <em>"Responsible AI isn't a regulatory tax — it's the moat."</em></li>
+          <li><strong>BIS lens:</strong> this is the closing argument for everything I'm doing. We don't win on smartest AI — we win on most <em>trustable</em> AI for safety + compliance. Trust UX in every spec, on every Mia output.</li>
+        </ul>
+      </div>
+
+      <h3>What they said</h3>
+      <p>Building AI for real-world clinical environments forced them to confront an early truth: <strong>accuracy alone doesn't drive adoption. Safety, transparency, accountability do.</strong></p>
+
+      <blockquote class="pq">
+        "AI doesn't fail because of model performance. It fails because of trust."
+      </blockquote>
+
+      <p>In regulated, high-stakes industries, the winners aren't the smartest models. They're the most <em>trustable</em> models. That means:</p>
+      <ul>
+        <li>🪪 Show users where info came from</li>
+        <li>📊 Show confidence in the answer</li>
+        <li>🚪 Give an obvious off-ramp when not confident</li>
+        <li>📜 Log everything for audit</li>
+        <li>🎭 Design the worst-case experience as carefully as the best-case</li>
+      </ul>
+
+      <p>They flipped the usual framing: <em>"responsible AI is a regulatory tax"</em> → <strong>"responsible AI is the moat."</strong> Anyone can call an LLM. Not everyone can call an LLM <em>and</em> be trusted with regulated data. 🛡️</p>
+
+      <h3>What stuck</h3>
+      <ul>
+        <li>🪡 This is the closing argument for everything I'm doing at BIS. We're not going to win on "smartest AI." We win on <em>"AI you can trust with your safety training compliance program."</em></li>
+        <li>🪡 That's the moat. That's the business model. Design language for AI features at BIS needs to make trust visible at every touchpoint.</li>
+      </ul>
+
+      <div class="callout">
+        <div class="audience-row">
+          <span class="audience a-all">🤝 Everyone</span>
+        </div>
+        <h4>Bringing it to BIS</h4>
+        <ul>
+          <li>💗 <strong>Every AI feature spec gets a "trust UX" section.</strong> Where's provenance? Where's confidence? What's the off-ramp? What does the audit trail show?</li>
+          <li>📏 <strong>Make trustability measurable.</strong> Not "did the user thumbs-up" — actual signals like off-ramp usage, escalation rate, post-output edit frequency.</li>
+          <li>📌 <strong>Bake this into Mia's outputs.</strong> Every artifact gets a "what's confident / what's inferred / what needs review" header. Hard rule, not nice-to-have.</li>
+        </ul>
+      </div>
+
+      <h3>Questions I'm chasing</h3>
+      <ul>
+        <li>Build a "trust UX pattern library" for BIS — the standard ways we show provenance, confidence, recoverability. Becomes a section of the design system.</li>
+      </ul>
+    </section>
+
+    <!-- NOTES TO MYSELF -->
+    <section class="section journal" id="notes-to-self">
+      <div class="talk-header">
+        <h1>💌 Notes to myself</h1>
+        <p class="gist">The unstructured part. The bits that don't fit anywhere else but matter more than most of it. ✨</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>💌 What's on this page</h5>
+        <ul>
+          <li>The vibe of the room — passionate, hopeful, racing toward <em>responsible</em> agents</li>
+          <li>A self-awareness moment about how I show up at conferences ("any learning is a learning")</li>
+          <li>Meeting <strong>Elizabeth McGuane from Jobber in person</strong> — the heart moment of the conference 🥹</li>
+          <li>The mindset shift I'm carrying back as a product designer</li>
+          <li>Quotes that stuck + where I'm applying all of this</li>
+          <li>Came in tired, left on fire 🔥</li>
+        </ul>
+      </div>
+
+      <h3>🌷 The vibe in that room</h3>
+      <p>Okay so... the energy at Upper Bound was <em>unreal</em>. I went in thinking it'd be a lot of corporate AI talks and instead found a room full of people who genuinely care — about building AI well, about doing it safely, about not getting AI wrong. So many engineers, founders, researchers, designers, students... all leaning in. All asking the right questions. Nobody was just hyping — everyone was figuring things out together. ♡</p>
+
+      <p>What surprised me most: the conversation around <strong>doing this safely</strong> kept showing up. Not in a defensive "AI is scary" way — in a hopeful, grounded, <em>"we have to get this right"</em> way. People are racing toward agents, but they're racing toward <strong>responsible</strong> agents. That's a different feeling than I expected to find here.</p>
+
+      <p>It was loud, fast, sometimes overwhelming. But genuinely inspiring. I left with my heart full and my notebook fuller. 📓</p>
+
+      <h3>💞 Something I learned about myself</h3>
+      <p>Honestly? I usually struggle to lock in at conferences.</p>
+
+      <p>But this time? <em>I stayed.</em> I locked in. And here's what I realized:</p>
+
+      <blockquote class="pq">
+        Any learning is a learning.
+      </blockquote>
+
+      <p>Even the talks that weren't directly relevant to me. Even the ones I sat in for ten minutes. Even the talk I literally couldn't follow because of the speaker's accent. Every one of them gave me <em>something</em>. Maybe not today. Maybe not next month. Maybe next year. Maybe never. But the surface area of what I'm absorbing is bigger than the surface area of what I think I need right now — and that's the whole point.</p>
+
+      <p>I've become more self-aware about this. I don't need every session to be "for me." I just need to show up open. ✿</p>
+
+      <h3>🌟 Meeting Elizabeth McGuane</h3>
+      <p>Okay this part actually made me a little emotional. 🥹</p>
+
+      <p>For anyone catching up — Elizabeth is the <strong>Distinguished Product Designer at Jobber</strong> who spoke on the Pilot-to-Production panel (talk #3). She was the only product designer on that panel and she was clear and specific and grounded in a way you don't always see at AI conferences.</p>
+
+      <p>I caught her after the session and got to talk to her <em>in person</em>. I told her about what I'm building — the agentifying-the-handoff-process work at BIS. Ace + Mia. The whole pipeline. The two-agent setup, how Ace handles design and Mia handles dev, the skill files, the long-term vision.</p>
+
+      <p>She listened. <em>Actually</em> listened. And then she said:</p>
+
+      <blockquote class="pq">
+        "I love the idea. I love your thoughts."
+        <span class="who">— Elizabeth McGuane</span>
+      </blockquote>
+
+      <p>She told me she's so passionate about design too, and we just <em>got</em> each other in that quick conversation. I got to hear her feedback on what I'm doing, hear how she thinks about her own work at Jobber, and just exist in the same conversation as someone whose position I'm honestly trying to grow into one day.</p>
+
+      <p>But here's the wild part — <strong>I think I inspired her too.</strong> A little. Maybe. Just in the way she nodded when I described the multi-agent setup, the way she asked follow-up questions instead of giving polite generic feedback. I'm not making it bigger than it was. But it didn't feel like a one-way conversation. It felt like two designers, at very different stages of career, genuinely exchanging ideas.</p>
+
+      <p>That alone made the whole conference worth it. ♡</p>
+
+      <h3>✨ The mindset shift</h3>
+      <p>What I'm carrying back with me, as a product designer:</p>
+
+      <ul>
+        <li>🪜 <strong>My job is changing. And I'm not behind on it.</strong> I'm actually a little ahead because of the Ace + Mia work. The work I've been doing isn't a side project — it's the prototype for what design becomes.</li>
+        <li>🪡 <strong>Less pixel-pushing, more system-designing.</strong> The designer's job is moving up the stack. Specifying intent. Setting taste. Owning the skill files. Curating examples. That's where the value lives now.</li>
+        <li>💗 <strong>Trust is the design problem of the era.</strong> Not accuracy. Not novelty. <em>Trust.</em> Provenance, confidence cues, off-ramps, recoverability — this is what I want to be known for.</li>
+        <li>👂 <strong>Listening builds everything.</strong> Listening to users. Listening to engineers. Listening to PMs. Even listening to the AI tools I'm using. The act of listening <em>is</em> design.</li>
+        <li>🌷 <strong>Curiosity &gt; credentials.</strong> I want to hire designers who make weird things because they wanted to — not designers with the cleanest portfolio. Permanently changed how I'll think about hiring.</li>
+      </ul>
+
+      <h3>💗 Quotes that stuck with me</h3>
+      <div class="quote-stack">
+        <blockquote>
+          "Designers can just transcribe how they live."
+          <span class="who">— Elizabeth McGuane, Jobber</span>
+        </blockquote>
+        <blockquote>
+          "AI doesn't fail because of model performance. It fails because of trust."
+          <span class="who">— Healthcare AI talk (Responsible AI as Moat)</span>
+        </blockquote>
+        <blockquote>
+          "In vertical AI, user trust matters more than isolated model accuracy."
+          <span class="who">— Ultimarii</span>
+        </blockquote>
+        <blockquote>
+          "Treat deployment as the start of learning, not the end of the project."
+          <span class="who">— Ultimarii closing slide</span>
+        </blockquote>
+        <blockquote>
+          "We look for creativity and great ideas. We need people who can spend a day innovating on what AI can't do — we already know what it can."
+          <span class="who">— Everything, Everywhere panel</span>
+        </blockquote>
+        <blockquote>
+          "Thumbs up or thumbs down is not great feedback. What does it mean? It's useless."
+          <span class="who">— Sawan, AI &amp; Knowledge Management panel · the one I yelled "I'VE BEEN SAYING THIS!!" at internally 🙃</span>
+        </blockquote>
+      </div>
+
+      <h3>🌸 Where I'm applying all of this</h3>
+
+      <div class="apply-grid">
+        <div class="apply-card">
+          <h5>💗 To my personal life</h5>
+          <ul>
+            <li>Stay open at every learning moment, even when tired or it's "not for me"</li>
+            <li>Reach out to people whose work I admire — the Elizabeth conversation only happened because I walked up</li>
+            <li>Trust my taste. The things I've been pushing for are showing up on stages now. I'm not crazy, I'm just early.</li>
+          </ul>
+        </div>
+        <div class="apply-card">
+          <h5>🏢 To my work at BIS</h5>
+          <ul>
+            <li>Treat Ace + Mia not as a tool but as BIS's first vertical AI product</li>
+            <li>Push trust UX everywhere — provenance, confidence cues, off-ramps</li>
+            <li>Use precise language: "agent" for agents, "copilot" for copilots. Stop letting marketing words muddy the design conversation.</li>
+          </ul>
+        </div>
+        <div class="apply-card">
+          <h5>🎨 To the design team</h5>
+          <ul>
+            <li>Have the real conversation about what design becomes when agents do production work</li>
+            <li>Write the "Future of AI for the BIS design team" essay. Even rough. Share it.</li>
+            <li>Bring back the "early-stage collab" model — eng + design + product in the same room, day one</li>
+          </ul>
+        </div>
+        <div class="apply-card">
+          <h5>🪡 To the handoff project</h5>
+          <ul>
+            <li>Move from pilot to production deliberately. Define readiness gates.</li>
+            <li>Build the missing half — evals, rollback paths, measurement</li>
+            <li>Formalize Mia's push to bis-ship with provenance + agent-generated labeling</li>
+            <li>Document everything. This is the operating manual for next-gen design at BIS.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>❤️ Things I want to keep thinking about</h3>
+      <ul>
+        <li>What does it mean to be a "system designer" instead of a screen designer? Where does that role even sit in an org chart?</li>
+        <li>How do I stay close to users when agents are doing the production work? How do I avoid becoming "the AI manager" instead of "the designer"?</li>
+        <li>Where's the line between automating my own job and replacing the parts of my job I love? Want to be honest with myself here.</li>
+        <li>How do I make the design system + design knowledge + brand voice all <em>agent-readable</em> in a sustainable way? Not just hard-coded in skill files I maintain alone.</li>
+        <li>What's the long-term version of Ace + Mia? A whole studio of agents? A platform other teams could use? An open-source pattern someone else could adopt?</li>
+      </ul>
+
+      <h3>💌 If I had to summarize</h3>
+      <p>I came in tired. I left <strong>on fire</strong>. 🔥</p>
+      <p>Not in the burnout way. In the <em>I see what I'm doing now and I see where it's going</em> way. I have a clearer picture of where the field is heading, where I fit, and what I want to be known for as a product designer. I have validation that the weird thing I've been building isn't weird — it's the future.</p>
+      <p>And I have a deeper appreciation for the fact that every learning, every conversation, every talk — even the ones that didn't land in real time — adds to who I'm becoming.</p>
+      <p style="margin-top: 24px; color: var(--peach); font-style: italic;">Okay journal entry over. 🌷 Back to building. ♡</p>
+    </section>
+
+    <!-- THROUGHLINE -->
+    <section class="section" id="throughline">
+      <div class="talk-header">
+        <h1>🪡 The through-line for Ace + Mia</h1>
+        <p class="gist">Pulling all of it together. Every talk above feeds back into the agent pipeline I'm building.</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>Ace + Mia = BIS's <strong>first vertical AI product</strong>, built like one (not a productivity hack)</li>
+          <li>They're agents, not copilots. Trust &gt; accuracy. Provenance on every output. Skill files are SFT data.</li>
+          <li>Feedback loop matters more than the agents themselves</li>
+          <li>Pilot → Production is a different shape of work — build the missing half (eval, rollback, measurement)</li>
+          <li>The future of design at BIS = system design. Less pixels, more owning the system that produces design.</li>
+        </ul>
+      </div>
+
+      <blockquote class="pq">
+        Ace + Mia aren't an AI productivity hack for design-to-dev handoff. They're the BIS design team's <em>first vertical AI product</em>, and they have to be built like one.
+      </blockquote>
+
+      <h3>What that means, specifically</h3>
+      <ul>
+        <li>🤖 <strong>They're agents, not Copilots.</strong> Goal-oriented, autonomous, dynamic. Use the language precisely. (Talk 1)</li>
+        <li>💗 <strong>Trust &gt; accuracy.</strong> A handoff package 95% correct but unverifiable is worse than 80% correct + clearly labeled. (Talks 12, 17)</li>
+        <li>🪪 <strong>Every Mia output gets provenance.</strong> Repo code, design system, inferred, proposed — labeled. (Talks 7, 12, 17)</li>
+        <li>📚 <strong>Skill files are SFT data.</strong> Quality of examples &gt; cleverness of prompts. (Talk 2)</li>
+        <li>🔁 <strong>Feedback loop &gt; the agents.</strong> Every designer or dev modification to a Mia output is signal. Structured collection, not thumbs widgets. (Talk 6)</li>
+        <li>🪜 <strong>Pilot → Production is a different shape of work.</strong> Define explicit readiness gates. (Talks 8, 12)</li>
+        <li>⚙️ <strong>Build the missing half.</strong> Eval, rollback path, measurement layer. (Talk 9)</li>
+        <li>🔐 <strong>Cross-org agent trust is coming.</strong> Mia pushing to bis-ship = trust boundary. Formalize the audit trail now. (Talk 15)</li>
+        <li>🤝 <strong>Early-stage collab is the model.</strong> Eng + design + product, day one, same room. (Talk 3)</li>
+        <li>🌱 <strong>Future of design at BIS = system design.</strong> Less pushing pixels, more owning the system that produces design. (Talk 11)</li>
+      </ul>
+    </section>
+
+    <!-- TODO -->
+    <section class="section" id="todo">
+      <div class="talk-header">
+        <h1>📝 This week's to-do</h1>
+        <p class="gist">Action list. Not aspirational. Stuff I can start Monday. ✨</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>7 concrete actions for the week — none of them aspirational, all of them startable Monday</li>
+          <li>The big ones: audit skill files, add provenance footers, replace a thumbs widget, write the trust UX one-pager</li>
+          <li>Plus: capture baseline handoff metrics, define readiness gates for Ace + Mia, start the future-of-design essay</li>
+        </ul>
+      </div>
+
+      <ol>
+        <li>📚 <strong>Audit skill files.</strong> Every example is SFT data. Replace weak ones.</li>
+        <li>🪪 <strong>Add provenance footers to Mia outputs.</strong> "From codebase / design system / inferred / proposed" labels.</li>
+        <li>👎 <strong>Replace one thumbs widget at BIS.</strong> Pick an AI feature. Replace with a one-question structured follow-up. Pitch to the team. Run a 30-day comparison.</li>
+        <li>💗 <strong>Write the "trust UX" one-pager.</strong> Provenance, confidence, off-ramps, audit. Circulate.</li>
+        <li>📊 <strong>Capture baseline handoff metrics.</strong> Time-to-handoff, dev impl time per ticket, post-handoff rework rate. Before Ace + Mia change them.</li>
+        <li>🪜 <strong>Define readiness gates for Ace + Mia.</strong> Using Ultimarii's 4-stage model. I'm at pilot. What does production-service look like, gate by gate?</li>
+        <li>✍️ <strong>Start writing the essay.</strong> "What is the future of AI for the BIS design team?" Even a rough draft. Share.</li>
+      </ol>
+    </section>
+
+    <!-- QUESTIONS -->
+    <section class="section" id="questions">
+      <div class="talk-header">
+        <h1>❓ Open questions</h1>
+        <p class="gist">A running list. No answers yet — things I want to chase over the next month.</p>
+      </div>
+
+      <div class="summary-card">
+        <h5>📍 Quick summary</h5>
+        <ul>
+          <li>Running list of open questions I left Upper Bound with — no answers yet</li>
+          <li>Spans: team structure for a design org running agents, design-system-to-agent sync, eval harness for design outputs</li>
+          <li>Plus: trust UX patterns, measuring earned trust, what the deliverable becomes when "Figma file" isn't it anymore</li>
+          <li>Things to chase over the next month 🌷</li>
+        </ul>
+      </div>
+
+      <ul>
+        <li>What's the right team structure for a design org running agents at scale? Probably not the same as a traditional design team.</li>
+        <li>How do other vertical-AI companies handle "the design system changed but the agent still has the old patterns memorized"? There must be a pattern.</li>
+        <li>What does an "evaluation harness" look like for design outputs specifically? Most eval tooling is for text + code, not "did the prototype look right."</li>
+        <li>What's the canonical reference for "trust UX patterns" in 2026? Is there an NNG-style writeup, or do I assemble from scratch?</li>
+        <li>How do we measure whether Ace + Mia have <em>earned</em> trust at BIS, vs being tolerated because I'm enthusiastic about them?</li>
+        <li>What becomes the deliverable when "Figma file" stops being the deliverable? Design data schemas? Skill files? Prompt libraries?</li>
+        <li>For BIS's AI roadmap — which features <em>should</em> be L3 agents, which should stay L2 workflows because the risk surface isn't worth the autonomy?</li>
+      </ul>
+
+      <p style="margin-top: 32px; color: var(--muted); font-style: italic;">Two days in Edmonton, 17 talks, one notebook. Time to go build. ♡</p>
+
+      <div class="footer">
+        Synthesized from a handwritten notebook + slide photos + a verbal recap.<br/>
+        Mahi Chavda · Product Designer · BIS Safety · Upper Bound 2026, Edmonton ✨
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  (function() {
+    const links = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.section');
+    const sidebar = document.getElementById('sidebar');
+    const toggle = document.getElementById('menuToggle');
+
+    function showSection(id) {
+      sections.forEach(s => s.classList.toggle('active', s.id === id));
+      links.forEach(l => l.classList.toggle('active', l.dataset.section === id));
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      history.replaceState(null, '', '#' + id);
+      sidebar.classList.remove('open');
+    }
+
+    links.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        showSection(link.dataset.section);
+      });
+    });
+
+    const initial = (window.location.hash || '#intro').slice(1);
+    const exists = document.getElementById(initial);
+    showSection(exists ? initial : 'intro');
+
+    toggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth <= 880 && sidebar.classList.contains('open')) {
+        if (!sidebar.contains(e.target) && e.target !== toggle) {
+          sidebar.classList.remove('open');
+        }
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

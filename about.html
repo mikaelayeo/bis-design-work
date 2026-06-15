@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — BIS Design Work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/hub.css">
+</head>
+<body>
+  <div class="topbar">
+    <a class="brand" href="index.html"><span class="glyph">▣</span> BIS Design Work</a>
+    <nav class="topnav">
+      <a href="showcase.html">Showcase</a>
+      <a href="studio.html" data-studio-label>Studio</a>
+      <a href="about.html" class="active">About</a>
+    </nav>
+  </div>
+
+  <main class="page">
+    <div class="page-head">
+      <span class="eyebrow">About</span>
+      <h1>About this site</h1>
+    </div>
+
+    <div class="about-blocks">
+      <div class="block">
+        <h3>What this is</h3>
+        <p>A single, browsable home for the design work I generate — wireframes, prototypes, presentations, and component documentation — so it's all clickable in one place instead of scattered HTML files.</p>
+        <p><strong>Showcase</strong> holds finalized, polished pieces meant to be shared with anyone. <strong data-studio-label>Studio</strong> is my soft-gated working library: drafts, internal decks, analysis, and learnings I keep for reference and promote to Showcase when they're ready.</p>
+        <p>Built with Claude. Hosted on GitHub Pages.</p>
+      </div>
+      <div class="block person">
+        <div class="avatar">MY</div>
+        <div>
+          <h3 style="margin:0 0 2px">Managed by Mika</h3>
+          <p style="margin:0">Mikaela Yeo · Senior Product Designer, BIS Safety Software</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="foot">
+    Source on <a href="https://github.com/mikaelayeo/bis-design-work">GitHub</a>
+  </footer>
+
+  <script>
+    fetch("data/catalog.json", { cache: "no-store" })
+      .then(r => r.json())
+      .then(d => {
+        const label = (d.config && d.config.studioLabel) || "Studio";
+        document.querySelectorAll("[data-studio-label]").forEach(el => el.textContent = label);
+      }).catch(() => {});
+  </script>
+</body>
+</html>

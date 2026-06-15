@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Design Value & Team Structure — Learnings from May 20–22</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#faf9f6;
+    --surface:#ffffff;
+    --surface-2:#f3f1ec;
+    --ink:#1a1a1c;
+    --ink-dim:#3f3f44;
+    --ink-quiet:#7a7a82;
+    --line:#e3e0d8;
+    --accent:#b56b1a;
+    --accent-soft:#fdf3e6;
+    --highlight:#caa53e;
+    --highlight-soft:#fbf5e1;
+    --quote:#3d6db5;
+    --quote-soft:#eef3fb;
+    --mika:#7d3aa3;
+    --mika-soft:#f5ecfa;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;line-height:1.6}
+  .wrap{max-width:780px;margin:0 auto;padding:64px 28px 96px}
+  header{border-bottom:1px solid var(--line);padding-bottom:32px;margin-bottom:48px}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+  h1{font-family:'DM Serif Display',serif;font-weight:400;font-size:46px;line-height:1.12;margin:0 0 18px;color:var(--ink)}
+  .sub{color:var(--ink-dim);font-size:17px;max-width:62ch}
+  .meta{display:flex;gap:24px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-quiet);margin-top:24px}
+  .meta span{display:inline-flex;align-items:center;gap:8px}
+  .meta b{color:var(--ink-dim);font-weight:600}
+
+  section{margin:56px 0}
+  h2{font-family:'DM Serif Display',serif;font-weight:400;font-size:30px;line-height:1.2;margin:0 0 8px;color:var(--ink)}
+  .section-kicker{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+  .section-lead{color:var(--ink-dim);font-size:16px;margin:0 0 28px;max-width:62ch}
+
+  h3{font-family:'DM Sans',sans-serif;font-weight:700;font-size:18px;margin:32px 0 10px;color:var(--ink)}
+  p{margin:0 0 14px;color:var(--ink-dim)}
+  p strong{color:var(--ink);font-weight:600}
+  ul,ol{margin:0 0 18px;padding-left:20px;color:var(--ink-dim)}
+  li{margin-bottom:10px}
+  li strong{color:var(--ink)}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px 24px;margin:18px 0;box-shadow:0 1px 2px rgba(0,0,0,.02)}
+  .card.accent{border-left:3px solid var(--accent)}
+  .card.muted{background:var(--surface-2);box-shadow:none}
+
+  .pull{
+    border-left:3px solid var(--highlight);
+    background:var(--highlight-soft);
+    padding:16px 20px;margin:20px 0;
+    color:var(--ink);
+    font-family:'DM Serif Display',serif;
+    font-size:19px;line-height:1.4;
+    border-radius:0 6px 6px 0;
+  }
+
+  .quote{
+    border-left:3px solid var(--quote);
+    background:var(--quote-soft);
+    padding:12px 18px;margin:18px 0;
+    color:var(--ink-dim);
+    font-style:italic;
+    border-radius:0 6px 6px 0;
+  }
+
+  /* Mika's own voice — woven through the doc */
+  .mika{
+    background:var(--mika-soft);
+    border:1px solid #e6d4f0;
+    border-left:3px solid var(--mika);
+    border-radius:0 8px 8px 0;
+    padding:14px 18px 14px 20px;
+    margin:22px 0;
+    position:relative;
+    color:var(--ink-dim);
+    font-size:15.5px;
+    line-height:1.55;
+  }
+  .mika::before{
+    content:"My thinking in the moment";
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--mika);
+    margin-bottom:6px;
+    font-weight:600;
+  }
+  .mika p{margin:0;color:var(--ink-dim)}
+  .mika p + p{margin-top:8px}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}
+  @media (max-width:640px){.grid-2{grid-template-columns:1fr}}
+  .grid-2 .card{margin:0}
+  .grid-2 h4{font-family:'DM Sans',sans-serif;font-size:14px;margin:0 0 10px;color:var(--accent);text-transform:uppercase;letter-spacing:.08em}
+  .grid-2 ul{margin:0;padding-left:18px;font-size:14.5px}
+
+  table.contrast{width:100%;border-collapse:collapse;margin:20px 0;font-size:14.5px;background:var(--surface);border-radius:8px;overflow:hidden}
+  table.contrast th,table.contrast td{border:1px solid var(--line);padding:12px 14px;vertical-align:top;text-align:left}
+  table.contrast th{background:var(--surface-2);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+  table.contrast td{color:var(--ink-dim)}
+
+  .reading-list{list-style:none;padding:0;margin:18px 0}
+  .reading-list li{padding:14px 0;border-top:1px solid var(--line);color:var(--ink-dim)}
+  .reading-list li:last-child{border-bottom:1px solid var(--line)}
+  .reading-list b{color:var(--ink);display:block;font-size:15px;margin-bottom:4px}
+  .reading-list em{color:var(--accent);font-style:normal;font-family:'JetBrains Mono',monospace;font-size:12px}
+
+  footer{margin-top:72px;padding-top:24px;border-top:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-quiet);line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Personal learning notes / May 20–22, 2026</div>
+  <h1>Design value &amp; team structure — what I worked out last week</h1>
+  <p class="sub">Two long thinking sessions, condensed. Notes for a fellow designer trying to figure out what design is actually <em>for</em> inside a B2B compliance / operational software org — and what the path from craft to strategy looks like when you're the only designer in the room. The purple callouts throughout are <strong>my own questions and reactions during the session</strong>, kept in my voice so the thinking lands the way I had it.</p>
+  <div class="meta">
+    <span><b>Source notes</b> "Product Deliver: Design Impact" + "Fog is clearing out"</span>
+    <span><b>Context</b> Sole designer, BIS Safety Software</span>
+  </div>
+</header>
+
+<!-- PART ONE -->
+
+<section>
+  <div class="section-kicker">Part 1 · The value question</div>
+  <h2>When does design actually earn its seat?</h2>
+  <p class="section-lead">The honest version: design isn't equally valuable everywhere. Pretending it is, is how design teams end up overstaffed and underused. The real question is what kind of product you're building — and whether your design investment matches that.</p>
+
+  <div class="mika">
+    <p>I am just brainstorming ways to improve our product delivery process. I have a friend who is now working in a company with mostly devs and QA and maybe one designer — they're working on a Salesforce product. So it's already built software and they're just adding features and tweaking. Made me wonder how that compares to what we're doing.</p>
+  </div>
+
+  <h3>Two design-value regimes</h3>
+  <p>Different products sit in different "design-value" regimes. Looking at peers' situations clarified this:</p>
+
+  <table class="contrast">
+    <thead>
+      <tr><th>Lean-design regime</th><th>High-leverage design regime</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Built on a platform with a baked-in design system (Lightning, ServiceNow, SAP). Components, patterns, and visual language already decided.</td>
+        <td>Greenfield or evolving products where the form factor itself is still up for grabs.</td>
+      </tr>
+      <tr>
+        <td>Users are internal, captive, paid to use the tool. Friction is bounded — they won't churn to a competitor.</td>
+        <td>Consumer / prosumer context where users choose to use the product and friction translates directly to churn.</td>
+      </tr>
+      <tr>
+        <td>Problems are well-understood. The stakeholder usually is the user (sales ops, support agents).</td>
+        <td>High discovery uncertainty — you don't know what to build, or who it's for, or whether the problem you think exists actually does.</td>
+      </tr>
+      <tr>
+        <td>"Design" work is really IA + light visual cleanup + occasional flow diagrams. One designer is genuinely enough.</td>
+        <td>Novel interaction patterns, high-stakes/emotional contexts, mobile, or anywhere small choices have outsized impact.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>The trap I was talking myself into</h3>
+
+  <div class="mika">
+    <p>Our end users in the field are forced to use the app / software despite not liking it. They are also PAID to do it. Our workflows are compliance tracking with forms (FLHA), asset management, training, all that. <strong>Perhaps a designer is not needed, or is it?</strong> What makes a designer valuable in this case where design was never thought of as a strategic power? Why build an entire design system and patterns up so devs can just handle the patterns later? What is truly the point of a designer in a team?</p>
+  </div>
+
+  <p>It's tempting to conclude "we don't need much design." That framing breaks down in four specific ways:</p>
+
+  <ul>
+    <li><strong>Hidden labour cost.</strong> A field worker taking 8 minutes on a form that should take 3 isn't lost as a user — but the 5 minutes × every worker × every day is real labour cost the buyer absorbs.</li>
+    <li><strong>The workaround failure mode.</strong> When forms are painful, captive users don't refuse them — they fill them at end-of-day from memory, share logins, or build shadow processes. The form gets submitted; the underlying data is rotting. For something like an FLHA, that's a safety problem, not just a UX one.</li>
+    <li><strong>Buyers ≠ users.</strong> The safety manager signs the contract; the field worker actually uses the app. Competitors (Procore, SafetyCulture/iAuditor, KPA) grow specifically by making field software that doesn't suck — the buyer eventually hears about it.</li>
+    <li><strong>Admins are users too.</strong> They configure the hierarchies, manage training matrices, reconcile compliance records — and they often influence renewals. Their pain is churn risk even when field workers are locked in.</li>
+  </ul>
+
+  <div class="pull">"They have to use it" is a description of the current state, not a strategy. It's the kind of thing that's true until it's suddenly not.</div>
+</section>
+
+<!-- PART TWO -->
+
+<section>
+  <div class="section-kicker">Part 2 · What design actually does</div>
+  <h2>What a designer does that devs + a design system can't replace</h2>
+  <p class="section-lead">If design is going to earn its seat, it has to be doing something hard to replicate. Four things came out of the conversation:</p>
+
+  <div class="grid-2">
+    <div class="card accent">
+      <h4>Time-to-completion</h4>
+      <ul>
+        <li>A dev composing components builds a working form.</li>
+        <li>A designer studying how field workers <em>actually</em> fill it out — what they do first, where they get interrupted, what they fake — redesigns the flow so it takes half the time.</li>
+        <li>Same components. Different flow. That's design.</li>
+      </ul>
+    </div>
+    <div class="card accent">
+      <h4>Translating mental models</h4>
+      <ul>
+        <li>Safety managers think in compliance frameworks and audit trails.</li>
+        <li>Field workers think "I'm here, I need to do this thing, get out of my way."</li>
+        <li>Good design holds both and finds the shape that serves both. Devs given buyer-side requirements will build for buyer mental models; user experience suffers invisibly.</li>
+      </ul>
+    </div>
+    <div class="card accent">
+      <h4>IA for messy domains</h4>
+      <ul>
+        <li>Asset management across thousands of assets and hundreds of sites is genuinely hard.</li>
+        <li>Hierarchies, tagging, search, filtering, bulk operations — competent vs excellent here is enormous.</li>
+        <li>Not solved by composing components. Solved by thinking about how a fleet manager finds a specific generator at 6 AM when something's broken.</li>
+      </ul>
+    </div>
+    <div class="card accent">
+      <h4>Catching what isn't a ticket</h4>
+      <ul>
+        <li>The biggest value of embedded design isn't designing what's requested — it's noticing what's <em>not</em> being requested.</li>
+        <li>Field workers don't file tickets. They complain to each other and adapt.</li>
+        <li>This is the part that gets cut first when design is treated as a UI service.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="pull">A designer producing wireframes from tickets handed to them is a UI service. The strategic value of design lives upstream — in site visits, synthesis, problem definition, workflow redesign.</div>
+</section>
+
+<!-- PART THREE -->
+
+<section>
+  <div class="section-kicker">Part 3 · The org dysfunction with a name</div>
+  <h2>"Feature factory" — and the sprint vs continuous-delivery debate</h2>
+  <p class="section-lead">Naming the pattern made it less personal and easier to act on.</p>
+
+  <h3>The pattern</h3>
+  <p>Ideas come from elsewhere, designers execute them, no one talks to users. Teresa Torres calls it the <em>feature factory</em>; Marty Cagan distinguishes <em>delivery teams</em> (build what you're told) from <em>product teams</em> (own outcomes, do discovery). The symptom: a linear flow starting at "Problem" — but in a feature factory the problem step is skipped or assumed, and design enters at "Create Solution." That's the gap.</p>
+
+  <div class="mika">
+    <p>Maybe our AI ideation pipeline helps the initial scope be stronger? Then that can be brought to design. I am just against going straight to design from a rough scope. <strong>What makes a rough scope?</strong> Maybe our AI pipeline can identify if a scope is good enough to start.</p>
+  </div>
+
+  <h3>Steel-manning the "move away from sprints" argument</h3>
+  <p>Mature high-performing teams (DORA / Accelerate, Spotify-style, most FAANG product orgs) do operate on continuous flow with kanban WIP limits, trunk-based development, feature flags. Sprint ceremonies can become theater; two-week commitments can distort scope. Cagan has been vocal that "process teams" doing rituals are often less effective than "product teams" doing continuous discovery and delivery.</p>
+
+  <div class="card muted">
+    <p><strong>But — the maturity floor matters.</strong> Continuous delivery works when discovery is already embedded, ownership is clear, CI/CD is mature, design and research operate ahead of engineering, and saying "this isn't ready" is safe. Without that, "continuous delivery" just becomes "continuous reactivity" — whatever is loudest gets built.</p>
+    <p><strong>The honest version of the disagreement:</strong> leadership is describing where mature product orgs end up. The designer in the room is describing what the org needs to get there. Both can be true.</p>
+  </div>
+
+  <h3>A middle path: dual-track agile</h3>
+  <p>Keep the cadence; separate the ceremonies. Discovery (research synthesis, problem definition) runs one or two cycles ahead of delivery. Engineering operates on the delivery track. They meet at well-defined handoffs. Jeff Patton and Marty Cagan both write about this. It gives design room to actually do its job instead of being a bottleneck at the end.</p>
+
+  <div class="quote">One question worth asking before the next leadership conversation: is the disagreement really about sprints, or about whether discovery work counts as "real" work? If leadership sees research and problem definition as overhead rather than as the actual product work, no process change will fix it. The sprint debate might be a proxy for that deeper question.</div>
+</section>
+
+<!-- PART FOUR -->
+
+<section>
+  <div class="section-kicker">Part 4 · The playbook</div>
+  <h2>How designers actually shift a delivery-focused org</h2>
+  <p class="section-lead">This is a well-trodden battle. Almost every design leader who's built a real practice inside a feature-factory org has had to fight it. The plays that work:</p>
+
+  <div class="mika">
+    <p>Now <em>that</em> is the biggest challenge. Knowing the value of discovery work. Right now, we use CE help tickets or PM meetings as our user data. But it's not… <strong>when I got to see how the user was using the app, hearing their frustration head on, was a stronger set of data</strong> than just help tickets from admins.</p>
+  </div>
+
+  <h3>1. Stop selling "discovery"</h3>
+  <p>The word itself is the problem. To leadership it sounds like designers asking for more time before the real work starts. Reframe in the language leadership already uses:</p>
+  <ul>
+    <li><strong>Risk reduction.</strong> Every feature shipped without validation is a bet. Frame undiscovered features as "we're betting six weeks of engineering on a hunch." Cagan's framing — <em>"at least half of our ideas are just not going to work"</em> — lands harder than "we should do more research."</li>
+    <li><strong>Rework avoidance.</strong> Track how often features ship and then need significant rework within 90 days. The number is usually shocking. Leadership already hates rework cost.</li>
+    <li><strong>Sales &amp; renewal enablement.</strong> Discovery findings — actual quotes from field visits, specific workflow pain — become ammunition Sales and CS already want.</li>
+  </ul>
+
+  <h3>2. Show, don't pitch</h3>
+  <p>The single most consistent pattern: don't get permission first. Do the work and bring back something undeniable. Teresa Torres's <em>Continuous Discovery Habits</em> is explicit — you don't get headcount and process approval first, you start with one interview a week and get the org addicted to the insights.</p>
+  <ol>
+    <li>Do a small piece of discovery work, often stretching the definition of a current project.</li>
+    <li>Bring back something specific and surprising. Not "users are frustrated" — that's a help-ticket summary. Something like: <em>"I watched five field workers fill out FLHAs last week. Four filled the entire form in the truck at end-of-day from memory because the form is too slow to use on site. The hazard identification we think we're capturing isn't being captured."</em></li>
+    <li>That specific finding becomes a story leadership repeats. They start asking "what else are we missing?"</li>
+    <li>Use that <em>pull</em>, not push, to expand the practice.</li>
+  </ol>
+
+  <h3>3. Make alternative data sources look weak by comparison</h3>
+  <p>Right now my org treats help tickets and PM meetings as user data. Rather than arguing it's bad data, show what it can't see:</p>
+  <div class="pull">"Help tickets tell us what users complain about loudly enough to file a ticket. They don't tell us what users have given up on, worked around, or never realized was supposed to work differently. 80–90% of user friction never becomes a ticket — because filing a ticket is itself friction."</div>
+  <p>Then make it concrete with field data. "Tickets said the FLHA module works fine. On site, I watched X, Y, Z. Which of these would have shown up in a ticket?" Not abstract argument — own field data demonstrating the blind spot.</p>
+
+  <h3>4. Find your coalition before your battle</h3>
+  <p>Designers pushing for discovery alone almost always lose. The natural allies in this kind of org:</p>
+  <ul>
+    <li><strong>CE leadership</strong> — drowning in tickets, they know tickets are lagging indicators. They want fewer tickets. Discovery prevents tickets.</li>
+    <li><strong>Sales engineers / CSMs</strong> losing deals or renewals over product gaps. Joint site visits are powerful — they get account insight, you get cover.</li>
+    <li><strong>One sympathetic PM or eng lead</strong> — not the most senior, the most curious. Someone privately frustrated about building features no one asked for.</li>
+    <li><strong>A specific executive sponsor</strong> — usually someone with field experience or a strong "the product has drifted from users" view. In safety/compliance software, often someone who came up through ops.</li>
+  </ul>
+
+  <h3>5. Pick a beachhead, not a revolution</h3>
+  <p>Don't try to overhaul the whole process at once. Pick one feature — ideally a high-stakes one where leadership is already nervous about getting it wrong — and run it discovery-led end to end. Bring back findings. Let them visibly change the feature. Then point at the outcome and say "this is what discovery looks like, and here's what it caught."</p>
+
+  <h3>6. Make discovery continuous &amp; visible, not a phase</h3>
+  <p>The thing that kills discovery practices is when they become a phase that happens before "real work" — they get cut when timelines tighten. What sticks:</p>
+  <ul>
+    <li>A <strong>research wall</strong> (digital or physical) with real quotes, clips, and observations — updated weekly. Leadership walks by it. PMs reference it. It becomes ambient.</li>
+    <li>A <strong>weekly 15-min user-insight share</strong>: one observation, one clip, one quote. Short enough that no one can complain about the time. Frequent enough that the org feels the rhythm.</li>
+    <li><strong>Embedded users in roadmap conversations.</strong> First question on any new feature: "what do we know about how users actually do this today?" If the answer is "nothing," that's the trigger for discovery — not a bypass.</li>
+  </ul>
+</section>
+
+<!-- PART FIVE -->
+
+<section>
+  <div class="section-kicker">Part 5 · Personal trajectory</div>
+  <h2>Craft → systems → service: notes to self (and any other lone designer)</h2>
+  <p class="section-lead">The second half of the week pulled the same thinking inward. Not everything that's "clearing" reflects on me personally — a lot of what's frustrating is organizational, not a Mika problem. Designers who flagellate themselves for org-level problems burn out within two years. Designers who diagnose the org clearly and play a long game become the people who eventually shape it.</p>
+
+  <div class="pull">The shift from senior designer → service-design orientation is the shift from <em>doing the work</em> to <em>building the conditions for the work to happen.</em></div>
+
+  <h3>Six things I want to keep in mind</h3>
+  <ol>
+    <li><strong>Build artifacts, not arguments.</strong> A customer-quote library, a tagged mental-models file, a problem-brief template — these live outside my head. A year of consistent logging gives me a research library no one can dismiss. Two years gives the org a strategic asset. Five years gives me a portfolio piece.</li>
+    <li><strong>Develop business-language fluency.</strong> Service designers operate where design meets ops, sales, and strategy. Speak to non-designers in their terms: retention, expansion revenue, TAM, CAC, churn risk. <em>"This design will reduce onboarding time by 40%"</em> lands harder than <em>"this design is more intuitive."</em> Same insight, different audience, different outcome.</li>
+    <li><strong>Scale through enablement, not heroics.</strong> The trap senior designers fall into is "I'll just do it all myself." Doesn't scale. Teach CE how to capture mental models on calls. Teach PMs how to write problem statements. Build the templates. Encode my judgment into things that run without me.</li>
+    <li><strong>Maintain craft while expanding scope.</strong> The other trap: get strategic and lose your hands. Then you can't credibly push back on a wireframe because you haven't built one in a year. Keep craft sharp. The credibility from being able to <em>also</em> execute beautifully is what lets you operate at the strategic level.</li>
+    <li><strong>Be patient with the cultural shift.</strong> You won't change how the org works in one year. You might change how one ticket gets handled. Then a few. Then a category. Service design at the org level is a 3–5 year arc.</li>
+    <li><strong>Read the people who've been here before.</strong> Don't read them all. Pick one. Read it slowly over a few weekends. The vocabulary alone will sharpen how you describe what you already know.</li>
+  </ol>
+
+  <h3>Reading list</h3>
+  <ul class="reading-list">
+    <li><b>Indi Young — <i>Practical Empathy</i> &amp; <i>Mental Models</i></b><em>Foundational discipline of service design — building diagrams of how users actually think about a problem, not what features they ask for.</em></li>
+    <li><b>Marc Stickdorn — <i>This Is Service Design Doing</i></b><em>The field's working manual.</em></li>
+    <li><b>Lou Downe — <i>Good Services</i></b><em>The principles of service design, written for people fighting this battle inside organizations.</em></li>
+    <li><b>Erika Hall — <i>Just Enough Research</i></b><em>How to do discovery without academic overhead — perfect for one-designer shops.</em></li>
+    <li><b>Teresa Torres — <i>Continuous Discovery Habits</i></b><em>The operational playbook — how to embed weekly research cadence into a delivery team without needing org-level permission.</em></li>
+    <li><b>Marty Cagan — <i>Inspired</i> &amp; <i>Empowered</i></b><em>The "product teams vs delivery teams" framing; "at least half our ideas won't work."</em></li>
+  </ul>
+</section>
+
+<!-- CLOSING -->
+
+<section>
+  <div class="section-kicker">Closing thought</div>
+  <h2>The actual question</h2>
+  <p>The real question isn't "do we need designers." It's <strong>do we want design as a discovery function, or are we comfortable being a feature factory that ships software our users tolerate?</strong> Both are defensible business models. They just lead to very different products and very different competitive positions five years out.</p>
+  <div class="pull">Craft mastery eventually starts asking "but what are we doing this for?" — and that question, asked seriously and repeatedly, is the entire job of a service designer.</div>
+</section>
+
+<footer>
+  Notes condensed from Mika's Notion / May 20–22, 2026 · Source pages: "Product Deliver: Design Impact" and "Fog is clearing out: My value and growth" · Purple callouts are Mika's own questions during the session, preserved in her voice.
+</footer>
+
+</div>
+</body>
+</html>

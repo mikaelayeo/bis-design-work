@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Workflow Timeline — BIS Safety Software</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#F7F6F3;color:#2C2C2A;overflow-x:auto}
+.page{padding:48px 40px 80px;min-width:1200px}
+h1{font-size:32px;font-weight:700;letter-spacing:-0.5px;margin-bottom:6px}
+.meta{font-size:14px;color:#888;margin-bottom:32px}
+.meta span{background:#E8E6E1;padding:2px 10px;border-radius:16px;font-size:12px;color:#666;margin-left:6px}
+.section{margin-bottom:56px}
+.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:#999;margin-bottom:8px}
+.section-title{font-size:22px;font-weight:700;margin-bottom:20px}
+
+/* Phase legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#666}
+.legend-dot{width:14px;height:14px;border-radius:4px;flex-shrink:0}
+
+/* Timeline container */
+.timeline-wrap{position:relative;margin-bottom:40px}
+.timeline-header{display:flex;align-items:stretch;margin-bottom:0}
+.tl-label-col{width:260px;min-width:260px;padding:12px 16px;font-size:13px;font-weight:600;color:#999;border-bottom:1px solid #e0ddd8}
+.tl-track-col{flex:1;position:relative;border-bottom:1px solid #e0ddd8;padding:8px 0}
+
+/* Generic phase row */
+.tl-row{display:flex;align-items:stretch;border-bottom:1px solid #ECEAE5;transition:background .15s}
+.tl-row:hover{background:#F0EEE9}
+.tl-ticket{width:260px;min-width:260px;padding:14px 16px;display:flex;flex-direction:column;justify-content:center}
+.tl-ticket .tk-name{font-size:14px;font-weight:600;line-height:1.35;margin-bottom:2px}
+.tl-ticket .tk-meta{font-size:11px;color:#999}
+.tl-ticket .tk-meta .difficulty{padding:1px 6px;border-radius:10px;font-size:10px;font-weight:600;margin-left:4px}
+.diff-easy{background:#EAF3DE;color:#3B6D11}
+.diff-hard{background:#FAEEDA;color:#854F0B}
+.diff-expert{background:#FCEBEB;color:#A32D2D}
+
+.tl-track{flex:1;position:relative;min-height:70px;padding:8px 0}
+
+/* Phase bars */
+.phase-bar{position:absolute;height:24px;border-radius:6px;top:50%;transform:translateY(-50%);cursor:default;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;letter-spacing:0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px;transition:filter .15s}
+.phase-bar:hover{filter:brightness(1.08);z-index:10}
+
+/* Phase colors */
+.bar-intake{background:#D85A30}
+.bar-scope{background:#1D9E75}
+.bar-ideation{background:#6B5CE7}
+.bar-prototype{background:#378ADD}
+.bar-review{background:#D4537E}
+.bar-iterate{background:#B84828}
+.bar-handoff{background:#0F6E56}
+.bar-waiting{background:repeating-linear-gradient(90deg,#E8E6E1 0,#E8E6E1 4px,transparent 4px,transparent 8px);border:1px dashed #ccc;color:#999}
+.bar-blocked{background:repeating-linear-gradient(45deg,#FCEBEB 0,#FCEBEB 4px,#F7C1C1 4px,#F7C1C1 8px);border:1px solid #E24B4A;color:#791F1F}
+
+/* Event dots */
+.event-dot{position:absolute;width:10px;height:10px;border-radius:50%;border:2px solid #fff;top:50%;transform:translate(-50%,-50%);z-index:5;cursor:pointer}
+.event-dot:hover .event-tip{display:block}
+.event-tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#2C2C2A;color:#fff;font-size:11px;padding:6px 10px;border-radius:6px;white-space:nowrap;z-index:20;pointer-events:none}
+.event-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#2C2C2A}
+
+/* Day markers */
+.day-markers{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
+.day-mark{position:absolute;top:0;bottom:0;width:1px;background:#E8E6E1}
+.day-label{position:absolute;top:-20px;font-size:10px;color:#bbb;transform:translateX(-50%)}
+
+/* Annotation lines */
+.tl-annotations{position:relative;height:40px}
+.anno-line{position:absolute;top:0;height:100%;width:1px;border-left:1px dashed #D4537E}
+.anno-label{position:absolute;top:4px;font-size:10px;color:#D4537E;transform:translateX(4px);white-space:nowrap}
+
+/* Detail panel */
+.detail-panel{background:#fff;border-radius:14px;border:1px solid #E8E6E1;padding:24px 28px;margin-top:12px;display:none}
+.detail-panel.active{display:block}
+.detail-panel h3{font-size:16px;font-weight:700;margin-bottom:12px}
+.detail-log{display:flex;flex-direction:column;gap:6px}
+.log-entry{display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.5}
+.log-date{font-weight:600;color:#534AB7;min-width:60px;flex-shrink:0}
+.log-phase{display:inline-block;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:600;color:#fff;margin-right:6px}
+
+/* Summary stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+.stat-card{background:#fff;border-radius:12px;border:1px solid #E8E6E1;padding:20px}
+.stat-card .stat-val{font-size:28px;font-weight:700;letter-spacing:-0.5px}
+.stat-card .stat-label{font-size:12px;color:#999;margin-top:2px}
+
+/* Phase duration averages */
+.avg-bar-section{margin-top:24px}
+.avg-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.avg-label{width:100px;min-width:100px;font-size:13px;font-weight:500;text-align:right}
+.avg-track{flex:1;height:28px;background:#F1EFE8;border-radius:6px;position:relative;overflow:hidden}
+.avg-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:10px;font-size:11px;font-weight:600;color:#fff}
+.avg-note{font-size:11px;color:#999;min-width:60px}
+
+/* Interactive ticket selector */
+.ticket-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.ticket-tab{padding:8px 16px;border-radius:8px;border:1.5px solid #E8E6E1;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;background:#fff}
+.ticket-tab:hover{border-color:#999}
+.ticket-tab.active{border-color:#534AB7;background:#EEEDFE;color:#3C3489}
+
+.footer{margin-top:60px;padding-top:20px;border-top:1px solid #ddd;font-size:12px;color:#aaa}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Design Workflow Timeline</h1>
+<div class="meta">Real ticket data from Mika's Notion logs <span>2024–2026</span> <span>BIS Safety Software</span></div>
+
+<!-- Summary stats -->
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-val" style="color:#D85A30">6 months</div><div class="stat-label">Longest ticket lifecycle (Forms #12280)</div></div>
+  <div class="stat-card"><div class="stat-val" style="color:#1D9E75">~12 days</div><div class="stat-label">Shortest ticket lifecycle (Email #13810)</div></div>
+  <div class="stat-card"><div class="stat-val" style="color:#6B5CE7">v7</div><div class="stat-label">Most iterations on a single ticket</div></div>
+  <div class="stat-card"><div class="stat-val" style="color:#D4537E">38%</div><div class="stat-label">Days with AI-assisted design work</div></div>
+</div>
+
+<!-- Phase legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#D85A30"></div>Intake / read scope</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div>Scope understanding</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#6B5CE7"></div>Ideation</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#378ADD"></div>Prototyping</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#D4537E"></div>Review</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#B84828"></div>Iteration</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#0F6E56"></div>Handoff / approved</div>
+  <div class="legend-item"><div class="legend-dot" style="background:repeating-linear-gradient(90deg,#E8E6E1 0,#E8E6E1 4px,transparent 4px,transparent 8px);border:1px dashed #ccc;"></div>Waiting / blocked</div>
+</div>
+
+<!-- ============== TICKET 1: Forms File Upload (HARD) ============== -->
+<div class="section">
+  <div class="section-label">Hard ticket — 18 hours logged — 7 versions — 6 month lifecycle</div>
+  <div class="section-title">#12280 · Forms — Selecting a file from a folder for upload</div>
+  <div style="font-size:13px;color:#777;margin-bottom:16px">Created Nov 2023 · Started May 2024 · Approved Nov 2024 · <span class="difficulty diff-hard" style="padding:2px 8px;border-radius:10px;font-size:11px">Hard</span></div>
+
+  <div style="position:relative;overflow-x:auto">
+    <!-- Month headers -->
+    <div style="display:flex;margin-left:0;margin-bottom:4px">
+      <div style="width:80px;min-width:80px"></div>
+      <div style="display:flex;flex:1">
+        <div style="flex:31;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">May 2024</div>
+        <div style="flex:30;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Jun</div>
+        <div style="flex:31;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Jul</div>
+        <div style="flex:31;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Aug</div>
+        <div style="flex:30;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Sep</div>
+        <div style="flex:31;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Oct</div>
+        <div style="flex:6;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Nov</div>
+      </div>
+    </div>
+
+    <!-- Timeline bars for each sub-phase -->
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Scope</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:0%;width:1.5%;height:24px;top:2px;border-radius:5px;background:#D85A30" title="5/8 — Read ticket + started"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Prototype</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:0.5%;width:1%;height:24px;top:2px;border-radius:5px;background:#378ADD" title="5/9 — Finished v1 mockups + video"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Review</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:1%;width:3%;height:24px;top:2px;border-radius:5px;background:#D4537E" title="5/10–5/14 — Erica copy review"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Iterate v3</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:3.5%;width:1%;height:24px;top:2px;border-radius:5px;background:#B84828" title="5/15 — Sent v3 with video"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Iterate v4</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:4.5%;width:2%;height:24px;top:2px;border-radius:5px;background:#B84828" title="5/16 — Size-down version"></div>
+        <div style="position:absolute;left:10%;width:1%;height:24px;top:2px;border-radius:5px;background:#B84828" title="5/28 — v4 finished in 1.5hrs, popup approach"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Review v5</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:17.5%;width:6%;height:24px;top:2px;border-radius:5px;background:#D4537E" title="6/11–6/19 — v5 sent, Erica comments on multi-file display"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px;opacity:0.5">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#bbb;text-align:right;padding-right:12px">Waiting</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:23%;width:40%;height:24px;top:2px;border-radius:5px;background:repeating-linear-gradient(90deg,#E8E6E1 0,#E8E6E1 4px,transparent 4px,transparent 8px);border:1px dashed #ccc" title="Jul–Aug — No activity, waiting for prioritization"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Restart v7</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:64%;width:2%;height:24px;top:2px;border-radius:5px;background:#D85A30" title="9/4 — Pat asked to restart"></div>
+        <div style="position:absolute;left:66%;width:1.5%;height:24px;top:2px;border-radius:5px;background:#B84828" title="9/5 — Meeting with Pat, sent v7"></div>
+        <div style="position:absolute;left:67.5%;width:1%;height:24px;top:2px;border-radius:5px;background:#D4537E" title="9/7 — Erica approved wording"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px;opacity:0.5">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#bbb;text-align:right;padding-right:12px">Waiting</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:69%;width:21%;height:24px;top:2px;border-radius:5px;background:repeating-linear-gradient(90deg,#E8E6E1 0,#E8E6E1 4px,transparent 4px,transparent 8px);border:1px dashed #ccc" title="Oct — Waiting for security key decisions"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Approved</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:95%;width:5%;height:24px;top:2px;border-radius:5px;background:#0F6E56" title="11/4–11/6 — Security decision made, ticket approved"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key insight callout -->
+  <div style="margin-top:16px;background:#FFF5EE;border:1.5px solid #F0997B;border-radius:10px;padding:16px 20px;font-size:13px;color:#712B13;line-height:1.6">
+    <strong>Pattern:</strong> Active design work totaled ~18 hours across ~8 working days. But the calendar duration was 6 months. The gap is almost entirely waiting — waiting for review, waiting for reprioritization (Pat restarted it in Sep), and waiting for cross-functional decisions (security keys). <strong>The ratio of active work to calendar time is roughly 1:15.</strong>
+  </div>
+</div>
+
+<!-- ============== TICKET 2: Email Participants (EASY) ============== -->
+<div class="section">
+  <div class="section-label">Easy ticket — ~3 hours logged — 2 versions — 12 day lifecycle</div>
+  <div class="section-title">#13810 · Responsive update to "Email Participants" page</div>
+  <div style="font-size:13px;color:#777;margin-bottom:16px">Started May 24 · Approved Jun 5, 2024 · <span class="difficulty diff-easy" style="padding:2px 8px;border-radius:10px;font-size:11px">Easy</span></div>
+
+  <div style="position:relative">
+    <div style="display:flex;margin-left:0;margin-bottom:4px">
+      <div style="width:80px;min-width:80px"></div>
+      <div style="display:flex;flex:1">
+        <div style="flex:7;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">May 24–31</div>
+        <div style="flex:5;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Jun 1–5</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Scope</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:0%;width:8%;height:24px;top:2px;border-radius:5px;background:#D85A30" title="5/24 — Read through ticket + notes"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Prototype</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:25%;width:12%;height:24px;top:2px;border-radius:5px;background:#378ADD" title="5/27 — Started prototyping (v1)"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Review</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:75%;width:10%;height:24px;top:2px;border-radius:5px;background:#D4537E" title="6/5 — Erica IRL feedback"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Approved</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:88%;width:12%;height:24px;top:2px;border-radius:5px;background:#0F6E56" title="6/5 — v2 sent, approved by Erica same day"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;background:#EAF3DE;border:1.5px solid #97C459;border-radius:10px;padding:16px 20px;font-size:13px;color:#27500A;line-height:1.6">
+    <strong>Pattern:</strong> Clean, fast lifecycle. Low ambiguity, single reviewer (Erica), no scope creep. The in-person review accelerated approval — feedback + v2 + approval all happened same day. This is what the process looks like when scope is clear and the review loop is tight.
+  </div>
+</div>
+
+<!-- ============== TICKET 3: AskAmy Live Chat (EPIC/Hard) ============== -->
+<div class="section">
+  <div class="section-label">Epic ticket — In progress — Multiple stakeholders — AI-assisted</div>
+  <div class="section-title">#19627 · AskAmy — Live Chat Escalation (Monitoring Dashboard)</div>
+  <div style="font-size:13px;color:#777;margin-bottom:16px">Created Feb 20, 2026 · Still in progress · <span class="difficulty diff-hard" style="padding:2px 8px;border-radius:10px;font-size:11px">Hard / EPIC</span></div>
+
+  <div style="position:relative">
+    <div style="display:flex;margin-left:0;margin-bottom:4px">
+      <div style="width:80px;min-width:80px"></div>
+      <div style="display:flex;flex:1">
+        <div style="flex:4;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Mar 1–7</div>
+        <div style="flex:4;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Mar 8–14</div>
+        <div style="flex:4;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Mar 15–19</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Scope</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:0%;width:30%;height:24px;top:2px;border-radius:5px;background:#D85A30" title="3/4 — First meeting with Luke, Cass, Sasa, Mahi. Defined scope."></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Ideation</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:30%;width:20%;height:24px;top:2px;border-radius:5px;background:#6B5CE7" title="3/9 — Claude wireframes + prototype iteration. Proposed chat code system."></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Review</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:50%;width:8%;height:24px;top:2px;border-radius:5px;background:#D4537E" title="3/10 — Review with Luke, Cass, Sasa, Mahi. Multiple change requests."></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Iterate</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:58%;width:20%;height:24px;top:2px;border-radius:5px;background:#B84828" title="3/11–16 — Applying feedback, iterating on dashboard layout"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Review v2</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:85%;width:15%;height:24px;top:2px;border-radius:5px;background:#D4537E" title="3/19 — Luke feedback. Still iterating."></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;background:#EEEDFE;border:1.5px solid #AFA9EC;border-radius:10px;padding:16px 20px;font-size:13px;color:#3C3489;line-height:1.6">
+    <strong>Pattern:</strong> AI-assisted ticket (Claude wireframes in ideation). Faster time-to-first-concept than historical hard tickets. But multi-stakeholder review (Luke, Cass, Sasa, Mahi) means multiple rounds of feedback. The scope meeting → ideation → first review happened within 6 days — historically this would take 2–3 weeks for an EPIC ticket.
+  </div>
+</div>
+
+<!-- ============== TICKET 4: eCommerce (EXPERT/Blocked) ============== -->
+<div class="section">
+  <div class="section-label">Expert ticket — 40+ hours — Blocked for 10 months — Still not in dev</div>
+  <div class="section-title">#17024 · eCommerce Redesign — Storefront UX/UI Update</div>
+  <div style="font-size:13px;color:#777;margin-bottom:16px">Created May 2025 · Status: Blocked · <span class="difficulty diff-expert" style="padding:2px 8px;border-radius:10px;font-size:11px">Expert</span></div>
+
+  <div style="position:relative">
+    <div style="display:flex;margin-left:0;margin-bottom:4px">
+      <div style="width:80px;min-width:80px"></div>
+      <div style="display:flex;flex:1">
+        <div style="flex:1;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">May '25</div>
+        <div style="flex:1;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Jun–Dec '25</div>
+        <div style="flex:1;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Jan '26</div>
+        <div style="flex:1;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Feb '26</div>
+        <div style="flex:1;text-align:center;font-size:11px;color:#aaa;border-bottom:1px solid #e8e6e1;padding-bottom:4px">Mar '26</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Design</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:0%;width:18%;height:24px;top:2px;border-radius:5px;background:#378ADD" title="May 2025 — 40+ hours of design work. Mockups complete."></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px;opacity:0.5">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#bbb;text-align:right;padding-right:12px">Blocked</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:18%;width:42%;height:24px;top:2px;border-radius:5px;background:repeating-linear-gradient(45deg,#FCEBEB 0,#FCEBEB 4px,#F7C1C1 4px,#F7C1C1 8px);border:1px solid #E24B4A" title="Jun–Dec 2025 — Not on roadmap. Never picked up for development."></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#999;text-align:right;padding-right:12px">Revived</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:62%;width:3%;height:24px;top:2px;border-radius:5px;background:#D85A30" title="2/5/26 — Alex flagged duplicate settings"></div>
+        <div style="position:absolute;left:85%;width:4%;height:24px;top:2px;border-radius:5px;background:#D4537E" title="3/11/26 — Meeting with Luke and Alex. Filter feedback."></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:40px;opacity:0.5">
+      <div style="width:80px;min-width:80px;font-size:12px;font-weight:500;color:#bbb;text-align:right;padding-right:12px">Still blocked</div>
+      <div style="flex:1;position:relative;height:28px">
+        <div style="position:absolute;left:89%;width:11%;height:24px;top:2px;border-radius:5px;background:repeating-linear-gradient(45deg,#FCEBEB 0,#FCEBEB 4px,#F7C1C1 4px,#F7C1C1 8px);border:1px solid #E24B4A" title="Still blocked — not on roadmap for dev"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;background:#FCEBEB;border:1.5px solid #F09595;border-radius:10px;padding:16px 20px;font-size:13px;color:#791F1F;line-height:1.6">
+    <strong>Pattern:</strong> The invisible work problem in action. 40+ hours of completed design work sitting idle for 10 months. The ticket is periodically revived for meetings but never enters a development sprint. This is the pattern that erodes trust in the design function — significant effort invested with no visible output.
+  </div>
+</div>
+
+<!-- ============== PHASE DURATION AVERAGES ============== -->
+<div class="section">
+  <div class="section-label">Aggregate view</div>
+  <div class="section-title">Where time actually goes — average phase durations</div>
+  <p style="font-size:13px;color:#888;margin-bottom:20px">Based on logged ticket data. Calendar days, not active hours. The biggest time sink is not design — it's waiting.</p>
+
+  <div class="avg-bar-section">
+    <div class="avg-row">
+      <div class="avg-label">Intake</div>
+      <div class="avg-track"><div class="avg-fill" style="width:5%;background:#D85A30">1d</div></div>
+      <div class="avg-note">~0.5–1 day</div>
+    </div>
+    <div class="avg-row">
+      <div class="avg-label">Scope</div>
+      <div class="avg-track"><div class="avg-fill" style="width:10%;background:#1D9E75">1–3d</div></div>
+      <div class="avg-note">Longer for hard tickets</div>
+    </div>
+    <div class="avg-row">
+      <div class="avg-label">Ideation</div>
+      <div class="avg-track"><div class="avg-fill" style="width:12%;background:#6B5CE7">1–5d</div></div>
+      <div class="avg-note">AI cuts this by ~40%</div>
+    </div>
+    <div class="avg-row">
+      <div class="avg-label">Prototyping</div>
+      <div class="avg-track"><div class="avg-fill" style="width:18%;background:#378ADD">2–7d</div></div>
+      <div class="avg-note">Bulk of active design</div>
+    </div>
+    <div class="avg-row">
+      <div class="avg-label" style="color:#D4537E;font-weight:700">Review + Wait</div>
+      <div class="avg-track"><div class="avg-fill" style="width:65%;background:linear-gradient(90deg,#D4537E 30%,#E8E6E1 30%)"><span style="color:#fff;margin-right:8px">Review</span><span style="color:#999;font-weight:400">Waiting for stakeholders...</span></div></div>
+      <div class="avg-note" style="color:#A32D2D;font-weight:600">Weeks to months</div>
+    </div>
+    <div class="avg-row">
+      <div class="avg-label">Iteration</div>
+      <div class="avg-track"><div class="avg-fill" style="width:30%;background:#B84828">3–14d</div></div>
+      <div class="avg-note">Per round, 2–7 rounds</div>
+    </div>
+    <div class="avg-row">
+      <div class="avg-label">Handoff</div>
+      <div class="avg-track"><div class="avg-fill" style="width:5%;background:#0F6E56">1d</div></div>
+      <div class="avg-note">If it gets there</div>
+    </div>
+  </div>
+
+  <div style="margin-top:24px;background:#F1EFE8;border-radius:10px;padding:20px 24px">
+    <div style="font-size:15px;font-weight:700;margin-bottom:8px">The takeaway</div>
+    <div style="font-size:14px;line-height:1.7;color:#5F5E5A">
+      Across all tickets reviewed, <strong>active design work represents roughly 10–15% of total calendar time</strong>. The remaining 85–90% is waiting: waiting for scope clarity, waiting for review, waiting for stakeholder alignment, waiting for prioritization, and waiting for development pickup. The highest-leverage improvements target the waiting, not the designing — specifically, tighter review loops, a definition of ready/done, and a requirement freeze before development starts.
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Data sourced from Mika's Notion ticket logs · Tickets #12280, #13810, #17024, #19627 · March 2026
+</div>
+
+</div>
+</body>
+</html>

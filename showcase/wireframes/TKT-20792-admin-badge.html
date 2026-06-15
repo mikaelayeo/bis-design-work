@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TKT-20792 — Admin tab AI badge</title>
+<style>
+  :root{--teal:#159fc6;--ink:#2a2a2a;--muted:#6b7280;--line:#e5e7eb;--link:#1f7fc0;--accent:#6b3fd4;--accent-d:#5a32bd}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",-apple-system,Roboto,Arial,sans-serif;background:#dfe3e7;color:var(--ink);font-size:13px}
+  .controls{position:sticky;top:0;z-index:50;background:#1f2430;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+  .controls b{font-size:13px}.controls .sp{flex:1}.hint{font-size:11px;color:#9aa3b2}
+  .seg{display:inline-flex;border:1px solid #3a4150;border-radius:7px;overflow:hidden}
+  .seg button{background:#2a3140;color:#c7cdd8;border:0;padding:7px 13px;font-size:12px;cursor:pointer;font-family:inherit}
+  .seg button.on{background:#6b3fd4;color:#fff;font-weight:600}
+  .app{max-width:1300px;margin:18px auto;background:#fff;border:1px solid #c9ced4;box-shadow:0 4px 18px rgba(0,0,0,.12)}
+  .topnav{display:flex;align-items:center;gap:14px;padding:10px 16px;border-bottom:1px solid var(--line)}
+  .logo{display:flex;align-items:center;gap:6px;font-weight:800;font-size:16px}
+  .logo .leaf{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 60% 35%,#8bd04f,#3a8f3a)}
+  .logo small{font-weight:600;font-size:9px;letter-spacing:2px;color:#666;display:block;line-height:1}
+  .topnav .sp{flex:1}
+  .search{display:flex;align-items:center;border:1px solid #cfd5db;border-radius:4px;overflow:hidden}
+  .search input{border:0;padding:6px 9px;font-size:12px;width:150px;outline:none}.search .mag{background:#eef1f4;padding:6px 9px;color:#7b8794}
+  .ic{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#5a6675;border:1px solid #d7dce2;font-size:12px}
+  .avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#f0a,#a0f)}.logout{font-weight:600;font-size:12px}
+  .menubar{display:flex;gap:2px;padding:0 10px;border-bottom:2px solid #f0f2f4;flex-wrap:wrap}
+  .menubar a{padding:9px 12px;color:#3a3a3a;text-decoration:none;font-size:13px}.menubar .info{margin-left:auto;background:var(--teal);color:#fff;padding:9px 12px}
+  .hbar{background:var(--teal);color:#fff;display:flex;align-items:center;padding:11px 18px;font-weight:700;font-size:16px}
+  .hbar .sp{flex:1}.hbar .cog{font-size:16px}
+  .grid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px 4px;padding:26px 18px}
+  .cell{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px;border-radius:8px;cursor:pointer}
+  .cell:hover{background:#f5f8fa}
+  .gico{width:58px;height:58px;display:flex;align-items:center;justify-content:center;font-size:38px;line-height:1}
+  .cell .lbl{font-size:12px;text-align:center;line-height:1.25}
+  .blue{color:#2f8fc4}.red{color:#d9534f}.pink{color:#d6489b}.green{color:#5cb85c}.purple{color:#9b6dd6}.teal{color:#1aa3c9}.gold{color:#e6a519}
+  /* highlight target cell */
+  .target{outline:2px dashed #cdbcf5;outline-offset:-2px;background:#fbf9ff}
+  /* ---- badge treatments ---- */
+  .badge{position:absolute;font-weight:700;line-height:1;z-index:5}
+  /* A: bare sparkle */
+  .bA{top:8px;right:14px;color:#6b3fd4;font-size:18px}
+  /* B: AI pill */
+  .bB{top:8px;right:8px;background:#6b3fd4;color:#fff;font-size:9px;letter-spacing:.5px;padding:3px 6px;border-radius:9px;display:flex;align-items:center;gap:3px}
+  /* C: worded ribbon */
+  .bC{top:4px;left:50%;transform:translateX(-50%);background:#6b3fd4;color:#fff;font-size:9px;font-weight:700;letter-spacing:.3px;padding:3px 8px;border-radius:10px;white-space:nowrap;box-shadow:0 2px 6px rgba(107,63,212,.35);display:flex;align-items:center;gap:4px}
+  .bdot{position:absolute;top:10px;right:16px;width:9px;height:9px;border-radius:50%;background:#e23b6d;box-shadow:0 0 0 2px #fff}
+  /* tooltip */
+  .tip{position:absolute;z-index:30;width:250px;background:#fff;border:1px solid #d9ccff;border-radius:10px;box-shadow:0 12px 30px rgba(60,30,120,.22);padding:13px 14px 12px;top:96px;left:50%;transform:translateX(-50%);text-align:left;display:none}
+  .tip.show{display:block}
+  .tip:before{content:"";position:absolute;top:-9px;left:50%;transform:translateX(-50%);border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:9px solid #fff;filter:drop-shadow(0 -1px 0 #d9ccff)}
+  .tip h4{margin:0 0 5px;font-size:13px;color:#3a2370;display:flex;align-items:center;gap:6px}
+  .tip p{margin:0 0 11px;font-size:12px;color:#5a5570;line-height:1.45}
+  .tip .row{display:flex;align-items:center;gap:8px}
+  .tip .go{background:var(--accent);color:#fff;border:0;border-radius:5px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer}
+  .tip .dismiss{background:none;border:0;color:#8a86a0;font-size:12px;cursor:pointer;margin-left:auto}
+  .tip .gotit{background:none;border:0;color:#8a86a0;font-size:12px;cursor:pointer}
+  /* annotation */
+  .note{margin:0 18px 20px;border:1px solid #e0d6ff;background:#faf7ff;border-radius:10px;padding:14px 16px;font-size:12.5px;color:#4a4360;line-height:1.55;display:none}
+  .note.show{display:block}
+  .note b{color:#5a32bd}
+  .relwrap{position:relative}
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <b>TKT-20792 · Admin tab — AI awareness badge</b>
+  <span class="sp"></span>
+  <span class="hint">Treatment:</span>
+  <div class="seg" id="seg">
+    <button data-v="A" class="on">A · Bare sparkle (as written)</button>
+    <button data-v="B">B · "AI" pill</button>
+    <button data-v="C">C · Worded badge (recommended)</button>
+  </div>
+  <label class="hint" style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="tipck" checked> tooltip</label>
+  <label class="hint" style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="noteck" checked> notes</label>
+</div>
+
+<div class="app">
+  <div class="topnav">
+    <div class="logo"><span class="leaf"></span><span>CLEAN<small>ENVIRONMENT</small></span></div>
+    <span class="sp"></span>
+    <div class="search"><input placeholder="Search User"><span class="mag">🔍</span></div>
+    <span class="ic">✉</span><span class="ic" style="border:0;background:#16a0c7;color:#fff">◑</span><span class="ic">?</span>
+    <span class="avatar"></span><span class="logout">Log Out ›</span>
+  </div>
+  <div class="menubar">
+    <a>Home</a><a>Profile</a><a>Store</a><a>Rewards</a><a>Purchases</a><a>Users</a>
+    <a>Reporting</a><a>Calendar</a><a>Assets</a><a>Folders</a><a>QR</a><a>Admin</a><a class="info">i</a>
+  </div>
+  <div class="hbar">Admin <span class="sp"></span><span class="cog">⚙</span></div>
+
+  <div class="grid">
+    <div class="cell"><div class="gico red">🏛</div><div class="lbl red">Companies</div></div>
+    <div class="cell"><div class="gico blue">🔍</div><div class="lbl blue">Search</div></div>
+    <!-- Course Codes already carries a decorative star+sparkle -->
+    <div class="cell"><div class="gico gold">🌟</div><div class="lbl gold">Course Codes</div></div>
+    <div class="cell"><div class="gico pink">📊</div><div class="lbl pink">Excel Reports</div></div>
+
+    <!-- TARGET: Online Courses -->
+    <div class="cell target relwrap" id="target">
+      <div class="gico blue">💻</div>
+      <div class="lbl blue">Online Courses</div>
+      <span class="badge bA" id="bA">✦</span>
+      <span class="badge bB" id="bB" style="display:none">✦ AI</span>
+      <span class="badge bC" id="bC" style="display:none">✦ Build with AI</span>
+      <!-- tooltip -->
+      <div class="tip" id="tip">
+        <h4><span style="color:#6b3fd4">✦</span> <span id="tipTitle">New: AI in Online Courses</span></h4>
+        <p id="tipBody">You can now build courses with AI in Online Courses — describe a topic and it drafts the chapters and exam for you.</p>
+        <div class="row" id="tipActions">
+          <button class="go" id="tipGo">Take me there</button>
+          <button class="gotit" id="tipGot">Got it</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cell"><div class="gico blue">🗄</div><div class="lbl blue">Online Course<br>Bundles</div></div>
+    <div class="cell"><div class="gico purple">📑</div><div class="lbl purple">Training Record<br>Management</div></div>
+    <div class="cell"><div class="gico blue">🔲</div><div class="lbl blue">Training Matrix</div></div>
+
+    <div class="cell"><div class="gico teal">📅</div><div class="lbl teal">Classroom<br>Calendar</div></div>
+    <div class="cell"><div class="gico blue">📄</div><div class="lbl blue">Forms</div></div>
+    <div class="cell"><div class="gico green">📈</div><div class="lbl green">Form Reporting</div></div>
+    <div class="cell"><div class="gico blue">📋</div><div class="lbl blue">Event<br>Management</div></div>
+    <div class="cell"><div class="gico blue">🚜</div><div class="lbl blue">Assets</div></div>
+    <div class="cell"><div class="gico gold">📁</div><div class="lbl gold">Folders</div></div>
+    <div class="cell"><div class="gico green">📗</div><div class="lbl green">Playbook</div></div>
+    <div class="cell"><div class="gico gold">🎁</div><div class="lbl gold">Rewards</div></div>
+  </div>
+
+  <div class="note show" id="note"></div>
+</div>
+
+<script>
+  const seg=document.getElementById('seg'),tipck=document.getElementById('tipck'),noteck=document.getElementById('noteck');
+  const bA=document.getElementById('bA'),bB=document.getElementById('bB'),bC=document.getElementById('bC');
+  const tip=document.getElementById('tip'),note=document.getElementById('note');
+  const tipTitle=document.getElementById('tipTitle'),tipBody=document.getElementById('tipBody');
+  const tipActions=document.getElementById('tipActions');
+  let v='A';
+  const data={
+    A:{title:'New: AI in Online Courses',body:'This module has something for AI — the AI Course Builder is now available in Online Courses.',route:false,
+       note:'<b>A · Bare sparkle (the ticket as written).</b> Signals "something\'s here" but not <i>what</i>. Note the collision: “Course Codes” two tiles left already has a decorative gold sparkle, so this reads as one more bit of icon decoration. Awareness-only and routes nowhere, so even a curious admin has no next step.'},
+    B:{title:'New: AI in Online Courses',body:'You can now build courses with AI in Online Courses — describe a topic and the AI Course Builder drafts the chapters and exam.',route:false,
+       note:'<b>B · “AI” pill.</b> Carries meaning a bare sparkle can\'t, and survives next to the Course Codes star. Still awareness-only per the ticket — the tooltip explains but the admin must navigate to Online Courses themselves.'},
+    C:{title:'New: Build courses with AI',body:'The AI Course Builder is now available in Online Courses. Describe a topic and it drafts the whole course for you to review.',route:true,
+       note:'<b>C · Worded badge + a way in (recommended).</b> The badge states the value (“Build with AI”), and the tooltip adds a “Take me there” button. <b>This intentionally challenges the ticket\'s “awareness only — no routing” line:</b> the research is clear that awareness which connects to action converts, and a dead-end indicator is the weakest pattern of the three. Keep the dismissable “once per admin” behaviour either way.'}
+  };
+  function render(){
+    bA.style.display=v==='A'?'block':'none';
+    bB.style.display=v==='B'?'flex':'none';
+    bC.style.display=v==='C'?'flex':'none';
+    tipTitle.textContent=data[v].title;
+    tipBody.textContent=data[v].body;
+    tipActions.innerHTML = data[v].route
+      ? '<button class="go">Take me there</button><button class="gotit">Got it</button>'
+      : '<button class="gotit">Got it</button>';
+    tip.classList.toggle('show',tipck.checked);
+    note.innerHTML=data[v].note; note.classList.toggle('show',noteck.checked);
+  }
+  seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    [...seg.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');v=b.dataset.v;render();});
+  tipck.addEventListener('change',render); noteck.addEventListener('change',render);
+  render();
+</script>
+</body>
+</html>

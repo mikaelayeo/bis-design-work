@@ -1,0 +1,473 @@
+{
+  "config": {
+    "studioLabel": "Studio",
+    "tabs": {
+      "showcase": [
+        "wireframes",
+        "prototypes",
+        "docs",
+        "design-system"
+      ],
+      "studio": [
+        "docs",
+        "analysis",
+        "presentations",
+        "design-system"
+      ]
+    }
+  },
+  "categories": [
+    {
+      "key": "wireframes",
+      "name": "Wireframes"
+    },
+    {
+      "key": "prototypes",
+      "name": "Prototypes"
+    },
+    {
+      "key": "docs",
+      "name": "Docs"
+    },
+    {
+      "key": "analysis",
+      "name": "Analysis"
+    },
+    {
+      "key": "design-system",
+      "name": "Design System"
+    },
+    {
+      "key": "presentations",
+      "name": "Presentations"
+    }
+  ],
+  "items": [
+    {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "wireframes",
+      "id": "tkt-19998-network-course-draft",
+      "title": "Network course flows",
+      "date": "2026-06-09",
+      "children": [
+        {
+          "title": "Amanda flow",
+          "path": "showcase/wireframes/tkt-19998-network-course-draft/amanda-flow.html",
+          "date": "2026-06-09"
+        },
+        {
+          "title": "Client flow",
+          "path": "showcase/wireframes/tkt-19998-network-course-draft/client-flow.html",
+          "date": "2026-06-09"
+        }
+      ],
+      "ticket": "TKT-19998"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
+      "title": "Admin badge",
+      "date": "2026-06-15",
+      "path": "showcase/wireframes/TKT-20792-admin-badge.html",
+      "ticket": "TKT-20792"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
+      "title": "Admin badge v2",
+      "date": "2026-06-15",
+      "path": "showcase/wireframes/TKT-20792-admin-badge-v2.html",
+      "ticket": "TKT-20792"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
+      "title": "Ai panel",
+      "date": "2026-06-15",
+      "path": "showcase/wireframes/TKT-20792-ai-panel.html",
+      "ticket": "TKT-20792"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
+      "title": "Bulk select Values",
+      "date": "2026-05-22",
+      "path": "showcase/wireframes/TKT-18790.html",
+      "ticket": "TKT-18790"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
+      "title": "Course builder empty",
+      "date": "2026-06-15",
+      "path": "showcase/wireframes/TKT-20792-course-builder-empty.html",
+      "ticket": "TKT-20792"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
+      "title": "Mobile File Upload component",
+      "date": "2026-04-23",
+      "path": "showcase/wireframes/TKT-18984.html",
+      "ticket": "TKT-18984"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
+      "title": "Name display format selector",
+      "date": "2026-05-14",
+      "path": "showcase/wireframes/TKT-20146.html",
+      "ticket": "TKT-20146"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
+      "title": "Online courses",
+      "date": "2026-06-15",
+      "path": "showcase/wireframes/TKT-20792-online-courses.html",
+      "ticket": "TKT-20792"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
+      "title": "Pipeline test placeholder",
+      "date": "2026-04-23",
+      "path": "showcase/wireframes/TKT-20277.html",
+      "ticket": "TKT-20277"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
+      "title": "Responsive legend wrapping",
+      "date": "2026-04-28",
+      "path": "showcase/wireframes/TKT-20222.html",
+      "ticket": "TKT-20222"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
+      "title": "TKT-14038",
+      "date": "2026-06-15",
+      "path": "showcase/wireframes/TKT-14038.html",
+      "ticket": "TKT-14038"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
+      "title": "Toolbar density",
+      "date": "2026-06-15",
+      "path": "showcase/wireframes/TKT-20792-toolbar-density.html",
+      "ticket": "TKT-20792"
+    },
+    {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "prototypes",
+      "id": "admin-redesign",
+      "title": "Admin redesign",
+      "date": "2026-05-05",
+      "children": [
+        {
+          "title": "Admin page — prototype",
+          "path": "showcase/prototypes/admin-redesign/admin-page-redesign.html",
+          "date": "2026-05-05"
+        },
+        {
+          "title": "Admin redesign — changes reference",
+          "path": "showcase/prototypes/admin-redesign/admin-redesign-changes.html",
+          "date": "2026-05-05"
+        }
+      ],
+      "ticket": "TKT-19305"
+    },
+    {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "prototypes",
+      "id": "compliance",
+      "title": "Compliance",
+      "date": "2026-06-15",
+      "children": [
+        {
+          "title": "Compliance architecture",
+          "path": "showcase/prototypes/compliance/compliance-architecture.html",
+          "date": "2026-06-15"
+        },
+        {
+          "title": "Compliance module draft v1",
+          "path": "showcase/prototypes/compliance/compliance-module-draft-v1.html",
+          "date": "2026-06-15"
+        }
+      ]
+    },
+    {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "prototypes",
+      "id": "custom metrics",
+      "title": "Custom metrics",
+      "date": "2026-06-15",
+      "children": [
+        {
+          "title": "Custom metric editor v2",
+          "path": "showcase/prototypes/custom%20metrics/custom-metric-editor-v2.html",
+          "date": "2026-06-15"
+        },
+        {
+          "title": "Custom metric editor v3",
+          "path": "showcase/prototypes/custom%20metrics/custom-metric-editor-v3.html",
+          "date": "2026-06-15"
+        },
+        {
+          "title": "Custom metric editor",
+          "path": "showcase/prototypes/custom%20metrics/custom-metric-editor.html",
+          "date": "2026-06-15"
+        }
+      ]
+    },
+    {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "prototypes",
+      "id": "likert scale",
+      "title": "Likert scale",
+      "date": "2026-06-15",
+      "children": [
+        {
+          "title": "Likertscale client preview",
+          "path": "showcase/prototypes/likert%20scale/likertscale-client-preview.html",
+          "date": "2026-06-15"
+        },
+        {
+          "title": "Likertscale index",
+          "path": "showcase/prototypes/likert%20scale/likertscale-index.html",
+          "date": "2026-06-15"
+        }
+      ]
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "prototypes",
+      "title": "Home prototype v3 final ready for review",
+      "date": "2026-06-15",
+      "path": "showcase/prototypes/home-prototype-v3-final%20ready%20for%20review.html"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "prototypes",
+      "title": "Teams restructure v3",
+      "date": "2026-06-15",
+      "path": "showcase/prototypes/teams-restructure-v3.html"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "docs",
+      "title": "Amanda flow",
+      "date": "2026-06-15",
+      "path": "showcase/docs/tkt-19998-amanda-flow.html",
+      "ticket": "TKT-19998"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "docs",
+      "title": "Client flow",
+      "date": "2026-06-15",
+      "path": "showcase/docs/tkt-19998-client-flow.html",
+      "ticket": "TKT-19998"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "docs",
+      "title": "Notification documentation",
+      "date": "2026-06-15",
+      "path": "showcase/docs/TKT-19627-notification-documentation.html",
+      "ticket": "TKT-19627"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "docs",
+      "title": "Notification system spec",
+      "date": "2026-06-15",
+      "path": "showcase/docs/notification-system-spec.html"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "design-system",
+      "title": "BisTab",
+      "date": "2026-06-09",
+      "path": "showcase/design-system/bistab.html"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "design-system",
+      "title": "Chip",
+      "date": "2026-06-09",
+      "path": "showcase/design-system/chip.html"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "design-system",
+      "title": "DatePicker",
+      "date": "2026-06-09",
+      "path": "showcase/design-system/datepicker.html"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "design-system",
+      "title": "Mobile components",
+      "date": "2026-06-09",
+      "path": "showcase/design-system/mobile/index.html"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "design-system",
+      "title": "Select / Combobox",
+      "date": "2026-06-09",
+      "path": "showcase/design-system/select.html"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "design-system",
+      "title": "TimePicker",
+      "date": "2026-06-09",
+      "path": "showcase/design-system/timepicker.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "docs",
+      "title": "Building what matters",
+      "date": "2026-06-12",
+      "path": "studio/docs/building-what-matters.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "docs",
+      "title": "Product trio",
+      "date": "2026-05-20",
+      "path": "studio/docs/product-trio.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "docs",
+      "title": "Sprint process",
+      "date": "2026-06-10",
+      "path": "studio/docs/sprint-process.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "docs",
+      "title": "Upper bound notes 2",
+      "date": "2026-06-15",
+      "path": "studio/docs/upper-bound-notes-2.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "analysis",
+      "title": "Mika Workflow Timeline",
+      "date": "2026-06-15",
+      "path": "studio/analysis/Mika%20Workflow%20Timeline.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "analysis",
+      "title": "Park paving — site visit",
+      "date": "2026-06-05",
+      "path": "studio/analysis/park-paving-site-visit/index.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "analysis",
+      "title": "Q1 solution testing roadmap",
+      "date": "2026-06-15",
+      "path": "studio/analysis/q1-solution-testing-roadmap.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "analysis",
+      "title": "Ticket timeline",
+      "date": "2026-06-15",
+      "path": "studio/analysis/ticket-timeline.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "analysis",
+      "title": "Toggl deep dive",
+      "date": "2026-06-15",
+      "path": "studio/analysis/toggl-deep-dive.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "presentations",
+      "title": "Design value team structure learnings",
+      "date": "2026-06-15",
+      "path": "studio/presentations/design-value-team-structure-learnings.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "presentations",
+      "title": "Dev sync component system",
+      "date": "2026-06-15",
+      "path": "studio/presentations/dev-sync-component-system.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "presentations",
+      "title": "Park paving index",
+      "date": "2026-06-15",
+      "path": "studio/presentations/park-paving-index.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "presentations",
+      "title": "Presentation day mika",
+      "date": "2026-06-15",
+      "path": "studio/presentations/presentation-day-mika.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "presentations",
+      "title": "Sprint planning proposal",
+      "date": "2026-06-15",
+      "path": "studio/presentations/sprint-planning-proposal.html"
+    }
+  ]
+}

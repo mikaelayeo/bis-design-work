@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ticket Timeline — Mika Kera, BIS Safety Software</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0A0C10;
+    --surface: #12151C;
+    --surface-2: #191D27;
+    --surface-3: #20252F;
+    --border: #262D3D;
+    --border-light: #333C52;
+    --text: #E4E9F2;
+    --text-muted: #7E8A9F;
+    --text-dim: #505C72;
+    --accent: #6C8CFF;
+    --accent-glow: #6C8CFF22;
+    --red: #FF5C6E;
+    --orange: #FF9F43;
+    --yellow: #FFD06C;
+    --green: #4ADE80;
+    --teal: #2DD4BF;
+    --purple: #A78BFA;
+    --pink: #F472B6;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'DM Sans', -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 80px clamp(24px, 5vw, 80px) 60px;
+    background: linear-gradient(175deg, #0A0C10 0%, #0F1420 50%, #0A0C10 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 14px 6px 8px;
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+
+  .hero-badge .dot {
+    width: 7px; height: 7px;
+    background: var(--orange);
+    border-radius: 50%;
+    margin-top: 2px;
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 span { color: var(--accent); }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 640px;
+    margin-bottom: 40px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .hero-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .hero-stat .label {
+    font-size: 10px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+  }
+
+  .hero-stat .value {
+    font-size: 18px;
+    font-weight: 600;
+    font-family: var(--mono);
+  }
+
+  /* ── CONTAINER ── */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 clamp(24px, 5vw, 80px);
+  }
+
+  /* ── SECTION ── */
+  section { padding: 64px 0; }
+
+  .section-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(24px, 3.5vw, 40px);
+    font-weight: 400;
+    margin-bottom: 12px;
+  }
+
+  .section-desc {
+    color: var(--text-muted);
+    font-size: 15px;
+    max-width: 620px;
+    margin-bottom: 40px;
+  }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    position: relative;
+    padding-left: 48px;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 18px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--border), var(--border-light), var(--border));
+  }
+
+  .tl-item {
+    position: relative;
+    margin-bottom: 48px;
+  }
+
+  .tl-item:last-child { margin-bottom: 0; }
+
+  .tl-dot {
+    position: absolute;
+    left: -38px;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid;
+    background: var(--bg);
+    z-index: 2;
+  }
+
+  .tl-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .tl-card:hover { border-color: var(--border-light); }
+
+  .tl-card-header {
+    padding: 20px 24px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .tl-card-id {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+
+  .tl-card-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 6px;
+    line-height: 1.3;
+  }
+
+  .tl-card-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    font-family: var(--mono);
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .tl-card-meta .sep { color: var(--text-dim); }
+
+  .tl-card-badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-size: 10px;
+    font-family: var(--mono);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+
+  .badge-epic { background: #FF5C6E20; color: var(--red); }
+  .badge-blocked { background: #FF9F4320; color: var(--orange); }
+  .badge-active { background: #4ADE8020; color: var(--green); }
+  .badge-complete { background: #6C8CFF20; color: var(--accent); }
+  .badge-ai { background: #A78BFA20; color: var(--purple); }
+  .badge-zombie { background: #FFD06C20; color: var(--yellow); }
+
+  /* Timeline milestones inside card */
+  .tl-milestones {
+    padding: 0 24px 20px;
+  }
+
+  .tl-milestones-title {
+    font-size: 11px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .milestone-track {
+    position: relative;
+    padding-left: 20px;
+  }
+
+  .milestone-track::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    bottom: 4px;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .ms {
+    position: relative;
+    padding: 4px 0 10px 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .ms::before {
+    content: '';
+    position: absolute;
+    left: -19px;
+    top: 10px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--border-light);
+  }
+
+  .ms .date {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-right: 4px;
+  }
+
+  .ms strong { color: var(--text); font-weight: 600; }
+
+  .ms.highlight::before { background: var(--accent); }
+  .ms.warn::before { background: var(--orange); }
+  .ms.done::before { background: var(--green); }
+
+  /* ── LIFECYCLE BAR ── */
+  .lifecycle-bar-wrap {
+    padding: 0 24px 20px;
+  }
+
+  .lifecycle-bar {
+    height: 8px;
+    background: var(--surface-3);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .lifecycle-fill {
+    height: 100%;
+    border-radius: 4px;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .lifecycle-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text-dim);
+  }
+
+  /* ── WHERE TIME GOES BAR ── */
+  .time-bar-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 32px;
+  }
+
+  .time-bar-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .time-bar-subtitle {
+    font-size: 13px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    margin-bottom: 20px;
+  }
+
+  .time-bar-stack {
+    display: flex;
+    height: 48px;
+    border-radius: 8px;
+    overflow: hidden;
+    gap: 2px;
+    background: var(--surface-3);
+  }
+
+  .time-seg {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-family: var(--mono);
+    font-weight: 600;
+    color: #000;
+    border-radius: 4px;
+  }
+
+  .time-legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .time-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .time-legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 20px;
+  }
+
+  .callout.critical { border-left-color: var(--red); }
+  .callout.warn { border-left-color: var(--orange); }
+
+  .callout-title {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .callout-body {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+
+  .callout-body strong { color: var(--text); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 48px 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+
+  /* ── ANIMATIONS ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+
+  /* ── TAKEAWAY BOX ── */
+  .takeaway {
+    background: linear-gradient(135deg, #12151C, #191D27);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 36px;
+    text-align: center;
+    margin-top: 48px;
+  }
+
+  .takeaway-num {
+    font-family: var(--mono);
+    font-size: 56px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .takeaway-label {
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════ HERO ═══════ -->
+<header class="hero">
+  <div class="container">
+    <div class="hero-badge fade-in"><span class="dot"></span> Scaling Up — Ticket Lifecycle Analysis</div>
+    <h1 class="fade-in delay-1">The real lifecycle of<br><span>design tickets at BIS</span></h1>
+    <p class="hero-sub fade-in delay-2">A detailed timeline of six representative tickets — revealing where design hours actually go, how long work truly takes, and why active design time is only 10–15% of calendar time.</p>
+    <div class="hero-stats fade-in delay-3">
+      <div class="hero-stat">
+        <span class="label">Tickets Profiled</span>
+        <span class="value">6</span>
+      </div>
+      <div class="hero-stat">
+        <span class="label">Combined Hours</span>
+        <span class="value">372.5 h</span>
+      </div>
+      <div class="hero-stat">
+        <span class="label">Avg Calendar Span</span>
+        <span class="value">~10 months</span>
+      </div>
+      <div class="hero-stat">
+        <span class="label">Active Design %</span>
+        <span class="value" style="color: var(--orange)">10 – 15%</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════ WHERE TIME GOES ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-label fade-in">Aggregate View</div>
+    <div class="section-title fade-in delay-1">Where ticket calendar time actually goes</div>
+    <p class="section-desc fade-in delay-2">For a ticket spanning 6 months of calendar time, only 10–15% is active design. The rest is waiting, feedback loops, scope changes, and organizational friction.</p>
+
+    <div class="time-bar-section fade-in delay-3">
+      <div class="time-bar-title">Typical Ticket Calendar Time Breakdown</div>
+      <div class="time-bar-subtitle">Based on profiled tickets averaging ~10 month calendar spans</div>
+      <div class="time-bar-stack">
+        <div class="time-seg" style="flex: 12; background: var(--accent);">12%</div>
+        <div class="time-seg" style="flex: 25; background: var(--orange);">25%</div>
+        <div class="time-seg" style="flex: 20; background: var(--yellow);">20%</div>
+        <div class="time-seg" style="flex: 18; background: var(--purple);">18%</div>
+        <div class="time-seg" style="flex: 15; background: var(--pink);">15%</div>
+        <div class="time-seg" style="flex: 10; background: var(--text-dim);">10%</div>
+      </div>
+      <div class="time-legend">
+        <div class="time-legend-item"><div class="time-legend-dot" style="background: var(--accent)"></div>Active Design</div>
+        <div class="time-legend-item"><div class="time-legend-dot" style="background: var(--orange)"></div>Waiting for Feedback</div>
+        <div class="time-legend-item"><div class="time-legend-dot" style="background: var(--yellow)"></div>Rework / Revisions</div>
+        <div class="time-legend-item"><div class="time-legend-dot" style="background: var(--purple)"></div>Meetings & Alignment</div>
+        <div class="time-legend-item"><div class="time-legend-dot" style="background: var(--pink)"></div>Scope Changes / Blocks</div>
+        <div class="time-legend-item"><div class="time-legend-dot" style="background: var(--text-dim)"></div>Dev Support</div>
+      </div>
+    </div>
+
+    <div class="callout critical fade-in delay-3">
+      <div class="callout-title">The Core Insight</div>
+      <div class="callout-body">
+        <strong>Active design work is only 10–15% of total calendar time.</strong> The remaining 85–90% is organizational overhead: waiting on stakeholder feedback, iterating through revision loops, attending alignment meetings, navigating scope changes, and supporting development. The bottleneck isn't design capacity — it's the system around design.
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ═══════ TIMELINE ═══════ -->
+<section>
+  <div class="container">
+    <div class="section-label fade-in">Ticket Timelines</div>
+    <div class="section-title fade-in delay-1">Six tickets. Six stories.</div>
+    <p class="section-desc fade-in delay-2">Each one reveals a different failure mode in the design process — from scope explosion to 10-month blocks to cascading feedback loops.</p>
+
+    <div class="timeline">
+
+      <!-- ── #14290 AI COURSE BUILDER ── -->
+      <div class="tl-item fade-in">
+        <div class="tl-dot" style="border-color: var(--red); background: var(--red);"></div>
+        <div class="tl-card">
+          <div class="tl-card-header">
+            <div>
+              <div class="tl-card-id" style="background: #FF5C6E20; color: var(--red);">#14290</div>
+              <div class="tl-card-title">AI Course Builder</div>
+              <div class="tl-card-meta">
+                <span>224.9 hrs</span>
+                <span class="sep">·</span>
+                <span>20+ months</span>
+                <span class="sep">·</span>
+                <span>Jun 2024 — still active</span>
+              </div>
+            </div>
+            <div class="tl-card-badges">
+              <span class="badge badge-epic">EPIC</span>
+              <span class="badge badge-zombie">ZOMBIE</span>
+              <span class="badge badge-ai">AI</span>
+            </div>
+          </div>
+          <div class="lifecycle-bar-wrap">
+            <div class="lifecycle-bar">
+              <div class="lifecycle-fill" style="width: 95%; background: linear-gradient(90deg, var(--red), var(--orange));"></div>
+            </div>
+            <div class="lifecycle-labels">
+              <span>Jun 2024</span>
+              <span>Y1: 217 hrs · Y2: 7.8 hrs</span>
+              <span>Active →</span>
+            </div>
+          </div>
+          <div class="tl-milestones">
+            <div class="tl-milestones-title">Key milestones</div>
+            <div class="milestone-track">
+              <div class="ms highlight"><span class="date">Jul 08</span> <strong>Design started</strong></div>
+              <div class="ms"><span class="date">Jul 12</span> V1 sent to stakeholders</div>
+              <div class="ms"><span class="date">Jul 14</span> Dan feedback received</div>
+              <div class="ms warn"><span class="date">Jul 22</span> <strong>Recording session</strong> — 1.5 hrs alone</div>
+              <div class="ms"><span class="date">Jul 24</span> Erica feedback round</div>
+              <div class="ms"><span class="date">Aug</span> Multiple proposal meetings; V4 → V6 iterations</div>
+              <div class="ms warn"><span class="date">Oct</span> <strong>Handoff to Techversant</strong> — design transitions to dev support</div>
+              <div class="ms warn"><span class="date">Nov 29</span> <strong>Erica's 100-point review</strong> — massive feedback cascade</div>
+              <div class="ms"><span class="date">Dec</span> Review meetings and revisions continue</div>
+              <div class="ms"><span class="date">Jan 2025</span> Ongoing edits from review fallout</div>
+              <div class="ms"><span class="date">Feb 2025</span> Wrap-up meeting</div>
+              <div class="ms done"><span class="date">→ Nov 2025</span> Ongoing dev support through Year 2</div>
+            </div>
+          </div>
+          <div style="padding: 0 24px 20px;">
+            <div class="callout critical" style="margin: 0;">
+              <div class="callout-title">Pat's estimate: ~100 hrs. Actual: 224.9 hrs (2.25×)</div>
+              <div class="callout-body">This single ticket consumed 12% of Year 1. The gap between estimated and actual hours is the clearest evidence that complex creative work is systematically underestimated without a design lens.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── #15958 VIRTUAL PROCTORING ── -->
+      <div class="tl-item fade-in">
+        <div class="tl-dot" style="border-color: var(--orange); background: var(--orange);"></div>
+        <div class="tl-card">
+          <div class="tl-card-header">
+            <div>
+              <div class="tl-card-id" style="background: #FF9F4320; color: var(--orange);">#15958</div>
+              <div class="tl-card-title">Virtual Proctoring</div>
+              <div class="tl-card-meta">
+                <span>61.2 hrs</span>
+                <span class="sep">·</span>
+                <span>10 months</span>
+                <span class="sep">·</span>
+                <span>Jan — Oct 2025</span>
+              </div>
+            </div>
+            <div class="tl-card-badges">
+              <span class="badge badge-zombie">ZOMBIE</span>
+            </div>
+          </div>
+          <div class="lifecycle-bar-wrap">
+            <div class="lifecycle-bar">
+              <div class="lifecycle-fill" style="width: 72%; background: linear-gradient(90deg, var(--orange), var(--yellow));"></div>
+            </div>
+            <div class="lifecycle-labels">
+              <span>Jan 2025</span>
+              <span>Y1: 49.3 hrs · Y2: 11.9 hrs</span>
+              <span>Oct 2025</span>
+            </div>
+          </div>
+          <div class="tl-milestones">
+            <div class="tl-milestones-title">Key milestones</div>
+            <div class="milestone-track">
+              <div class="ms highlight"><span class="date">Jan 14</span> <strong>Design started</strong></div>
+              <div class="ms"><span class="date">Jan 15</span> V1 mockups + video — 3h 18m sprint</div>
+              <div class="ms"><span class="date">Jan 28</span> Dan call</div>
+              <div class="ms"><span class="date">Feb 3 + 10</span> Team meetings</div>
+              <div class="ms warn"><span class="date">Feb 6–7</span> <strong>Full redesign</strong> — direction pivot</div>
+              <div class="ms"><span class="date">Feb 11</span> Erica review</div>
+              <div class="ms done"><span class="date">Feb 21</span> <strong>Approved for accounting</strong></div>
+              <div class="ms"><span class="date">Mar 14</span> Annotations for dev handoff</div>
+              <div class="ms warn"><span class="date">Mar 23</span> <strong>Scope freeze pushed by Dan</strong></div>
+              <div class="ms"><span class="date">→ Oct 2025</span> Ongoing edits and scope drift</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── #12280 FORMS FILE UPLOAD ── -->
+      <div class="tl-item fade-in">
+        <div class="tl-dot" style="border-color: var(--yellow); background: var(--yellow);"></div>
+        <div class="tl-card">
+          <div class="tl-card-header">
+            <div>
+              <div class="tl-card-id" style="background: #FFD06C20; color: var(--yellow);">#12280</div>
+              <div class="tl-card-title">Forms File Upload</div>
+              <div class="tl-card-meta">
+                <span>19.2 hrs</span>
+                <span class="sep">·</span>
+                <span>6 months</span>
+                <span class="sep">·</span>
+                <span>7 versions</span>
+                <span class="sep">·</span>
+                <span>May — Nov 2024</span>
+              </div>
+            </div>
+            <div class="tl-card-badges">
+              <span class="badge badge-complete">Complete</span>
+            </div>
+          </div>
+          <div class="lifecycle-bar-wrap">
+            <div class="lifecycle-bar">
+              <div class="lifecycle-fill" style="width: 100%; background: linear-gradient(90deg, var(--yellow), var(--green));"></div>
+            </div>
+            <div class="lifecycle-labels">
+              <span>May 2024</span>
+              <span>7 versions over 6 months</span>
+              <span>Nov 2024</span>
+            </div>
+          </div>
+          <div class="tl-milestones">
+            <div class="tl-milestones-title">Key milestones</div>
+            <div class="milestone-track">
+              <div class="ms highlight"><span class="date">May 08</span> <strong>Design started</strong></div>
+              <div class="ms"><span class="date">May 09</span> V1 finished — fast initial turnaround</div>
+              <div class="ms"><span class="date">May 14</span> Erica review</div>
+              <div class="ms"><span class="date">May 15</span> V3 sent</div>
+              <div class="ms"><span class="date">May 28</span> V4 sent</div>
+              <div class="ms"><span class="date">Jun 11</span> V5 sent</div>
+              <div class="ms warn"><span class="date">Jul — Aug</span> <strong>WAITING</strong> — no feedback, no movement</div>
+              <div class="ms highlight"><span class="date">Sep 04</span> <strong>Pat restarts</strong> the conversation</div>
+              <div class="ms"><span class="date">Sep 05</span> V7 sent</div>
+              <div class="ms done"><span class="date">Nov 06</span> <strong>Approved</strong></div>
+            </div>
+          </div>
+          <div style="padding: 0 24px 20px;">
+            <div class="callout warn" style="margin: 0;">
+              <div class="callout-title">7 versions. 2-month dead zone. 19.2 hours spread over 6 months.</div>
+              <div class="callout-body">The design work itself probably took ~8 hours of focused effort. The other 11+ hours and 5 months of calendar time were consumed by revision loops and a complete standstill from July to September.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── #13810 EMAIL PARTICIPANTS ── -->
+      <div class="tl-item fade-in">
+        <div class="tl-dot" style="border-color: var(--green); background: var(--green);"></div>
+        <div class="tl-card">
+          <div class="tl-card-header">
+            <div>
+              <div class="tl-card-id" style="background: #4ADE8020; color: var(--green);">#13810</div>
+              <div class="tl-card-title">Email Participants</div>
+              <div class="tl-card-meta">
+                <span>3.2 hrs</span>
+                <span class="sep">·</span>
+                <span>12 days</span>
+                <span class="sep">·</span>
+                <span>May — Jun 2024</span>
+              </div>
+            </div>
+            <div class="tl-card-badges">
+              <span class="badge badge-complete">Complete</span>
+            </div>
+          </div>
+          <div class="lifecycle-bar-wrap">
+            <div class="lifecycle-bar">
+              <div class="lifecycle-fill" style="width: 100%; background: var(--green);"></div>
+            </div>
+            <div class="lifecycle-labels">
+              <span>May 24</span>
+              <span>3.2 hrs in 12 days — the gold standard</span>
+              <span>Jun 05</span>
+            </div>
+          </div>
+          <div class="tl-milestones">
+            <div class="tl-milestones-title">Key milestones</div>
+            <div class="milestone-track">
+              <div class="ms highlight"><span class="date">May 24</span> <strong>Design started</strong></div>
+              <div class="ms"><span class="date">May 27</span> Prototype delivered</div>
+              <div class="ms done"><span class="date">Jun 05</span> <strong>Erica IRL feedback + V2 approved</strong> — same conversation</div>
+            </div>
+          </div>
+          <div style="padding: 0 24px 20px;">
+            <div class="callout" style="margin: 0; border-left-color: var(--green);">
+              <div class="callout-title">✅ The Gold Standard — What's Possible</div>
+              <div class="callout-body">Clear scope, fast feedback, in-person review, approved in one loop. <strong>3.2 hours, 12 days, done.</strong> This is what every ticket could look like with the right process.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── #19627 ASKAMY LIVE CHAT ── -->
+      <div class="tl-item fade-in">
+        <div class="tl-dot" style="border-color: var(--purple); background: var(--purple);"></div>
+        <div class="tl-card">
+          <div class="tl-card-header">
+            <div>
+              <div class="tl-card-id" style="background: #A78BFA20; color: var(--purple);">#19627</div>
+              <div class="tl-card-title">AskAmy Live Chat Dashboard</div>
+              <div class="tl-card-meta">
+                <span>21.3 hrs</span>
+                <span class="sep">·</span>
+                <span>In progress</span>
+                <span class="sep">·</span>
+                <span>Mar 2026 →</span>
+              </div>
+            </div>
+            <div class="tl-card-badges">
+              <span class="badge badge-active">Active</span>
+              <span class="badge badge-ai">AI-Assisted</span>
+            </div>
+          </div>
+          <div class="lifecycle-bar-wrap">
+            <div class="lifecycle-bar">
+              <div class="lifecycle-fill" style="width: 20%; background: linear-gradient(90deg, var(--purple), var(--accent));"></div>
+            </div>
+            <div class="lifecycle-labels">
+              <span>Mar 2026</span>
+              <span>AI-assisted → fast first concept</span>
+              <span>In progress →</span>
+            </div>
+          </div>
+          <div class="tl-milestones">
+            <div class="tl-milestones-title">Key milestones</div>
+            <div class="milestone-track">
+              <div class="ms highlight"><span class="date">Mar 04</span> <strong>First meeting</strong> — requirements gathered</div>
+              <div class="ms highlight"><span class="date">Mar 09</span> <strong>Claude wireframes</strong> — AI-assisted rapid concept generation</div>
+              <div class="ms"><span class="date">Mar 10</span> Stakeholder review</div>
+              <div class="ms"><span class="date">Mar 19</span> Luke feedback — iteration continues</div>
+            </div>
+          </div>
+          <div style="padding: 0 24px 20px;">
+            <div class="callout" style="margin: 0; border-left-color: var(--purple);">
+              <div class="callout-title">🤖 AI-Assisted Design in Action</div>
+              <div class="callout-body">From first meeting to stakeholder review in <strong>6 days</strong>, with Claude generating initial wireframes. This represents a new operating model — using AI to compress the concept phase while preserving design judgment for refinement and stakeholder alignment.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── #17024 eCOMMERCE REDESIGN ── -->
+      <div class="tl-item fade-in">
+        <div class="tl-dot" style="border-color: var(--pink); background: var(--pink);"></div>
+        <div class="tl-card">
+          <div class="tl-card-header">
+            <div>
+              <div class="tl-card-id" style="background: #F472B620; color: var(--pink);">#17024</div>
+              <div class="tl-card-title">eCommerce Redesign</div>
+              <div class="tl-card-meta">
+                <span>42.7 hrs</span>
+                <span class="sep">·</span>
+                <span>BLOCKED 10 months</span>
+                <span class="sep">·</span>
+                <span>May 2025 → never shipped</span>
+              </div>
+            </div>
+            <div class="tl-card-badges">
+              <span class="badge badge-blocked">Blocked</span>
+            </div>
+          </div>
+          <div class="lifecycle-bar-wrap">
+            <div class="lifecycle-bar">
+              <div class="lifecycle-fill" style="width: 35%; background: var(--pink);"></div>
+              <div style="position:absolute; left:35%; top:-2px; width:65%; height:12px; background: repeating-linear-gradient(90deg, transparent, transparent 6px, #F472B620 6px, #F472B620 12px); border-radius: 0 4px 4px 0;"></div>
+            </div>
+            <div class="lifecycle-labels">
+              <span>May 2025</span>
+              <span style="color: var(--pink);">40+ hrs designed · never entered sprint</span>
+              <span>Blocked →</span>
+            </div>
+          </div>
+          <div style="padding: 16px 24px 20px;">
+            <div class="callout" style="margin: 0; border-left-color: var(--pink);">
+              <div class="callout-title">🚫 42.7 Hours of Professional Work Shelved</div>
+              <div class="callout-body">Over 40 hours of design effort completed, then blocked for 10+ months without entering a development sprint. This is the direct cost of having no prioritized design roadmap: finished work sits on a shelf while new requests keep coming.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /timeline -->
+
+    <!-- TAKEAWAY -->
+    <div class="takeaway fade-in">
+      <div class="takeaway-num">10–15%</div>
+      <div class="takeaway-label">
+        Of total calendar time is active design work. The other 85–90% is waiting, revisions, meetings, scope changes, and organizational friction. The bottleneck isn't the designer — it's the system.
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    Ticket Timeline Analysis — Mika Kera, Senior Product Designer, BIS Safety Software<br>
+    Data period: March 2024 — March 2026 · Generated March 2026<br>
+    Part of the <a href="#">Scaling Up: Design Workflow Assessment</a> initiative
+  </div>
+</footer>
+
+</body>
+</html>

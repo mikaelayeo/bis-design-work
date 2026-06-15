@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Chat Notification System — Design Spec</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --surface: #FFFFFF;
+    --text: #1a1a1a;
+    --text-2: #555;
+    --text-3: #999;
+    --border: #E8E6E1;
+    --accent: #0078b3;
+    --accent-bg: #EDF6FB;
+    --red: #C22222;
+    --red-bg: #FEF2F2;
+    --green: #2E7D32;
+    --green-bg: #E8F5E9;
+    --orange: #E65100;
+    --orange-bg: #FFF3E0;
+    --purple: #6A1B9A;
+    --purple-bg: #F3E5F5;
+    --font: 'DM Sans', -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', 'Consolas', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 60px 24px 100px; }
+
+  /* Header */
+  .doc-header { margin-bottom: 56px; }
+  .doc-header h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .doc-header .subtitle { font-size: 16px; color: var(--text-2); margin-bottom: 12px; }
+  .doc-header .meta { font-size: 13px; color: var(--text-3); font-family: var(--mono); }
+
+  /* Sections */
+  .section { margin-bottom: 56px; }
+  .section-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--text-3); margin-bottom: 8px;
+  }
+  h2 { font-size: 22px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.3px; }
+  h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+  p { font-size: 15px; color: var(--text-2); margin-bottom: 12px; }
+  p.tight { margin-bottom: 6px; }
+
+  /* Cards */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; margin-bottom: 16px;
+  }
+  .card.flush { padding: 0; overflow: hidden; }
+
+  /* Info boxes */
+  .info-box {
+    border-radius: 10px; padding: 16px 20px; margin: 16px 0;
+  }
+  .info-box.blue { background: var(--accent-bg); border-left: 3px solid var(--accent); }
+  .info-box.orange { background: var(--orange-bg); border-left: 3px solid var(--orange); }
+  .info-box.purple { background: var(--purple-bg); border-left: 3px solid var(--purple); }
+  .info-box.red { background: var(--red-bg); border-left: 3px solid var(--red); }
+  .info-box.green { background: var(--green-bg); border-left: 3px solid var(--green); }
+  .info-box strong { display: block; font-size: 14px; margin-bottom: 4px; }
+  .info-box p { font-size: 14px; margin: 0; }
+  .info-box.blue strong { color: var(--accent); }
+  .info-box.blue p { color: #046; }
+  .info-box.orange strong { color: var(--orange); }
+  .info-box.orange p { color: #7a3400; }
+  .info-box.purple strong { color: var(--purple); }
+  .info-box.purple p { color: #3a0e55; }
+  .info-box.red strong { color: var(--red); }
+  .info-box.red p { color: #6b1111; }
+  .info-box.green strong { color: var(--green); }
+  .info-box.green p { color: #1a4a1e; }
+
+  /* Flow diagrams */
+  .flow-row {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .flow-step {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 18px; text-align: center; min-width: 120px;
+  }
+  .flow-step .label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .flow-step .value { font-size: 14px; font-weight: 600; }
+  .flow-step.accent { background: var(--accent-bg); border-color: var(--accent); }
+  .flow-step.accent .value { color: var(--accent); }
+  .flow-step.green-s { background: var(--green-bg); border-color: var(--green); }
+  .flow-step.green-s .value, .flow-step.green-s .label { color: var(--green); }
+  .flow-step.muted { background: #f5f5f3; border-color: var(--border); }
+  .flow-step.muted .value { color: var(--text-2); }
+  .flow-arrow { color: var(--text-3); font-size: 20px; flex-shrink: 0; }
+  .flow-or { font-size: 12px; color: var(--text-3); text-align: center; width: 100%; }
+
+  /* Timeline */
+  .timeline { position: relative; margin: 20px 0 20px 0; }
+  .tl-item {
+    display: flex; gap: 16px; margin-bottom: 0;
+    position: relative;
+  }
+  .tl-left {
+    width: 56px; flex-shrink: 0; text-align: right; padding-top: 16px;
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+  }
+  .tl-line {
+    width: 24px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+    position: relative;
+  }
+  .tl-dot {
+    width: 12px; height: 12px; border-radius: 50%; margin-top: 18px; z-index: 1;
+    flex-shrink: 0;
+  }
+  .tl-connector { width: 2px; flex: 1; background: var(--border); }
+  .tl-content {
+    flex: 1; padding: 12px 16px; margin-bottom: 8px;
+    border-radius: 8px; border: 1px solid var(--border); background: var(--surface);
+  }
+  .tl-content h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .tl-content p { font-size: 13px; color: var(--text-2); margin: 0; }
+  .tl-item.blue .tl-dot { background: var(--accent); }
+  .tl-item.blue .tl-left { color: var(--accent); }
+  .tl-item.red .tl-dot { background: var(--red); }
+  .tl-item.red .tl-left { color: var(--red); }
+  .tl-item.red .tl-content { background: var(--red-bg); border-color: #f5c4c4; }
+  .tl-item.muted .tl-dot { background: #ccc; }
+  .tl-item.muted .tl-left { color: var(--text-3); }
+
+  /* Metric cards */
+  .metric-row { display: flex; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
+  .metric {
+    flex: 1; min-width: 180px; border-radius: 10px; padding: 16px 20px;
+  }
+  .metric .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .metric .number { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+  .metric .desc { font-size: 12px; line-height: 1.5; }
+  .metric.blue { background: var(--accent-bg); }
+  .metric.blue .label, .metric.blue .number { color: var(--accent); }
+  .metric.blue .desc { color: #046; }
+  .metric.red { background: var(--red-bg); }
+  .metric.red .label, .metric.red .number { color: var(--red); }
+  .metric.red .desc { color: #6b1111; }
+  .metric.muted { background: #f5f5f3; }
+  .metric.muted .label { color: var(--text-3); }
+  .metric.muted .number { color: var(--text); }
+  .metric.muted .desc { color: var(--text-2); }
+
+  /* Snackbar mockups */
+  .snackbar-demo {
+    background: #f0efec; border-radius: 12px; padding: 24px; margin: 16px 0;
+    display: flex; justify-content: flex-start;
+  }
+  .snackbar {
+    width: 280px; background: #feffff; border-radius: 8px; padding: 10px 12px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.15); position: relative; overflow: hidden;
+  }
+  .snackbar .sn-title { font-size: 14px; font-weight: 600; color: #191919; margin-bottom: 1px; }
+  .snackbar .sn-line { font-size: 13px; color: #191919; line-height: 1.4; }
+  .snackbar .sn-line.sub { font-size: 12px; }
+  .snackbar .sn-close {
+    position: absolute; top: 10px; right: 12px;
+    font-size: 16px; color: #999; cursor: pointer; background: none; border: none; line-height: 1;
+  }
+  .snackbar .sn-actions {
+    display: flex; gap: 12px; align-items: center; justify-content: flex-end;
+    margin-top: 8px;
+  }
+  .sn-actions .dismiss { font-size: 13px; font-weight: 600; color: #666; cursor: pointer; }
+  .sn-actions .open { font-size: 13px; font-weight: 600; color: #0078b3; cursor: pointer; }
+  .sn-actions .open.outlined {
+    border: 1.5px solid #0078b3; padding: 2px 10px; border-radius: 4px;
+  }
+  .sn-actions .claim {
+    font-size: 13px; font-weight: 600; color: #fff; background: #c22222;
+    padding: 3px 10px; border-radius: 4px; cursor: pointer;
+  }
+
+  .snackbar .sn-counter {
+    display: inline-block; font-size: 12px; color: #555; background: #f0efec;
+    padding: 2px 8px; border-radius: 6px; margin-top: 8px;
+  }
+
+  /* Comparison table */
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 16px 0; }
+  .comp-table th {
+    text-align: left; padding: 10px 14px; background: #333; color: #fff;
+    font-weight: 600; font-size: 12px;
+  }
+  .comp-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .comp-table tr:nth-child(even) td { background: #fafaf8; }
+  .comp-table td:first-child { font-weight: 600; color: var(--text); }
+
+  /* Rule grid */
+  .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+  .rule-item {
+    padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .rule-item .r-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .rule-item .r-value { font-size: 14px; font-weight: 600; color: var(--text); }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+  /* Numbered list */
+  .num-list { counter-reset: steps; margin: 16px 0; }
+  .num-step {
+    display: flex; gap: 14px; margin-bottom: 12px; align-items: flex-start;
+  }
+  .num-step::before {
+    counter-increment: steps; content: counter(steps);
+    width: 28px; height: 28px; border-radius: 50%; background: var(--accent-bg);
+    color: var(--accent); font-weight: 700; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .num-step p { font-size: 14px; color: var(--text-2); margin: 4px 0 0; }
+
+  @media (max-width: 600px) {
+    .flow-row { flex-direction: column; align-items: stretch; }
+    .flow-arrow { transform: rotate(90deg); text-align: center; }
+    .metric-row { flex-direction: column; }
+    .rule-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <h1>Live Chat Notification System</h1>
+    <div class="subtitle">Design specification for PM & Development</div>
+    <div class="meta">AskAmy Live Chat · TKT-19627 · March 2026</div>
+  </div>
+
+  <div class="info-box blue">
+    <strong>Key Principle</strong>
+    <p>The snackbar is the interrupt; the tab badges are the source of truth. If an agent misses a snackbar, the segmented control badges on "My Chat" and "Unclaimed" tabs always reflect the current state.</p>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 1: NOTIFICATION TYPES -->
+  <div class="section">
+    <div class="section-label">Section 1</div>
+    <h2>Notification Types</h2>
+    <p>Two notification types, each with distinct content, actions, and timing.</p>
+
+    <!-- Snackbar mockups side by side -->
+    <div style="display: flex; gap: 16px; flex-wrap: wrap; margin: 20px 0;">
+      <div style="flex: 1; min-width: 260px;">
+        <div style="font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">New Reply</div>
+        <div class="snackbar-demo" style="padding: 20px;">
+          <div class="snackbar">
+            <div class="sn-title">New reply</div>
+            <button class="sn-close">×</button>
+            <div class="sn-line"><strong>Jane Doe (JDoe2)</strong> · Apex Industries</div>
+            <div class="sn-line sub">"Yes I have the screenshots."</div>
+            <div class="sn-actions">
+              <span class="open outlined">Open chat</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="flex: 1; min-width: 260px;">
+        <div style="font-size: 12px; font-weight: 600; color: var(--red); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">New Chat Request</div>
+        <div class="snackbar-demo" style="padding: 20px;">
+          <div class="snackbar">
+            <div class="sn-title">New chat request</div>
+            <button class="sn-close">×</button>
+            <div class="sn-line"><strong>Jane Doe (JDoe2)</strong> · Apex Industries</div>
+            <div class="sn-line sub">"I need help with my training certificate"</div>
+            <div class="sn-actions">
+              <span class="open">Open chat</span>
+              <span class="claim">Claim</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <table class="comp-table">
+      <tr><th>Property</th><th>New Reply</th><th>New Chat Request</th></tr>
+      <tr><td>Title</td><td>"New reply"</td><td>"New chat request"</td></tr>
+      <tr><td>Content</td><td>Name (Username) · Company + message</td><td>Name (Username) · Company + message</td></tr>
+      <tr><td>Primary CTA</td><td>Open chat (outlined button)</td><td>Claim (red filled button)</td></tr>
+      <tr><td>Secondary CTA</td><td>—</td><td>Open chat (text link)</td></tr>
+      <tr><td>Auto-dismiss</td><td>8 seconds</td><td>15 seconds</td></tr>
+      <tr><td>Who receives it</td><td>Only the assigned agent</td><td>All online agents</td></tr>
+      <tr><td>Fallback if missed</td><td>Red badge on "My Chat" tab</td><td>Red badge on "Unclaimed" tab</td></tr>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 2: SINGLE NOTIFICATION -->
+  <div class="section">
+    <div class="section-label">Section 2</div>
+    <h2>Scenario: Single Notification</h2>
+    <p>When one notification arrives and no others are queued.</p>
+
+    <div class="flow-row">
+      <div class="flow-step">
+        <div class="label">Event</div>
+        <div class="value">User sends reply</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step accent">
+        <div class="label">Snackbar appears</div>
+        <div class="value">Reply: 8s / Request: 15s</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div class="flow-step green-s">
+          <div class="label">Agent clicks "Open chat" →</div>
+          <div class="value">Snackbar closes, chat opens</div>
+        </div>
+        <div class="flow-or">— or —</div>
+        <div class="flow-step muted">
+          <div class="label">Timer expires →</div>
+          <div class="value">Snackbar fades out</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Duration cards -->
+    <div class="metric-row">
+      <div class="metric blue">
+        <div class="label">New Reply</div>
+        <div class="number">8 seconds</div>
+        <div class="desc">Short content, agent can see the red badge on "My Chat" tab if they miss it. Low-risk to auto-dismiss.</div>
+      </div>
+      <div class="metric red">
+        <div class="label">New Chat Request</div>
+        <div class="number">15 seconds</div>
+        <div class="desc">More content to read (name + company + message). Higher stakes — this person is waiting in queue. Also visible in "Unclaimed" tab badge as fallback.</div>
+      </div>
+      <div class="metric muted">
+        <div class="label">Hover Behavior</div>
+        <div class="number">Pauses timer</div>
+        <div class="desc">If the agent hovers over the snackbar, pause the auto-dismiss timer. Resume when they move away.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 3: MULTIPLE NOTIFICATIONS -->
+  <div class="section">
+    <div class="section-label">Section 3</div>
+    <h2>Scenario: Multiple Notifications</h2>
+    <p>When new notifications arrive while one is already displayed. The system uses a sequential queue — only one snackbar is visible at a time.</p>
+
+    <div class="info-box orange">
+      <strong>Core Rule: One Per Type, Stacked When Both Arrive</strong>
+      <p>Each notification type shows one snackbar at a time. If both a "New chat request" and a "New reply" arrive in the same period, they stack vertically — "New chat request" is always on top (higher priority). Each type manages its own queue with its own counter badge.</p>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline">
+      <div class="tl-item blue">
+        <div class="tl-left">t = 0s</div>
+        <div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div>
+        <div class="tl-content">
+          <h4>1st notification arrives (reply from Jane)</h4>
+          <p>Reply snackbar appears at the bottom position. 8-second timer starts. No counter badge.</p>
+        </div>
+      </div>
+      <div class="tl-item red">
+        <div class="tl-left">t = 3s</div>
+        <div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div>
+        <div class="tl-content">
+          <h4>2nd notification arrives (new chat request)</h4>
+          <p>Different type — so it stacks above the reply snackbar. "New chat request" appears on top (priority position). Both are visible at the same time. Each has its own timer.</p>
+        </div>
+      </div>
+      <div class="tl-item red">
+        <div class="tl-left">t = 5s</div>
+        <div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div>
+        <div class="tl-content">
+          <h4>3rd notification arrives (another chat request)</h4>
+          <p>Same type as the one on top — queued behind it. The chat request snackbar counter updates: "1 other notification."</p>
+        </div>
+      </div>
+      <div class="tl-item blue">
+        <div class="tl-left">t = 7s</div>
+        <div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div>
+        <div class="tl-content">
+          <h4>4th notification arrives (another reply)</h4>
+          <p>Same type as the bottom snackbar — queued behind it. The reply snackbar counter updates: "1 other notification."</p>
+        </div>
+      </div>
+      <div class="tl-item blue">
+        <div class="tl-left">t = 8s</div>
+        <div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div>
+        <div class="tl-content">
+          <h4>1st reply timer expires (8s)</h4>
+          <p>Jane's reply snackbar fades out. The 4th notification (next reply) slides into the bottom position. Its own 8-second timer starts. Counter clears — no more replies queued.</p>
+        </div>
+      </div>
+      <div class="tl-item red">
+        <div class="tl-left">t = 18s</div>
+        <div class="tl-line"><div class="tl-dot"></div><div class="tl-connector"></div></div>
+        <div class="tl-content">
+          <h4>1st chat request timer expires (15s)</h4>
+          <p>Chat request snackbar fades out. The 3rd notification (next chat request) slides into the top position. Its own 15-second timer starts. Counter clears.</p>
+        </div>
+      </div>
+      <div class="tl-item muted">
+        <div class="tl-left">t = 33s</div>
+        <div class="tl-line"><div class="tl-dot"></div></div>
+        <div class="tl-content">
+          <h4>All queues cleared</h4>
+          <p>Both notification lanes are empty. Tab badges remain as the persistent source of truth.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stacked mockup -->
+    <h3>Stacked Notifications — Both Types at Once</h3>
+    <div class="snackbar-demo" style="padding: 20px; flex-direction: column; align-items: flex-start; gap: 8px;">
+      <!-- Chat request on top -->
+      <div class="snackbar">
+        <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#C22222" stroke-width="1.5" fill="none"/><path d="M8 5v3.5" stroke="#C22222" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.75" fill="#C22222"/></svg>
+          <span class="sn-title" style="margin: 0;">New chat request</span>
+        </div>
+        <button class="sn-close">×</button>
+        <div class="sn-line"><strong>Jane Doe (JDoe2)</strong> · Apex Industries</div>
+        <div class="sn-line sub">"I need help with my training certificate"</div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px;">
+          <span class="sn-counter">1 other notification</span>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <span style="font-size: 13px; font-weight: 600; color: #0078b3; cursor: pointer;">Open chat</span>
+            <span style="font-size: 13px; font-weight: 600; color: #fff; background: #c22222; padding: 3px 10px; border-radius: 4px; cursor: pointer;">Claim</span>
+          </div>
+        </div>
+      </div>
+      <!-- Reply below -->
+      <div class="snackbar">
+        <div class="sn-title">New reply</div>
+        <button class="sn-close">×</button>
+        <div class="sn-line"><strong>Maria Garcia (MGarcia)</strong> · Apex Industries</div>
+        <div class="sn-line sub">"Yes I have the screenshots."</div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px;">
+          <span class="sn-counter">2 other notifications</span>
+          <span style="font-size: 13px; font-weight: 600; color: #0078b3; cursor: pointer; border: 1.5px solid #0078b3; padding: 2px 10px; border-radius: 4px;">Open chat</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box red">
+      <strong>Dev Note</strong>
+      <p>If both types of notification appear at the same period, the "New chat request" type is priority and is placed above. Each type maintains its own independent queue and counter.</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 4: INTERACTION DURING QUEUE -->
+  <div class="section">
+    <div class="section-label">Section 4</div>
+    <h2>Interaction During Queue</h2>
+    <p>What happens when the agent clicks a CTA while other notifications are queued.</p>
+
+    <div class="num-list">
+      <div class="num-step"><p><strong>Current snackbar closes immediately.</strong> The agent acted on it — no need to wait for the timer.</p></div>
+      <div class="num-step"><p><strong>The corresponding action executes.</strong> Chat panel opens (for "Open chat") or chat is claimed and panel opens (for "Claim").</p></div>
+      <div class="num-step"><p><strong>2-second pause before the next notification.</strong> The agent is now orienting themselves in the chat they just opened. A snackbar sliding in instantly would be disruptive.</p></div>
+      <div class="num-step"><p><strong>Next queued notification slides in</strong> with its own fresh timer. Counter updates accordingly.</p></div>
+    </div>
+
+    <div class="info-box blue">
+      <strong>Why the 2-Second Delay?</strong>
+      <p>When the agent clicks "Open chat," a chat panel opens. They need a moment to read context and orient themselves before the next notification asks for their attention. This buffer prevents the feeling of being overwhelmed.</p>
+    </div>
+
+    <div class="info-box green">
+      <strong>Why Not Dismiss the Entire Queue?</strong>
+      <p>Clicking "Open chat" on a reply doesn't mean the agent has seen or decided about the unclaimed chat request sitting in the queue. Those are different notification types requiring different decisions. Clicking on one doesn't acknowledge the others.</p>
+    </div>
+
+    <h3>The Full Flow</h3>
+    <div class="card" style="background: #f9f9f7; font-family: var(--mono); font-size: 13px; color: var(--text-2); line-height: 2.2;">
+      Agent clicks "Open chat" on reply snackbar<br>
+      → reply snackbar closes<br>
+      → chat panel opens<br>
+      → <strong style="color: var(--accent);">2-second pause</strong><br>
+      → next reply notification slides into bottom position<br>
+      → its own timer starts<br>
+      → chat request snackbar (if present) is unaffected — stays in top position<br>
+      → same pattern continues until that type's queue is empty
+    </div>
+
+    <h3 style="margin-top: 24px;">Dismissing Without Action (× button)</h3>
+    <p>If the agent clicks × without taking action:</p>
+    <div style="margin: 12px 0; padding-left: 16px; border-left: 2px solid var(--border);">
+      <p class="tight">Snackbar closes immediately.</p>
+      <p class="tight">Next notification slides in <strong>with no delay</strong> (agent chose to dismiss — they're ready).</p>
+      <p class="tight">The dismissed item is NOT lost — the tab badge still reflects it.</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 5: STACKING MODEL -->
+  <div class="section">
+    <div class="section-label">Section 5</div>
+    <h2>Stacking Model: Two Lanes</h2>
+    <p>Each notification type has its own lane. When both types are active, they stack vertically.</p>
+
+    <div style="display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap;">
+      <div class="card" style="flex: 1; min-width: 220px; border-color: var(--red); border-width: 2px;">
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+          <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--red);"></div>
+          <strong style="font-size: 14px;">Top position: New chat request</strong>
+        </div>
+        <p style="font-size: 13px;">Higher priority. Always stacks above if both appear. Has its own queue and counter for additional chat requests.</p>
+      </div>
+      <div class="card" style="flex: 1; min-width: 220px; border-color: var(--accent); border-width: 2px;">
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+          <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent);"></div>
+          <strong style="font-size: 14px;">Bottom position: New reply</strong>
+        </div>
+        <p style="font-size: 13px;">Lower priority. Stacks below chat requests. Has its own queue and counter for additional replies.</p>
+      </div>
+    </div>
+
+    <div class="info-box blue">
+      <strong>How it works</strong>
+      <p>Each lane shows one snackbar at a time for its type. Within each lane, additional notifications of the same type queue up with a counter ("+N other notifications"). Clicking the counter opens the dashboard showing those chats. If only one type is active, its snackbar appears alone — no stacking needed.</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 6: SOUND -->
+  <div class="section">
+    <div class="section-label">Section 6</div>
+    <h2>Sound Notifications</h2>
+    <div style="margin: 12px 0; padding-left: 16px; border-left: 2px solid var(--border);">
+      <p class="tight">Sound plays <strong>on arrival</strong>, not when displayed from queue.</p>
+      <p class="tight">If 3 notifications arrive in 5 seconds → 3 sounds at their arrival times.</p>
+      <p class="tight">Reply and request use <strong>different sounds</strong> so agents can distinguish by ear.</p>
+      <p class="tight">Sound only plays for agents marked <strong>Online</strong>.</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 7: EDGE CASES -->
+  <div class="section">
+    <div class="section-label">Section 7</div>
+    <h2>Edge Cases</h2>
+
+    <h3>Agent is Offline</h3>
+    <p>Offline agents do not receive snackbar notifications for new chat requests. However, if an offline agent has manually claimed a chat, they still receive reply notifications for that claimed chat.</p>
+
+    <h3 style="margin-top: 20px;">Chat Claimed by Another Agent</h3>
+    <p>If Agent A sees a "New chat request" snackbar and another agent claims it first:</p>
+    <div class="info-box blue">
+      <strong>Recommended: Auto-dismiss</strong>
+      <p>The snackbar closes immediately. Next queued notification slides in. The "Unclaimed" tab badge decrements.</p>
+    </div>
+
+    <h3 style="margin-top: 20px;">Browser Tab Not Focused</h3>
+    <p>When the agent's browser tab is not in focus, the snackbar queue pauses. When they return, the current snackbar appears with a fresh timer. Additionally, the browser's native notification API fires an OS-level notification so the agent is alerted even when working elsewhere.</p>
+
+    <h3 style="margin-top: 20px;">Queue Overflow (10+)</h3>
+    <p>If the queue reaches 10+ notifications, cap at 10 and stop adding. Counter shows "9+ other notifications." Tab badges always show the true count. At this volume, the dashboard table is the better triage interface.</p>
+  </div>
+
+  <hr>
+
+  <!-- SECTION 8: SUMMARY -->
+  <div class="section">
+    <div class="section-label">Section 8</div>
+    <h2>Implementation Summary</h2>
+
+    <div class="rule-grid">
+      <div class="rule-item"><div class="r-label">Max visible per type</div><div class="r-value">1 snackbar per type</div></div>
+      <div class="rule-item"><div class="r-label">Stacking</div><div class="r-value">Both types can show at once, stacked vertically</div></div>
+      <div class="rule-item"><div class="r-label">Priority position</div><div class="r-value">New chat request always on top</div></div>
+      <div class="rule-item"><div class="r-label">Queue model</div><div class="r-value">Each type has its own FIFO queue</div></div>
+      <div class="rule-item"><div class="r-label">Reply dismiss</div><div class="r-value">8 seconds</div></div>
+      <div class="rule-item"><div class="r-label">Request dismiss</div><div class="r-value">15 seconds</div></div>
+      <div class="rule-item"><div class="r-label">Hover</div><div class="r-value">Pauses timer on hovered snackbar</div></div>
+      <div class="rule-item"><div class="r-label">After CTA click</div><div class="r-value">Close → 2s pause → next of same type</div></div>
+      <div class="rule-item"><div class="r-label">After × dismiss</div><div class="r-value">Close → next of same type immediately</div></div>
+      <div class="rule-item"><div class="r-label">Counter badge</div><div class="r-value">Per-type: "+N other notification(s)"</div></div>
+      <div class="rule-item"><div class="r-label">Counter click</div><div class="r-value">Opens dashboard to relevant tab</div></div>
+      <div class="rule-item"><div class="r-label">Queue cap</div><div class="r-value">10 max per type</div></div>
+      <div class="rule-item"><div class="r-label">Tab not focused</div><div class="r-value">Queue pauses, OS notif fires</div></div>
+      <div class="rule-item"><div class="r-label">Sound</div><div class="r-value">On arrival, different per type</div></div>
+      <div class="rule-item"><div class="r-label">Offline agents</div><div class="r-value">No new chat requests, still get replies</div></div>
+      <div class="rule-item"><div class="r-label">Fallback</div><div class="r-value">Tab badges always show true count</div></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

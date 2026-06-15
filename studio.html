@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio — BIS Design Work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/hub.css">
+</head>
+<body>
+  <!-- Soft PIN gate. NOTE: this is a DETERRENT only — the PIN below is visible in
+       page source and files stay fetchable by URL (GitHub Pages is always public).
+       Change STUDIO_PIN to your own value. For real privacy, keep it in the Lab. -->
+  <div class="gate" id="gate">
+    <div class="gate-box">
+      <div class="glyph">🔒</div>
+      <h2 data-studio-label>Studio</h2>
+      <p>Working library. Enter the PIN to continue.</p>
+      <input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="••••" aria-label="PIN">
+      <button id="enter">Enter</button>
+      <div class="err" id="err"></div>
+      <a class="gate-back" href="index.html">← Back to home</a>
+    </div>
+  </div>
+
+  <div class="topbar" hidden id="shell-top">
+    <a class="brand" href="index.html"><span class="glyph">▣</span> BIS Design Work</a>
+    <nav class="topnav">
+      <a href="showcase.html">Showcase</a>
+      <a href="studio.html" class="active" data-studio-label>Studio</a>
+      <a href="about.html">About</a>
+    </nav>
+  </div>
+
+  <main class="page" hidden id="shell-main">
+    <div class="page-head">
+      <span class="eyebrow">Working library · soft-gated</span>
+      <h1 data-studio-label>Studio</h1>
+      <p class="desc">Drafts, internal decks, analysis, and learnings I keep for reference. Promote anything to Showcase when it's ready. The newest drafts also land in the <a href="review.html">review queue</a>.</p>
+    </div>
+    <div id="catalog-root"></div>
+  </main>
+
+  <footer class="foot" hidden id="shell-foot">
+    Source on <a href="https://github.com/mikaelayeo/bis-design-work">GitHub</a>
+  </footer>
+
+  <script src="assets/catalog.js"></script>
+  <script>
+    const STUDIO_PIN = "2727"; // ← change me. Soft deterrent only.
+    const gate = document.getElementById("gate");
+    const pin = document.getElementById("pin");
+    const err = document.getElementById("err");
+
+    // apply the configured label to gate + nav early
+    fetch("data/catalog.json", { cache: "no-store" })
+      .then(r => r.json())
+      .then(d => {
+        const label = (d.config && d.config.studioLabel) || "Studio";
+        document.querySelectorAll("[data-studio-label]").forEach(el => el.textContent = label);
+        document.title = label + " — BIS Design Work";
+        window.__STUDIO_LABEL = label;
+      }).catch(() => {});
+
+    function reveal() {
+      gate.remove();
+      ["shell-top", "shell-main", "shell-foot"].forEach(id => document.getElementById(id).hidden = false);
+      CatalogHub.init({ audience: "studio", rootLabel: window.__STUDIO_LABEL || "Studio" });
+    }
+    function tryEnter() {
+      if (pin.value === STUDIO_PIN) {
+        sessionStorage.setItem("studio-ok", "1");
+        reveal();
+      } else {
+        err.textContent = "Incorrect PIN";
+        pin.value = ""; pin.focus();
+      }
+    }
+    document.getElementById("enter").addEventListener("click", tryEnter);
+    pin.addEventListener("keydown", e => { if (e.key === "Enter") tryEnter(); });
+
+    if (sessionStorage.getItem("studio-ok") === "1") {
+      reveal();
+    } else {
+      pin.focus();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Likert Scale — Current vs. Proposed</title>
+<style>
+  :root {
+    --likert-header: #5A86B8;
+    --likert-header-edge: #4F77A4;
+    --bis-blue: #1E70BF;
+    --bis-blue-dark: #1862A8;
+    --selected-blue: #2575D9;
+    --border: #D6D6D6;
+    --border-light: #E8E8E8;
+    --bg: #EEF1F4;
+    --row: #FFFFFF;
+    --row-alt: #F8F8F9;
+    --text: #1A1A1A;
+    --text-muted: #5A5A5A;
+    --green: #2E8540;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  .page {
+    min-width: 880px;
+    margin: 0 auto;
+    padding: 28px 24px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+  }
+  header.intro {
+    width: 100%;
+    max-width: 880px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  header.intro h1 {
+    font-size: 22px;
+    margin: 0 0 4px;
+    font-weight: 700;
+  }
+  header.intro p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 540px;
+    line-height: 1.5;
+  }
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .controls .label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .seg {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+  }
+  .seg button {
+    appearance: none;
+    border: none;
+    background: white;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-right: 1px solid var(--border);
+    color: var(--text-muted);
+    transition: background 0.15s, color 0.15s;
+  }
+  .seg button:last-child { border-right: none; }
+  .seg button.active {
+    background: var(--bis-blue);
+    color: white;
+  }
+
+  /* ========== Phone columns ========== */
+  .compare {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+  .col {
+    width: 390px;
+    flex: 0 0 390px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .col-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+  }
+  .col-head .title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .col-head .badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .badge.current { background: #FEF3E6; color: #B35A00; }
+  .badge.proposed-scroll { background: #E6F2EA; color: var(--green); }
+  .badge.proposed-dropdown { background: #FEF3E6; color: #B35A00; }
+
+  .phone {
+    width: 390px;
+    height: 580px;
+    background: white;
+    border-radius: 26px;
+    border: 1px solid var(--border);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.10);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone-content {
+    flex: 1;
+    padding: 18px 14px 14px;
+    overflow: hidden;
+  }
+  .section-prompt {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 0 4px 10px;
+  }
+
+  /* ========== Inline scroll mode ========== */
+  .widget-frame {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: white;
+    overflow: hidden;
+    width: 100%;
+  }
+  .likert-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+  }
+  .likert-scroll::-webkit-scrollbar { height: 8px; }
+  .likert-scroll::-webkit-scrollbar-track { background: #f0f0f0; }
+  .likert-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.28); border-radius: 4px; }
+
+  .grid {
+    display: grid;
+    width: max-content;
+    min-width: 100%;
+  }
+  .grid .cell {
+    border-bottom: 1px solid var(--border-light);
+    border-right: 1px solid var(--border-light);
+    background: var(--row);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 8px;
+    min-height: 56px;
+  }
+  .grid .cell.statement {
+    justify-content: flex-start;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--row);
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    box-shadow: 2px 0 0 0 var(--border-light);
+    gap: 6px;
+  }
+  .grid .cell.statement.alt { background: var(--row-alt); }
+  .grid .cell.option.alt { background: var(--row-alt); }
+  .grid .last-row { border-bottom: none; }
+
+  .grid .head {
+    background: var(--likert-header);
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.25;
+    padding: 10px 6px;
+    min-height: 60px;
+    border-bottom: 1px solid var(--likert-header-edge);
+    border-right: 1px solid rgba(255,255,255,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  .grid .head.statement-head {
+    background: var(--row);
+    border-right: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    box-shadow: 2px 0 0 0 var(--border-light);
+  }
+
+  .radio {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid #888;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s;
+    background: white;
+    flex: 0 0 auto;
+  }
+  .radio:hover { border-color: var(--selected-blue); }
+  .radio.checked { border-color: var(--selected-blue); }
+  .radio.checked::after {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--selected-blue);
+  }
+  .help-icon {
+    color: var(--green);
+    font-size: 14px;
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 28px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.96));
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 4;
+  }
+  .has-overflow .scroll-hint { opacity: 1; }
+
+  /* ========== Dropdown mode ========== */
+  .dropdown-mode { padding: 0; }
+  .dd-header {
+    display: flex;
+    margin-bottom: 6px;
+  }
+  .dd-header .left { flex: 1; }
+  .dd-header .right {
+    flex: 0 0 38%;
+    background: var(--bis-blue);
+    color: white;
+    text-align: center;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 9px 0;
+    border-radius: 3px 3px 0 0;
+  }
+  .dd-row {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    background: white;
+  }
+  .dd-row:last-child { margin-bottom: 0; }
+  .dd-row .stmt {
+    flex: 1;
+    padding: 12px 12px;
+    font-size: 14px;
+    color: var(--text);
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dd-row .picker {
+    flex: 0 0 38%;
+    padding: 12px 12px;
+    cursor: pointer;
+    text-align: right;
+    color: var(--bis-blue);
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    background: white;
+    border: none;
+    appearance: none;
+  }
+  .dd-row .picker.has-value { color: var(--text); font-weight: 400; }
+  .dd-row .picker .arrow { color: var(--bis-blue); font-size: 9px; }
+
+  /* ========== Bottom-sheet modal (per phone) ========== */
+  .modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    align-items: flex-end;
+    z-index: 20;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    width: 100%;
+    background: white;
+    border-radius: 16px 16px 0 0;
+    padding: 18px 0 22px;
+    max-height: 70%;
+    overflow-y: auto;
+    animation: slideUp 0.22s ease-out;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-header {
+    padding: 0 22px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .modal-header .title { font-size: 20px; font-weight: 700; }
+  .modal-header .close {
+    font-size: 22px;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 4px;
+  }
+  .modal-subtitle {
+    padding: 0 22px 12px;
+    color: var(--text);
+    font-size: 15px;
+  }
+  .modal-option {
+    padding: 16px 22px;
+    border-top: 1px solid #eee;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text);
+  }
+  .modal-option:hover { background: #f4f4f4; }
+  .modal-option .o-radio {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid #888;
+    flex: 0 0 auto;
+  }
+  .modal-option.selected .o-radio { border-color: var(--selected-blue); }
+  .modal-option.selected .o-radio::after {
+    content: "";
+    display: block;
+    margin: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--selected-blue);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="intro">
+    <div>
+      <h1>Rating Scale on Mobile — Current vs. Proposed</h1>
+    </div>
+    <div class="controls">
+      <span class="label">Number of choices</span>
+      <div class="seg" id="optCount">
+        <button data-n="3">3</button>
+        <button data-n="4" class="active">4</button>
+        <button data-n="5">5</button>
+        <button data-n="6">6</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="compare">
+    <!-- Current -->
+    <div class="col">
+      <div class="col-head">
+        <div class="title">Current</div>
+        <div class="badge current">Open popup, then choose</div>
+      </div>
+      <div class="phone" id="phoneCurrent">
+        <div class="phone-content">
+          <div class="section-prompt">Please rate the condition of each item.</div>
+          <div id="currentWidget"></div>
+        </div>
+        <div class="modal-overlay" id="modalCurrent">
+          <div class="modal">
+            <div class="modal-header">
+              <div class="title">Select</div>
+              <div class="close" data-phone="current">×</div>
+            </div>
+            <div class="modal-subtitle" id="subtitleCurrent">—</div>
+            <div id="optionsCurrent"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Proposed -->
+    <div class="col">
+      <div class="col-head">
+        <div class="title">Proposed</div>
+        <div class="badge proposed-scroll" id="proposedBadge">Choose with one tap</div>
+      </div>
+      <div class="phone" id="phoneProposed">
+        <div class="phone-content">
+          <div class="section-prompt">Please rate the condition of each item.</div>
+          <div id="proposedWidget"></div>
+        </div>
+        <div class="modal-overlay" id="modalProposed">
+          <div class="modal">
+            <div class="modal-header">
+              <div class="title">Select</div>
+              <div class="close" data-phone="proposed">×</div>
+            </div>
+            <div class="modal-subtitle" id="subtitleProposed">—</div>
+            <div id="optionsProposed"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STATEMENTS = [
+    { id: 1, label: "Engine Oil Levels" },
+    { id: 2, label: "Coolant Levels", tooltip: true },
+    { id: 3, label: "Hydraulic System" },
+    { id: 4, label: "Tire/Wheel Condition" },
+  ];
+
+  const OPTION_SETS = {
+    3: ["Acceptable", "Needs Repair", "N/A"],
+    4: ["Acceptable", "Minor Issue", "Needs Repair", "N/A"],
+    5: ["Excellent", "Acceptable", "Minor Issue", "Needs Repair", "N/A"],
+    6: ["Excellent", "Good", "Acceptable", "Minor Issue", "Needs Repair", "N/A"],
+  };
+
+  const stateCurrent = { answers: {}, modalStmt: null };
+  const stateProposed = { answers: {}, modalStmt: null };
+  let nOptions = 4;
+
+  function render() {
+    const opts = OPTION_SETS[nOptions];
+    const proposedUsesScroll = opts.length <= 4;
+
+    const badge = document.getElementById('proposedBadge');
+    if (proposedUsesScroll) {
+      badge.className = 'badge proposed-scroll';
+      badge.textContent = 'Scrolling · 1 tap';
+    } else {
+      badge.className = 'badge proposed-dropdown';
+      badge.textContent = 'Popup fallback · 5+ options';
+    }
+
+    const cur = document.getElementById('currentWidget');
+    cur.innerHTML = '';
+    renderDropdown(opts, cur, stateCurrent, 'current');
+
+    const prop = document.getElementById('proposedWidget');
+    prop.innerHTML = '';
+    if (proposedUsesScroll) {
+      renderInlineScroll(opts, prop, stateProposed);
+    } else {
+      renderDropdown(opts, prop, stateProposed, 'proposed');
+    }
+  }
+
+  function renderInlineScroll(opts, host, st) {
+    const wrap = document.createElement('div');
+    wrap.className = 'widget-frame';
+    const scroll = document.createElement('div');
+    scroll.className = 'likert-scroll';
+
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    const statementWidth = opts.length >= 4 ? 110 : 130;
+    grid.style.gridTemplateColumns = `${statementWidth}px repeat(${opts.length}, minmax(0, 1fr))`;
+
+    const headStmt = document.createElement('div');
+    headStmt.className = 'head statement-head';
+    grid.appendChild(headStmt);
+    opts.forEach((o) => {
+      const h = document.createElement('div');
+      h.className = 'head';
+      h.textContent = o;
+      grid.appendChild(h);
+    });
+
+    STATEMENTS.forEach((s, rIdx) => {
+      const isAlt = rIdx % 2 === 1;
+      const isLast = rIdx === STATEMENTS.length - 1;
+      const stmt = document.createElement('div');
+      stmt.className = 'cell statement' + (isAlt ? ' alt' : '') + (isLast ? ' last-row' : '');
+      const label = document.createElement('span');
+      label.textContent = s.label;
+      stmt.appendChild(label);
+      if (s.tooltip) {
+        const tip = document.createElement('span');
+        tip.className = 'help-icon';
+        tip.textContent = 'ⓘ';
+        stmt.appendChild(tip);
+      }
+      grid.appendChild(stmt);
+
+      opts.forEach((o) => {
+        const cell = document.createElement('div');
+        const cls = ['cell', 'option'];
+        if (isAlt) cls.push('alt');
+        if (isLast) cls.push('last-row');
+        cell.className = cls.join(' ');
+        const radio = document.createElement('span');
+        radio.className = 'radio' + (st.answers[s.id] === o ? ' checked' : '');
+        radio.addEventListener('click', () => {
+          st.answers[s.id] = st.answers[s.id] === o ? null : o;
+          render();
+        });
+        cell.appendChild(radio);
+        grid.appendChild(cell);
+      });
+    });
+
+    scroll.appendChild(grid);
+    const hint = document.createElement('div');
+    hint.className = 'scroll-hint';
+    wrap.appendChild(scroll);
+    wrap.appendChild(hint);
+    host.appendChild(wrap);
+
+    // Mouse wheel → horizontal scroll (vertical wheel motion only;
+    // trackpad horizontal swipes still work natively)
+    scroll.addEventListener('wheel', (e) => {
+      const canScroll = scroll.scrollWidth > scroll.clientWidth;
+      if (!canScroll) return;
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        scroll.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
+
+    requestAnimationFrame(() => {
+      const updateHint = () => {
+        const atEnd = scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 4;
+        const overflow = scroll.scrollWidth > scroll.clientWidth + 4;
+        wrap.classList.toggle('has-overflow', overflow && !atEnd);
+      };
+      updateHint();
+      scroll.addEventListener('scroll', updateHint);
+    });
+  }
+
+  function renderDropdown(opts, host, st, phoneId) {
+    const container = document.createElement('div');
+    container.className = 'dropdown-mode';
+
+    const head = document.createElement('div');
+    head.className = 'dd-header';
+    head.innerHTML = `<div class="left"></div><div class="right">Response</div>`;
+    container.appendChild(head);
+
+    STATEMENTS.forEach(s => {
+      const row = document.createElement('div');
+      row.className = 'dd-row';
+      const value = st.answers[s.id];
+      row.innerHTML = `
+        <div class="stmt">
+          <span>${s.label}</span>
+          ${s.tooltip ? '<span class="help-icon">ⓘ</span>' : ''}
+        </div>
+        <button class="picker ${value ? 'has-value' : ''}" data-id="${s.id}">
+          ${value || 'Select'} <span class="arrow">▼</span>
+        </button>
+      `;
+      container.appendChild(row);
+    });
+
+    container.querySelectorAll('.picker').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openModal(phoneId, parseInt(btn.dataset.id, 10));
+      });
+    });
+
+    host.appendChild(container);
+  }
+
+  // ========== Modal (per phone) ==========
+  function openModal(phoneId, statementId) {
+    const st = phoneId === 'current' ? stateCurrent : stateProposed;
+    const opts = OPTION_SETS[nOptions];
+    const stmt = STATEMENTS.find(s => s.id === statementId);
+    st.modalStmt = statementId;
+    const subtitle = document.getElementById(phoneId === 'current' ? 'subtitleCurrent' : 'subtitleProposed');
+    const list = document.getElementById(phoneId === 'current' ? 'optionsCurrent' : 'optionsProposed');
+    subtitle.textContent = stmt.label;
+    const current = st.answers[statementId];
+    list.innerHTML = opts.map(o => `
+      <div class="modal-option ${o === current ? 'selected' : ''}" data-opt="${o}">
+        <span>${o}</span>
+        <span class="o-radio"></span>
+      </div>
+    `).join('');
+    list.querySelectorAll('.modal-option').forEach(el => {
+      el.addEventListener('click', () => {
+        st.answers[statementId] = el.dataset.opt;
+        closeModal(phoneId);
+        render();
+      });
+    });
+    const overlay = document.getElementById(phoneId === 'current' ? 'modalCurrent' : 'modalProposed');
+    overlay.classList.add('show');
+  }
+  function closeModal(phoneId) {
+    const overlay = document.getElementById(phoneId === 'current' ? 'modalCurrent' : 'modalProposed');
+    overlay.classList.remove('show');
+    const st = phoneId === 'current' ? stateCurrent : stateProposed;
+    st.modalStmt = null;
+  }
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) {
+        closeModal(overlay.id === 'modalCurrent' ? 'current' : 'proposed');
+      }
+    });
+  });
+  document.querySelectorAll('.modal-header .close').forEach(btn => {
+    btn.addEventListener('click', () => closeModal(btn.dataset.phone));
+  });
+
+  // ========== Toggle ==========
+  document.querySelectorAll('#optCount button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#optCount button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      nOptions = parseInt(btn.dataset.n, 10);
+      stateCurrent.answers = {};
+      stateProposed.answers = {};
+      closeModal('current');
+      closeModal('proposed');
+      render();
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>

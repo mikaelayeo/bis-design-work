@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Showcase — BIS Design Work</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/hub.css">
+</head>
+<body>
+  <div class="topbar">
+    <a class="brand" href="index.html"><span class="glyph">▣</span> BIS Design Work</a>
+    <nav class="topnav">
+      <a href="showcase.html" class="active">Showcase</a>
+      <a href="studio.html" data-studio-label>Studio</a>
+      <a href="about.html">About</a>
+    </nav>
+  </div>
+
+  <main class="page">
+    <div class="page-head">
+      <span class="eyebrow">Public</span>
+      <h1>Showcase</h1>
+      <p class="desc">Finalized, polished work — wireframes, prototypes, decks, and component docs ready to share.</p>
+    </div>
+    <div id="catalog-root"></div>
+  </main>
+
+  <footer class="foot">
+    Source on <a href="https://github.com/mikaelayeo/bis-design-work">GitHub</a>
+  </footer>
+
+  <script src="assets/catalog.js"></script>
+  <script>CatalogHub.init({ audience: "showcase", rootLabel: "Showcase" });</script>
+</body>
+</html>

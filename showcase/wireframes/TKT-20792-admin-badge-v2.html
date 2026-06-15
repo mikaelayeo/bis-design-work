@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TKT-20792 — Admin AI badge (stronger)</title>
+<style>
+  :root{--teal:#159fc6;--ink:#2a2a2a;--muted:#6b7280;--line:#e5e7eb;--accent:#6b3fd4;--accent-d:#5a32bd}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",-apple-system,Roboto,Arial,sans-serif;background:#dfe3e7;color:var(--ink);font-size:13px}
+  .controls{position:sticky;top:0;z-index:60;background:#1f2430;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+  .controls b{font-size:13px}.controls .sp{flex:1}.hint{font-size:11px;color:#9aa3b2}
+  .controls label{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;color:#c7cdd8}
+  .seg{display:inline-flex;border:1px solid #3a4150;border-radius:7px;overflow:hidden}
+  .seg button{background:#2a3140;color:#c7cdd8;border:0;padding:6px 12px;font-size:12px;cursor:pointer;font-family:inherit}
+  .seg button.on{background:#6b3fd4;color:#fff;font-weight:600}
+  .cbtn{background:#6b3fd4;color:#fff;border:0;border-radius:6px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer}
+  .app{max-width:1180px;margin:18px auto;background:#fff;border:1px solid #c9ced4;box-shadow:0 4px 18px rgba(0,0,0,.12)}
+  .hbar{background:var(--teal);color:#fff;display:flex;align-items:center;padding:11px 18px;font-weight:700;font-size:16px}
+  .hbar .sp{flex:1}.hbar .cog{font-size:16px}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px 4px;padding:26px 18px;position:relative}
+  .cell{position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 6px 16px;border-radius:10px;cursor:pointer;border:1px solid transparent}
+  .cell:hover{background:#f5f8fa}
+  .cell.aiaccent{background:linear-gradient(180deg,#faf8ff,#fff);border-color:#e3d9fb}
+  .gico{width:54px;height:54px;display:flex;align-items:center;justify-content:center;font-size:36px;line-height:1}
+  .cell .lbl{font-size:12px;text-align:center;line-height:1.25}
+  .blue{color:#2f8fc4}.red{color:#d9534f}.pink{color:#d6489b}.green{color:#5cb85c}.purple{color:#9b6dd6}.teal{color:#1aa3c9}.gold{color:#e6a519}
+  /* ===== badge styles ===== */
+  .pill{margin-top:2px;font-weight:700;font-size:10px;letter-spacing:.2px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+  /* outline (current) */
+  .pill.outline{color:#3f7fb0;background:#eaf3fb;border:1px solid #cfe0ef;padding:3px 9px;border-radius:11px}
+  /* filled (proposed) */
+  .pill.filled{color:#fff;background:var(--accent);padding:4px 10px;border-radius:11px;box-shadow:0 1px 3px rgba(107,63,212,.4)}
+  /* pulse */
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(107,63,212,.55)}70%{box-shadow:0 0 0 9px rgba(107,63,212,0)}100%{box-shadow:0 0 0 0 rgba(107,63,212,0)}}
+  .pill.pulsing{animation:pulse 1.5s ease-out infinite}
+  @media (prefers-reduced-motion: reduce){.pill.pulsing{animation:none!important}}
+  /* coachmark */
+  #coach{position:absolute;z-index:40;width:280px;background:#fff;border:1px solid #d9ccff;border-radius:12px;box-shadow:0 14px 34px rgba(60,30,120,.26);padding:15px 16px 13px;display:none}
+  #coach.show{display:block}
+  #coach:before{content:"";position:absolute;top:-10px;left:38px;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:10px solid #fff;filter:drop-shadow(0 -1px 0 #d9ccff)}
+  #coach h4{margin:0 0 6px;font-size:14px;color:#3a2370;display:flex;align-items:center;gap:6px}
+  #coach p{margin:0 0 13px;font-size:12.5px;color:#5a5570;line-height:1.5}
+  #coach .row{display:flex;align-items:center;gap:8px}
+  #coach .go{background:var(--accent);color:#fff;border:0;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer}
+  #coach .got{background:none;border:0;color:#8a86a0;font-size:12px;cursor:pointer}
+  #coach .dot{margin-left:auto;font-size:11px;color:#a39fb8}
+  /* note */
+  .note{margin:0 18px 20px;border:1px solid #e0d6ff;background:#faf7ff;border-radius:10px;padding:13px 16px;font-size:12.5px;color:#4a4360;line-height:1.6}
+  .note b{color:#5a32bd}
+  .swatch{display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--accent);vertical-align:-1px;margin-right:3px}
+  code{background:#efeaf9;padding:1px 5px;border-radius:4px;font-size:11.5px}
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <b>TKT-20792 · Stronger AI badge</b>
+  <span class="sp"></span>
+  <span class="hint">Pill:</span>
+  <div class="seg" id="seg">
+    <button data-v="outline">Outline (current)</button>
+    <button data-v="filled" class="on">Filled (proposed)</button>
+  </div>
+  <label><input type="checkbox" id="pulse" checked> pulse</label>
+  <label><input type="checkbox" id="accent"> tile accent</label>
+  <button class="cbtn" id="coachBtn">▶ First-visit coachmark</button>
+</div>
+
+<div class="app">
+  <div class="hbar">Admin <span class="sp"></span><span class="cog">⚙</span></div>
+
+  <div class="grid" id="grid">
+    <!-- row 1 -->
+    <div class="cell"><div class="gico red">🏛</div><div class="lbl red">Companies</div></div>
+    <div class="cell"><div class="gico blue">🔍</div><div class="lbl blue">Search</div></div>
+    <div class="cell"><div class="gico gold">🌟</div><div class="lbl gold">Course Codes</div></div>
+    <div class="cell"><div class="gico pink">📊</div><div class="lbl pink">Excel Reports</div></div>
+    <div class="cell ai" id="tile-oc"><div class="gico blue">💻</div><div class="lbl blue">Online Courses</div><span class="pill">✦ Build with AI</span></div>
+    <div class="cell"><div class="gico blue">🗄</div><div class="lbl blue">Online Course<br>Bundles</div></div>
+    <div class="cell"><div class="gico purple">📑</div><div class="lbl purple">Training Record<br>Management</div></div>
+    <!-- row 2 -->
+    <div class="cell ai"><div class="gico blue">📄</div><div class="lbl blue">Forms</div><span class="pill">✦ Build with AI</span></div>
+    <div class="cell"><div class="gico green">📈</div><div class="lbl green">Form Reporting</div></div>
+    <div class="cell"><div class="gico blue">📋</div><div class="lbl blue">Event<br>Management</div></div>
+    <div class="cell"><div class="gico blue">🚜</div><div class="lbl blue">Assets</div></div>
+    <div class="cell"><div class="gico gold">📁</div><div class="lbl gold">Folders</div></div>
+    <div class="cell ai"><div class="gico green">📗</div><div class="lbl green">Playbook</div><span class="pill">✦ Build with AI</span></div>
+    <div class="cell"><div class="gico gold">🎁</div><div class="lbl gold">Rewards</div></div>
+    <!-- row 3 -->
+    <div class="cell"><div class="gico teal">☰</div><div class="lbl teal">Datasets</div></div>
+    <div class="cell"><div class="gico blue">🔗</div><div class="lbl blue">Project<br>Management</div></div>
+    <div class="cell"><div class="gico muted">🛍</div><div class="lbl" style="color:#8a92a0">Physical Product<br>Orders</div></div>
+    <div class="cell"><div class="gico teal">📈</div><div class="lbl teal">Training<br>Dashboard</div></div>
+    <div class="cell"><div class="gico green">💲</div><div class="lbl green">E-Commerce<br>Purchase Orders</div></div>
+    <div class="cell"><div class="gico blue">⬆</div><div class="lbl blue">Email Log</div></div>
+    <div class="cell"><div class="gico blue">👥</div><div class="lbl blue">Bulk Course<br>Assignment</div></div>
+    <!-- row 4 -->
+    <div class="cell"><div class="gico pink">💲</div><div class="lbl pink">System Pricing</div></div>
+    <div class="cell"><div class="gico green">📍</div><div class="lbl green">Site Access</div></div>
+    <div class="cell"><div class="gico blue">📈</div><div class="lbl blue">Reporting<br>Dashboard</div></div>
+
+    <!-- coachmark -->
+    <div id="coach">
+      <h4><span style="color:#6b3fd4">✦</span> New: Build with AI</h4>
+      <p>Several modules now let you create content with AI. Look for the <b>✦ Build with AI</b> tag — start with <b>Online Courses</b>.</p>
+      <div class="row">
+        <button class="go" id="coachGo">Show me</button>
+        <button class="got" id="coachGot">Got it</button>
+        <span class="dot">1 of 1</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>What's in this mock:</b> filled <span class="swatch"></span><b>“✦ Build with AI”</b> pills on the three AI tiles (Online Courses, Forms, Playbook), an optional one-time <b>pulse</b>, optional <b>tile accent</b>, and a one-time <b>category coachmark</b> (click the button above).<br>
+    <b>Accessibility:</b> filled pill is white on <code>#6B3FD4</code> ≈ <b>5.9:1</b> contrast (passes WCAG AA). Pulse is gated behind <code>prefers-reduced-motion</code> — it stops automatically for users who request reduced motion. In production the pulse should run <b>once per session</b>, not loop (it loops here only so you can see it).<br>
+    <b>Consistency:</b> purple is used nowhere else in the grid, so it becomes the learned “= AI” colour across all AI tiles.
+  </div>
+</div>
+
+<script>
+  const seg=document.getElementById('seg'),pulse=document.getElementById('pulse'),accent=document.getElementById('accent');
+  const coach=document.getElementById('coach'),coachBtn=document.getElementById('coachBtn');
+  const pills=[...document.querySelectorAll('.cell.ai .pill')];
+  const aiCells=[...document.querySelectorAll('.cell.ai')];
+  let style='filled';
+
+  function render(){
+    pills.forEach(p=>{
+      p.className='pill '+style+(pulse.checked && style==='filled'?' pulsing':'');
+    });
+    aiCells.forEach(c=>c.classList.toggle('aiaccent',accent.checked));
+  }
+  seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    [...seg.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');style=b.dataset.v;render();});
+  pulse.addEventListener('change',render);
+  accent.addEventListener('change',render);
+
+  function placeCoach(){
+    const oc=document.getElementById('tile-oc').getBoundingClientRect();
+    const g=document.getElementById('grid').getBoundingClientRect();
+    coach.style.top=(oc.bottom-g.top+10)+'px';
+    coach.style.left=Math.max(8,(oc.left-g.left+oc.width/2-56))+'px';
+  }
+  coachBtn.addEventListener('click',()=>{coach.classList.add('show');placeCoach();});
+  document.getElementById('coachGot').addEventListener('click',()=>coach.classList.remove('show'));
+  document.getElementById('coachGo').addEventListener('click',()=>coach.classList.remove('show'));
+  window.addEventListener('resize',()=>{if(coach.classList.contains('show'))placeCoach();});
+  render();
+</script>
+</body>
+</html>

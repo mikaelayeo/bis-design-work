@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TKT-20792 — Online Courses toolbar density</title>
+<style>
+  :root{--teal:#159fc6;--blue:#2f8fc4;--blue-d:#2079ad;--green:#5cb85c;--green-d:#4ca64c;
+        --pink:#c2398e;--gold:#e6a519;--ink:#2a2a2a;--muted:#6b7280;--line:#e5e7eb;
+        --link:#1f7fc0;--rowalt:#f4f6f8;--accent:#6b3fd4;--accent-d:#5a32bd}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",-apple-system,Roboto,Arial,sans-serif;background:#dfe3e7;color:var(--ink);font-size:13px}
+  .controls{position:sticky;top:0;z-index:60;background:#1f2430;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+  .controls b{font-size:13px}.controls .sp{flex:1}.hint{font-size:11px;color:#9aa3b2}
+  .seg{display:inline-flex;border:1px solid #3a4150;border-radius:7px;overflow:hidden;flex-wrap:wrap}
+  .seg button{background:#2a3140;color:#c7cdd8;border:0;padding:7px 12px;font-size:12px;cursor:pointer;font-family:inherit}
+  .seg button.on{background:#6b3fd4;color:#fff;font-weight:600}
+  .app{max-width:1180px;margin:18px auto;background:#fff;border:1px solid #c9ced4;box-shadow:0 4px 18px rgba(0,0,0,.12)}
+  /* top header */
+  .hbar{background:var(--teal);color:#fff;display:flex;align-items:center;gap:12px;padding:11px 16px}
+  .hbar .title{font-weight:700;font-size:15px;white-space:nowrap}
+  .portalsel{background:#fff;color:#333;border-radius:4px;padding:6px 10px;flex:1;max-width:430px;display:flex;align-items:center;justify-content:space-between;font-size:13px}
+  .hbar .sp{flex:1}
+  .pill-btn{border:0;border-radius:5px;color:#fff;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .b-pink{background:var(--pink)}.b-gold{background:var(--gold)}
+  /* toolbar */
+  .toolbar{display:flex;align-items:center;gap:9px;padding:12px 16px;background:#eef6fa;flex-wrap:wrap;position:relative}
+  .toolbar .sp{flex:1}
+  .field{display:flex;align-items:center;border:1px solid #cfd5db;border-radius:4px;background:#fff;overflow:hidden}
+  .field input,.field select{border:0;padding:7px 9px;font-size:12px;outline:none;background:transparent}
+  .field input{width:160px}
+  .funnel{background:var(--pink);color:#fff;padding:7px 9px;border-radius:4px;cursor:pointer}
+  .lbl{color:#5a6675;font-size:12px}
+  .toggle3{display:inline-flex;border:1px solid #cfd5db;border-radius:5px;overflow:hidden}
+  .toggle3 button{border:0;background:#fff;padding:7px 11px;font-size:12px;cursor:pointer;color:#41566a}
+  .toggle3 button.on{background:#1aa3c9;color:#fff}
+  .count{background:#fff;border:1px solid #cfd5db;border-radius:5px;padding:6px 10px;font-size:12px;color:#41566a;white-space:nowrap}
+  .btn{border:0;border-radius:5px;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#fff;white-space:nowrap}
+  .b-blue{background:var(--blue)}.b-green{background:var(--green)}
+  .b-accent{background:var(--accent)}.b-accent:hover{background:var(--accent-d)}
+  .iconbtn{border:1px solid #cfd5db;background:#fff;color:#41566a;border-radius:5px;padding:8px 10px;font-size:13px;cursor:pointer;position:relative}
+  .iconbtn:hover{background:#f1f5f8}
+  .spark{font-size:13px;line-height:1}
+  /* create cluster */
+  .cluster{display:inline-flex;align-items:center;gap:8px;padding:5px 7px;border-radius:8px}
+  .cluster.box{background:#fff;border:1px solid #e2e8ee}
+  /* split button */
+  .split{display:inline-flex;border-radius:5px;overflow:hidden}
+  .split .main{background:var(--green);color:#fff;border:0;padding:8px 13px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+  .split .car{background:var(--green-d);color:#fff;border:0;padding:8px 9px;cursor:pointer}
+  /* dropdown menus */
+  .menu{position:absolute;z-index:30;top:46px;background:#fff;border:1px solid #e0e4e9;border-radius:9px;box-shadow:0 10px 28px rgba(0,0,0,.16);padding:6px;min-width:210px;display:none}
+  .menu.show{display:block}
+  .menu .mi{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:6px;font-size:12.5px;color:#2a2a2a;cursor:pointer}
+  .menu .mi:hover{background:#f3f5f8}
+  .menu .mi .mic{width:18px;text-align:center;color:#5a6675}
+  .menu .mi.ai .mic{color:var(--accent)}
+  .menu .sep{height:1px;background:#eef1f4;margin:5px 4px}
+  .menu .mh{font-size:10.5px;letter-spacing:.4px;color:#9aa3b2;padding:6px 11px 3px;text-transform:uppercase}
+  /* table */
+  table{width:100%;border-collapse:collapse}
+  thead th{text-align:left;font-size:11px;color:#41566a;padding:11px 10px;border-bottom:2px solid #e7ebef;font-weight:700}
+  tbody td{padding:10px;border-bottom:1px solid #eef1f4;font-size:12.5px}
+  tbody tr:nth-child(even){background:var(--rowalt)}
+  .clink{color:var(--link);text-decoration:none}
+  .ty{display:inline-block;width:21px;height:21px;border-radius:4px;color:#fff;text-align:center;line-height:21px;font-weight:700;font-size:11px}
+  .ty-v{background:#5cb85c}.ty-r{background:#1aa3c9}.cert{color:var(--gold)}
+  .act{color:#3f7fb0}
+  /* notes */
+  .note{margin:0 16px 18px;border:1px solid #e0d6ff;background:#faf7ff;border-radius:10px;padding:13px 15px;font-size:12.5px;color:#4a4360;line-height:1.55}
+  .note b{color:#5a32bd}.note .tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;margin-right:6px}
+  .tg-rec{background:#e7f7e9;color:#3a8f3a}.tg-ok{background:#eef2f6;color:#5a6675}.tg-no{background:#fdeef0;color:#c0455a}
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <b>TKT-20792 · Online Courses — toolbar density</b>
+  <span class="sp"></span>
+  <span class="hint">Option:</span>
+  <div class="seg" id="seg">
+    <button data-v="cur" class="on">Current (overflowing)</button>
+    <button data-v="overflow">A · Overflow utilities</button>
+    <button data-v="icon">B · Icon utilities</button>
+    <button data-v="split">C · Split "Create"</button>
+  </div>
+</div>
+
+<div class="app">
+  <!-- teal header -->
+  <div class="hbar">
+    <span class="title">Online Courses, Tests, and Surveys</span>
+    <div class="portalsel"><span>Clean Environment Ltd</span><span>▾</span></div>
+    <span class="sp"></span>
+    <button class="pill-btn b-pink">🗂 Content Libraries</button>
+    <button class="pill-btn b-gold">🌐 Multilingual Courses</button>
+  </div>
+
+  <!-- toolbar -->
+  <div class="toolbar" id="toolbar">
+    <div class="field"><input placeholder="Search course name or ID"><span style="padding:7px 9px;color:#7b8794">🔍</span></div>
+    <span class="funnel">▼</span>
+    <span class="lbl">Category:</span>
+    <div class="field"><select><option>All</option></select></div>
+    <div class="toggle3"><button>All</button><button class="on">Active</button><button>Deactivated</button></div>
+    <span class="count">Total Courses: 57</span>
+    <span class="sp"></span>
+    <span id="actions"><!-- injected per option --></span>
+  </div>
+
+  <!-- table -->
+  <table>
+    <thead><tr><th>Title</th><th>Ecom</th><th>Pool</th><th>Category</th><th>Price</th><th>Status</th><th>Cert</th><th>Type</th><th>Lang</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr><td><a class="clink">01 - Clean Environment Orientation</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>Active</td><td><span class="cert">✸</span></td><td><span class="ty ty-r">R</span></td><td>English</td><td class="act">＄ ✎ ⚙</td></tr>
+      <tr><td><a class="clink">02 - Accounting</a></td><td>–</td><td style="color:#4ca64c">✔</td><td>–</td><td>–</td><td>Offline</td><td>–</td><td><span class="ty ty-v">V</span></td><td>English</td><td class="act">＄ ✎ ⚙</td></tr>
+      <tr><td><a class="clink">02 - First Aid Training</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>Active</td><td>–</td><td><span class="ty ty-r">R</span></td><td>English</td><td class="act">＄ ✎ ⚙</td></tr>
+      <tr><td><a class="clink">03 - Privacy Training</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>Active</td><td>–</td><td><span class="ty ty-r">R</span></td><td>English</td><td class="act">＄ ✎ ⚙</td></tr>
+      <tr><td><a class="clink">04 - Workplace Safety</a></td><td>–</td><td>–</td><td>–</td><td>–</td><td>Active</td><td>–</td><td><span class="ty ty-r">R</span></td><td>English</td><td class="act">＄ ✎ ⚙</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note" id="note"></div>
+</div>
+
+<script>
+  const seg=document.getElementById('seg'), actions=document.getElementById('actions'), note=document.getElementById('note');
+  let v='cur';
+
+  const variants={
+    cur:`
+      <button class="btn b-blue">📄 Download Course Report</button>
+      <button class="btn b-blue">≣ Manage Categories</button>
+      <button class="btn b-accent"><span class="spark">✦</span> Build with AI</button>
+      <button class="btn b-green">⊕ New Course</button>`,
+    overflow:`
+      <span class="cluster box">
+        <button class="btn b-accent"><span class="spark">✦</span> Build with AI</button>
+        <button class="btn b-green">⊕ New Course</button>
+      </span>
+      <span style="position:relative">
+        <button class="iconbtn" id="moreBtn">⋯ More</button>
+        <div class="menu" id="moreMenu">
+          <div class="mi"><span class="mic">📄</span> Download Course Report</div>
+          <div class="mi"><span class="mic">≣</span> Manage Categories</div>
+        </div>
+      </span>`,
+    icon:`
+      <button class="iconbtn" title="Download Course Report">📄</button>
+      <button class="iconbtn" title="Manage Categories">≣</button>
+      <span class="cluster box">
+        <button class="btn b-accent"><span class="spark">✦</span> Build with AI</button>
+        <button class="btn b-green">⊕ New Course</button>
+      </span>`,
+    split:`
+      <button class="iconbtn" title="Download Course Report">📄</button>
+      <button class="iconbtn" title="Manage Categories">≣</button>
+      <span style="position:relative">
+        <span class="split">
+          <button class="main" id="createMain">⊕ Create Course</button>
+          <button class="car" id="createCar">▾</button>
+        </span>
+        <div class="menu" id="createMenu">
+          <div class="mh">Start a new course</div>
+          <div class="mi ai"><span class="mic">✦</span> <div><b style="font-weight:600">Build with AI</b><div style="font-size:11px;color:#8a92a0">Draft chapters &amp; exam from a prompt</div></div></div>
+          <div class="mi"><span class="mic">⊕</span> <div><b style="font-weight:600">Blank course</b><div style="font-size:11px;color:#8a92a0">Build manually, chapter by chapter</div></div></div>
+        </div>
+      </span>`
+  };
+
+  const notes={
+    cur:`<span class="tag tg-no">PROBLEM</span> <b>4 action buttons + Content Libraries + Multilingual + search/filter/toggle/count.</b> On a normal-width screen the actions wrap to a second row (as in your screenshot). Every button is the same weight, so "New Course" and a report export read as equally important. Not sustainable once "Build with AI" is added.`,
+    overflow:`<span class="tag tg-rec">RECOMMENDED</span> <b>A · Overflow the utilities.</b> The two create actions ("Build with AI" + "New Course") stay fully visible in a grouped cluster on the right; the occasional-use utilities (Download Report, Manage Categories) collapse into a "⋯ More" menu — click it. Best fit for THIS project, because the whole goal is to make "Build with AI" prominent — it stays a first-class button, not buried. Frees a full row.`,
+    icon:`<span class="tag tg-ok">VIABLE</span> <b>B · Icon-only utilities.</b> Download Report and Manage Categories become labelled icons (hover for tooltip), keeping them one glance away while reclaiming ~2 buttons of width. Both creates stay prominent. Trade-off: icon-only hurts learnability and needs solid tooltips + accessible names (WCAG 4.1.2) — fine for power-user utilities, but don't icon-ify the primary actions.`,
+    split:`<span class="tag tg-ok">ALT</span> <b>C · Split "Create" button.</b> Most space-efficient — one "Create Course ▾" button opens a menu with "Build with AI" and "Blank course" (click the ▾). Great pattern generally, BUT it hides "Build with AI" one click deep behind a caret — which works against the adoption goal of this very ticket. Use only if surfacing AI is NOT a priority. For 20792, prefer A.`
+  };
+
+  function wire(){
+    const moreBtn=document.getElementById('moreBtn'),moreMenu=document.getElementById('moreMenu');
+    if(moreBtn) moreBtn.onclick=()=>moreMenu.classList.toggle('show');
+    const car=document.getElementById('createCar'),cm=document.getElementById('createMenu'),main=document.getElementById('createMain');
+    if(car){car.onclick=()=>cm.classList.toggle('show'); main.onclick=()=>cm.classList.toggle('show');}
+  }
+  function render(){actions.innerHTML=variants[v]; note.innerHTML=notes[v]; wire();}
+  seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    [...seg.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');v=b.dataset.v;render();});
+  render();
+</script>
+</body>
+</html>
