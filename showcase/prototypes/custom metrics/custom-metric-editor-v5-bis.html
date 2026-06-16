@@ -267,11 +267,10 @@
   .btn{font-family:inherit;font-size:16px;font-weight:600;line-height:26px;border:none;border-radius:var(--r-base);padding:4px 8px;cursor:pointer;background:none;color:var(--text-default);}
   .btn:hover{background:var(--secondary-subtle);}
   .btn-ghost{border:1px solid var(--stroke);}
-  .discard-wrap{position:relative;margin-right:auto;display:none;}
-  .discard-wrap.show{display:block;}
-  /* tooltip ABOVE the button so the modal's overflow doesn't clip it */
-  .tip{position:absolute;left:0;bottom:calc(100% + 6px);background:#191919;color:#fff;font-size:12px;font-weight:400;line-height:1.4;padding:6px 8px;border-radius:var(--r-base);white-space:nowrap;display:none;z-index:20;}
-  .discard-wrap:hover .tip{display:block;}
+  /* Reset/Discard button on the field; tooltip only shows in Discard mode */
+  .reset-wrap{position:relative;}
+  .tip{position:absolute;right:0;bottom:calc(100% + 6px);background:#191919;color:#f8f8f9;font-size:12px;font-weight:400;line-height:1.4;padding:6px 8px;border-radius:var(--r-base);white-space:nowrap;display:none;z-index:20;box-shadow:var(--shadow-l1);}
+  .reset-wrap.is-discard:hover .tip{display:block;}
   .btn-primary{background:var(--surface-primary);color:var(--text-on);}
   .btn-primary:hover{background:#006397;}
   .btn-primary:disabled{background:var(--stroke-light);color:var(--text-secondary);cursor:not-allowed;}
@@ -320,7 +319,10 @@
       </div>
       <div class="hint-row" id="hintRow">
         <div class="hint" id="hint"></div>
-        <button class="reset-btn" id="resetBtn">Reset</button>
+        <div class="reset-wrap" id="resetWrap">
+          <button class="reset-btn" id="resetBtn">Reset</button>
+          <span class="tip" id="resetTip">Reverts to the original formula when first opened.</span>
+        </div>
       </div>
     </div>
 
@@ -346,10 +348,6 @@
 
   <!-- FOOTER -->
   <div class="footer">
-    <div class="discard-wrap">
-      <button class="btn btn-ghost" id="discardBtn">Discard Changes</button>
-      <span class="tip">Reverts to the original formula when first opened.</span>
-    </div>
     <button class="btn" id="cancelBtn">Cancel</button>
     <button class="btn btn-primary" id="saveBtn" disabled>Save</button>
   </div>
@@ -638,7 +636,7 @@ function showHint(kind){ // 'ok' | 'err' | 'none'
 function validate(){
   const fi=$('finput'), sub=$('subloc');
   sub.classList.toggle('show', tokens.some(t=>t.k==='hours'));
-  updateDiscard();
+  updateResetBtn();
   fi.classList.remove('invalid');
   if(tokens.length===0){ showHint('none'); setSave(false); return; }
   if(tokens.some(t=>t.k==='slot')){ fi.classList.add('invalid'); showHint('err'); setSave(false); return; }
@@ -650,7 +648,6 @@ function validate(){
   showHint('ok'); setSave(true);
 }
 function setSave(ok){ $('saveBtn').disabled=!ok; }
-$('resetBtn').onclick=()=>{ tokens=[]; render(); validate(); hideOpDropdown(); hideSlot(); hideAC(); };
 
 /* ───────── FREE TYPING + AUTOCOMPLETE (keyboard navigable) ───────── */
 const OPMAP={'and':'&&','or':'||','in':'=='};
@@ -795,11 +792,21 @@ ftext.addEventListener('paste',e=>{
   }
 });
 
-/* ───────── DISCARD (revert to formula when first opened) ───────── */
-let originalTokens=[];
-function snapshotOriginal(){ originalTokens=JSON.parse(JSON.stringify(tokens)); updateDiscard(); }
-function updateDiscard(){ document.querySelector('.discard-wrap').classList.toggle('show', JSON.stringify(tokens)!==JSON.stringify(originalTokens)); }
-$('discardBtn').onclick=()=>{ tokens=JSON.parse(JSON.stringify(originalTokens)); render(); validate(); hideOpDropdown(); hideAC(); };
+/* ───────── RESET / DISCARD ─────────
+   New metric        → button is "Reset" (clears the field).
+   Editing a SAVED metric, once changed → button becomes "Discard" (reverts to
+   the saved formula) and shows the tooltip on hover. */
+let savedBaseline=null; // null = new metric; array = the saved formula being edited
+function isDiscardMode(){ return savedBaseline!=null && JSON.stringify(tokens)!==JSON.stringify(savedBaseline); }
+function updateResetBtn(){
+  const wrap=$('resetWrap'), discard=isDiscardMode();
+  $('resetBtn').textContent = discard ? 'Discard' : 'Reset';
+  wrap.classList.toggle('is-discard', discard);
+}
+$('resetBtn').onclick=()=>{
+  tokens = isDiscardMode() ? JSON.parse(JSON.stringify(savedBaseline)) : [];
+  render(); validate(); hideOpDropdown(); hideSlot(); hideAC();
+};
 
 /* ───────── CLICK-AWAY DISMISS for dropdowns ───────── */
 document.addEventListener('mousedown',e=>{
@@ -826,11 +833,11 @@ $('pdCopy').onclick=()=>{ const t=$('pdCode').textContent; if(navigator.clipboar
 $('saveBtn').onclick=()=>alert('(prototype) Saved formula tokens + sub-location setting');
 
 /* ───────── SCENARIOS ───────── */
-const SCN=['Empty','Valid','Invalid','Hours','Preset','AI filled','AI generating','AI generated','AI same'];
+const SCN=['Empty','Valid','Invalid','Hours','Preset','Editing saved','AI filled','AI generating','AI generated','AI same'];
 function buildScn(){$('scn').innerHTML='<span>State:</span>'+SCN.map(s=>`<button data-s="${s}">${s}</button>`).join('');$('scn').querySelectorAll('button').forEach(b=>b.onclick=()=>setScn(b.dataset.s));}
 function setScn(s){
   $('scn').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.s===s));
-  tokens=[];$('aiInp').value='';$('ftext').value='';hideOpDropdown();hideAC();hideSlot();setAiState('empty');
+  tokens=[];savedBaseline=null;$('aiInp').value='';$('ftext').value='';hideOpDropdown();hideAC();hideSlot();setAiState('empty');
   if(s==='Empty'){ render();validate(); }
   if(s==='Valid'){ tokens=[{k:'field',label:'DD_9 Incident Type',fieldId:'DD_9',opts:['Recordable']},{k:'op',label:'=='},{k:'value',label:'Recordable'}]; render();validate(); }
   if(s==='Invalid'){ tokens=[{k:'field',label:'CB_9 Were there any injuries?',fieldId:'CB_9'},{k:'op',label:'=='}]; render();validate(); }
@@ -840,7 +847,10 @@ function setScn(s){
   if(s==='AI generating'){ setAiState('generating'); render();validate(); }
   if(s==='AI generated'){ aiInsertFormula(); setAiState('generated','Can you make a formula that counts injuries per hours'); }
   if(s==='AI same'){ setAiState('same'); render();validate(); }
-  snapshotOriginal(); // treat the scenario's opening state as the "original" for Discard
+  if(s==='Editing saved'){
+    const saved=[{k:'op',label:'('},{k:'field',label:'CB_9 Were there any injuries?',fieldId:'CB_9',opts:['Yes','No']},{k:'op',label:'=='},{k:'value',label:'Yes'},{k:'op',label:')'},{k:'op',label:'*'},{k:'value',label:'200000'},{k:'op',label:'/'},{k:'hours',label:'{Hours}'}];
+    savedBaseline=JSON.parse(JSON.stringify(saved)); tokens=JSON.parse(JSON.stringify(saved)); render(); validate();
+  }
 }
 
 /* ───────── INIT ───────── */
