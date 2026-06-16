@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Metric Editor — v4 (lo-fi functional)</title>
+<style>
+  /* ── LOW-FIDELITY WIREFRAME ──
+     Greyscale chrome, system font, simple borders.
+     The ONLY colour is the token colour-coding, because
+     "color-coded tokens" is a core functional requirement.
+     Goal: prove functionality + placement + how the tech works. */
+
+  :root {
+    --ink:#222; --ink-2:#666; --ink-3:#999;
+    --line:#d4d4d4; --line-2:#bbb;
+    --surface:#fff; --raised:#f4f4f5; --raised-2:#ebebed;
+    --focus:#555;
+    /* token colours — kept from real feature so token types read at a glance */
+    --t-field:#dbeafe;  --t-field-ink:#1e40af;
+    --t-op:#fde9c8;     --t-op-ink:#92400e;
+    --t-value:#d6f0df;  --t-value-ink:#0a6b3b;
+    --t-hours:#f6d9ea;  --t-hours-ink:#9d174d;
+    --t-slot:#fff;      --t-slot-ink:#666;
+    --err:#c0392b; --err-bg:#fbeae8;
+    --ok:#2e7d32; --ok-bg:#eaf5eb;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background:#e7e7e9; color:var(--ink);
+    min-height:100vh; padding:40px 20px 120px;
+    display:flex; flex-direction:column; align-items:center;
+  }
+
+  /* faux dashboard behind, to show the "lighter modal" treatment */
+  .backdrop-note {
+    position:fixed; inset:0; background:
+      repeating-linear-gradient(0deg,#dededf 0 39px,#d2d2d4 39px 40px);
+    opacity:.5; z-index:0; pointer-events:none;
+  }
+  .dim { position:fixed; inset:0; background:rgba(40,40,45,.18); z-index:1; } /* lighter than today's lightbox */
+
+  /* zone caption — wireframe annotation, not part of UI */
+  .zone-cap {
+    font-size:10px; letter-spacing:.5px; text-transform:uppercase;
+    color:var(--ink-3); margin:0 0 4px 2px; font-weight:600;
+  }
+
+  /* ── MODAL ── */
+  .modal {
+    position:relative; z-index:2;
+    width:100%; max-width:720px; max-height:88vh;
+    background:var(--surface); border:1px solid var(--line-2);
+    border-radius:8px; box-shadow:0 12px 40px rgba(0,0,0,.18);
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  .m-head {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 16px; border-bottom:1px solid var(--line);
+  }
+  .m-head h1 { font-size:15px; font-weight:700; }
+  .m-head .h-right { display:flex; align-items:center; gap:8px; }
+  .x-btn { border:none; background:none; font-size:16px; color:var(--ink-2); cursor:pointer; padding:2px 6px; line-height:1; }
+
+  .m-body { overflow-y:auto; padding:14px 16px 18px; }
+
+  .btn {
+    font:inherit; font-size:13px; padding:6px 14px; border-radius:5px;
+    border:1px solid var(--line-2); background:var(--surface); color:var(--ink);
+    cursor:pointer;
+  }
+  .btn:hover { background:var(--raised); }
+  .btn-primary { background:var(--ink); color:#fff; border-color:var(--ink); }
+  .btn-primary:hover { background:#000; }
+  .btn-primary:disabled { background:var(--raised-2); color:var(--ink-3); border-color:var(--line); cursor:not-allowed; }
+
+  /* ── PROPERTIES ── */
+  .props { display:flex; gap:12px; margin-bottom:16px; }
+  .fld { display:flex; flex-direction:column; gap:4px; }
+  .fld.grow { flex:1; }
+  .fld label { font-size:11px; font-weight:600; color:var(--ink-2); }
+  .fld label .req { color:var(--err); }
+  .inp {
+    font:inherit; font-size:13px; padding:6px 9px;
+    border:1px solid var(--line-2); border-radius:5px; background:var(--surface); outline:none;
+  }
+  .inp:focus { border-color:var(--focus); }
+  .colour { display:flex; align-items:center; gap:6px; border:1px solid var(--line-2); border-radius:5px; padding:4px 8px; }
+  .colour input[type=color]{ width:22px; height:22px; border:none; background:none; padding:0; cursor:pointer; }
+  .colour input[type=text]{ border:none; outline:none; font:inherit; font-size:12px; width:64px; color:var(--ink-2); font-family:ui-monospace,monospace; }
+
+  /* ── AI BAR ── (single editable prompt — Notion style, no chat) */
+  .ai {
+    display:flex; align-items:center; gap:8px; margin-bottom:14px;
+    border:1px dashed var(--line-2); border-radius:6px; padding:6px 8px; background:var(--raised);
+  }
+  .ai .star { width:22px;height:22px;border:1px solid var(--line-2);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:13px;background:#fff;flex-shrink:0; }
+  .ai input { flex:1; border:none; background:none; outline:none; font:inherit; font-size:13px; }
+  .ai .btn { padding:5px 12px; }
+
+  /* ── FORMULA EDITOR ── */
+  .f-toprow { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+  .f-toprow .zone-cap { margin:0; }
+  .js-toggle { font-size:11px; color:var(--ink-3); cursor:pointer; border:none; background:none; text-decoration:underline; }
+  .editor {
+    border:1px solid var(--line-2); border-radius:6px; padding:8px;
+    min-height:54px; display:flex; flex-wrap:wrap; align-items:center; gap:5px;
+    cursor:text; background:var(--surface); position:relative;
+  }
+  .editor.focused { border-color:var(--focus); }
+  .editor.err { border-color:var(--err); background:var(--err-bg); }
+  .editor.ok { border-color:var(--ok); }
+  .editor .ph { color:var(--ink-3); font-size:13px; }
+  .f-input { border:none; outline:none; font:inherit; font-size:13px; min-width:80px; flex:1; padding:3px 2px; background:none; }
+
+  /* tokens */
+  .tok {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:2px 7px; border-radius:4px; font-size:12px; font-weight:500;
+    font-family:ui-monospace, monospace; white-space:nowrap; cursor:default;
+  }
+  .tok .del { cursor:pointer; opacity:.4; font-weight:700; }
+  .tok:hover .del { opacity:.9; }
+  .tok-field { background:var(--t-field); color:var(--t-field-ink); }
+  .tok-op    { background:var(--t-op);    color:var(--t-op-ink); }
+  .tok-value { background:var(--t-value); color:var(--t-value-ink); }
+  .tok-hours { background:var(--t-hours); color:var(--t-hours-ink); }
+  .tok-slot  { background:var(--t-slot);  color:var(--t-slot-ink); border:1px dashed var(--line-2); cursor:pointer; }
+  .tok-slot.needfill { border-color:var(--err); color:var(--err); }
+
+  /* js peek */
+  .js-peek { display:none; margin-top:6px; padding:6px 9px; background:var(--ink); color:#9fe89f; font-family:ui-monospace,monospace; font-size:12px; border-radius:5px; white-space:pre-wrap; }
+  .js-peek.show { display:block; }
+
+  /* validation */
+  .valid { margin-top:8px; font-size:12.5px; padding:8px 10px; border-radius:5px; display:none; line-height:1.45; }
+  .valid.show { display:block; }
+  .valid.is-err { background:var(--err-bg); color:var(--err); border:1px solid #eccac4; }
+  .valid.is-ok  { background:var(--ok-bg);  color:var(--ok);  border:1px solid #cbe6cc; }
+  .valid code { font-family:ui-monospace,monospace; background:rgba(0,0,0,.06); padding:0 4px; border-radius:3px; }
+  .fix-btn { margin-top:6px; font-size:11.5px; padding:3px 9px; border:1px solid currentColor; background:#fff; border-radius:4px; cursor:pointer; color:inherit; font:inherit; }
+
+  /* options */
+  .opts { margin:12px 0 16px; }
+  .opts label { font-size:12.5px; color:var(--ink-2); display:flex; align-items:center; gap:7px; cursor:pointer; }
+
+  /* ── REFERENCE PANEL ── */
+  .ref { border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+  .ref-tabs { display:flex; border-bottom:1px solid var(--line); background:var(--raised); }
+  .ref-tab { flex:0 0 auto; padding:8px 16px; font-size:12px; font-weight:600; color:var(--ink-3); border:none; background:none; cursor:pointer; border-bottom:2px solid transparent; font-family:inherit; }
+  .ref-tab.active { color:var(--ink); border-bottom-color:var(--ink); }
+  .ref-search { padding:7px 10px; border-bottom:1px solid var(--line); }
+  .ref-search input { width:100%; border:1px solid var(--line-2); border-radius:5px; padding:5px 8px; font:inherit; font-size:12.5px; outline:none; }
+  .ref-search input:focus { border-color:var(--focus); }
+  .ref-hint { font-size:10.5px; color:var(--ink-3); margin-top:4px; }
+  .ref-body { display:flex; min-height:210px; max-height:240px; }
+  .ref-list { width:210px; flex-shrink:0; border-right:1px solid var(--line); overflow-y:auto; padding:4px 0; }
+  .grp { font-size:9.5px; font-weight:700; color:var(--ink-3); letter-spacing:.6px; padding:7px 10px 3px; text-transform:uppercase; }
+  .item { display:flex; align-items:center; gap:7px; padding:5px 10px; cursor:pointer; font-size:12.5px; border-left:2px solid transparent; }
+  .item:hover { background:var(--raised); border-left-color:var(--line-2); }
+  .item.hl { background:var(--raised-2); border-left-color:var(--ink); }
+  .item .badge { font-family:ui-monospace,monospace; font-size:10px; padding:1px 5px; border-radius:3px; flex-shrink:0; font-weight:600; }
+  .item .nm { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ref-detail { flex:1; padding:12px 14px; overflow-y:auto; }
+  .d-empty { color:var(--ink-3); font-size:12.5px; height:100%; display:flex; align-items:center; }
+  .d-title { display:flex; align-items:center; gap:7px; font-size:14px; font-weight:700; margin-bottom:2px; }
+  .d-type { font-size:11.5px; color:var(--ink-2); margin-bottom:8px; }
+  .d-desc { font-size:12.5px; color:var(--ink-2); line-height:1.5; margin-bottom:10px; }
+  .d-lbl { font-size:9.5px; font-weight:700; color:var(--ink-3); letter-spacing:.5px; text-transform:uppercase; margin-bottom:4px; }
+  .d-opts { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px; }
+  .d-ex { background:var(--raised); border:1px solid var(--line); border-radius:5px; padding:6px 9px; font-family:ui-monospace,monospace; font-size:11.5px; margin-bottom:6px; display:flex; justify-content:space-between; gap:8px; align-items:center; }
+  .d-ex .cp { border:none; background:none; cursor:pointer; color:var(--ink-3); font-size:10.5px; font-family:inherit; }
+  .d-js { font-size:11px; color:var(--ink-3); margin-top:2px; }
+  .d-action { margin-top:8px; font-size:11.5px; color:var(--ink-3); font-style:italic; }
+
+  /* slot dropdown */
+  .slot-dd { position:absolute; z-index:20; background:#fff; border:1px solid var(--line-2); border-radius:5px; box-shadow:0 6px 18px rgba(0,0,0,.15); min-width:160px; max-height:180px; overflow-y:auto; display:none; }
+  .slot-dd.show { display:block; }
+  .slot-dd .sd-grp { font-size:9px; font-weight:700; color:var(--ink-3); padding:5px 9px 2px; letter-spacing:.5px; text-transform:uppercase; }
+  .slot-dd .sd-item { padding:5px 10px; font-size:12px; cursor:pointer; display:flex; align-items:center; gap:6px; }
+  .slot-dd .sd-item:hover { background:var(--raised); }
+  .slot-dd .sd-item .badge { font-family:ui-monospace,monospace; font-size:9.5px; padding:1px 4px; border-radius:3px; }
+
+  /* autocomplete */
+  .ac { position:absolute; z-index:20; background:#fff; border:1px solid var(--line-2); border-radius:5px; box-shadow:0 6px 18px rgba(0,0,0,.15); min-width:220px; max-height:180px; overflow-y:auto; display:none; }
+  .ac.show { display:block; }
+  .ac-item { padding:6px 10px; font-size:12.5px; cursor:pointer; display:flex; align-items:center; gap:7px; }
+  .ac-item:hover, .ac-item.hl { background:var(--raised); }
+  .ac-item .badge { font-family:ui-monospace,monospace; font-size:10px; padding:1px 5px; border-radius:3px; }
+  .ac-cat { font-size:9px; color:var(--ink-3); margin-left:auto; text-transform:uppercase; letter-spacing:.4px; }
+
+  /* footer + scenario bar */
+  .m-foot { display:flex; align-items:center; justify-content:flex-end; gap:8px; padding:10px 16px; border-top:1px solid var(--line); background:var(--raised); }
+  .save-hint { font-size:11px; color:var(--ink-3); margin-right:auto; }
+
+  .scn { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); z-index:5; background:var(--ink); color:#fff; border-radius:8px; padding:6px 8px; display:flex; gap:5px; align-items:center; font-size:11px; box-shadow:0 8px 24px rgba(0,0,0,.3); }
+  .scn > span { color:var(--ink-3); padding:0 4px; }
+  .scn button { border:none; background:rgba(255,255,255,.12); color:#fff; font:inherit; font-size:11px; padding:5px 11px; border-radius:5px; cursor:pointer; }
+  .scn button.active { background:#fff; color:var(--ink); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="backdrop-note"></div>
+<div class="dim"></div>
+
+<div class="modal">
+  <!-- HEADER -->
+  <div class="m-head">
+    <h1>Custom Metric</h1>
+    <div class="h-right">
+      <button class="btn" id="closeBtn">Close</button>
+      <button class="x-btn" id="xBtn" title="Close">✕</button>
+    </div>
+  </div>
+
+  <div class="m-body">
+    <!-- PROPERTIES -->
+    <div class="zone-cap">Properties</div>
+    <div class="props">
+      <div class="fld grow">
+        <label>Name <span class="req">*</span></label>
+        <input class="inp" id="nameInp" type="text" placeholder="e.g. TRIF Rate" value="">
+      </div>
+      <div class="fld">
+        <label>Colour <span class="req">*</span></label>
+        <div class="colour">
+          <input type="color" id="colInp" value="#c06b6b">
+          <input type="text" id="colHex" value="#c06b6b">
+        </div>
+      </div>
+    </div>
+
+    <!-- AI ASSIST -->
+    <div class="zone-cap">AI Assist — one editable prompt (no chat). Inserts editable tokens.</div>
+    <div class="ai">
+      <div class="star">✦</div>
+      <input id="aiInp" type="text" placeholder='Describe the metric, e.g. "TRIF using the injury checkbox and hours"'>
+      <button class="btn btn-primary" id="aiBtn">Generate</button>
+    </div>
+
+    <!-- FORMULA EDITOR -->
+    <div class="f-toprow">
+      <div class="zone-cap">Formula — type freely, paste JS, or click items below. Tokens are colour-coded.</div>
+      <button class="js-toggle" id="jsToggle">view as JavaScript</button>
+    </div>
+    <div class="editor" id="editor">
+      <span class="ph" id="ph">Start typing, or click a field / operator from the panel below…</span>
+      <input class="f-input" id="fInput" type="text" autocomplete="off">
+      <div class="ac" id="ac"></div>
+      <div class="slot-dd" id="slotDD"></div>
+    </div>
+    <div class="js-peek" id="jsPeek"></div>
+    <div class="valid" id="valid"></div>
+
+    <!-- OPTIONS -->
+    <div class="opts">
+      <label><input type="checkbox" id="subloc" checked> Include hours from sub-locations <span style="color:var(--ink-3)">(only matters when {Hours} is used)</span></label>
+    </div>
+
+    <!-- REFERENCE PANEL -->
+    <div class="zone-cap">Reference panel — hover to preview · click to insert · search by name or type (cb, tf…)</div>
+    <div class="ref">
+      <div class="ref-tabs" id="refTabs"></div>
+      <div class="ref-search">
+        <input id="refSearch" type="text" placeholder="Search fields…  (try “cb”, “tf”, or “injury”)">
+        <div class="ref-hint" id="refHint"></div>
+      </div>
+      <div class="ref-body">
+        <div class="ref-list" id="refList"></div>
+        <div class="ref-detail" id="refDetail"><div class="d-empty">Hover an item to preview it here.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="m-foot">
+    <span class="save-hint" id="saveHint">Name + a valid formula required to save</span>
+    <button class="btn" id="cancelBtn">Cancel</button>
+    <button class="btn btn-primary" id="saveBtn" disabled>Save</button>
+  </div>
+</div>
+
+<div class="scn" id="scn"></div>
+
+<script>
+/* ───────────────────────── DATA ───────────────────────── */
+// Comparison operators use the WORDS family (decided): is / is not / is any of / is none of.
+// Each carries a friendly label + the JS it maps to (hybrid).
+const FIELDS = [
+  {id:'CB_9', name:'Were there any injuries?', type:'Checkbox', cls:'tok-field', opts:['Yes','No'],
+   desc:'A checkbox field. Counts the number of completed forms where the option(s) you choose were selected. Match one with <strong>is</strong>, several with <strong>is any of</strong>, or exclude them with <strong>is none of</strong>.',
+   ex:['Were there any injuries? is Yes'], js:'CB_9 == "Yes"'},
+  {id:'CB_2', name:'PPE Worn?', type:'Checkbox', cls:'tok-field', opts:['Yes','No','N/A'],
+   desc:'A checkbox field. Counts the number of completed forms where the option(s) you choose were selected. Match one with <strong>is</strong>, several with <strong>is any of</strong>, or exclude them with <strong>is none of</strong>.',
+   ex:['PPE Worn? is No'], js:'CB_2 == "No"'},
+  {id:'DD_7', name:'Incident Type', type:'Dropdown', cls:'tok-field', opts:['Recordable','First Aid','Near Miss','Environmental'],
+   desc:'A dropdown field. Counts the number of completed forms where the selected option matches what you choose. Use <strong>is</strong> for a single option or <strong>is any of</strong> for several.',
+   ex:['Incident Type is any of (Recordable, First Aid)'], js:'["Recordable","First Aid"].includes(DD_7)'},
+  {id:'DD_3', name:'Severity', type:'Dropdown', cls:'tok-field', opts:['Low','Medium','High'],
+   desc:'A dropdown field. Counts the number of completed forms where the selected option matches what you choose. Use <strong>is</strong> for a single option or <strong>is any of</strong> for several.',
+   ex:['Severity is High'], js:'DD_3 == "High"'},
+  {id:'TF_3', name:'Description', type:'Text', cls:'tok-field', opts:[],
+   desc:'A free-text field. Counts the number of completed forms whose entry contains the value(s) you specify with <strong>is any of</strong>. If the field holds numbers, use it on its own to sum every entry.',
+   ex:['Description is any of (fall, slip)'], js:'/(fall|slip)/.test(TF_3)'},
+  {id:'TF_4', name:'Hours Worked', type:'Numeric', cls:'tok-field', opts:[],
+   desc:'A number field. Used on its own, it sums every value entered across all completed forms — combine it with <strong>+ − * /</strong> to build rates.',
+   ex:['Hours Worked'], js:'sum(TF_4)'},
+  {id:'{Hours}', name:'Location Hours', type:'System', cls:'tok-hours', opts:[], system:true,
+   desc:'Pulls in the hours for the location (and its sub-locations, when enabled) selected in the widget filter on the dashboard.',
+   ex:['200000 / {Hours}'], js:'locationHours'},
+];
+
+const OPS = [
+  {id:'+', name:'Add', grp:'Arithmetic', cls:'tok-op', desc:'Adds two values together.', ex:['(Injuries? is Yes) + (Incident Type is any of (Recordable))'], js:'+'},
+  {id:'-', name:'Subtract', grp:'Arithmetic', cls:'tok-op', desc:'Subtracts the right value from the left.', ex:['Hours Worked - 10'], js:'-'},
+  {id:'*', name:'Multiply', grp:'Arithmetic', cls:'tok-op', desc:'Multiplies two values.', ex:['(Injuries? is Yes) * 200000'], js:'*'},
+  {id:'/', name:'Divide', grp:'Arithmetic', cls:'tok-op', desc:'Divides left by right. Divide-by-zero returns “no result”.', ex:['200000 / {Hours}'], js:'/'},
+  {id:'is', name:'is', grp:'Comparison', cls:'tok-op', desc:'Counts forms where the field matches this single value. Reads forward: “field is value”.', ex:['Were there any injuries? is Yes'], js:'=='},
+  {id:'is not', name:'is not', grp:'Comparison', cls:'tok-op', desc:'Counts forms where the field does NOT match the value.', ex:['Incident Type is not Near Miss'], js:'!='},
+  {id:'is any of', name:'is any of', grp:'Comparison', cls:'tok-op', desc:'Counts forms where the field contains one or more of the listed values (multi-select).', ex:['Incident Type is any of (Recordable, First Aid)'], js:'.includes()'},
+  {id:'is none of', name:'is none of', grp:'Comparison', cls:'tok-op', desc:'Counts forms where the field contains none of the listed values.', ex:['Incident Type is none of (Near Miss)'], js:'!.includes()'},
+  {id:'AND', name:'And', grp:'Logical', cls:'tok-op', desc:'Both conditions must be true.', ex:['(Injuries? is Yes) AND (PPE Worn? is No)'], js:'&&'},
+  {id:'OR', name:'Or', grp:'Logical', cls:'tok-op', desc:'Either condition can be true.', ex:['(Severity is High) OR (Incident Type is any of (Recordable))'], js:'||'},
+  {id:'(', name:'Open paren', grp:'Grouping', cls:'tok-op', desc:'Starts a group to control evaluation order.', ex:['( … )'], js:'('},
+  {id:')', name:'Close paren', grp:'Grouping', cls:'tok-op', desc:'Closes a group.', ex:['( … )'], js:')'},
+];
+
+// Presets insert with SLOT tokens (blank). The first slot auto-opens its dropdown.
+const FORMULAS = [
+  {id:'trif', name:'TRIF Rate', grp:'Safety',
+   desc:'Total Recordable Incident Frequency — recordable incidents per 200,000 hours. Standard OSHA metric.',
+   ex:['( <field> is <value> ) * 200000 / {Hours}'],
+   build:()=>([
+     {t:'op',label:'(',cls:'tok-op'},
+     {t:'slot',role:'field',label:'select field ▾',cls:'tok-slot'},
+     {t:'op',label:'is',cls:'tok-op'},
+     {t:'slot',role:'value',label:'select value ▾',cls:'tok-slot'},
+     {t:'op',label:')',cls:'tok-op'},
+     {t:'op',label:'*',cls:'tok-op'},
+     {t:'value',label:'200000',cls:'tok-value'},
+     {t:'op',label:'/',cls:'tok-op'},
+     {t:'hours',label:'{Hours}',cls:'tok-hours'},
+   ])},
+  {id:'injrate', name:'Injury Rate %', grp:'Safety',
+   desc:'Percentage of submissions that reported an injury.',
+   ex:['( <field> is Yes ) / ( <field> is any of (Yes, No) ) * 100'],
+   build:()=>([
+     {t:'op',label:'(',cls:'tok-op'},
+     {t:'slot',role:'field',label:'select field ▾',cls:'tok-slot'},
+     {t:'op',label:'is',cls:'tok-op'},
+     {t:'value',label:'Yes',cls:'tok-value'},
+     {t:'op',label:')',cls:'tok-op'},
+     {t:'op',label:'/',cls:'tok-op'},
+     {t:'value',label:'(total)',cls:'tok-value'},
+     {t:'op',label:'*',cls:'tok-op'},
+     {t:'value',label:'100',cls:'tok-value'},
+   ])},
+  {id:'inccount', name:'Incident Count', grp:'General',
+   desc:'Simple count of submissions matching a specific type.',
+   ex:['<field> is any of (Recordable)'],
+   build:()=>([
+     {t:'slot',role:'field',label:'select field ▾',cls:'tok-slot'},
+     {t:'op',label:'is any of',cls:'tok-op'},
+     {t:'op',label:'(',cls:'tok-op'},
+     {t:'slot',role:'value',label:'select value ▾',cls:'tok-slot'},
+     {t:'op',label:')',cls:'tok-op'},
+   ])},
+];
+
+/* ───────────────────────── STATE ───────────────────────── */
+let tab = 'fields';
+let tokens = [];          // formula tokens
+let lastFieldForValue=null; // for slot value population
+const TABS = [{k:'fields',l:'Fields'},{k:'operators',l:'Operators'},{k:'formulas',l:'Formulas'}];
+
+const $ = id => document.getElementById(id);
+
+/* ───────────────────────── REFERENCE TABS ───────────────────────── */
+function buildTabs(){
+  $('refTabs').innerHTML = TABS.map(t=>`<button class="ref-tab ${t.k===tab?'active':''}" data-k="${t.k}">${t.l}</button>`).join('');
+  $('refTabs').querySelectorAll('.ref-tab').forEach(b=>b.onclick=()=>{tab=b.dataset.k; $('refSearch').value=''; buildTabs(); renderList(); updateSearchHint();});
+  // search box only meaningful on fields (the big list); keep visible everywhere but hint changes
+}
+function updateSearchHint(){
+  $('refHint').textContent = tab==='fields'
+    ? 'Type a field type to filter: cb = checkbox, dd = dropdown, tf = text/numeric — or any keyword.'
+    : 'Search by name.';
+  $('refSearch').placeholder = tab==='fields' ? 'Search fields…  (try “cb”, “tf”, or “injury”)' : 'Search…';
+}
+
+/* ───────────────────────── LIST (hover=preview, click=insert) ───────────────────────── */
+function currentItems(){
+  if(tab==='fields') return FIELDS.map(f=>({...f, grp:f.type}));
+  if(tab==='operators') return OPS;
+  return FORMULAS;
+}
+function filterItems(items){
+  const q = $('refSearch').value.trim().toLowerCase();
+  if(!q) return items;
+  // type-id search for fields: cb -> Checkbox, dd -> Dropdown, tf -> Text/Numeric
+  const typeMap = {cb:'checkbox', dd:'dropdown', tf:'text', num:'numeric'};
+  return items.filter(it=>{
+    const hay = (it.name+' '+(it.id||'')+' '+(it.grp||it.type||'')).toLowerCase();
+    if(typeMap[q] && hay.includes(typeMap[q])) return true;
+    if(q==='tf' && (it.type==='Text'||it.type==='Numeric')) return true;
+    return hay.includes(q);
+  });
+}
+function renderList(){
+  const items = filterItems(currentItems());
+  let html=''; let last='';
+  if(!items.length) html='<div class="grp" style="color:var(--ink-3)">No matches</div>';
+  items.forEach((it,i)=>{
+    const g = it.grp||it.type||'';
+    if(g!==last){ html+=`<div class="grp">${g}</div>`; last=g; }
+    html+=`<div class="item" data-i="${i}">
+      <span class="badge ${it.cls}">${it.id||it.name}</span>
+      <span class="nm">${it.name}</span></div>`;
+  });
+  $('refList').innerHTML = html;
+  $('refList').querySelectorAll('.item').forEach(node=>{
+    const it = items[parseInt(node.dataset.i)];
+    node.onmouseenter = ()=>{ highlight(node); renderDetail(it); };  // HOVER → preview
+    node.onclick = ()=>{ insertItem(it); };                          // CLICK → insert
+  });
+}
+function highlight(node){ $('refList').querySelectorAll('.item').forEach(n=>n.classList.remove('hl')); node.classList.add('hl'); }
+
+function renderDetail(it){
+  const isOp = tab==='operators', isForm = tab==='formulas';
+  let h = `<div class="d-title"><span class="tok ${it.cls}" style="cursor:default">${it.id||it.name}</span> ${it.name}</div>`;
+  h += `<div class="d-type">${it.grp||it.type||''}${isForm?' · preset':''}</div>`;
+  h += `<div class="d-desc">${it.desc}</div>`;
+  if(it.opts && it.opts.length){
+    h += `<div class="d-lbl">Options</div><div class="d-opts">`+it.opts.map(o=>`<span class="tok tok-value" style="cursor:default">${o}</span>`).join('')+`</div>`;
+  }
+  if(it.ex && it.ex.length){
+    h += `<div class="d-lbl">Example</div>`;
+    it.ex.forEach(e=>{ h+=`<div class="d-ex"><span>${e}</span><button class="cp" data-ex="${e.replace(/"/g,'&quot;')}">copy</button></div>`; });
+  }
+  if(it.js) h += `<div class="d-js">JS equivalent: <code>${it.js}</code></div>`;
+  h += `<div class="d-action">${isForm?'Click to drop in — blank slots auto-open a picker':'Click in the list to insert into your formula'}</div>`;
+  $('refDetail').innerHTML = h;
+  $('refDetail').querySelectorAll('.cp').forEach(b=>b.onclick=e=>{e.stopPropagation(); navigator.clipboard&&navigator.clipboard.writeText(b.dataset.ex); b.textContent='copied'; setTimeout(()=>b.textContent='copy',1200);});
+}
+
+/* ───────────────────────── INSERT FROM PANEL ───────────────────────── */
+function insertItem(it){
+  if(tab==='formulas'){ applyPreset(it); return; }
+  if(tab==='operators'){ pushToken({t:'op',label:it.id,cls:'tok-op'}); return; }
+  // field
+  if(it.system) pushToken({t:'hours',label:it.id,cls:'tok-hours'});
+  else pushToken({t:'field',label:`${it.name} (${it.id})`,cls:'tok-field',fieldId:it.id,opts:it.opts});
+}
+function pushToken(tok){ tokens.push(tok); render(); validate(); $('fInput').focus(); }
+
+/* ───────────────────────── PRESETS + SLOT DROPDOWN ───────────────────────── */
+function applyPreset(form){
+  tokens = form.build();
+  render(); validate();
+  // auto-open the first slot's dropdown
+  const idx = tokens.findIndex(t=>t.t==='slot');
+  if(idx>=0) openSlot(idx);
+}
+function openSlot(idx){
+  const slotTokEl = $('editor').querySelectorAll('.tok-slot')[ slotOrdinal(idx) ];
+  if(!slotTokEl) return;
+  const tok = tokens[idx];
+  const dd = $('slotDD');
+  let h='';
+  if(tok.role==='field'){
+    let last='';
+    FIELDS.forEach((f,i)=>{ if(f.type!==last){h+=`<div class="sd-grp">${f.type}</div>`; last=f.type;} h+=`<div class="sd-item" data-f="${i}"><span class="badge ${f.cls}">${f.id}</span>${f.name}</div>`; });
+  } else { // value role — depends on the field already chosen
+    const opts = lastFieldForValue ? lastFieldForValue.opts : [];
+    if(opts && opts.length){ h+=`<div class="sd-grp">Options</div>`; opts.forEach(o=>{ h+=`<div class="sd-item" data-v="${o}"><span class="badge tok-value">${o}</span>${o}</div>`; }); }
+    else h+=`<div class="sd-grp">Pick a field first</div>`;
+  }
+  dd.innerHTML=h; dd.classList.add('show');
+  const r = slotTokEl.getBoundingClientRect(), er=$('editor').getBoundingClientRect();
+  dd.style.left=(r.left-er.left)+'px'; dd.style.top=(r.bottom-er.top+4)+'px';
+  dd.querySelectorAll('.sd-item').forEach(node=>{
+    node.onclick=()=>{
+      if(tok.role==='field'){
+        const f = FIELDS[parseInt(node.dataset.f)];
+        lastFieldForValue=f;
+        tokens[idx]={t:'field',label:`${f.name} (${f.id})`,cls:'tok-field',fieldId:f.id,opts:f.opts};
+      } else {
+        tokens[idx]={t:'value',label:node.dataset.v,cls:'tok-value'};
+      }
+      dd.classList.remove('show'); render(); validate();
+      const next = tokens.findIndex(t=>t.t==='slot');
+      if(next>=0) openSlot(next);
+    };
+  });
+}
+function slotOrdinal(tokenIdx){ // map token index -> nth .tok-slot element
+  let n=-1; for(let i=0;i<=tokenIdx;i++){ if(tokens[i] && tokens[i].t==='slot') n++; } return n;
+}
+
+/* ───────────────────────── RENDER FORMULA ───────────────────────── */
+function render(){
+  const ed=$('editor'); const inp=$('fInput'); const ac=$('ac'); const dd=$('slotDD');
+  // wipe tokens but keep input + popovers
+  ed.querySelectorAll('.tok').forEach(n=>n.remove());
+  $('ph').style.display = tokens.length? 'none':'inline';
+  tokens.slice().reverse().forEach(()=>{}); // noop, keep order via insertBefore
+  tokens.forEach((t,i)=>{
+    const el=document.createElement('span');
+    el.className='tok '+t.cls+(t.t==='slot'?' tok-slot':'');
+    el.innerHTML = (t.t==='slot')
+      ? t.label
+      : `${t.label} <span class="del" data-i="${i}">×</span>`;
+    if(t.t==='slot'){ el.classList.add('needfill'); el.onclick=()=>openSlot(i); }
+    ed.insertBefore(el, inp);
+  });
+  ed.querySelectorAll('.del').forEach(d=>d.onclick=e=>{e.stopPropagation(); tokens.splice(parseInt(d.dataset.i),1); render(); validate();});
+  refreshJS();
+}
+
+/* ───────────────────────── JS PEEK ───────────────────────── */
+function tokensToJS(){
+  return tokens.map(t=>{
+    if(t.t==='field') return t.fieldId||t.label;
+    if(t.t==='hours') return 'locationHours';
+    if(t.t==='value') return /^[\d.]+$/.test(t.label)? t.label : `"${t.label}"`;
+    if(t.t==='slot') return '⟨'+t.role+'⟩';
+    const m={'is':'==','is not':'!=','is any of':'∈','is none of':'∉','AND':'&&','OR':'||'};
+    return m[t.label]||t.label;
+  }).join(' ');
+}
+function refreshJS(){ if($('jsPeek').classList.contains('show')) $('jsPeek').textContent = tokensToJS()||'—'; }
+
+/* ───────────────────────── VALIDATION (real-time) ───────────────────────── */
+function validate(){
+  const ed=$('editor'), v=$('valid'), save=$('saveBtn');
+  ed.classList.remove('err','ok'); v.className='valid';
+  const hasSlot = tokens.some(t=>t.t==='slot');
+  if(tokens.length===0){ v.classList.remove('show'); setSave(false); return; }
+  if(hasSlot){ // unfilled preset slot
+    ed.classList.add('err'); v.classList.add('show','is-err');
+    v.innerHTML = `Finish the preset — fill the highlighted <code>select…</code> slot(s).`;
+    setSave(false); return;
+  }
+  // paren balance
+  let bal=0,bad=false;
+  tokens.forEach(t=>{ if(t.label==='(')bal++; if(t.label===')'){bal--; if(bal<0)bad=true;} });
+  if(bad||bal>0){
+    ed.classList.add('err'); v.classList.add('show','is-err');
+    v.innerHTML = `<strong>Unbalanced parentheses.</strong> A <code>(</code> is never closed. <br><button class="fix-btn" id="fixBtn">Auto-fix: add )</button>`;
+    $('fixBtn').onclick=()=>{ for(let k=0;k<bal;k++) tokens.push({t:'op',label:')',cls:'tok-op'}); render(); validate(); };
+    setSave(false); return;
+  }
+  // success (preview is intentionally NOT shown — validated by save)
+  ed.classList.add('ok'); v.classList.add('show','is-ok');
+  v.innerHTML = `<strong>Formula is valid.</strong> The widget will update when you save.`;
+  setSave(true);
+}
+function setSave(ok){
+  const named = $('nameInp').value.trim().length>0;
+  $('saveBtn').disabled = !(ok && named);
+  $('saveHint').textContent = !named ? 'Add a name to save' : (ok? 'Ready to save' : 'Fix the formula to save');
+}
+
+/* ───────────────────────── FREE-TYPE + AUTOCOMPLETE ───────────────────────── */
+const OP_WORDS = {'==':'is','!=':'is not','&&':'AND','||':'OR'};
+const fInput=$('fInput');
+function commitTyped(raw){
+  let s=raw.trim(); if(!s) return false;
+  // paste-JS normalization (decided): map symbols/words to friendly tokens
+  if(OP_WORDS[s]){ pushToken({t:'op',label:OP_WORDS[s],cls:'tok-op'}); return true; }
+  if(s.toUpperCase()==='IN'){ pushToken({t:'op',label:'is any of',cls:'tok-op'}); return true; }
+  if(/^[+\-*/()]$/.test(s)){ pushToken({t:'op',label:s,cls:'tok-op'}); return true; }
+  if(/^[\d.]+$/.test(s)){ pushToken({t:'value',label:s,cls:'tok-value'}); return true; }
+  // match a field by id or name
+  const f = FIELDS.find(f=>f.id.toLowerCase()===s.toLowerCase() || f.name.toLowerCase()===s.toLowerCase());
+  if(f){ insertItem({...f}); return true; }
+  // unknown → leave for validation to catch as a value, but flag if it looks like a field ref
+  pushToken({t:'value',label:s,cls:'tok-value', unknown:true});
+  return true;
+}
+fInput.addEventListener('keydown',e=>{
+  if(e.key==='Enter'||e.key===' '){ if(fInput.value.trim()){ e.preventDefault(); commitTyped(fInput.value); fInput.value=''; hideAC(); } }
+  else if(e.key==='Backspace' && fInput.value===''){ if(tokens.length){ tokens.pop(); render(); validate(); } }
+  else if(e.key==='Escape'){ hideAC(); }
+});
+fInput.addEventListener('input',()=>{
+  const q=fInput.value.trim().toLowerCase(); if(!q){ hideAC(); return; }
+  const matches=[];
+  FIELDS.forEach(f=>{ if(f.id.toLowerCase().includes(q)||f.name.toLowerCase().includes(q)) matches.push({...f,cat:f.type}); });
+  OPS.forEach(o=>{ if(o.id.toLowerCase().includes(q)||o.name.toLowerCase().includes(q)) matches.push({id:o.id,name:o.name,cls:'tok-op',cat:o.grp,isOp:true}); });
+  if(!matches.length){ hideAC(); return; }
+  $('ac').innerHTML = matches.slice(0,7).map(m=>`<div class="ac-item" data-id="${m.id}"><span class="badge ${m.cls}">${m.id}</span><span>${m.name}</span><span class="ac-cat">${m.cat}</span></div>`).join('');
+  $('ac').classList.add('show');
+  positionAC();
+  $('ac').querySelectorAll('.ac-item').forEach((node,i)=>node.onclick=()=>{ const m=matches[i]; if(m.isOp) pushToken({t:'op',label:m.id,cls:'tok-op'}); else insertItem({...m, system:m.type==='System'||m.id==='{Hours}'}); fInput.value=''; hideAC(); });
+});
+function positionAC(){ const er=$('editor').getBoundingClientRect(), ir=fInput.getBoundingClientRect(); const ac=$('ac'); ac.style.left=Math.min(ir.left-er.left, er.width-230)+'px'; ac.style.top=(ir.bottom-er.top+4)+'px'; }
+function hideAC(){ $('ac').classList.remove('show'); }
+$('editor').addEventListener('click',e=>{ if(e.target.id==='editor'||e.target.id==='ph') fInput.focus(); });
+fInput.addEventListener('focus',()=>$('editor').classList.add('focused'));
+fInput.addEventListener('blur',()=>{ $('editor').classList.remove('focused'); setTimeout(hideAC,150); });
+
+/* ───────────────────────── AI ASSIST ───────────────────────── */
+$('aiBtn').onclick=()=>{
+  const q=$('aiInp').value.trim(); if(!q) return;
+  $('valid').className='valid show is-ok'; $('valid').innerHTML='✦ Generating…';
+  setTimeout(()=>{
+    // demo: build a TRIF-shaped formula with REAL fields already filled (editable)
+    tokens=[
+      {t:'op',label:'(',cls:'tok-op'},
+      {t:'field',label:'Were there any injuries? (CB_9)',cls:'tok-field',fieldId:'CB_9',opts:['Yes','No']},
+      {t:'op',label:'is',cls:'tok-op'},
+      {t:'value',label:'Yes',cls:'tok-value'},
+      {t:'op',label:')',cls:'tok-op'},
+      {t:'op',label:'*',cls:'tok-op'},
+      {t:'value',label:'200000',cls:'tok-value'},
+      {t:'op',label:')',cls:'tok-op'}, // intentionally leave imperfect? no—keep valid
+    ];
+    tokens.pop(); tokens.push({t:'op',label:'/',cls:'tok-op'},{t:'hours',label:'{Hours}',cls:'tok-hours'});
+    render(); validate();
+    $('nameInp').value = $('nameInp').value || 'TRIF Rate';
+    setSave(true);
+  },900);
+};
+
+/* ───────────────────────── MISC WIRING ───────────────────────── */
+$('jsToggle').onclick=()=>{ const p=$('jsPeek'); p.classList.toggle('show'); $('jsToggle').textContent = p.classList.contains('show')?'hide JavaScript':'view as JavaScript'; refreshJS(); };
+$('colInp').oninput=e=>$('colHex').value=e.target.value;
+$('nameInp').oninput=()=>validate();
+$('refSearch').oninput=renderList;
+['closeBtn','xBtn','cancelBtn'].forEach(id=>$(id).onclick=()=>alert('(prototype) Close — discards unsaved changes'));
+$('saveBtn').onclick=()=>alert('(prototype) Saved: name, colour, formula tokens, sub-location setting');
+
+/* ───────────────────────── SCENARIOS (for handoff/demo) ───────────────────────── */
+const SCN=['Empty','Valid','Error','Preset','AI'];
+function buildScn(){
+  $('scn').innerHTML='<span>State:</span>'+SCN.map(s=>`<button data-s="${s}">${s}</button>`).join('');
+  $('scn').querySelectorAll('button').forEach(b=>b.onclick=()=>setScn(b.dataset.s));
+}
+function setScn(s){
+  $('scn').querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.s===s));
+  tokens=[]; $('aiInp').value=''; $('fInput').value=''; $('slotDD').classList.remove('show');
+  if(s==='Empty'){ render(); validate(); }
+  if(s==='Valid'){
+    tokens=[{t:'op',label:'(',cls:'tok-op'},{t:'field',label:'Were there any injuries? (CB_9)',cls:'tok-field',fieldId:'CB_9',opts:['Yes','No']},{t:'op',label:'is',cls:'tok-op'},{t:'value',label:'Yes',cls:'tok-value'},{t:'op',label:')',cls:'tok-op'},{t:'op',label:'*',cls:'tok-op'},{t:'value',label:'200000',cls:'tok-value'},{t:'op',label:'/',cls:'tok-op'},{t:'hours',label:'{Hours}',cls:'tok-hours'}];
+    $('nameInp').value='TRIF Rate'; render(); validate();
+  }
+  if(s==='Error'){
+    tokens=[{t:'op',label:'(',cls:'tok-op'},{t:'field',label:'Were there any injuries? (CB_9)',cls:'tok-field',fieldId:'CB_9',opts:['Yes','No']},{t:'op',label:'is',cls:'tok-op'},{t:'value',label:'Yes',cls:'tok-value'},{t:'op',label:'*',cls:'tok-op'},{t:'value',label:'200000',cls:'tok-value'},{t:'op',label:'/',cls:'tok-op'},{t:'hours',label:'{Hours}',cls:'tok-hours'}];
+    render(); validate();
+  }
+  if(s==='Preset'){ applyPreset(FORMULAS[0]); }
+  if(s==='AI'){ $('aiInp').value='TRIF using the injury checkbox and hours'; $('aiBtn').click(); }
+}
+
+/* ───────────────────────── INIT ───────────────────────── */
+buildTabs(); updateSearchHint(); renderList(); render(); validate(); buildScn(); setScn('Empty');
+</script>
+</body>
+</html>

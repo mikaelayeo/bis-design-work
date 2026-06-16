@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Metric v5 (BIS design system)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/all.min.css">
+<style>
+  /* ── BIS DESIGN SYSTEM TOKENS (from Figma: Reporting Dashboard) ── */
+  :root{
+    /* text */
+    --text-default:#191919; --text-primary:#0078b3; --text-secondary:#666666;
+    --text-success:#167b00; --text-notice:#c37900; --text-error:#cc2222; --text-on:#feffff;
+    /* surfaces */
+    --surface:#feffff; --surface-primary:#0078b3;
+    --primary-lightest:#f2fcff; --success-lightest:#fafff2; --notice-lightest:#fffaf2;
+    --error-lightest:#fff2f2; --secondary-subtle:#f8f8f9; --secondary-lightest:#f2f2f2;
+    /* stroke + icon */
+    --stroke:#b2b2b3; --stroke-light:#e2e2e3; --icon-primary:#009acb; --icon-default:#4d4c4c;
+    --ai-border:#a2d35b;
+    /* spacing */
+    --sp-tiny:2px; --sp-xxs:4px; --sp-xs:6px; --sp-sm:8px; --sp-base:12px; --sp-md:16px;
+    /* radius */
+    --r-sm:2px; --r-base:4px; --r-md:8px; --r-round:80px;
+    /* shadow */
+    --shadow-l1:0px 1px 3px 0px rgba(0,0,0,0.15);
+    --shadow-l2:0px 0px 4px 0px rgba(0,0,0,0.15);
+    --shadow-l3:0px 0px 3px 0px rgba(0,0,0,0.15);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:"Segoe UI",system-ui,sans-serif; color:var(--text-default);
+    background:#ececed; min-height:100vh; display:flex; flex-direction:column;
+    align-items:center; padding:36px 16px 110px;
+  }
+  /* faux dashboard + light dim (lighter centered modal) */
+  .bg{position:fixed;inset:0;background:repeating-linear-gradient(0deg,#e4e4e6 0 39px,#d8d8da 39px 40px);opacity:.55;z-index:0;}
+  .dim{position:fixed;inset:0;background:rgba(25,25,25,.16);z-index:1;}
+
+  /* ── MODAL ── */
+  .modal{
+    position:relative;z-index:2;width:100%;max-width:662px;
+    background:var(--surface);border-radius:var(--r-base);box-shadow:var(--shadow-l1);
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  .header{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 6px;}
+  .header .ttl{display:flex;align-items:center;gap:var(--sp-xs);}
+  .header .pencil{width:20px;height:20px;color:var(--icon-primary);}
+  .header h1{font-size:20px;font-weight:600;line-height:28px;color:var(--text-default);}
+  .close{border:none;background:none;cursor:pointer;color:var(--icon-default);padding:3px;border-radius:3px;line-height:1;font-size:16px;}
+  .close:hover{background:var(--secondary-subtle);}
+
+  .content{display:flex;flex-direction:column;gap:var(--sp-md);padding:var(--sp-md);}
+
+  /* ── AI BOX ── */
+  /* gradient "line" border via padding wrapper — 1px, thickens to 2px when selected */
+  .ai-wrap{border-radius:var(--r-md);padding:1px;background:linear-gradient(90deg,#86d3ea 0%,#1aa3c2 55%,#0078b3 100%);transition:padding .15s ease;}
+  .ai-wrap:focus-within{padding:2px;}
+  .ai{
+    display:flex;align-items:center;gap:10px;
+    border-radius:calc(var(--r-md) - 1px);
+    padding:8px 12px 8px 8px;background:var(--surface);
+  }
+  .ai .pill{
+    display:flex;align-items:center;gap:var(--sp-tiny);flex-shrink:0;
+    border:1px solid transparent;border-radius:var(--r-round);padding:5px 8px;
+    background:linear-gradient(var(--primary-lightest),var(--primary-lightest)) padding-box,
+               linear-gradient(90deg,#86d3ea,#0078b3) border-box;
+  }
+  .ai .pill .bis-ai{display:flex;flex-shrink:0;}
+  .ai .pill .bis-ai svg{width:15px;height:16px;display:block;}
+  .ai .pill svg{width:14px;height:14px;color:var(--icon-primary);}
+  .ai .pill span{font-size:12px;font-weight:600;color:var(--text-primary);line-height:16px;}
+  .ai input{flex:1;min-width:0;border:none;outline:none;background:none;font:inherit;font-size:16px;line-height:24px;height:24px;padding:0;color:var(--text-default);}
+  .ai input::placeholder{color:var(--text-secondary);}
+  .ai .send{border:none;cursor:pointer;width:30px;height:30px;border-radius:var(--r-round);background:linear-gradient(135deg,#86d3ea,#0078b3);color:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+  .ai .send:hover{filter:brightness(1.05);}
+  .ai .send svg{width:15px;height:15px;}
+  .ai .send.inactive{opacity:.45;cursor:default;}              /* empty state */
+  .ai .send.stop{background:var(--primary-lightest);border:1px solid #b8e0ee;color:var(--text-primary);}  /* generating */
+  /* generating keeps the same white box as other states (no tinted left strip) */
+  /* status text (generating / same-formula) replaces the input */
+  .ai-status{flex:1;min-width:0;font-size:16px;line-height:24px;height:24px;display:none;align-items:center;}
+  .ai-status.primary{color:var(--text-primary);}
+  .ai-status.muted{color:var(--text-secondary);}
+  /* trailing icon row */
+  .ai-trail{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .icon-btn{position:relative;width:22px;height:22px;border:none;background:none;border-radius:var(--r-round);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--icon-default);}
+  .icon-btn:hover{background:var(--secondary-lightest);}     /* hover = grey circle */
+  .icon-btn svg{width:13px;height:13px;}
+  .icon-btn.on{color:var(--text-primary);}                   /* thumb selected */
+  .icon-tip{position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#191919;color:#f8f8f9;font-size:12px;line-height:20px;padding:2px 6px;border-radius:var(--r-sm);white-space:nowrap;display:none;box-shadow:var(--shadow-l1);z-index:30;}
+  .icon-btn:hover .icon-tip{display:block;}
+  .back-btn{border:none;background:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;line-height:18px;color:var(--text-default);padding:4px 6px;border-radius:var(--r-base);}
+  .back-btn:hover{background:var(--secondary-lightest);}
+
+  /* ── FORMULA INPUT ── */
+  .finput{
+    position:relative;border:1px solid var(--stroke);border-radius:var(--r-md);
+    min-height:90px;padding:8px 12px 8px 8px;background:var(--surface);
+    display:flex;flex-wrap:wrap;align-content:flex-start;gap:var(--sp-xs);cursor:text;
+  }
+  .finput.focused{border-color:var(--icon-primary);}
+  .finput.invalid{border-color:var(--text-error);}
+  .finput .ph{color:var(--text-secondary);font-size:14px;line-height:20px;}
+  .ftext{border:none;outline:none;background:none;font:inherit;font-size:14px;min-width:60px;flex:1;}
+
+  /* tokens (BisBadge / BisChip) */
+  .badge{
+    display:inline-flex;align-items:center;gap:var(--sp-xs);
+    padding:2px 4px;border-radius:var(--r-sm);box-shadow:var(--shadow-l2);
+    font-size:12px;font-weight:600;line-height:16px;white-space:nowrap;
+  }
+  .b-field{background:var(--primary-lightest);color:var(--text-primary);}
+  .b-op{background:var(--notice-lightest);color:var(--text-notice);}
+  .b-val{background:var(--success-lightest);color:var(--text-success);}
+  .b-hours{background:var(--error-lightest);color:var(--text-error);}
+  .chip{ /* BisChip — outline only, NO background fill (per Storybook) */
+    display:inline-flex;align-items:center;gap:var(--sp-xs);
+    background:var(--surface);border:1px solid var(--stroke);
+    border-radius:var(--r-base);padding:4px 6px;
+    font-size:14px;font-weight:600;line-height:18px;color:var(--text-primary);white-space:nowrap;
+  }
+  /* type is conveyed by TEXT colour only — chips stay unfilled */
+  .chip-op{color:var(--text-notice);}
+  .chip-val{color:var(--text-success);}
+  .chip-hours{color:var(--text-error);}
+  /* × shows only on hover (avoids the confusing "+ ×" look) */
+  .tok-x{cursor:pointer;opacity:.55;font-weight:700;display:none;}
+  .chip:hover .tok-x{display:inline;}
+  .tok-x:hover{opacity:1;}
+  /* empty field slot in a preset — user must pick a field */
+  .chip-slot{background:var(--secondary-lightest);color:var(--text-secondary);border:1px solid var(--stroke);min-width:96px;cursor:pointer;}
+  .chip-slot.role-value{min-width:84px;}
+  /* unrecognized input — plain underlined red text, NOT a green value chip */
+  .tok-unknown{display:inline-flex;align-items:center;gap:4px;font-size:14px;line-height:18px;color:var(--text-error);text-decoration:underline wavy var(--text-error);text-underline-offset:3px;}
+  .tok-unknown:hover .tok-x{display:inline;}
+  .ac-item.hl{background:var(--secondary-subtle);}
+  .opdd-item.hl{background:var(--secondary-subtle);}
+
+  /* input + hint/reset row (Figma 1210-5120): 2px gap, only when content */
+  .input-block{display:flex;flex-direction:column;gap:2px;}
+  .hint-row{display:none;align-items:center;justify-content:space-between;width:100%;}
+  .hint-row.show{display:flex;}
+  .hint{display:flex;align-items:center;gap:4px;font-size:14px;line-height:20px;}
+  .hint .h-ico{width:12px;height:12px;flex-shrink:0;}
+  .hint.err{color:var(--text-error);}
+  .hint.ok{color:var(--text-success);}
+  .reset-btn{border:none;background:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;line-height:16px;color:var(--text-default);padding:2px 4px;border-radius:var(--r-base);}
+  .reset-btn:hover{background:var(--secondary-subtle);}
+  .ftext::placeholder{color:var(--text-secondary);}
+  .opdd.slotdd{width:248px;}
+
+  /* sub-locations (conditional) */
+  .subloc{display:none;align-items:center;gap:var(--sp-sm);font-size:14px;color:var(--text-secondary);}
+  .subloc.show{display:flex;}
+  .subloc input{accent-color:var(--surface-primary);width:15px;height:15px;}
+
+  /* ── TABLE (reference panel) ── */
+  .table{border:1px solid var(--stroke);border-radius:var(--r-md);overflow:hidden;display:flex;flex-direction:column;height:300px;}
+  .tabbar{display:flex;align-items:center;justify-content:space-between;background:var(--secondary-subtle);border-bottom:1px solid var(--stroke-light);padding-right:12px;}
+  .tabs{display:flex;}
+  .tab{position:relative;border:none;background:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;line-height:18px;color:var(--text-secondary);padding:6px 16px 8px;}
+  .tab.active{color:var(--text-default);}
+  .tab.active::after{content:"";position:absolute;left:16px;right:16px;bottom:0;height:4px;background:var(--surface-primary);border-radius:80px 80px 0 0;}
+  /* search: animated pill that grows out of the icon */
+  .search{display:flex;align-items:center;gap:4px;height:24px;width:24px;overflow:hidden;
+    border:1px solid transparent;border-radius:var(--r-round);background:transparent;padding:0 1px;
+    transition:width .26s ease, border-color .26s ease, background .26s ease, padding .26s ease;}
+  .search.open{width:190px;border-color:var(--stroke);background:var(--surface);padding:0 6px;}
+  .search.open:focus-within{border-color:var(--icon-primary);}
+  .search-ico{flex-shrink:0;border:none;background:none;cursor:pointer;color:var(--icon-default);width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:var(--r-sm);}
+  .search:not(.open) .search-ico:hover{background:var(--secondary-subtle);}
+  .search.open .search-ico{cursor:default;}
+  .search-ico svg{width:16px;height:16px;}
+  .search input{flex:1;min-width:0;border:none;outline:none;background:none;font:inherit;font-size:12px;line-height:20px;color:var(--text-default);opacity:0;transition:opacity .18s ease .06s;}
+  .search.open input{opacity:1;}
+  .search input::placeholder{color:var(--text-secondary);}
+  .search-clear{flex-shrink:0;border:none;background:none;cursor:pointer;color:var(--icon-default);width:18px;height:18px;display:none;align-items:center;justify-content:center;border-radius:var(--r-sm);}
+  .search.open .search-clear{display:flex;}
+  .search-clear:hover{background:var(--secondary-subtle);}
+  .search-clear svg{width:13px;height:13px;}
+  /* paste-test demo card */
+  .paste-demo{position:fixed;left:16px;bottom:16px;z-index:5;width:220px;background:#fff;border:1px solid var(--stroke);border-radius:var(--r-md);box-shadow:var(--shadow-l1);padding:12px;}
+  .pd-ttl{font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+  .pd-desc{font-size:12px;color:var(--text-secondary);line-height:18px;margin-bottom:8px;}
+  .pd-code{display:block;font-family:ui-monospace,monospace;font-size:12px;color:var(--text-default);background:var(--secondary-subtle);border:1px solid var(--stroke-light);border-radius:var(--r-base);padding:8px;line-height:1.5;word-break:break-all;margin-bottom:8px;}
+  .pd-btn{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--stroke);background:#fff;border-radius:var(--r-base);padding:5px 10px;cursor:pointer;width:100%;}
+  .pd-btn:hover{background:var(--secondary-subtle);}
+  /* operator detail — Notion-style result examples */
+  .op-ex{flex-direction:column;align-items:flex-start;gap:2px;}
+  .op-in{font-family:ui-monospace,monospace;font-size:13px;color:var(--text-default);word-break:break-word;}
+  .op-out{font-family:ui-monospace,monospace;font-size:12px;color:var(--text-secondary);}
+  /* feedback modal */
+  .fb-overlay{position:fixed;inset:0;background:rgba(25,25,25,.32);z-index:40;display:none;align-items:center;justify-content:center;}
+  .fb-overlay.show{display:flex;}
+  .fb-modal{width:344px;background:#fff;border-radius:var(--r-md);box-shadow:var(--shadow-l1);overflow:hidden;}
+  .fb-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 6px;}
+  .fb-head h2{font-size:16px;font-weight:700;}
+  .fb-body{padding:0 16px;}
+  .fb-label{display:block;font-size:13px;color:var(--text-secondary);margin-bottom:6px;}
+  .fb-text{width:100%;height:88px;border:1px solid var(--stroke);border-radius:var(--r-base);padding:8px;font:inherit;font-size:13px;color:var(--text-default);resize:vertical;outline:none;}
+  .fb-text:focus{border-color:var(--icon-primary);}
+  .fb-text::placeholder{color:var(--text-secondary);}
+  .fb-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 16px 16px;}
+  .fb-foot .btn{font-size:13px;}
+  .fb-success{flex-direction:column;align-items:center;text-align:center;gap:10px;padding:20px 16px 22px;}
+  .fb-success .ok-ico{width:42px;height:42px;color:var(--text-success);}
+  .fb-success p{font-size:14px;color:var(--text-secondary);}
+  .fb-success .btn{font-size:13px;}
+  /* animated "Generating" dots: . → .. → ... */
+  .dots::after{display:inline-block;width:1.4em;text-align:left;content:'.';animation:dotcycle 1.4s steps(1,end) infinite;}
+  @keyframes dotcycle{0%{content:'.'}33%{content:'..'}66%{content:'...'}}
+  /* Font Awesome 7 icon sizing/colour */
+  .fa-solid,.fa-regular,.fa-brands{line-height:1;}
+  .header .pencil{font-size:16px;}
+  .close i{font-size:15px;}
+  .ai .pill i{font-size:13px;color:var(--icon-primary);}
+  .ai .send i{font-size:14px;}
+  .icon-btn i{font-size:13px;}
+  .search-ico i{font-size:13px;}
+  .search-clear i{font-size:12px;}
+  .hint .h-ico{font-size:12px;}
+  .fb-success .ok-ico{font-size:40px;}
+
+  .panels{display:flex;flex:1;min-height:0;}
+  .opts{width:225px;flex-shrink:0;border-right:1px solid var(--stroke-light);overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:12px;}
+  .grp{display:flex;flex-direction:column;gap:8px;}
+  .grp-ttl{font-size:12px;font-weight:600;line-height:16px;color:var(--text-secondary);}
+  .opt{display:flex;align-items:center;gap:10px;cursor:pointer;padding:1px 0;}
+  .opt:hover .opt-name{color:var(--surface-primary);}
+  .opt.hl{background:var(--secondary-subtle);border-radius:var(--r-base);}
+  .opt-badge{font-size:12px;font-weight:600;line-height:16px;padding:2px 4px;border-radius:var(--r-sm);box-shadow:var(--shadow-l2);flex-shrink:0;background:var(--primary-lightest);color:var(--text-primary);}
+  .opt-badge.sys{background:var(--error-lightest);color:var(--text-error);}
+  .opt-badge.op{background:var(--notice-lightest);color:var(--text-notice);}
+  .opt-name{font-size:14px;line-height:20px;color:var(--text-default);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  .preview{flex:1;min-width:0;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:12px;}
+  .pv-head{display:flex;flex-direction:column;gap:6px;}
+  .pv-title{display:flex;align-items:center;gap:10px;}
+  .pv-name{font-size:14px;font-weight:600;line-height:18px;color:var(--text-default);}
+  .pv-desc{font-size:12px;line-height:20px;color:var(--text-secondary);}
+  .pv-sec-ttl{font-size:12px;font-weight:600;line-height:16px;color:var(--text-secondary);}
+  .pv-opts{display:flex;gap:8px;flex-wrap:wrap;}
+  .ex-list{display:flex;flex-direction:column;gap:6px;}
+  .ex{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--secondary-subtle);border:1px solid var(--stroke-light);border-radius:var(--r-base);padding:6px;}
+  .ex-formula{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .ex .cp{border:none;background:none;cursor:pointer;color:var(--text-primary);font-size:12px;font-weight:600;line-height:16px;font-family:inherit;padding:2px 4px;border-radius:var(--r-sm);}
+  .ex .cp:hover{background:var(--primary-lightest);}
+
+  /* inline operator-recommendation dropdown (Figma node 1213:1948) */
+  .opdd{position:absolute;z-index:30;background:var(--surface);border:1px solid var(--stroke);border-radius:3px;box-shadow:var(--shadow-l3);min-width:160px;width:max-content;max-width:252px;max-height:166px;overflow-y:auto;display:none;}
+  .opdd.show{display:block;}
+  .opdd-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 12px;cursor:pointer;}
+  .opdd.start .opdd-item{justify-content:flex-start;}
+  .opdd-item:hover{background:var(--secondary-subtle);}
+  .opdd-item .lab{font-size:12px;line-height:20px;color:var(--text-secondary);}
+
+  /* autocomplete (free typing) */
+  .ac{position:absolute;z-index:30;background:var(--surface);border:1px solid var(--stroke);border-radius:3px;box-shadow:var(--shadow-l3);min-width:230px;max-height:170px;overflow-y:auto;display:none;}
+  .ac.show{display:block;}
+  .ac-item{display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:13px;}
+  .ac-item:hover{background:var(--secondary-subtle);}
+
+  /* ── FOOTER ── */
+  .footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:16px;}
+  .btn{font-family:inherit;font-size:16px;font-weight:600;line-height:26px;border:none;border-radius:var(--r-base);padding:4px 8px;cursor:pointer;background:none;color:var(--text-default);}
+  .btn:hover{background:var(--secondary-subtle);}
+  .btn-ghost{border:1px solid var(--stroke);}
+  .discard-wrap{position:relative;margin-right:auto;display:none;}
+  .discard-wrap.show{display:block;}
+  /* tooltip ABOVE the button so the modal's overflow doesn't clip it */
+  .tip{position:absolute;left:0;bottom:calc(100% + 6px);background:#191919;color:#fff;font-size:12px;font-weight:400;line-height:1.4;padding:6px 8px;border-radius:var(--r-base);white-space:nowrap;display:none;z-index:20;}
+  .discard-wrap:hover .tip{display:block;}
+  .btn-primary{background:var(--surface-primary);color:var(--text-on);}
+  .btn-primary:hover{background:#006397;}
+  .btn-primary:disabled{background:var(--stroke-light);color:var(--text-secondary);cursor:not-allowed;}
+
+  /* scenario bar (handoff demo only) */
+  .scn{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:5;background:#191919;color:#fff;border-radius:8px;padding:6px;display:flex;flex-wrap:wrap;justify-content:center;max-width:92vw;gap:4px;align-items:center;font-size:11px;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+  .scn>span{color:#999;padding:0 4px;}
+  .scn button{border:none;background:rgba(255,255,255,.12);color:#fff;font:inherit;font-size:11px;padding:5px 10px;border-radius:5px;cursor:pointer;}
+  .scn button.active{background:#fff;color:#191919;font-weight:600;}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="dim"></div>
+
+<div class="modal">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="ttl">
+      <i class="fa-regular fa-pen-to-square pencil"></i>
+      <h1>Custom Metric</h1>
+    </div>
+    <button class="close" id="closeBtn"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <div class="content">
+    <!-- AI BOX (stateful: empty / filled / generating / generated / same formula) -->
+    <div class="ai-wrap">
+      <div class="ai" id="aiBox">
+        <div class="pill">
+          <span class="bis-ai" aria-hidden="true"><svg viewBox="0 0 93.13 100.78"><defs><linearGradient id="bisAiGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00548f"/><stop offset=".55" stop-color="#0099cb"/><stop offset="1" stop-color="#8dc33f"/></linearGradient></defs><g fill="url(#bisAiGrad)"><path d="M71.75,51.2l-4.93-2.46-.17-.08c-.59,4.47-1.7,8.83-3.34,13.04-6.24,16.02-18.22,25.02-25.23,29.14-2.95-1.75-5.95-3.93-8.73-6.34-3.26-2.84-6.17-5.94-8.4-8.98-5.61-7.56-9.29-15.96-10.93-24.94-.83-4.57-1.11-9.23-.84-13.88,4.65-2.92,13.32-7.28,24.62-8.2l-2.8-1.37-7.26-3.57,7.26-3.57,1.86-.9c-14.95,1.16-26.25,7.1-31.97,10.78l-.54.34-.05.63c-.43,6.15-.09,12.31,1,18.3,2.07,11.33,6.7,21.88,13.76,31.37,5.45,7.48,13.81,14.88,22.38,19.79l.63.36.63-.36c8.67-4.94,24.44-16.32,32.55-37.17.98-2.53,1.82-5.11,2.5-7.73l-2.01-4.18Z"/><path d="M38.12,38.7l6.14,11.74,11.73,6.16-11.73,6.16-6.14,11.72-6.16-11.72-11.73-6.16,11.73-6.16,6.16-11.74Z"/><path d="M83.76,39.14l6.14,3.09,2.94,1.48-2.94,1.47-6.14,3.08-3.03,6.28-1.49,3.09-1.49-3.09-3.02-6.28-6.15-3.08-2.95-1.47,2.94-1.48,6.15-3.09,3.02-6.27,1.49-3.09,1.49,3.09,3.03,6.27Z"/><path d="M63.66,15.89l11.84,5.82,3.75,1.84-3.75,1.84-11.84,5.82-5.81,11.84-1.84,3.75-1.84-3.75-5.81-11.84-11.85-5.82-3.75-1.84,3.75-1.84,11.85-5.82,5.81-11.85,1.84-3.75,1.84,3.75,5.81,11.85Z"/></g></svg></span>
+          <span>AI</span>
+        </div>
+        <input id="aiInp" type="text" placeholder="Generate or update formula…">
+        <span class="ai-status" id="aiStatus"></span>
+        <div class="ai-trail" id="aiTrail"></div>
+      </div>
+    </div>
+
+    <!-- FORMULA INPUT + tight hint -->
+    <div class="input-block">
+      <div class="finput" id="finput">
+        <input class="ftext" id="ftext" type="text" autocomplete="off" placeholder="Start typing or click below">
+        <div class="opdd" id="opdd"></div>
+        <div class="opdd slotdd" id="slotdd"></div>
+        <div class="ac" id="ac"></div>
+      </div>
+      <div class="hint-row" id="hintRow">
+        <div class="hint" id="hint"></div>
+        <button class="reset-btn" id="resetBtn">Reset</button>
+      </div>
+    </div>
+
+    <!-- SUB-LOCATIONS (only when {Hours} used) -->
+    <label class="subloc" id="subloc"><input type="checkbox" checked> Include hours from sub-locations</label>
+
+    <!-- TABLE / REFERENCE PANEL -->
+    <div class="table">
+      <div class="tabbar">
+        <div class="tabs" id="tabs"></div>
+        <div class="search" id="search">
+          <button class="search-ico" id="searchToggle" title="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+          <input id="searchInp" type="text" placeholder="Search">
+          <button class="search-clear" id="searchClear" title="Close search"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="panels">
+        <div class="opts" id="opts"></div>
+        <div class="preview" id="preview"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="discard-wrap">
+      <button class="btn btn-ghost" id="discardBtn">Discard Changes</button>
+      <span class="tip">Reverts to the original formula when first opened.</span>
+    </div>
+    <button class="btn" id="cancelBtn">Cancel</button>
+    <button class="btn btn-primary" id="saveBtn" disabled>Save</button>
+  </div>
+</div>
+
+<!-- FEEDBACK MODAL (opens on thumbs up/down) -->
+<div class="fb-overlay" id="fbOverlay">
+  <div class="fb-modal">
+    <div class="fb-head"><h2>Additional feedback</h2><button class="close" id="fbClose"><i class="fa-solid fa-xmark"></i></button></div>
+    <div id="fbForm">
+      <div class="fb-body">
+        <label class="fb-label">How can we do better?</label>
+        <textarea class="fb-text" id="fbText" placeholder="Feel free to add specific details."></textarea>
+      </div>
+      <div class="fb-foot">
+        <button class="btn btn-ghost" id="fbCancel">Cancel</button>
+        <button class="btn btn-primary" id="fbSubmit">Submit</button>
+      </div>
+    </div>
+    <div class="fb-success" id="fbSuccess" style="display:none">
+      <i class="fa-regular fa-circle-check ok-ico"></i>
+      <p>Thanks! Your feedback helps us improve.</p>
+      <button class="btn btn-primary" id="fbDone">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- paste-test card (demo aid) -->
+<div class="paste-demo">
+  <div class="pd-ttl">Paste test</div>
+  <div class="pd-desc">Copy this, then paste into the formula field. It should parse into tokens:</div>
+  <code class="pd-code" id="pdCode">( CB_9 == Yes ) * 200000 / {Hours}</code>
+  <button class="pd-btn" id="pdCopy">Copy formula</button>
+</div>
+
+<div class="scn" id="scn"></div>
+
+<script>
+/* ───────── DATA (matches Figma frame: CB / DD / SYSTEM) ───────── */
+const FIELDS=[
+  {id:'CB_9',name:'Were there any injuries?',type:'CHECKBOX',opts:['Yes','No'],
+   desc:'Counts completed forms where the options you pick were selected.',
+   ex:[['CB_9','==','Yes'],['CB_9','!=','No']]},
+  {id:'CB_2',name:'PPE Worn?',type:'CHECKBOX',opts:['Yes','No','N/A'],
+   desc:'Counts completed forms where the options you pick were selected.',
+   ex:[['CB_2','==','Yes']]},
+  {id:'DD_9',name:'Incident Type',type:'DROPDOWN',opts:['Recordable','First Aid','Near Miss','Environmental'],
+   desc:'Counts completed forms where the option you pick was selected.',
+   ex:[['DD_9','==','Recordable'],['DD_9','!=','Near Miss']]},
+  {id:'DD_2',name:'Severity',type:'DROPDOWN',opts:['Low','Medium','High'],
+   desc:'Counts completed forms where the option you pick was selected.',
+   ex:[['DD_2','==','High']]},
+  {id:'TF_5',name:'Title',type:'TEXT',opts:[],
+   desc:'Counts completed forms whose text contains the value(s) you pick. If it holds numbers, it adds them all up instead.',
+   ex:[['TF_5','==','Manager']]},
+  {id:'TF_8',name:'Work Hours',type:'TEXT',opts:[],
+   desc:'Counts completed forms whose text contains the value(s) you pick. If it holds numbers, it adds them all up instead.',
+   ex:[['TF_8']]},
+  {id:'LS_3',name:'Safety Survey',type:'LIKERT',opts:['Agree','Neutral','Disagree'],
+   desc:'Counts completed forms where the statement you pick got one of the responses you choose.',
+   ex:[['LS_3','==','Agree']]},
+  {id:'LS_4',name:'Site Review',type:'LIKERT',opts:['Yes','No','Unsure'],
+   desc:'Counts completed forms where the statement you pick got one of the responses you choose.',
+   ex:[['LS_4','==','Yes'],['LS_4','!=','No']]},
+  {id:'{Hours}',name:'Location Hours',type:'SYSTEM',sys:true,opts:[],
+   desc:'Pulls in the hours for the location (and sub-locations, if turned on) selected on the dashboard.',
+   ex:[['200000','/','{Hours}']]},
+];
+const OPS=[
+  {id:'+',name:'Add',grp:'ARITHMETIC',desc:'Adds two numbers together. Handy for combining counts into one total.',ex:[{in:'Injuries + Illnesses',out:'total incidents'}]},
+  {id:'-',name:'Subtract',grp:'ARITHMETIC',desc:'Takes the second number away from the first.',ex:[{in:'All forms − Passed',out:'failed forms'}]},
+  {id:'*',name:'Multiply',grp:'ARITHMETIC',desc:'Multiplies two numbers. Often used to scale a count, like × 200,000 for safety rates.',ex:[{in:'Injuries × 200000',out:'scaled for TRIF'}]},
+  {id:'/',name:'Divide',grp:'ARITHMETIC',desc:'Divides the first number by the second. Dividing by zero shows no result.',ex:[{in:'200000 / {Hours}',out:'rate per hour'}]},
+  {id:'==',name:'Equal to',grp:'COMPARISON',desc:'Counts forms where the field matches the answer you pick.',ex:[{in:'Injuries? == Yes',out:'forms with an injury'}]},
+  {id:'!=',name:'Not equal to',grp:'COMPARISON',desc:'Counts forms where the field is anything other than the answer you pick.',ex:[{in:'Severity != Low',out:'non-low severity'}]},
+  {id:'>',name:'Greater than',grp:'COMPARISON',desc:'Keeps forms where the number is above the value you set.',ex:[{in:'Work Hours > 8',out:'forms over 8 hrs'}]},
+  {id:'>=',name:'Greater or equal',grp:'COMPARISON',desc:'Keeps forms where the number is at or above the value you set.',ex:[{in:'Work Hours >= 8',out:'forms with 8+ hrs'}]},
+  {id:'<',name:'Less than',grp:'COMPARISON',desc:'Keeps forms where the number is below the value you set.',ex:[{in:'Work Hours < 8',out:'forms under 8 hrs'}]},
+  {id:'<=',name:'Less or equal',grp:'COMPARISON',desc:'Keeps forms where the number is at or below the value you set.',ex:[{in:'Work Hours <= 8',out:'forms ≤ 8 hrs'}]},
+  {id:'&&',name:'And',grp:'LOGICAL',desc:'Both conditions must be true for a form to be counted.',ex:[{in:'Injury && High severity',out:'serious injuries'}]},
+  {id:'||',name:'Or',grp:'LOGICAL',desc:'Either condition can be true for a form to be counted.',ex:[{in:'Recordable || First Aid',out:'either type'}]},
+  {id:'(',name:'Open group',grp:'GROUPING',desc:'Groups part of a formula so it runs first.',ex:[{in:'( Injuries == Yes ) × 200000',out:'grouped first'}]},
+  {id:')',name:'Close group',grp:'GROUPING',desc:'Closes a group so the part inside runs first.',ex:[{in:'( Injuries == Yes ) × 200000',out:'grouped first'}]},
+];
+// operators recommended in the inline dropdown after an operand (Figma order)
+const RECO_OPS=['+','-','*','/','==','!=','>','>=','<','<='];
+const FORMULAS=[
+  {id:'trif',name:'TRIF Rate',grp:'SAFETY',desc:'Your recordable injury rate per 200,000 hours worked. The standard safety KPI.',ex:[['( CB_9','==','Yes )','* 200000 /','{Hours}']]},
+  {id:'inj',name:'Injury Rate %',grp:'SAFETY',desc:'The share of submitted forms that reported an injury.',ex:[['CB_9','==','Yes','/ total * 100']]},
+  {id:'cnt',name:'Incident Count',grp:'GENERAL',desc:'A simple count of forms matching one incident type.',ex:[['DD_9','==','Recordable']]},
+];
+
+/* ───────── STATE ───────── */
+let tab='fields', tokens=[], hovered=FIELDS[0], typedFlow=false;
+const $=id=>document.getElementById(id);
+
+/* ───────── TABS ───────── */
+const TABS=[{k:'fields',l:'Fields'},{k:'operators',l:'Operators'},{k:'formulas',l:'Formulas'}];
+function buildTabs(){
+  $('tabs').innerHTML=TABS.map(t=>`<button class="tab ${t.k===tab?'active':''}" data-k="${t.k}">${t.l}</button>`).join('');
+  $('tabs').querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchTab(b.dataset.k));
+}
+function switchTab(key){ tab=key; $('searchInp').value=''; buildTabs(); renderOpts(); hovered=currentList()[0]; renderPreview(); }
+function currentList(){ return tab==='fields'?FIELDS:tab==='operators'?OPS:FORMULAS; }
+
+/* ───────── LEFT LIST (hover=preview, click=insert) ───────── */
+function filtered(){
+  const q=$('searchInp').value.trim().toLowerCase(); const list=currentList();
+  if(!q) return list;
+  const map={cb:'checkbox',dd:'dropdown',ls:'likert',tf:'text'};
+  return list.filter(it=>{const hay=(it.id+' '+it.name+' '+(it.grp||it.type||'')).toLowerCase(); if(map[q]&&hay.includes(map[q]))return true; return hay.includes(q);});
+}
+function renderOpts(){
+  const list=filtered(); let html='',last='';
+  list.forEach((it,i)=>{
+    const g=it.grp||it.type||'';
+    if(g!==last){ if(last)html+='</div>'; html+=`<div class="grp"><div class="grp-ttl">${g}</div>`; last=g; }
+    const cls = it.sys?'sys':(tab==='operators'?'op':'');
+    html+=`<div class="opt" data-i="${i}"><span class="opt-badge ${cls}">${it.id}</span><span class="opt-name">${it.name}</span></div>`;
+  });
+  if(last)html+='</div>'; if(!list.length)html='<div class="grp-ttl">No matches</div>';
+  $('opts').innerHTML=html;
+  $('opts').querySelectorAll('.opt').forEach(node=>{
+    const it=list[parseInt(node.dataset.i)];
+    node.onmouseenter=()=>{hovered=it;$('opts').querySelectorAll('.opt').forEach(n=>n.classList.remove('hl'));node.classList.add('hl');renderPreview();};
+    node.onclick=()=>{ typedFlow=false; insertItem(it); }; // panel click is NOT the typed flow
+  });
+}
+
+/* ───────── RIGHT PREVIEW ───────── */
+function badge(part){
+  if(/^[+\-*/()=!<>&|]+$|^(==|!=|>=|<=)$/.test(part)) return `<span class="badge b-op">${part}</span>`;
+  if(part==='{Hours}') return `<span class="badge b-hours">${part}</span>`;
+  if(/^[A-Z]{2}_\d+/.test(part)||part.startsWith('( CB')||part.startsWith('CB')||part.startsWith('DD')||part.startsWith('LS')||part.startsWith('TF')) return `<span class="badge b-field">${part}</span>`;
+  return `<span class="badge b-val">${part}</span>`;
+}
+function renderPreview(){
+  const it=hovered; if(!it){$('preview').innerHTML='';return;}
+  const sysCls=it.sys?'sys':(tab==='operators'?'op':'');
+  let h=`<div class="pv-head"><div class="pv-title"><span class="opt-badge ${sysCls}">${it.id}</span><span class="pv-name">${it.name}</span></div><div class="pv-desc">${it.desc||''}</div></div>`;
+  if(it.opts&&it.opts.length){h+=`<div><div class="pv-sec-ttl" style="margin-bottom:6px">OPTIONS</div><div class="pv-opts">`+it.opts.map(o=>`<span class="badge b-val">${o}</span>`).join('')+`</div></div>`;}
+  if(it.ex&&it.ex.length){
+    if(tab==='operators'){ // Notion-style: expression → result
+      h+=`<div><div class="pv-sec-ttl" style="margin-bottom:8px">EXAMPLES</div><div class="ex-list">`;
+      it.ex.forEach(e=>{ h+=`<div class="ex op-ex"><div class="op-in">${e.in}</div><div class="op-out">= ${e.out}</div></div>`; });
+      h+=`</div></div>`;
+    } else { // fields / formulas: insert button (same flow as clicking an item)
+      h+=`<div><div class="pv-sec-ttl" style="margin-bottom:8px">EXAMPLES</div><div class="ex-list">`;
+      it.ex.forEach(row=>{ h+=`<div class="ex"><div class="ex-formula">`+row.map(badge).join('')+`</div><button class="cp ins" data-ex="${row.join(' ').replace(/"/g,'&quot;')}">Insert</button></div>`; });
+      h+=`</div></div>`;
+    }
+  }
+  $('preview').innerHTML=h;
+  $('preview').querySelectorAll('.ins').forEach(b=>b.onclick=()=>{ const toks=parseFormulaString(b.dataset.ex); if(toks.length){ tokens=tokens.concat(toks); render(); validate(); } });
+}
+
+/* ───────── INSERT ───────── */
+function insertItem(it){
+  if(tab==='operators'){ addToken({k:'op',label:it.id}); return; }
+  if(tab==='formulas'){ applyPreset(it); return; }
+  if(it.sys) addToken({k:'hours',label:it.id});
+  else addToken({k:'field',label:it.id+' '+it.name, fieldId:it.id, opts:it.opts});
+}
+function addToken(tok){
+  tokens.push(tok); render(); validate();
+  const operand = tok.k==='field'||tok.k==='value'||tok.k==='hours';
+  if(typedFlow){
+    // TYPING flow: guide with inline dropdowns under the cursor
+    $('ftext').focus();
+    if(operand){ openOpDropdown(); }
+    else if(tok.k==='op' && !['(',')'].includes(tok.label)){ openAfterOperator(tok.label); }
+    else { hideOpDropdown(); }
+  } else {
+    // OPTION-SELECTOR flow: cycle the reference panel tabs instead
+    hideOpDropdown();
+    if(operand){ switchTab('operators'); }
+    else if(tok.k==='op'){ switchTab(tok.label===')'?'operators':'fields'); }
+  }
+}
+
+/* ───────── PRESETS — fields are EMPTY slots the user must pick ───────── */
+function applyPreset(f){
+  if(f.id==='trif') tokens=[{k:'op',label:'('},{k:'slot',role:'field'},{k:'op',label:'=='},{k:'slot',role:'value'},{k:'op',label:')'},{k:'op',label:'*'},{k:'value',label:'200000'},{k:'op',label:'/'},{k:'hours',label:'{Hours}'}];
+  else if(f.id==='cnt') tokens=[{k:'slot',role:'field'},{k:'op',label:'=='},{k:'slot',role:'value'}];
+  else tokens=[{k:'op',label:'('},{k:'slot',role:'field'},{k:'op',label:'=='},{k:'slot',role:'value'},{k:'op',label:')'},{k:'op',label:'/'},{k:'value',label:'total'},{k:'op',label:'*'},{k:'value',label:'100'}];
+  render(); validate(); hideOpDropdown();
+  const i=tokens.findIndex(t=>t.k==='slot'); if(i>=0) openSlot(i); // auto-open the first slot
+}
+
+/* ───────── SLOT PICKER (field / value) ───────── */
+let lastPickedField=null;
+function openSlot(idx){
+  const tok=tokens[idx], dd=$('slotdd'); let h='';
+  if(tok.role==='value'){
+    const opts=lastPickedField?lastPickedField.opts:[];
+    h = (opts&&opts.length) ? opts.map(o=>`<div class="opdd-item" data-v="${o}"><span class="badge b-val">${o}</span><span class="lab">${o}</span></div>`).join('')
+                            : '<div class="opdd-item"><span class="lab">Pick a field first</span></div>';
+  } else {
+    h = FIELDS.map((f,i)=>`<div class="opdd-item" data-f="${i}"><span class="opt-badge ${f.sys?'sys':''}">${f.id}</span><span class="lab" style="color:var(--text-default)">${f.name}</span></div>`).join('');
+  }
+  dd.innerHTML=h; dd.classList.add('show'); hideOpDropdown(); hideAC();
+  let target=null; $('finput').querySelectorAll('.chip-slot').forEach(s=>{if(parseInt(s.dataset.slot)===idx)target=s;});
+  if(target){const r=target.getBoundingClientRect(),fr=$('finput').getBoundingClientRect();dd.style.left=Math.min(r.left-fr.left,fr.width-252)+'px';dd.style.top=(r.bottom-fr.top+4)+'px';}
+  dd.querySelectorAll('.opdd-item').forEach(node=>node.onclick=()=>{
+    if(tok.role==='value'){ if(node.dataset.v) tokens[idx]={k:'value',label:node.dataset.v}; }
+    else { const f=FIELDS[parseInt(node.dataset.f)]; lastPickedField=f; tokens[idx]= f.sys?{k:'hours',label:f.id}:{k:'field',label:f.id+' '+f.name,fieldId:f.id,opts:f.opts}; }
+    hideSlot(); render(); validate();
+    const nxt=tokens.findIndex(t=>t.k==='slot'); if(nxt>=0) openSlot(nxt); // chain to next empty slot
+  });
+}
+function hideSlot(){ $('slotdd').classList.remove('show'); }
+
+/* ───────── RENDER FORMULA ───────── */
+function render(){
+  const fi=$('finput'), ftext=$('ftext');
+  fi.querySelectorAll('.tokwrap').forEach(n=>n.remove());
+  ftext.placeholder = tokens.length ? '' : 'Start typing or click below';
+  tokens.forEach((t,i)=>{
+    const el=document.createElement('span'); el.className='tokwrap';
+    if(t.k==='slot'){
+      el.innerHTML=`<span class="chip chip-slot ${t.role==='value'?'role-value':''}" data-slot="${i}">${t.role==='value'?'Select value':'Select field'}</span>`;
+    } else if(t.unknown){
+      el.innerHTML=`<span class="tok-unknown">${t.label} <span class="tok-x" data-i="${i}">×</span></span>`;
+    } else {
+      const cls = t.k==='op'?'chip chip-op':t.k==='hours'?'chip chip-hours':t.k==='value'?'chip chip-val':'chip';
+      el.innerHTML=`<span class="${cls}">${t.label} <span class="tok-x" data-i="${i}">×</span></span>`;
+    }
+    fi.insertBefore(el,ftext);
+  });
+  fi.querySelectorAll('.tok-x').forEach(x=>x.onclick=e=>{e.stopPropagation();tokens.splice(parseInt(x.dataset.i),1);render();validate();hideOpDropdown();});
+  fi.querySelectorAll('.chip-slot').forEach(s=>s.onclick=e=>{e.stopPropagation();openSlot(parseInt(s.dataset.slot));});
+}
+
+/* ───────── INLINE DROPDOWN (operators / fields / values; keyboard navigable) ───────── */
+/* anchored BELOW the empty spot after the last token (the text cursor) */
+let inlineItems=[], inlineSelect=null, opddIndex=-1;
+function openInline(items, onSelect, layout){
+  inlineItems=items; inlineSelect=onSelect; opddIndex=items.length?0:-1;
+  const dd=$('opdd');
+  dd.classList.toggle('start', layout==='start');
+  dd.innerHTML=items.map((it,i)=>`<div class="opdd-item ${i===0?'hl':''}" data-i="${i}"><span class="${it.badgeCls}">${it.badge}</span><span class="lab">${it.label}</span></div>`).join('');
+  dd.classList.add('show'); anchorInline();
+  dd.querySelectorAll('.opdd-item').forEach((node,i)=>{ node.onmousedown=e=>{e.preventDefault(); inlinePick(i);}; node.onmouseenter=()=>{opddIndex=i; highlightOpdd();}; });
+}
+function anchorInline(){
+  const dd=$('opdd'), ir=$('ftext').getBoundingClientRect(), fr=$('finput').getBoundingClientRect();
+  const w=dd.offsetWidth||170;
+  dd.style.left=Math.max(0, Math.min(ir.left-fr.left, fr.width-w-4))+'px';
+  dd.style.top=(ir.bottom-fr.top+4)+'px';
+}
+function highlightOpdd(){ $('opdd').querySelectorAll('.opdd-item').forEach((n,i)=>n.classList.toggle('hl',i===opddIndex)); }
+function scrollOpdd(){ const hl=$('opdd').querySelector('.opdd-item.hl'); if(hl) hl.scrollIntoView({block:'nearest'}); }
+function inlinePick(i){ const it=inlineItems[i]; if(it&&inlineSelect) inlineSelect(it); }
+function hideOpDropdown(){ $('opdd').classList.remove('show','start'); opddIndex=-1; inlineItems=[]; inlineSelect=null; }
+
+function openOpDropdown(){
+  openInline(RECO_OPS.map(id=>{const o=OPS.find(o=>o.id===id);return {id, badge:id, label:o.name, badgeCls:'badge b-op'};}),
+    it=>addToken({k:'op',label:it.id}));
+}
+function openFieldDropdown(){
+  openInline(FIELDS.map(f=>({field:f, badge:f.id, label:f.name, badgeCls:'opt-badge '+(f.sys?'sys':'')})),
+    it=>{ const f=it.field; addToken(f.sys?{k:'hours',label:f.id}:{k:'field',label:f.id+' '+f.name,fieldId:f.id,opts:f.opts}); }, 'start');
+}
+function openValueDropdown(opts){
+  openInline(opts.map(o=>({val:o, badge:o, label:o, badgeCls:'badge b-val'})),
+    it=>addToken({k:'value',label:it.val}), 'start');
+}
+/* after an operator in the typed flow: comparison → that field's values, else fields */
+function openAfterOperator(opLabel){
+  let fld=null;
+  for(let i=tokens.length-2;i>=0;i--){ const t=tokens[i]; if(t.k==='field'){fld=t;break;} if(t.k==='op'&&['&&','||'].includes(t.label))break; }
+  if(COMPARE.includes(opLabel) && fld && fld.opts && fld.opts.length) openValueDropdown(fld.opts);
+  else openFieldDropdown();
+}
+
+/* ───────── VALIDATION (icon + hint + Reset row; shows only with content) ───────── */
+const HINT_OK='<i class="fa-solid fa-circle-check h-ico"></i>';
+const HINT_ERR='<i class="fa-solid fa-circle-xmark h-ico"></i>';
+function showHint(kind){ // 'ok' | 'err' | 'none'
+  const row=$('hintRow'), hint=$('hint');
+  if(kind==='none'){ row.classList.remove('show'); return; }
+  row.classList.add('show');
+  hint.className='hint '+kind;
+  hint.innerHTML=(kind==='ok'?HINT_OK:HINT_ERR)+'<span>'+(kind==='ok'?'Valid Input':'Sorry! There’s a syntax or reference issue. Please update the formula.')+'</span>';
+}
+function validate(){
+  const fi=$('finput'), sub=$('subloc');
+  sub.classList.toggle('show', tokens.some(t=>t.k==='hours'));
+  updateDiscard();
+  fi.classList.remove('invalid');
+  if(tokens.length===0){ showHint('none'); setSave(false); return; }
+  if(tokens.some(t=>t.k==='slot')){ fi.classList.add('invalid'); showHint('err'); setSave(false); return; }
+  if(tokens.some(t=>t.unknown)){ fi.classList.add('invalid'); showHint('err'); setSave(false); return; }
+  let bal=0,bad=false; tokens.forEach(t=>{if(t.label==='(')bal++;if(t.label===')'){bal--;if(bal<0)bad=true;}});
+  const last=tokens[tokens.length-1];
+  const endsBad = last && last.k==='op' && !['(',')'].includes(last.label);
+  if(bad||bal>0||endsBad){ fi.classList.add('invalid'); showHint('err'); setSave(false); return; }
+  showHint('ok'); setSave(true);
+}
+function setSave(ok){ $('saveBtn').disabled=!ok; }
+$('resetBtn').onclick=()=>{ tokens=[]; render(); validate(); hideOpDropdown(); hideSlot(); hideAC(); };
+
+/* ───────── FREE TYPING + AUTOCOMPLETE (keyboard navigable) ───────── */
+const OPMAP={'and':'&&','or':'||','in':'=='};
+const COMPARE=['==','!=','>','>=','<','<='];
+const ftext=$('ftext');
+function commit(raw){
+  let s=raw.trim(); if(!s) return;
+  if(OPMAP[s.toLowerCase()]){ addToken({k:'op',label:OPMAP[s.toLowerCase()]}); return; }
+  if(/^(==|!=|>=|<=|[+\-*/()<>])$/.test(s)){ addToken({k:'op',label:s}); return; }
+  if(/^[\d.]+$/.test(s)){ addToken({k:'value',label:s}); return; }            // numbers are valid values
+  const f=FIELDS.find(f=>f.id.toLowerCase()===s.toLowerCase()||f.name.toLowerCase()===s.toLowerCase());
+  if(f){ typedFlow=true; insertItem(f); return; }
+  // a genuine value only when it's a known option OR it follows a comparison operator
+  const isOption = FIELDS.some(f=>f.opts&&f.opts.some(o=>o.toLowerCase()===s.toLowerCase()));
+  const prev=tokens[tokens.length-1];
+  const afterCompare = prev && prev.k==='op' && COMPARE.includes(prev.label);
+  if(isOption||afterCompare){ addToken({k:'value',label:s}); return; }
+  addToken({k:'value',label:s,unknown:true});                                  // otherwise: unrecognized → plain invalid text
+}
+/* autocomplete state */
+let acMatches=[], acIndex=-1;
+function acDisplayed(){ return acMatches.slice(0,7); }
+function renderAC(){
+  const disp=acDisplayed();
+  if(!disp.length){ hideAC(); return; }
+  $('ac').innerHTML=disp.map((x,i)=>`<div class="ac-item ${i===acIndex?'hl':''}" data-i="${i}"><span class="opt-badge ${x.sys?'sys':x.isOp?'op':''}">${x.id}</span>${x.name}</div>`).join('');
+  $('ac').classList.add('show'); positionAC();
+  $('ac').querySelectorAll('.ac-item').forEach((node,i)=>{ node.onmousedown=e=>{e.preventDefault(); selectAC(i);}; node.onmouseenter=()=>{acIndex=i; highlightAC();}; });
+}
+function highlightAC(){ $('ac').querySelectorAll('.ac-item').forEach((n,i)=>n.classList.toggle('hl',i===acIndex)); }
+function selectAC(i){ const x=acDisplayed()[i]; if(!x) return; if(x.isOp){ addToken({k:'op',label:x.id}); } else { typedFlow=true; insertItem(x); } ftext.value=''; hideAC(); }
+ftext.addEventListener('keydown',e=>{
+  // inline operator dropdown takes keyboard priority when open
+  const opOpen=$('opdd').classList.contains('show') && !$('ac').classList.contains('show');
+  if(opOpen){
+    if(e.key==='ArrowDown'){ e.preventDefault(); opddIndex=Math.min(opddIndex+1,inlineItems.length-1); highlightOpdd(); scrollOpdd(); return; }
+    if(e.key==='ArrowUp'){ e.preventDefault(); opddIndex=Math.max(opddIndex-1,0); highlightOpdd(); scrollOpdd(); return; }
+    if(e.key==='Enter'){ e.preventDefault(); inlinePick(opddIndex<0?0:opddIndex); return; }
+    if(e.key==='Escape'){ e.preventDefault(); hideOpDropdown(); return; }
+  }
+  const open=$('ac').classList.contains('show'), n=acDisplayed().length;
+  if(e.key==='ArrowDown'){ if(open){ e.preventDefault(); acIndex=Math.min(acIndex+1,n-1); highlightAC(); } }
+  else if(e.key==='ArrowUp'){ if(open){ e.preventDefault(); acIndex=Math.max(acIndex-1,0); highlightAC(); } }
+  else if(e.key==='Enter'){ if(open&&acIndex>=0){ e.preventDefault(); selectAC(acIndex); } else if(ftext.value.trim()){ e.preventDefault(); commit(ftext.value); ftext.value=''; hideAC(); } }
+  else if(e.key==='Tab'){ if(open){ e.preventDefault(); selectAC(acIndex>=0?acIndex:0); } }
+  else if(e.key===' '){ if(ftext.value.trim()){ e.preventDefault(); commit(ftext.value); ftext.value=''; hideAC(); } }
+  else if(e.key==='Backspace'&&ftext.value===''){ if(tokens.length){ tokens.pop(); render(); validate(); hideOpDropdown(); } }
+  else if(e.key==='Escape'){ hideAC(); hideOpDropdown(); hideSlot(); }
+});
+ftext.addEventListener('input',()=>{
+  hideOpDropdown(); // typing dismisses the operator recommendation
+  const q=ftext.value.trim().toLowerCase(); if(!q){ hideAC(); return; }
+  acMatches=[];
+  FIELDS.forEach(f=>{ if(f.id.toLowerCase().includes(q)||f.name.toLowerCase().includes(q)) acMatches.push(f); });
+  OPS.forEach(o=>{ if(o.id.includes(q)||o.name.toLowerCase().includes(q)) acMatches.push({...o,isOp:true}); });
+  acIndex = acMatches.length? 0 : -1;     // first match highlighted → Enter picks it
+  renderAC();
+});
+function positionAC(){const fr=$('finput').getBoundingClientRect(),ir=ftext.getBoundingClientRect();const ac=$('ac');ac.style.left=Math.min(ir.left-fr.left,fr.width-240)+'px';ac.style.top=(ir.bottom-fr.top+4)+'px';}
+function hideAC(){ $('ac').classList.remove('show'); acIndex=-1; }
+$('finput').addEventListener('click',e=>{if(e.target.id==='finput')ftext.focus();});
+ftext.addEventListener('focus',()=>$('finput').classList.add('focused'));
+ftext.addEventListener('blur',()=>{$('finput').classList.remove('focused');setTimeout(()=>{hideAC();},150);});
+
+/* ───────── AI STATE MACHINE (empty / filled / generating / generated / same) ───────── */
+let aiState='empty', aiTimer=null, aiPrevTokens=[];
+const ICON={
+  send:'<i class="fa-regular fa-paper-plane"></i>',
+  stop:'<i class="fa-solid fa-circle-stop"></i>',
+  revert:'<i class="fa-solid fa-arrow-rotate-left"></i>',  /* no free regular variant */
+  up:'<i class="fa-regular fa-thumbs-up"></i>',
+  down:'<i class="fa-regular fa-thumbs-down"></i>',
+};
+function trailFor(s){
+  if(s==='empty')      return `<button class="send inactive" data-act="noop" title="Type a prompt first">${ICON.send}</button>`;
+  if(s==='filled')     return `<button class="send" data-act="generate" title="Generate">${ICON.send}</button>`;
+  if(s==='generating') return `<button class="send stop" data-act="cancel" title="Stop">${ICON.stop}</button>`;
+  if(s==='generated')  return `<button class="icon-btn" data-act="revert">${ICON.revert}<span class="icon-tip">Revert Changes</span></button>`
+                            +`<button class="icon-btn" data-act="up">${ICON.up}</button>`
+                            +`<button class="icon-btn" data-act="down">${ICON.down}</button>`
+                            +`<button class="send" data-act="generate" title="Regenerate">${ICON.send}</button>`;
+  if(s==='same')       return `<button class="icon-btn" data-act="up">${ICON.up}</button>`
+                            +`<button class="icon-btn" data-act="down">${ICON.down}</button>`
+                            +`<button class="back-btn" data-act="back">Back</button>`;
+  return '';
+}
+function setAiState(s, prompt){
+  aiState=s;
+  const box=$('aiBox'), inp=$('aiInp'), st=$('aiStatus'), tr=$('aiTrail');
+  box.classList.toggle('generating', s==='generating');
+  const showStatus = (s==='generating'||s==='same');
+  inp.style.display = showStatus?'none':''; st.style.display = showStatus?'flex':'none';
+  if(s==='generating'){ st.className='ai-status primary'; st.innerHTML='Generating<span class="dots"></span>'; }
+  if(s==='same'){ st.className='ai-status muted'; st.textContent='Your existing formula already does exactly that!'; }
+  if(s==='generated' && prompt!=null) inp.value=prompt;
+  tr.innerHTML=trailFor(s);
+  tr.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>aiAct(b.dataset.act,b));
+}
+function aiInsertFormula(){ // AI returns a real, filled formula (editable tokens)
+  tokens=[{k:'op',label:'('},{k:'field',label:'CB_9 Were there any injuries?',fieldId:'CB_9',opts:['Yes','No']},{k:'op',label:'=='},{k:'value',label:'Yes'},{k:'op',label:')'},{k:'op',label:'*'},{k:'value',label:'200000'},{k:'op',label:'/'},{k:'hours',label:'{Hours}'}];
+  render(); validate();
+}
+function aiAct(act, btn){
+  if(act==='generate'){ aiPrevTokens=JSON.parse(JSON.stringify(tokens)); setAiState('generating'); aiTimer=setTimeout(()=>{ aiInsertFormula(); setAiState('generated', $('aiInp').value||'Can you make a formula that…'); },1500); }
+  else if(act==='cancel'){ clearTimeout(aiTimer); setAiState($('aiInp').value.trim()?'filled':'empty'); }
+  else if(act==='revert'){ tokens=JSON.parse(JSON.stringify(aiPrevTokens)); render(); validate(); setAiState($('aiInp').value.trim()?'filled':'empty'); }
+  else if(act==='up'||act==='down'){ $('aiTrail').querySelectorAll('.icon-btn').forEach(x=>{ if(x===btn) x.classList.toggle('on'); else if(x.dataset.act==='up'||x.dataset.act==='down') x.classList.remove('on'); }); openFeedback(act); }
+  else if(act==='back'){ $('aiInp').value=''; setAiState('empty'); }
+}
+$('aiInp').oninput=()=>{ if(aiState==='generating')return; setAiState($('aiInp').value.trim()?'filled':'empty'); };
+$('aiInp').addEventListener('keydown',e=>{ if(e.key==='Enter'&&aiState==='filled') aiAct('generate'); });
+
+/* ───────── SEARCH (animated pill: icon → bar, ✕ clears & closes) ───────── */
+$('searchToggle').onclick=()=>{ if(!$('search').classList.contains('open')){ $('search').classList.add('open'); setTimeout(()=>$('searchInp').focus(),120); } };
+$('searchClear').onclick=()=>{ $('searchInp').value=''; renderOpts(); $('search').classList.remove('open'); };
+$('searchInp').oninput=renderOpts;
+
+/* ───────── PASTE A FULL FORMULA (parses a pasted string into tokens) ───────── */
+function parseFormulaString(str){
+  let s=String(str).replace(/[()]/g,' $& ').replace(/(==|!=|>=|<=|&&|\|\||[+\-*/<>])/g,' $1 ');
+  const parts=s.split(/\s+/).filter(Boolean), toks=[];
+  parts.forEach(raw=>{
+    let p=raw.replace(/^["']|["']$/g,''); if(!p) return;
+    if(/^(==|!=|>=|<=|&&|\|\||[+\-*/()<>])$/.test(p)){ toks.push({k:'op',label:p}); return; }
+    if(/^and$/i.test(p)){ toks.push({k:'op',label:'&&'}); return; }
+    if(/^or$/i.test(p)){ toks.push({k:'op',label:'||'}); return; }
+    if(/^in$/i.test(p)){ toks.push({k:'op',label:'=='}); return; }
+    if(/^\{hours\}$/i.test(p)){ toks.push({k:'hours',label:'{Hours}'}); return; }
+    if(/^[\d.]+$/.test(p)){ toks.push({k:'value',label:p}); return; }
+    const f=FIELDS.find(x=>x.id.toLowerCase()===p.toLowerCase());
+    if(f){ toks.push(f.sys?{k:'hours',label:f.id}:{k:'field',label:f.id+' '+f.name,fieldId:f.id,opts:f.opts}); return; }
+    toks.push({k:'value',label:p});
+  });
+  return toks;
+}
+ftext.addEventListener('paste',e=>{
+  const text=(e.clipboardData||window.clipboardData).getData('text')||'';
+  if(/[=()*+/]|\{hours\}|cb_|dd_|tf_|ls_/i.test(text)){
+    e.preventDefault();
+    const toks=parseFormulaString(text);
+    if(toks.length){ tokens=tokens.concat(toks); ftext.value=''; render(); validate(); hideAC(); hideOpDropdown(); }
+  }
+});
+
+/* ───────── DISCARD (revert to formula when first opened) ───────── */
+let originalTokens=[];
+function snapshotOriginal(){ originalTokens=JSON.parse(JSON.stringify(tokens)); updateDiscard(); }
+function updateDiscard(){ document.querySelector('.discard-wrap').classList.toggle('show', JSON.stringify(tokens)!==JSON.stringify(originalTokens)); }
+$('discardBtn').onclick=()=>{ tokens=JSON.parse(JSON.stringify(originalTokens)); render(); validate(); hideOpDropdown(); hideAC(); };
+
+/* ───────── CLICK-AWAY DISMISS for dropdowns ───────── */
+document.addEventListener('mousedown',e=>{
+  if($('opdd').classList.contains('show') && !$('opdd').contains(e.target) && !e.target.closest('.opt') && !e.target.closest('.tokwrap')) hideOpDropdown();
+  if($('slotdd').classList.contains('show') && !$('slotdd').contains(e.target) && !e.target.closest('.chip-slot')) hideSlot();
+  if($('ac').classList.contains('show') && !$('ac').contains(e.target) && e.target!==$('ftext')) hideAC();
+});
+
+/* ───────── FEEDBACK MODAL (from thumbs up/down) → success state ───────── */
+function openFeedback(kind){
+  $('fbForm').style.display=''; $('fbSuccess').style.display='none'; $('fbText').value='';
+  $('fbOverlay').classList.add('show'); setTimeout(()=>$('fbText').focus(),0);
+}
+function closeFeedback(){ $('fbOverlay').classList.remove('show'); }
+$('fbCancel').onclick=closeFeedback; $('fbClose').onclick=closeFeedback; $('fbDone').onclick=closeFeedback;
+$('fbSubmit').onclick=()=>{ $('fbForm').style.display='none'; $('fbSuccess').style.display='flex'; };
+$('fbOverlay').addEventListener('mousedown',e=>{ if(e.target===$('fbOverlay')) closeFeedback(); });
+
+/* ───────── PASTE-TEST card copy ───────── */
+$('pdCopy').onclick=()=>{ const t=$('pdCode').textContent; if(navigator.clipboard) navigator.clipboard.writeText(t); $('pdCopy').textContent='Copied! Now paste in the field'; setTimeout(()=>$('pdCopy').textContent='Copy formula',1600); };
+
+/* ───────── MISC ───────── */
+['closeBtn','cancelBtn'].forEach(id=>$(id).onclick=()=>alert('(prototype) Close. Discards unsaved changes.'));
+$('saveBtn').onclick=()=>alert('(prototype) Saved formula tokens + sub-location setting');
+
+/* ───────── SCENARIOS ───────── */
+const SCN=['Empty','Valid','Invalid','Hours','Preset','AI filled','AI generating','AI generated','AI same'];
+function buildScn(){$('scn').innerHTML='<span>State:</span>'+SCN.map(s=>`<button data-s="${s}">${s}</button>`).join('');$('scn').querySelectorAll('button').forEach(b=>b.onclick=()=>setScn(b.dataset.s));}
+function setScn(s){
+  $('scn').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.s===s));
+  tokens=[];$('aiInp').value='';$('ftext').value='';hideOpDropdown();hideAC();hideSlot();setAiState('empty');
+  if(s==='Empty'){ render();validate(); }
+  if(s==='Valid'){ tokens=[{k:'field',label:'DD_9 Incident Type',fieldId:'DD_9',opts:['Recordable']},{k:'op',label:'=='},{k:'value',label:'Recordable'}]; render();validate(); }
+  if(s==='Invalid'){ tokens=[{k:'field',label:'CB_9 Were there any injuries?',fieldId:'CB_9'},{k:'op',label:'=='}]; render();validate(); }
+  if(s==='Hours'){ aiInsertFormula(); }
+  if(s==='Preset'){ applyPreset(FORMULAS[0]); }
+  if(s==='AI filled'){ $('aiInp').value='Can you make a formula that counts injuries per hours'; setAiState('filled'); render();validate(); }
+  if(s==='AI generating'){ setAiState('generating'); render();validate(); }
+  if(s==='AI generated'){ aiInsertFormula(); setAiState('generated','Can you make a formula that counts injuries per hours'); }
+  if(s==='AI same'){ setAiState('same'); render();validate(); }
+  snapshotOriginal(); // treat the scenario's opening state as the "original" for Discard
+}
+
+/* ───────── INIT ───────── */
+buildTabs(); renderOpts(); renderPreview(); render(); validate(); buildScn(); setScn('Empty');
+</script>
+</body>
+</html>
