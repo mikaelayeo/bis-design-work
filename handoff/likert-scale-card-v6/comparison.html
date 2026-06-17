@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Likert Card Layout — Prototype vs. Code Reference</title>
+<style>
+  :root {
+    --ink:        #0E324E;
+    --text:       #191919;
+    --text-muted: #666666;
+    --stroke:     #B2B2B3;
+    --stroke-light:#E5E5E6;
+    --bg:         #EEF1F4;
+    --ok-bg:      #E6F2EA;
+    --ok-fg:      #167B00;
+    --warn-bg:    #FEF3E6;
+    --warn-fg:    #B35A00;
+    --info-bg:    #E7F0F7;
+    --info-fg:    #0C447C;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 22px 64px; }
+  .ribbon {
+    background: var(--ink); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .05em;
+    text-transform: uppercase; padding: 8px 14px; border-radius: 6px; display: inline-block; margin-bottom: 18px;
+  }
+  h1 { font-size: 24px; margin: 0 0 6px; }
+  h2 { font-size: 17px; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--stroke-light); }
+  h3 { font-size: 14px; margin: 20px 0 8px; }
+  p, li { font-size: 14px; line-height: 1.6; }
+  code { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; font-size: 12.5px; background: #fff; border: 1px solid var(--stroke-light); padding: 1px 5px; border-radius: 4px; }
+  .lead { font-size: 15px; color: var(--text-muted); max-width: 780px; }
+
+  .callout { background: #fff; border: 1px solid var(--stroke); border-radius: 8px; padding: 16px 18px; margin: 16px 0; }
+  .callout.warn { border-left: 4px solid var(--warn-fg); }
+  .callout.ok   { border-left: 4px solid var(--ok-fg); }
+  .callout h3 { margin-top: 0; }
+
+  table.grid { border-collapse: collapse; width: 100%; background: #fff; border: 1px solid var(--stroke-light); border-radius: 8px; overflow: hidden; font-size: 13px; }
+  table.grid th, table.grid td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--stroke-light); vertical-align: top; }
+  table.grid th { background: #F8F8F9; color: var(--text-muted); font-weight: 700; }
+  table.grid tr:last-child td { border-bottom: none; }
+  .pill { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+  .pill.faithful { background: var(--ok-bg); color: var(--ok-fg); }
+  .pill.simplified { background: var(--warn-bg); color: var(--warn-fg); }
+  .pill.new { background: var(--info-bg); color: var(--info-fg); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="ribbon">Internal · Dev reference · not client-facing</div>
+  <h1>Card layout prototype — what's faithful, what's prototype-only</h1>
+  <p class="lead">
+    The prototype mirrors the real <code>Tooltip</code> and matrix LikertScale architecture where it can — but
+    some patterns are simplified for an HTML/JS sandbox. This page flags which is which so dev knows what to
+    port directly and what to do "the proper React Native way."
+  </p>
+
+  <div class="callout ok">
+    <h3>Where to copy directly from the prototype</h3>
+    <ul>
+      <li>Token mapping (every CSS variable maps 1:1 to a SafeTapp theme token — see README).</li>
+      <li>Tooltip architecture: one shared instance, anchor refs, key-based active state.</li>
+      <li>Interaction semantics: combined select+show on info zone, dismiss on backdrop, no timer.</li>
+      <li>Visual structure: card-block layout, info zone tap target, statement number prefix.</li>
+    </ul>
+  </div>
+
+  <div class="callout warn">
+    <h3>Where the prototype takes shortcuts — use the real primitives in code</h3>
+    <ul>
+      <li>Tooltip rendering: prototype uses inline CSS positioning. The real <code>Tooltip</code> uses a Portal, Animated, and hysteresis-aware side selection.</li>
+      <li>Animation: prototype uses CSS transitions; real component uses <code>Animated.parallel</code> for slide + fade.</li>
+      <li>Re-render on selection: prototype rebuilds the DOM each click. In React Native, state updates re-render only the changed subtree — no DOM rebuild needed.</li>
+      <li>Tap-away handling: prototype attaches a <code>document.click</code> listener; the real Tooltip uses a full-screen <code>Pressable</code> backdrop inside its Portal.</li>
+    </ul>
+  </div>
+
+  <h2>Side-by-side breakdown</h2>
+  <table class="grid">
+    <thead>
+      <tr><th>Concern</th><th>Prototype (HTML)</th><th>SafeTapp code</th><th></th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Tooltip lifecycle</td>
+        <td>One <code>.lk-tip</code> in DOM, JS toggles <code>.show</code> class</td>
+        <td>One <code>&lt;Tooltip&gt;</code> with <code>visible</code> prop controlled by parent</td>
+        <td><span class="pill faithful">Faithful</span></td>
+      </tr>
+      <tr>
+        <td>Anchor management</td>
+        <td><code>activeAnchor</code> module variable; click handlers compare to it</td>
+        <td><code>activeTooltipRef</code> + <code>openTooltipKey</code> state</td>
+        <td><span class="pill faithful">Faithful</span></td>
+      </tr>
+      <tr>
+        <td>Side selection (above/below)</td>
+        <td>Picks side based on available space; simple "more space wins"</td>
+        <td>Picks side with hysteresis (avoids flipping near threshold)</td>
+        <td><span class="pill simplified">Simplified</span></td>
+      </tr>
+      <tr>
+        <td>Animation</td>
+        <td>CSS <code>transition: opacity .3s, transform .3s</code></td>
+        <td><code>Animated.parallel</code>: 300ms in / 200ms out, native driver</td>
+        <td><span class="pill simplified">Simplified</span></td>
+      </tr>
+      <tr>
+        <td>Portal / clipping escape</td>
+        <td>Tooltip lives inside <code>.form-body</code>; scrolls with content</td>
+        <td><code>&lt;Portal&gt;</code> hoists Tooltip above any clipping ancestor; backdrop covers full screen</td>
+        <td><span class="pill simplified">Simplified</span></td>
+      </tr>
+      <tr>
+        <td>Dismiss on tap outside</td>
+        <td><code>document.addEventListener('click', closeTip)</code></td>
+        <td>Backdrop <code>Pressable</code> with <code>onPress={onDismiss}</code></td>
+        <td><span class="pill faithful">Faithful (mechanism differs)</span></td>
+      </tr>
+      <tr>
+        <td>Dismiss on timer</td>
+        <td><strong>None.</strong> Tooltip persists until explicit dismiss.</td>
+        <td><strong>None.</strong> Same behavior.</td>
+        <td><span class="pill faithful">Faithful</span></td>
+      </tr>
+      <tr>
+        <td>Arrow rendering</td>
+        <td>Two CSS triangle divs (fill + stroke), <code>border-{top,bottom}</code></td>
+        <td>Two React Native <code>&lt;View&gt;</code>s with absolute positioning + transparent borders (same construction)</td>
+        <td><span class="pill faithful">Faithful</span></td>
+      </tr>
+      <tr>
+        <td>Arrow horizontal offset</td>
+        <td>JS computes <code>aCenterX - tipLeft - 8</code>, clamps</td>
+        <td>Same — see <code>arrowOffset</code> in <code>Tooltip/index.tsx</code></td>
+        <td><span class="pill faithful">Faithful</span></td>
+      </tr>
+      <tr>
+        <td>Tooltip dimensions</td>
+        <td>Radius 8 (<code>Radius.medium</code>), padding 12 (<code>Spacing.base</code>), width 220px</td>
+        <td>Same radius/padding. Width: <code>min(500, screenWidth - 2 × Spacing.large)</code></td>
+        <td><span class="pill simplified">Simplified width</span></td>
+      </tr>
+      <tr>
+        <td>Variant</td>
+        <td><code>light</code> hardcoded — white bg, dark text</td>
+        <td><code>light</code> | <code>dark</code> via prop. Light = <code>surface.default</code>; dark = <code>surface.defaultInverse</code></td>
+        <td><span class="pill faithful">Faithful (matches matrix usage)</span></td>
+      </tr>
+      <tr>
+        <td>Option-card "combined affordance"</td>
+        <td>Info zone tap selects AND shows tooltip</td>
+        <td><strong>Not in code yet.</strong> New feature this proposal introduces.</td>
+        <td><span class="pill new">New</span></td>
+      </tr>
+      <tr>
+        <td>Per-option tooltip text</td>
+        <td>From <code>OPTIONS[i].tip</code> in prototype JS</td>
+        <td>Needs <code>ILikertOption.tooltipinfo</code> in <code>types.ts</code></td>
+        <td><span class="pill new">New — see README</span></td>
+      </tr>
+      <tr>
+        <td>Comment-on-select</td>
+        <td>Plain textarea; shown via <code>statement.comment && answers[sid]</code></td>
+        <td>Uses <code>&lt;MultilineInputField&gt;</code>, config via <code>comments[`${dbid}-${optionDbid}`]</code></td>
+        <td><span class="pill faithful">Faithful (same data shape)</span></td>
+      </tr>
+      <tr>
+        <td>Selection toggle on re-tap</td>
+        <td>Tapping selected card un-selects it</td>
+        <td>Same — see <code>optionSelect</code> with <code>isRadio</code> in <code>LikertScale/index.tsx</code></td>
+        <td><span class="pill faithful">Faithful</span></td>
+      </tr>
+      <tr>
+        <td>"Save"/"Submit" footer</td>
+        <td>Inline SVG icons (floppy + check-circle)</td>
+        <td>Not part of this widget — owned by the form page. Cosmetic only.</td>
+        <td><span class="pill simplified">Prototype only</span></td>
+      </tr>
+      <tr>
+        <td>App bar (Edit Form / More Actions)</td>
+        <td>Static HTML chrome to set context</td>
+        <td>Owned by the form page navigation, not LikertScale</td>
+        <td><span class="pill simplified">Prototype only</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Why these shortcuts were taken</h2>
+  <p>The prototype is a static HTML page — no React Native runtime, no native shadow / elevation,
+  no <code>Animated</code>, no Portal. The simplifications buy a single-file artifact that runs in any
+  browser, but they cost some fidelity in animation polish and edge-case positioning. The intent is for
+  dev to use the real <code>Tooltip</code> component verbatim and only port the <em>visual + interaction</em>
+  decisions from the prototype, not the JavaScript implementation.</p>
+
+  <h2>Open items for dev to flag back</h2>
+  <ul>
+    <li>The combined select+show affordance on the info zone — confirm this UX still makes sense once you have it on a device. Specifically: is the 44px tap zone wide enough on small phones, and does the tooltip's "above" placement obscure the question text in any common case?</li>
+    <li>Hysteresis on side selection — the prototype's simple "more space wins" approach can flip if the user scrolls. The real Tooltip's hysteresis prevents this. If dev keeps using the real <code>&lt;Tooltip&gt;</code> directly (recommended), this is already solved.</li>
+    <li>If per-option tooltips become a common pattern, consider promoting <code>tooltipinfo</code> from this folder's <code>types.ts</code> into <code>Forms/Widgets/LikertScale/types.ts</code> so the matrix can opt in too.</li>
+  </ul>
+</div>
+</body>
+</html>

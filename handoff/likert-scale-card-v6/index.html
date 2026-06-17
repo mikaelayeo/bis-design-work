@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Rating Scale — Card Layout (v6)</title>
+<style>
+  :root {
+    --appbar:      #565A86;
+    --header-blue: #0078B3;
+    --selected:    #0078B3;
+    --stroke:      #B2B2B3;       /* stroke.default = neutrals[300] */
+    --stroke-light:#E5E5E6;
+    --surface:     #FEFFFF;        /* surface.default */
+    --surface-inverse: #191919;    /* surface.defaultInverse */
+    --card-bg:     #F8F8F9;        /* surface.secondarySubtle */
+    --row-alt:     #F2F2F2;
+    --text:        #191919;        /* text.default */
+    --text-muted:  #666666;
+    --on-surface:  #FEFFFF;
+    --green:       #167B00;        /* icon.success */
+    --icon-primary:#009ACB;        /* icon.primary */
+    --icon-alt:    #FEFFFF;        /* icon.defaultAlt */
+    --page-bg:     #EEF1F4;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--page-bg); color: var(--text); min-height: 100vh;
+  }
+  .page { padding: 26px 20px 48px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+  .intro { width: 100%; max-width: 760px; text-align: center; }
+  .intro h1 { font-size: 21px; margin: 0 0 6px; font-weight: 700; }
+  .intro p { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+  .controls { display: flex; align-items: center; gap: 10px; }
+  .controls .label { font-size: 13px; font-weight: 600; }
+  .seg { display: inline-flex; border: 1px solid var(--stroke); border-radius: 8px; overflow: hidden; background: white; }
+  .seg button {
+    appearance: none; border: none; background: white; padding: 8px 18px; font-size: 13px;
+    font-weight: 500; cursor: pointer; border-right: 1px solid var(--stroke); color: var(--text-muted);
+  }
+  .seg button:last-child { border-right: none; }
+  .seg button.active { background: var(--header-blue); color: white; }
+
+  /* phone shell */
+  .phone {
+    width: 372px; height: 800px; background: white; border-radius: 30px;
+    border: 1px solid var(--stroke); box-shadow: 0 14px 40px rgba(0,0,0,.12);
+    overflow: hidden; position: relative; display: flex; flex-direction: column;
+  }
+  .appbar {
+    background: var(--appbar); color: white; padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between; flex: 0 0 auto;
+  }
+  .appbar .left { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; }
+  .appbar .chev { font-size: 20px; }
+  .appbar .more { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+  .appbar .more .plus { font-size: 17px; }
+
+  .form-body { flex: 1; overflow-y: auto; padding: 16px 14px 18px; position: relative; }
+  .section-title { font-size: 16px; font-weight: 700; margin: 0 0 4px; }
+  .section-notes { font-size: 12.5px; font-style: italic; color: var(--text-muted); margin: 0 0 14px; line-height: 1.5; }
+
+  .footbar {
+    flex: 0 0 auto; border-top: 1px solid var(--stroke-light);
+    padding: 12px 14px; display: flex; gap: 12px; background: white;
+  }
+  .footbar button {
+    flex: 1; padding: 12px 0; border-radius: 4px; font-size: 15px; font-weight: 600;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .footbar .save { background: white; border: 1px solid var(--stroke); color: var(--text); }
+  .footbar .submit { background: var(--header-blue); border: 1px solid var(--header-blue); color: white; }
+  .footbar svg { width: 17px; height: 17px; }
+
+  /* context skeleton fields */
+  .skel { opacity: .5; pointer-events: none; }
+  .field-label { font-size: 13px; font-weight: 700; margin: 0 0 2px; }
+  .field-sub { font-size: 13px; color: var(--text); margin: 0 0 8px; }
+  .dropdown {
+    border: 1px solid var(--stroke); border-radius: 4px; padding: 11px 12px;
+    display: flex; align-items: center; justify-content: space-between; color: var(--text-muted); font-size: 14px;
+  }
+  .chk { display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 5px 0; color: var(--text); }
+  .chk .box { width: 18px; height: 18px; border: 1.5px solid var(--stroke); border-radius: 3px; flex: 0 0 auto; }
+  .divider { height: 1px; background: var(--stroke-light); margin: 16px 0; }
+
+  /* inline comment box */
+  .inline-comment { position: relative; margin-top: 10px; }
+  .inline-comment textarea {
+    width: 100%; min-height: 64px; resize: none; border: 1px solid var(--stroke); border-radius: 4px;
+    padding: 11px 38px 11px 12px; font-family: inherit; font-size: 14px; color: var(--text); background: #fff;
+  }
+  .inline-comment textarea::placeholder { color: var(--text-muted); }
+  .inline-comment .expand {
+    position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--row-alt); display: flex; align-items: center; justify-content: center; color: var(--text-muted);
+  }
+  .inline-comment .expand svg { width: 13px; height: 13px; }
+
+  /* CARD layout */
+  .cards { display: flex; flex-direction: column; }
+  .card-block { padding-bottom: 16px; border-bottom: 1px solid var(--stroke-light); margin-bottom: 16px; }
+  .card-block:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+
+  /* question = label.base (16/24, weight 600), "1." prefix in default color with xsmall gap, trailing (i) with xsmall gap */
+  .card-stmt { font-size: 16px; line-height: 24px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+  .qnum { margin-right: 4px; }
+
+  .opt-grid { display: grid; gap: 8px; }
+  .opt-card {
+    min-width: 0; border: 1px solid var(--stroke); border-radius: 4px; background: var(--card-bg);
+    color: var(--text); padding: 12px 24px; cursor: pointer; font-size: 16px; line-height: 24px; font-weight: 400;
+    display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; position: relative;
+  }
+  .opt-card.selected { background: var(--selected); border-color: var(--selected); color: var(--on-surface); }
+
+  /* Inline question (?) icon — xsmall gap, blue circle-info regular */
+  .tip-wrap { position: relative; display: inline-flex; vertical-align: middle; }
+  .tip-wrap.qhelp { margin-left: 4px; }
+  .help-icon { display: inline-flex; align-items: center; justify-content: center; color: var(--icon-primary); background: none; border: none; cursor: pointer; padding: 0; }
+  .help-icon svg { display: block; fill: currentColor; width: 15px; height: 15px; }
+
+  /* Option-card right-side info zone — 44px tap target, small (i) at top-right corner */
+  .opt-info-zone {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 44px;
+    background: transparent; border: none; padding: 0; cursor: pointer;
+    display: flex; align-items: flex-start; justify-content: flex-end;
+    color: var(--icon-primary);
+  }
+  .opt-card.selected .opt-info-zone { color: var(--icon-alt); }
+  .opt-info-zone svg { width: 14px; height: 14px; fill: currentColor; pointer-events: none; margin: 6px 6px 0 0; }
+
+  /* ============================================================
+     Shared Tooltip — single instance per widget, matches
+     SafeTapp Common/Foundation/Messaging/Tooltip (variant="light")
+     - Radius.medium (8), Spacing.base (12) padding
+     - Slide + fade (300ms in, 200ms out)
+     - Arrow points to anchor; side picks itself based on space
+     - No internal timer — dismissed by tap on backdrop or anchor
+     ============================================================ */
+  .lk-tip {
+    position: absolute; top: 0; left: 0;
+    background: var(--surface); border: 1px solid var(--stroke); border-radius: 8px;
+    padding: 12px; width: 220px; z-index: 50;
+    font-size: 16px; line-height: 24px; color: var(--text); font-weight: 400;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    opacity: 0; transform: translateY(20px); pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    visibility: hidden;
+  }
+  .lk-tip.show {
+    opacity: 1; transform: translateY(0); pointer-events: auto; visibility: visible;
+    transition: opacity .3s, transform .3s;
+  }
+  /* Arrow: fill triangle (matches container bg), positioned by JS .left */
+  .lk-tip-arrow {
+    position: absolute; width: 0; height: 0;
+    border-left: 8px solid transparent; border-right: 8px solid transparent;
+  }
+  .lk-tip.below .lk-tip-arrow { top: -8px; border-bottom: 8px solid var(--surface); }
+  .lk-tip.above .lk-tip-arrow { bottom: -8px; border-top: 8px solid var(--surface); }
+  /* Stroke layer behind the fill so the arrow's diagonals get the 1px border */
+  .lk-tip-arrow-stroke {
+    position: absolute; width: 0; height: 0;
+    border-left: 9px solid transparent; border-right: 9px solid transparent;
+  }
+  .lk-tip.below .lk-tip-arrow-stroke { top: -10px; border-bottom: 9px solid var(--stroke); }
+  .lk-tip.above .lk-tip-arrow-stroke { bottom: -10px; border-top: 9px solid var(--stroke); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="intro">
+    <h1>Rating questions on mobile — card layout (v6)</h1>
+    <p>Tap an answer to select. Tap the (i) icon for help — it won't change your answer when shown alone.</p>
+  </div>
+
+  <div class="controls">
+    <span class="label">Columns</span>
+    <div class="seg" id="colSeg">
+      <button data-c="2" class="active">2</button>
+      <button data-c="3">3</button>
+    </div>
+  </div>
+
+  <div class="phone">
+    <div class="appbar">
+      <div class="left"><span class="chev">‹</span><span>Edit Form</span></div>
+      <div class="more"><span class="plus">⊕</span><span>More Actions</span></div>
+    </div>
+    <div class="form-body" id="body"></div>
+    <div class="footbar">
+      <button class="save"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save</button>
+      <button class="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SECTION_TITLE = "Safety and storage requirements:";
+  const SECTION_NOTES = [
+    "Notes:",
+    "- It is recommended to display nearby a poster containing the QR codes of the hyperlinks directing us to the laws and regulations.",
+    "- If you are using only a gamma measuring device, take into account an additional 30% for neutron radiation."
+  ];
+  const COMMENT_PLACEHOLDER = "Please provide reasons.";
+  const STATEMENTS = [
+    { id: 1, label: "Accessible laws and regulations?", tip: "Confirm the current laws and regulations are accessible on site." },
+    { id: 2, label: "Are radiation warning signs posted at the boundaries and access points of the storage area?", tip: "Signs must be visible at every boundary and entry point.", comment: true },
+    { id: 3, label: "Emergency contact numbers posted?", tip: "Posted where workers can see them in an emergency." },
+    { id: 4, label: "Copy of license and/or notice posted at entrances to facility?", tip: "A current copy must be posted at each entrance." },
+    { id: 5, label: "Copy of emergency procedures posted and/or available?", tip: "Procedures posted or readily available to staff." },
+  ];
+  const OPTIONS = [
+    { label: "Compliant",     tip: "Meets the requirement." },
+    { label: "Non-Compliant", tip: "Does not meet the requirement." },
+    { label: "N/I",           tip: "Not inspected." },
+    { label: "N/A",           tip: "Not applicable to this site." },
+  ];
+
+  const EXPAND_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+  // FontAwesome circle-info, regular (outline)
+  const INFO_SVG = '<svg viewBox="0 0 512 512" aria-hidden="true"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM256 48a208 208 0 1 1 0 416 208 208 0 1 1 0-416zM216 336l24 0 0-64-24 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l48 0c13.3 0 24 10.7 24 24l0 88 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-80 0c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/></svg>';
+
+  const answers = {};
+  const commentText = {};
+  let cols = 2;
+  let pendingTip = null;  // { sid, opt } — show after next render finishes
+
+  // -------- Shared Tooltip --------
+  // Mirrors the SafeTapp Tooltip component: one instance per widget,
+  // positions itself above or below the active anchor based on space.
+  let activeAnchor = null;
+
+  function isActiveAnchor(el) { return activeAnchor === el; }
+
+  function closeTip() {
+    activeAnchor = null;
+    const tip = document.getElementById('lk-tip');
+    if (tip) tip.classList.remove('show', 'above', 'below');
+  }
+
+  function showTip(anchor, text) {
+    const tip = document.getElementById('lk-tip');
+    if (!tip) return;
+    activeAnchor = anchor;
+    tip.querySelector('.lk-tip-body').textContent = text;
+    tip.classList.add('show');
+
+    const body = document.getElementById('body');
+    const aR = anchor.getBoundingClientRect();
+    const bR = body.getBoundingClientRect();
+    const tR = tip.getBoundingClientRect();
+    const tipH = tR.height;
+    const tipW = tR.width;
+    const ARROW = 8;          // Spacing.small
+    const EDGE  = 8;          // edge margin from the form body
+
+    // Anchor coords relative to the scroll content
+    const aTopInBody  = aR.top  - bR.top  + body.scrollTop;
+    const aLeftInBody = aR.left - bR.left + body.scrollLeft;
+    const aCenterX    = aLeftInBody + aR.width / 2;
+
+    // Decide side
+    const spaceAbove = aR.top - bR.top;
+    const spaceBelow = bR.bottom - aR.bottom;
+    const needed = tipH + ARROW + EDGE;
+    const above = spaceAbove >= needed
+      ? true
+      : spaceBelow >= needed ? false
+      : spaceAbove > spaceBelow;
+
+    tip.classList.toggle('above', above);
+    tip.classList.toggle('below', !above);
+
+    // Vertical
+    tip.style.top = (above ? aTopInBody - tipH - ARROW : aTopInBody + aR.height + ARROW) + 'px';
+
+    // Horizontal — center on anchor, clamp to form-body content
+    let tipLeft = aCenterX - tipW / 2;
+    const maxLeft = body.clientWidth - tipW - EDGE;
+    tipLeft = Math.max(EDGE, Math.min(maxLeft, tipLeft));
+    tip.style.left = tipLeft + 'px';
+
+    // Arrow horizontal position (relative to tip's left edge)
+    const arrowX = aCenterX - tipLeft - 8;
+    const arrowMin = 8, arrowMax = tipW - 8 - 16;
+    const clampedArrowX = Math.max(arrowMin, Math.min(arrowMax, arrowX));
+    tip.querySelector('.lk-tip-arrow').style.left = clampedArrowX + 'px';
+    tip.querySelector('.lk-tip-arrow-stroke').style.left = (clampedArrowX - 1) + 'px';
+  }
+
+  // Tap-away: close tooltip when user taps outside the tooltip or its anchor
+  document.addEventListener('click', e => {
+    if (!activeAnchor) return;
+    if (e.target.closest('.lk-tip')) return;     // tap inside tooltip → keep
+    if (e.target.closest('.help-icon')) return;  // anchor handlers manage themselves
+    if (e.target.closest('.opt-info-zone')) return;
+    closeTip();
+  });
+
+  // -------- Helpers --------
+  function makeQHelp(tip) {
+    const wrap = document.createElement('span'); wrap.className = 'tip-wrap qhelp';
+    const btn = document.createElement('button'); btn.className = 'help-icon'; btn.type = 'button';
+    btn.innerHTML = INFO_SVG; btn.setAttribute('aria-label', 'More information');
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (isActiveAnchor(btn)) closeTip(); else showTip(btn, tip);
+    });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  function makeOptInfoZone(tip) {
+    const zone = document.createElement('button');
+    zone.type = 'button'; zone.className = 'opt-info-zone';
+    zone.setAttribute('aria-label', 'More information');
+    zone.innerHTML = INFO_SVG;
+    return { zone, tip };
+  }
+
+  function commentBox(sid) {
+    const wrap = document.createElement('div'); wrap.className = 'inline-comment';
+    const ta = document.createElement('textarea'); ta.placeholder = COMMENT_PLACEHOLDER;
+    ta.value = commentText[sid] || '';
+    ta.addEventListener('input', () => { commentText[sid] = ta.value; });
+    const ex = document.createElement('span'); ex.className = 'expand'; ex.innerHTML = EXPAND_SVG;
+    wrap.appendChild(ta); wrap.appendChild(ex);
+    return wrap;
+  }
+
+  // -------- Render --------
+  function render() {
+    closeTip();   // any open tooltip is invalid after re-render
+    const host = document.getElementById('body');
+    host.innerHTML =
+      `<div class="skel"><div class="field-label">Title</div><div class="field-sub">Storage location</div>
+        <div class="dropdown"><span>Search location…</span><span>⌄</span></div></div>
+       <div class="divider"></div>
+       <p class="section-title">${SECTION_TITLE}</p>
+       <p class="section-notes">${SECTION_NOTES.join('<br>')}</p>
+       <div id="cards-host"></div>
+       <div class="divider"></div>
+       <div class="skel"><div class="field-label">Title</div><div class="field-sub">Check all that apply</div>
+        <label class="chk"><span class="box"></span> First Choice</label>
+        <label class="chk"><span class="box"></span> Second Choice</label>
+        <label class="chk"><span class="box"></span> Third Choice</label></div>
+       <div class="lk-tip" id="lk-tip" role="tooltip">
+         <span class="lk-tip-arrow-stroke"></span>
+         <span class="lk-tip-arrow"></span>
+         <span class="lk-tip-body"></span>
+       </div>`;
+
+    const wrap = document.createElement('div'); wrap.className = 'cards';
+    STATEMENTS.forEach((s, i) => {
+      const block = document.createElement('div'); block.className = 'card-block';
+
+      const stmt = document.createElement('div'); stmt.className = 'card-stmt';
+      const num = document.createElement('span'); num.className = 'qnum'; num.textContent = (i + 1) + '.';
+      stmt.appendChild(num);
+      stmt.appendChild(document.createTextNode(s.label + ' '));
+      if (s.tip) stmt.appendChild(makeQHelp(s.tip));
+      block.appendChild(stmt);
+
+      const grid = document.createElement('div'); grid.className = 'opt-grid';
+      grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+      OPTIONS.forEach(o => {
+        const card = document.createElement('div');
+        card.className = 'opt-card' + (answers[s.id] === o.label ? ' selected' : '');
+        card.dataset.sid = s.id; card.dataset.opt = o.label;
+        const lbl = document.createElement('span'); lbl.className = 'opt-label'; lbl.textContent = o.label;
+        card.appendChild(lbl);
+        const toggle = () => { answers[s.id] = answers[s.id] === o.label ? null : o.label; };
+        if (o.tip) {
+          const { zone, tip } = makeOptInfoZone(o.tip);
+          card.appendChild(zone);
+          zone.addEventListener('click', e => {
+            e.stopPropagation();
+            const willSelect = answers[s.id] !== o.label;
+            toggle();
+            pendingTip = willSelect ? { sid: s.id, opt: o.label, text: tip } : null;
+            render();
+          });
+        }
+        card.addEventListener('click', () => { toggle(); render(); });
+        grid.appendChild(card);
+      });
+      block.appendChild(grid);
+
+      if (s.comment && answers[s.id]) block.appendChild(commentBox(s.id));
+      wrap.appendChild(block);
+    });
+    document.getElementById('cards-host').appendChild(wrap);
+
+    if (pendingTip) {
+      const { sid, opt, text } = pendingTip; pendingTip = null;
+      const card = document.querySelector(`.opt-card[data-sid="${sid}"][data-opt="${opt}"]`);
+      const zone = card && card.querySelector('.opt-info-zone');
+      if (zone) {
+        // Defer one frame so layout is committed before measuring
+        requestAnimationFrame(() => showTip(zone, text));
+      }
+    }
+  }
+
+  document.querySelectorAll('#colSeg button').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      document.querySelectorAll('#colSeg button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      cols = parseInt(btn.dataset.c, 10);
+      render();
+    });
+  });
+
+  render();
+</script>
+</body>
+</html>
