@@ -222,6 +222,11 @@
       "date": "2026-06-15",
       "children": [
         {
+          "title": "Custom Metric Builder PRD",
+          "path": "showcase/prototypes/custom%20metrics/Custom-Metric-Builder-PRD.html",
+          "date": "2026-06-17"
+        },
+        {
           "title": "Custom metric editor v2",
           "path": "showcase/prototypes/custom%20metrics/custom-metric-editor-v2.html",
           "date": "2026-06-15"
@@ -265,6 +270,11 @@
           "title": "Likertscale index",
           "path": "showcase/prototypes/likert%20scale/likertscale-index.html",
           "date": "2026-06-15"
+        },
+        {
+          "title": "Responsive rules (internal)",
+          "path": "showcase/prototypes/likert%20scale/likertscale-responsive-internal.html",
+          "date": "2026-06-17"
         }
       ]
     },
@@ -356,14 +366,6 @@
       "title": "Building what matters",
       "date": "2026-06-12",
       "path": "studio/docs/building-what-matters.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "docs",
-      "title": "Likert scale — responsive rules (internal)",
-      "date": "2026-06-15",
-      "path": "studio/docs/likertscale-responsive-internal.html"
     },
     {
       "kind": "item",

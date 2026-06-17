@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Metric Builder — PRD</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/all.min.css">
+<style>
+  :root{
+    --ink:#1a1d23; --ink-2:#555b66; --ink-3:#8a909a; --line:#e4e7ec; --line-2:#d0d5dd;
+    --bg:#f6f7f9; --surface:#ffffff; --accent:#0078b3; --accent-soft:#eaf6fb;
+    /* BIS token colours (for the component visuals) */
+    --primary-lightest:#f2fcff; --t-primary:#0078b3;
+    --notice-lightest:#fffaf2; --t-notice:#c37900;
+    --success-lightest:#fafff2; --t-success:#167b00;
+    --error-lightest:#fff2f2; --t-error:#cc2222;
+    --secondary-subtle:#f8f8f9; --secondary-lightest:#f2f2f2; --stroke:#b2b2b3; --stroke-light:#e2e2e3;
+    --ai-grad:linear-gradient(90deg,#86d3ea,#1aa3c2,#0078b3);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;}
+  .wrap{max-width:940px;margin:0 auto;padding:0 24px 120px;}
+
+  /* ── cover ── */
+  .cover{background:linear-gradient(135deg,#0a3a54,#0078b3);color:#fff;padding:48px 0 40px;}
+  .cover .wrap{padding-bottom:40px;}
+  .eyebrow{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;opacity:.8;font-weight:600;}
+  .cover h1{font-size:40px;font-weight:700;margin:8px 0 6px;letter-spacing:-.5px;}
+  .cover .sub{font-size:18px;opacity:.9;margin-bottom:22px;}
+  .meta{display:flex;flex-wrap:wrap;gap:10px 28px;font-size:13.5px;}
+  .meta b{opacity:.7;font-weight:600;display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+  .pending-banner{margin-top:22px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:12px 16px;font-size:14px;display:flex;gap:10px;align-items:center;}
+  .pending-banner i{font-size:16px;}
+
+  /* ── layout ── */
+  .doc{display:grid;grid-template-columns:200px 1fr;gap:40px;margin-top:36px;}
+  nav.toc{position:sticky;top:24px;align-self:start;font-size:13.5px;}
+  nav.toc a{display:block;color:var(--ink-2);text-decoration:none;padding:5px 10px;border-left:2px solid transparent;border-radius:0 4px 4px 0;}
+  nav.toc a:hover{color:var(--accent);background:var(--accent-soft);}
+  nav.toc .toc-h{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-3);font-weight:700;margin:16px 0 4px 10px;}
+  main{min-width:0;}
+
+  section{margin-bottom:44px;scroll-margin-top:20px;}
+  h2{font-size:26px;font-weight:700;letter-spacing:-.3px;padding-bottom:8px;border-bottom:2px solid var(--accent);margin-bottom:16px;}
+  h2 .num{color:var(--accent);font-weight:700;margin-right:8px;}
+  h3{font-size:17px;font-weight:700;margin:22px 0 8px;color:var(--ink);}
+  p{margin-bottom:12px;color:var(--ink-2);}
+  ul{margin:0 0 14px 22px;}
+  li{margin-bottom:6px;color:var(--ink-2);}
+  code{font-family:ui-monospace,"Cascadia Code",monospace;font-size:.9em;background:#eef1f4;padding:1px 5px;border-radius:4px;color:#0a3a54;}
+  .lead{font-size:16px;color:var(--ink);}
+
+  /* status pills */
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:20px;letter-spacing:.3px;vertical-align:middle;}
+  .p-ok{background:#e7f6ec;color:#1b7a3d;} .p-chg{background:#fff4e0;color:#9a6400;}
+  .p-new{background:#e9f0ff;color:#2456b8;} .p-drop{background:#fdeaea;color:#b3261e;} .p-pend{background:#f2ecfb;color:#6b3fb0;}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:20px;}
+
+  /* cards / callouts */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px;}
+  .callout{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:8px;padding:12px 16px;margin:14px 0;font-size:14px;color:#0a3a54;}
+  .callout.warn{border-color:#d9a300;background:#fff8e8;color:#7a5600;}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;margin:8px 0 18px;font-size:13.5px;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  th{background:#0e3a56;color:#fff;text-align:left;padding:9px 12px;font-size:12px;letter-spacing:.3px;font-weight:600;}
+  td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top;color:var(--ink-2);}
+  tr:nth-child(even) td{background:#fafbfc;}
+  td code{white-space:nowrap;}
+  .qid{font-family:ui-monospace,monospace;font-size:12px;color:var(--accent);font-weight:600;white-space:nowrap;}
+
+  /* iframe embed */
+  .embed-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .embed-head a{font-size:13px;color:var(--accent);text-decoration:none;font-weight:600;}
+  .frame{border:1px solid var(--line-2);border-radius:12px;overflow:hidden;background:#ececed;box-shadow:0 6px 24px rgba(0,0,0,.08);}
+  .frame .bar{height:30px;background:#e9ebee;display:flex;align-items:center;gap:6px;padding:0 12px;border-bottom:1px solid var(--line);}
+  .frame .bar i{width:9px;height:9px;border-radius:50%;background:#cdd2d8;display:inline-block;}
+  .frame iframe{width:100%;height:560px;border:0;display:block;background:#ececed;}
+
+  /* ─── BIS component visuals (reused tokens) ─── */
+  .viz{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px;}
+  .viz .cap{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-3);font-weight:700;margin-bottom:10px;}
+  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .chip{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid var(--stroke);border-radius:4px;padding:3px 7px;font:600 13px/1.2 "Segoe UI";white-space:nowrap;}
+  .chip.f{color:var(--t-primary);} .chip.o{color:var(--t-notice);} .chip.v{color:var(--t-success);} .chip.h{color:var(--t-error);}
+  .chip .x{opacity:.45;font-weight:700;}
+  .unk{color:var(--t-error);text-decoration:underline wavy var(--t-error);text-underline-offset:3px;font:600 13px "Segoe UI";}
+  .badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:2px;box-shadow:0 0 4px rgba(0,0,0,.12);font:600 12px/1.3 "Segoe UI";}
+  .badge.f{background:var(--primary-lightest);color:var(--t-primary);} .badge.o{background:var(--notice-lightest);color:var(--t-notice);}
+  .badge.v{background:var(--success-lightest);color:var(--t-success);} .badge.h{background:var(--error-lightest);color:var(--t-error);}
+  .tag-note{font-size:12px;color:var(--ink-3);margin-left:4px;}
+
+  /* AI bars */
+  .aibar-wrap{border-radius:8px;padding:1px;background:var(--ai-grad);margin-bottom:8px;}
+  .aibar{background:#fff;border-radius:7px;display:flex;align-items:center;gap:10px;padding:7px 10px 7px 7px;}
+  .aibar .pill2{display:flex;align-items:center;gap:3px;border:1px solid transparent;border-radius:80px;padding:4px 8px;background:linear-gradient(var(--primary-lightest),var(--primary-lightest)) padding-box,var(--ai-grad) border-box;font:600 12px "Segoe UI";color:var(--t-primary);}
+  .aibar .txt{flex:1;font-size:14px;color:var(--ink-3);}
+  .aibar .txt.dark{color:var(--ink);} .aibar .txt.pri{color:var(--t-primary);}
+  .aibar .send{width:26px;height:26px;border-radius:50%;background:var(--ai-grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+  .aibar .send.off{opacity:.45;}
+  .aibar .ico{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#4d4c4c;font-size:12px;}
+  .state-label{font-size:12px;font-weight:700;color:var(--ink-2);margin:14px 0 4px;}
+
+  /* field/validation visuals */
+  .field{border:1px solid var(--stroke);border-radius:8px;min-height:56px;padding:8px;display:flex;flex-wrap:wrap;gap:5px;align-items:flex-start;}
+  .field.ok{border-color:var(--t-success);} .field.bad{border-color:var(--t-error);}
+  .field .ph{color:var(--ink-3);font-size:14px;}
+  .hintrow{display:flex;align-items:center;justify-content:space-between;margin-top:4px;font-size:13.5px;}
+  .hintrow .h{display:flex;align-items:center;gap:5px;} .hintrow .h.ok{color:var(--t-success);} .hintrow .h.bad{color:var(--t-error);}
+  .btn-mini{font:600 12px "Segoe UI";border:none;background:none;color:var(--ink);padding:2px 4px;border-radius:4px;}
+
+  footer{border-top:1px solid var(--line);margin-top:40px;padding-top:18px;font-size:13px;color:var(--ink-3);}
+  @media(max-width:780px){ .doc{grid-template-columns:1fr;} nav.toc{position:static;display:none;} .cover h1{font-size:30px;} }
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="wrap">
+    <div class="eyebrow">Product Requirements · Reporting Dashboard</div>
+    <h1>Custom Metric Builder</h1>
+    <div class="sub">A guided, token-based formula editor for custom metrics</div>
+    <div class="meta">
+      <div><b>Ticket</b>20098</div>
+      <div><b>Status</b>In design review</div>
+      <div><b>Audience</b>Dev · PM · QA · Writer</div>
+      <div><b>Updated</b>16 Jun 2026</div>
+      <div><b>Owner</b>Mikaela Yeo</div>
+    </div>
+    <div class="pending-banner"><i class="fa-solid fa-circle-info"></i>
+      <span><b>One thing pending:</b> final UI copy (Section 7) is with the technical writer. Everything else in scope is settled.</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="doc">
+    <nav class="toc">
+      <div class="toc-h">Contents</div>
+      <a href="#live">Live prototype</a>
+      <a href="#scope">1 · Scope</a>
+      <a href="#decisions">2 · Key decisions</a>
+      <a href="#anatomy">3 · Anatomy</a>
+      <a href="#visuals">4 · Component visuals</a>
+      <a href="#behaviour">5 · Behaviour (QA)</a>
+      <a href="#tech">6 · Technical</a>
+      <a href="#copy">7 · Copy <span class="pill p-pend">Pending</span></a>
+      <a href="#open">8 · Open questions</a>
+    </nav>
+
+    <main>
+      <!-- status legend -->
+      <div class="legend">
+        <span><span class="pill p-ok">✓ Confirmed</span> in scope</span>
+        <span><span class="pill p-chg">✎ Changed</span> from ticket</span>
+        <span><span class="pill p-new">+ New</span> this design</span>
+        <span><span class="pill p-drop">✕ Dropped</span> from ticket</span>
+        <span><span class="pill p-pend">Pending</span> writer review</span>
+      </div>
+
+      <!-- LIVE -->
+      <section id="live">
+        <h2>Live prototype</h2>
+        <p>The interactive prototype is embedded below. Click through it — every state in this doc is reachable from the “State” bar at the bottom of the prototype.</p>
+        <div class="embed-head">
+          <span style="font-size:13px;color:var(--ink-3)">custom-metric-editor-v5 · BIS design system</span>
+          <a href="custom-metric-editor-v5-bis.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full screen</a>
+        </div>
+        <div class="frame">
+          <div class="bar"><i></i><i></i><i></i></div>
+          <iframe src="custom-metric-editor-v5-bis.html" title="Custom Metric Builder prototype" loading="lazy"></iframe>
+        </div>
+      </section>
+
+      <!-- SCOPE -->
+      <section id="scope">
+        <h2><span class="num">1</span>Scope</h2>
+        <p class="lead">The Custom Metric Builder redesigns how analysts create custom metrics. Today’s editor uses an unclear syntax, gives no inline guidance, and shows one generic error. This turns it into a guided, token-based editor with a searchable reference panel, real-time validation, and AI assistance.</p>
+        <h3>In scope</h3>
+        <ul>
+          <li>A modal formula editor that renders the formula as colour-coded <b>tokens</b>.</li>
+          <li>Two ways to build: <b>typing</b> (autocomplete + inline recommendations) and the <b>option-selector</b> (clicking the reference panel).</li>
+          <li>Reference panel: Fields / Operators / Formulas, with search, hover-to-preview, click-to-insert.</li>
+          <li>Preset formulas that insert with empty slots to fill (TRIF Rate, Injury Rate %, Incident Count).</li>
+          <li>Real-time validation with a clear message; Save blocked while invalid.</li>
+          <li>AI Assist: a single editable prompt that returns an editable formula, with feedback and revert.</li>
+          <li>Paste a JavaScript-style formula and have it parse into tokens.</li>
+        </ul>
+        <h3>Out of scope <span class="pill p-drop">✕ Dropped from ticket</span></h3>
+        <ul>
+          <li><b>Live numeric preview</b> (value + step-by-step breakdown). The widget updates on Save, so a preview adds complexity for little value.</li>
+          <li><b>Metric Name &amp; Colour</b> inside this modal — they stay in the widget-settings rail. The modal is formula-only.</li>
+        </ul>
+      </section>
+
+      <!-- DECISIONS -->
+      <section id="decisions">
+        <h2><span class="num">2</span>Key decisions</h2>
+        <table>
+          <tr><th style="width:24%">Decision</th><th>Resolution</th><th style="width:8%"></th></tr>
+          <tr><td>Operator syntax</td><td>Use JavaScript operators <code>== != &gt; &gt;= &lt; &lt;= &amp;&amp; ||</code> and <code>+ - * /</code>. Replaces <code>IN</code> / <code>NOT IN</code>.</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr><td>Placement</td><td>Lighter centered modal; formula-only.</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr><td>Two build modes</td><td>Typing → inline dropdowns; clicking → cycles the panel tabs. Last action wins.</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td>Chips vs badges</td><td>Chips (outline) only for interactable tokens; badges (filled) are display-only.</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td>Live preview</td><td>Dropped.</td><td><span class="pill p-drop">✕</span></td></tr>
+          <tr><td>Reset vs Discard</td><td>One field button: Reset (clear) for new metrics; Discard (revert to saved) when editing.</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td>Validation</td><td>One plain-language message under the field (not boxed, no auto-fix yet).</td><td><span class="pill p-chg">✎</span></td></tr>
+        </table>
+        <div class="callout warn"><b>Needs dev sign-off:</b> replacing <code>IN</code>/<code>NOT IN</code> with <code>==</code>/<code>!=</code> breaks the “stay consistent with current operators” line — existing formulas need a migration mapping (see §6).</div>
+      </section>
+
+      <!-- ANATOMY -->
+      <section id="anatomy">
+        <h2><span class="num">3</span>Anatomy</h2>
+        <p>Top to bottom, the modal contains:</p>
+        <table>
+          <tr><th style="width:26%">Zone</th><th>Contents</th></tr>
+          <tr><td>Header</td><td>Edit icon, “Custom Metric” title, close (✕).</td></tr>
+          <tr><td>AI Assist bar</td><td>BIS AI badge, a single editable prompt, send button. Gradient border (1px; 2px on focus).</td></tr>
+          <tr><td>Formula field</td><td>Colour-coded token editor + trailing input. Below: validation hint (left) and the Reset/Discard button (right), shown only when there’s content.</td></tr>
+          <tr><td>Sub-locations toggle</td><td>“Include hours from sub-locations” — appears only when <code>{Hours}</code> is used.</td></tr>
+          <tr><td>Reference panel</td><td>Tabs (Fields / Operators / Formulas) + search; grouped list (left), detail pane (right).</td></tr>
+          <tr><td>Footer</td><td>Cancel and Save.</td></tr>
+        </table>
+      </section>
+
+      <!-- VISUALS -->
+      <section id="visuals">
+        <h2><span class="num">4</span>Component visuals</h2>
+
+        <h3>Tokens — chips vs badges</h3>
+        <div class="viz">
+          <div class="cap">Chips · interactable (in the formula field)</div>
+          <div class="row">
+            <span class="chip f">CB_9 Were there any injuries? <span class="x">×</span></span>
+            <span class="chip o">== <span class="x">×</span></span>
+            <span class="chip v">Yes <span class="x">×</span></span>
+            <span class="chip h">{Hours} <span class="x">×</span></span>
+            <span class="unk">helloworld ×</span>
+          </div>
+          <div class="cap" style="margin-top:14px">Badges · display only (examples, options, lists)</div>
+          <div class="row">
+            <span class="badge f">CB_9</span><span class="badge o">==</span><span class="badge v">Yes</span><span class="badge h">{Hours}</span>
+          </div>
+          <p style="font-size:12.5px;margin:10px 0 0;color:var(--ink-3)">Field = blue · Operator = amber · Value = green · {Hours} = red · Unrecognized = plain underlined red. Chips are outline (no fill); badges are filled.</p>
+        </div>
+
+        <h3>A built formula (TRIF Rate)</h3>
+        <div class="viz">
+          <div class="field ok">
+            <span class="chip o">(</span><span class="chip f">CB_9 Were there any injuries?</span><span class="chip o">==</span><span class="chip v">Yes</span><span class="chip o">)</span><span class="chip o">*</span><span class="chip v">200000</span><span class="chip o">/</span><span class="chip h">{Hours}</span>
+          </div>
+          <div class="hintrow"><span class="h ok"><i class="fa-solid fa-circle-check"></i> Valid Input</span><button class="btn-mini">Reset</button></div>
+        </div>
+
+        <h3>Validation states</h3>
+        <div class="viz">
+          <div class="cap">Invalid (red border + message)</div>
+          <div class="field bad">
+            <span class="chip f">CB_9 Were there any injuries?</span><span class="chip o">==</span>
+          </div>
+          <div class="hintrow"><span class="h bad"><i class="fa-solid fa-circle-xmark"></i> Sorry! There’s a syntax or reference issue. Please update the formula.</span><button class="btn-mini">Reset</button></div>
+        </div>
+
+        <h3>Reset vs Discard <span class="pill p-new">+ New</span></h3>
+        <div class="viz">
+          <div class="row" style="gap:28px">
+            <div><div class="cap">New metric</div><button class="btn-mini" style="border:1px solid var(--line-2);padding:4px 10px">Reset</button> <span class="tag-note">clears the field</span></div>
+            <div><div class="cap">Editing a saved metric</div><button class="btn-mini" style="border:1px solid var(--line-2);padding:4px 10px">Discard</button> <span class="tag-note">reverts to the saved formula (tooltip on hover)</span></div>
+          </div>
+        </div>
+
+        <h3>AI Assist — the five states</h3>
+        <div class="viz">
+          <div class="state-label">Empty</div>
+          <div class="aibar-wrap"><div class="aibar"><span class="pill2"><i class="fa-solid fa-wand-magic-sparkles"></i> AI</span><span class="txt">Generate or update formula…</span><span class="send off"><i class="fa-regular fa-paper-plane"></i></span></div></div>
+          <div class="state-label">Filled</div>
+          <div class="aibar-wrap"><div class="aibar"><span class="pill2"><i class="fa-solid fa-wand-magic-sparkles"></i> AI</span><span class="txt dark">Count injuries per hours</span><span class="send"><i class="fa-regular fa-paper-plane"></i></span></div></div>
+          <div class="state-label">Generating</div>
+          <div class="aibar-wrap"><div class="aibar"><span class="pill2"><i class="fa-solid fa-wand-magic-sparkles"></i> AI</span><span class="txt pri">Generating…</span><span class="ico" style="background:var(--primary-lightest);border:1px solid #b8e0ee;color:var(--t-primary)"><i class="fa-solid fa-circle-stop"></i></span></div></div>
+          <div class="state-label">Generated</div>
+          <div class="aibar-wrap"><div class="aibar"><span class="pill2"><i class="fa-solid fa-wand-magic-sparkles"></i> AI</span><span class="txt dark">Count injuries per hours</span><span class="ico"><i class="fa-solid fa-arrow-rotate-left"></i></span><span class="ico"><i class="fa-regular fa-thumbs-up"></i></span><span class="ico"><i class="fa-regular fa-thumbs-down"></i></span><span class="send"><i class="fa-regular fa-paper-plane"></i></span></div></div>
+          <div class="state-label">Formula already exists (warning)</div>
+          <div class="aibar-wrap"><div class="aibar"><span class="pill2"><i class="fa-solid fa-wand-magic-sparkles"></i> AI</span><span class="txt">Your existing formula already does exactly that!</span><span class="ico"><i class="fa-regular fa-thumbs-up"></i></span><span class="ico"><i class="fa-regular fa-thumbs-down"></i></span><button class="btn-mini">Back</button></div></div>
+        </div>
+      </section>
+
+      <!-- BEHAVIOUR -->
+      <section id="behaviour">
+        <h2><span class="num">5</span>Behaviour <span style="font-size:14px;font-weight:500;color:var(--ink-3)">— QA reference</span></h2>
+        <p>Stable IDs so QA and dev can reference scenarios in tickets and test plans.</p>
+
+        <h3>5.1 Building a formula</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-1</td><td>Type a field ID/name (CB_9)</td><td>Autocomplete opens with matches; first highlighted.</td></tr>
+          <tr><td class="qid">B-2/3</td><td>↓/↑ then Enter/Tab</td><td>Navigates matches; selection inserts as a token.</td></tr>
+          <tr><td class="qid">B-4</td><td>Enter on text matching nothing</td><td>Inserts as unrecognized token (plain red, underlined); field invalid.</td></tr>
+          <tr><td class="qid">B-5</td><td>Insert a field by typing</td><td>Operator dropdown opens under the cursor; keyboard-navigable.</td></tr>
+          <tr><td class="qid">B-6/7</td><td>Choose operator in typed flow</td><td>Comparison → that field’s values; arithmetic/logical → fields.</td></tr>
+          <tr><td class="qid">B-8/9</td><td>Click field / operator in the panel</td><td>Panel switches Fields→Operators / Operators→Fields (no inline dropdown).</td></tr>
+          <tr><td class="qid">B-10</td><td>Mix typing &amp; clicking</td><td>Most recent action wins.</td></tr>
+          <tr><td class="qid">B-11/12</td><td>Backspace empty / hover chip ×</td><td>Removes last token / removes that token.</td></tr>
+          <tr><td class="qid">B-13</td><td>Paste <code>( CB_9 == Yes ) * 200000 / {Hours}</code></td><td>Parses into coloured tokens; IN→==, AND→&amp;&amp;, OR→||, {Hours} normalized.</td></tr>
+        </table>
+
+        <h3>5.2 Reference panel &amp; search</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-20/21</td><td>Hover / click an item</td><td>Hover previews in the detail pane; click inserts.</td></tr>
+          <tr><td class="qid">B-22/24</td><td>Click search icon / ✕</td><td>Pill animates open from the icon / clears &amp; collapses.</td></tr>
+          <tr><td class="qid">B-23</td><td>Search cb / dd / tf / ls</td><td>Filters by field type; any keyword matches by name/ID.</td></tr>
+          <tr><td class="qid">B-25</td><td>Click an example’s Insert</td><td>Example tokens insert into the field.</td></tr>
+        </table>
+
+        <h3>5.3 Presets, validation, Reset/Discard</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-30/31</td><td>Choose a preset, fill slots</td><td>Inserts with empty slots; picker auto-opens; value slot uses the chosen field’s options.</td></tr>
+          <tr><td class="qid">B-41/42</td><td>Valid / invalid formula</td><td>Green border + “Valid Input” / red border + message; Save toggles.</td></tr>
+          <tr><td class="qid">B-44</td><td>New metric: Reset</td><td>Clears the field.</td></tr>
+          <tr><td class="qid">B-45/46/47</td><td>Editing saved: change it</td><td>Button becomes “Discard”; hover shows tooltip; click reverts to saved.</td></tr>
+        </table>
+
+        <h3>5.4 AI Assist</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-50/51</td><td>Empty / typed prompt</td><td>Send inactive / active.</td></tr>
+          <tr><td class="qid">B-52/53</td><td>Send / stop</td><td>Generating state (dots + stop) / cancels back.</td></tr>
+          <tr><td class="qid">B-54/55</td><td>Generation done / revert</td><td>Inserts editable tokens; revert restores pre-generation formula.</td></tr>
+          <tr><td class="qid">B-56/57</td><td>Thumbs → submit feedback</td><td>Feedback modal opens; submit shows success.</td></tr>
+          <tr><td class="qid">B-58</td><td>Formula already exists</td><td>Warning state with thumbs + Back.</td></tr>
+        </table>
+      </section>
+
+      <!-- TECH -->
+      <section id="tech">
+        <h2><span class="num">6</span>Technical</h2>
+        <h3>Operators → JavaScript</h3>
+        <table>
+          <tr><th>Token</th><th>Maps to</th><th>Group</th><th>Notes</th></tr>
+          <tr><td><code>== !=</code></td><td><code>== / !=</code> (or “contains” on multi-select)</td><td>Comparison</td><td>On multi-select fields, == means “contains”.</td></tr>
+          <tr><td><code>&gt; &gt;= &lt; &lt;=</code></td><td>same</td><td>Comparison</td><td>Numeric fields.</td></tr>
+          <tr><td><code>&amp;&amp; ||</code></td><td><code>&amp;&amp; / ||</code></td><td>Logical</td><td>Replaces AND / OR.</td></tr>
+          <tr><td><code>+ - * /</code></td><td>same</td><td>Arithmetic</td><td>Divide-by-zero → “no result”.</td></tr>
+          <tr><td><code>( )</code></td><td>same</td><td>Grouping</td><td>—</td></tr>
+        </table>
+        <ul>
+          <li>Tokens have a kind (field / operator / value / hours / slot) + an “unknown” flag; Save stores the ordered token list (parseable from / serializable to a string).</li>
+          <li>Custom metrics always return a single numeric value (count or number derived from counts) — no boolean/if-else return.</li>
+          <li><code>{Hours}</code> pulls Location Hours for the selected location (+ sub-locations when the toggle is on); must match current system logic.</li>
+          <li>Suggestions respect data-access permissions; validation runs in real time and must stay responsive on 800+ field forms.</li>
+          <li>AI must use only valid fields/operators and fail gracefully (no fabricated fields).</li>
+          <li><b>Migration (4.9):</b> existing metrics migrate to tokens with unchanged calculations; rollback must exist; treat as backend, surface UI only if a metric actually changes.</li>
+        </ul>
+      </section>
+
+      <!-- COPY -->
+      <section id="copy">
+        <h2><span class="num">7</span>Copy <span class="pill p-pend">Pending writer review</span></h2>
+        <div class="callout"><i class="fa-solid fa-pen-nib"></i> &nbsp;This is the one open item. Every user-visible string is below for the technical writer to refine. <b>The UI has no em-dashes by design — please keep it that way.</b></div>
+
+        <h3>Interface &amp; buttons</h3>
+        <table>
+          <tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Modal title</td><td>Custom Metric</td></tr>
+          <tr><td>Formula field placeholder</td><td>Start typing or click below</td></tr>
+          <tr><td>Validation — valid</td><td>Valid Input</td></tr>
+          <tr><td>Validation — invalid</td><td>Sorry! There’s a syntax or reference issue. Please update the formula.</td></tr>
+          <tr><td>Field button — new metric</td><td>Reset</td></tr>
+          <tr><td>Field button — editing saved</td><td>Discard</td></tr>
+          <tr><td>Discard tooltip</td><td>Reverts to the original formula when first opened.</td></tr>
+          <tr><td>Sub-locations toggle</td><td>Include hours from sub-locations</td></tr>
+          <tr><td>Footer buttons</td><td>Cancel · Save</td></tr>
+          <tr><td>Reference tabs</td><td>Fields · Operators · Formulas</td></tr>
+          <tr><td>Search placeholder</td><td>Search</td></tr>
+          <tr><td>Example action</td><td>Insert</td></tr>
+          <tr><td>Detail labels</td><td>OPTIONS · EXAMPLES</td></tr>
+          <tr><td>Empty preset slot</td><td>Select field · Select value</td></tr>
+        </table>
+
+        <h3>AI Assist &amp; feedback</h3>
+        <table>
+          <tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Prompt placeholder</td><td>Generate or update formula…</td></tr>
+          <tr><td>Generating</td><td>Generating… (animated dots)</td></tr>
+          <tr><td>Formula-exists warning</td><td>Your existing formula already does exactly that!</td></tr>
+          <tr><td>Warning action</td><td>Back</td></tr>
+          <tr><td>Revert tooltip</td><td>Revert Changes</td></tr>
+          <tr><td>Feedback modal title</td><td>Additional feedback</td></tr>
+          <tr><td>Feedback label</td><td>How can we do better?</td></tr>
+          <tr><td>Feedback placeholder</td><td>Feel free to add specific details.</td></tr>
+          <tr><td>Feedback success</td><td>Thanks! Your feedback helps us improve.</td></tr>
+        </table>
+
+        <h3>Field descriptions (by type)</h3>
+        <table>
+          <tr><th style="width:22%">Type</th><th>Description</th></tr>
+          <tr><td>Checkbox</td><td>Counts completed forms where the options you pick were selected.</td></tr>
+          <tr><td>Dropdown</td><td>Counts completed forms where the option you pick was selected.</td></tr>
+          <tr><td>Text</td><td>Counts completed forms whose text contains the value(s) you pick. If it holds numbers, it adds them all up instead.</td></tr>
+          <tr><td>Likert scale</td><td>Counts completed forms where the statement you pick got one of the responses you choose.</td></tr>
+          <tr><td>System — {Hours}</td><td>Pulls in the hours for the location (and sub-locations, if turned on) selected on the dashboard.</td></tr>
+        </table>
+
+        <h3>Operators</h3>
+        <table>
+          <tr><th style="width:8%">Op</th><th style="width:20%">Name</th><th>Description</th></tr>
+          <tr><td><code>+</code></td><td>Add</td><td>Adds two numbers together. Handy for combining counts into one total.</td></tr>
+          <tr><td><code>-</code></td><td>Subtract</td><td>Takes the second number away from the first.</td></tr>
+          <tr><td><code>*</code></td><td>Multiply</td><td>Multiplies two numbers. Often used to scale a count, like × 200,000 for safety rates.</td></tr>
+          <tr><td><code>/</code></td><td>Divide</td><td>Divides the first number by the second. Dividing by zero shows no result.</td></tr>
+          <tr><td><code>==</code></td><td>Equal to</td><td>Counts forms where the field matches the answer you pick.</td></tr>
+          <tr><td><code>!=</code></td><td>Not equal to</td><td>Counts forms where the field is anything other than the answer you pick.</td></tr>
+          <tr><td><code>&gt; &gt;= &lt; &lt;=</code></td><td>Greater / less than</td><td>Keeps forms where the number is above / at-or-above / below / at-or-below the value you set.</td></tr>
+          <tr><td><code>&amp;&amp;</code></td><td>And</td><td>Both conditions must be true for a form to be counted.</td></tr>
+          <tr><td><code>||</code></td><td>Or</td><td>Either condition can be true for a form to be counted.</td></tr>
+          <tr><td><code>( )</code></td><td>Group</td><td>Groups part of a formula so it runs first.</td></tr>
+        </table>
+
+        <h3>Preset formulas</h3>
+        <table>
+          <tr><th style="width:24%">Name</th><th>Description</th></tr>
+          <tr><td>TRIF Rate</td><td>Your recordable injury rate per 200,000 hours worked. The standard safety KPI.</td></tr>
+          <tr><td>Injury Rate %</td><td>The share of submitted forms that reported an injury.</td></tr>
+          <tr><td>Incident Count</td><td>A simple count of forms matching one incident type.</td></tr>
+        </table>
+      </section>
+
+      <!-- OPEN -->
+      <section id="open">
+        <h2><span class="num">8</span>Open questions</h2>
+        <ul>
+          <li><b>IN → ==</b>: confirm the operator change with dev + define the migration mapping for existing formulas.</li>
+          <li><b>Multi-select semantics</b>: confirm the “contains” behaviour and wording for == / != on multi-select checkbox &amp; dropdown fields.</li>
+          <li><b>Likert</b>: a scale has multiple statements, each rated — prototype simplifies to a single response set. Statement picker needed?</li>
+          <li><b>Preset slots</b>: presets make both field and value empty — should some keep a fixed value (e.g. TRIF always “== Yes”)?</li>
+          <li><b>Auto-fix</b>: build auto-fix suggestions, or rely on the clear message alone?</li>
+          <li><b>Numeric vs Text</b> field grouping (currently folded together).</li>
+        </ul>
+      </section>
+
+      <footer>
+        Ticket 20098 · Prototype: <a href="custom-metric-editor-v5-bis.html">custom-metric-editor-v5-bis.html</a> ·
+        Figma: <a href="https://www.figma.com/design/ZfdeetM0mrxi97MevwBnvK/Reporting-Dashboard" target="_blank">Reporting Dashboard</a> ·
+        Component library: <a href="https://pre.storybook.bissafety.app/?path=/docs/display-messaging-bischip--docs" target="_blank">Storybook</a>
+      </footer>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>
