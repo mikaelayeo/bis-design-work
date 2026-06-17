@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIS Summer Olympics Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0A0E1A; font-family: 'Barlow', sans-serif; color: #fff; min-height: 100vh; overflow-x: hidden; }
+.grid-bg { position: fixed; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; z-index: 0; }
+.content { position: relative; z-index: 1; max-width: 740px; margin: 0 auto; padding: 0 20px 40px; }
+
+/* Top bar */
+.top-bar { height: 4px; background: linear-gradient(90deg, #00E5A0, #3B82F6, #F59E0B, #EF4444, #A855F7); animation: bannerSlide 0.8s ease-out forwards; transform-origin: left; }
+
+/* Header */
+.header { text-align: center; padding: 40px 0 12px; }
+.header .sub { font-family: 'Bebas Neue', sans-serif; font-size: clamp(16px, 3.5vw, 22px); letter-spacing: 8px; color: rgba(255,255,255,0.35); text-transform: uppercase; }
+.header h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(44px, 9vw, 80px); line-height: 0.95; letter-spacing: 3px; background: linear-gradient(135deg, #fff 0%, #FFD700 30%, #FF6B35 60%, #fff 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: shimmer 4s linear infinite; }
+.header .season { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(12px, 2vw, 14px); color: rgba(255,255,255,0.3); letter-spacing: 3px; margin-top: 6px; }
+
+/* Week Nav */
+.week-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 8px; }
+.week-nav button.arrow { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 20px; padding: 8px 16px; cursor: pointer; transition: all 0.2s; }
+.week-nav button.arrow:disabled { color: rgba(255,255,255,0.15); cursor: default; }
+.week-nav .center { flex: 1; text-align: center; }
+.week-nav .week-label { font-family: 'Bebas Neue', sans-serif; font-size: clamp(32px, 7vw, 48px); color: #FFD700; line-height: 1; }
+.view-toggle { background: none; border: none; cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; padding: 4px 12px; margin-top: 2px; transition: color 0.3s; }
+
+/* Week dots */
+.week-dots { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; padding: 4px 0 8px; }
+.week-dots button { width: 24px; height: 24px; border-radius: 4px; font-size: 10px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+
+/* Challenge card */
+.challenge-card { background: linear-gradient(135deg, rgba(255,107,53,0.08), rgba(255,215,0,0.06)); border: 1px solid rgba(255,107,53,0.25); border-radius: 12px; padding: 18px 24px; position: relative; overflow: hidden; margin: 12px 0 10px; animation: fadeInUp 0.4s ease-out; }
+.challenge-card .fire { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 64px; opacity: 0.07; }
+.challenge-card .label { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.challenge-card .label span:last-child { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #FF6B35; }
+.challenge-text { font-size: clamp(15px, 2.8vw, 19px); line-height: 1.5; font-weight: 500; position: relative; z-index: 1; min-height: 24px; }
+.challenge-text.empty { color: rgba(255,255,255,0.25); font-style: italic; font-weight: 400; font-size: 14px; }
+
+/* Leader card */
+.leader-card { border-radius: 12px; padding: 18px 24px; display: flex; align-items: center; gap: 14px; position: relative; overflow: hidden; margin: 12px 0 10px; animation: fadeInUp 0.4s ease-out 0.1s both; }
+.leader-card .bg-emoji { position: absolute; right: -20px; top: -20px; font-size: 90px; opacity: 0.06; transform: rotate(15deg); }
+.leader-card .crown { font-size: 36px; animation: crownBounce 2s ease-in-out infinite; }
+.leader-card .info { flex: 1; }
+.leader-card .info .tag { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; letter-spacing: 3px; color: #FFD700; text-transform: uppercase; font-weight: 600; }
+.leader-card .info .name { font-family: 'Bebas Neue', sans-serif; font-size: clamp(22px, 4.5vw, 32px); line-height: 1.1; }
+.leader-card .pts { font-family: 'Bebas Neue', sans-serif; font-size: clamp(32px, 6vw, 46px); color: #FFD700; line-height: 1; text-align: right; }
+.leader-card .pts .unit { font-size: 10px; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 2px; color: rgba(255,215,0,0.6); font-weight: 600; }
+
+/* Standings */
+.standings-label { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 4px; color: rgba(255,255,255,0.3); text-transform: uppercase; font-weight: 600; margin-bottom: 14px; padding-left: 4px; }
+.team-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.team-row .rank { font-family: 'Bebas Neue', sans-serif; font-size: 26px; width: 28px; text-align: center; line-height: 1; }
+.team-row .emoji { font-size: 26px; line-height: 1; }
+.team-row .data { flex: 1; min-width: 0; }
+.team-row .top-line { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
+.team-row .team-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: clamp(13px, 2.8vw, 17px); letter-spacing: 1px; text-transform: uppercase; }
+.team-row .score-area { display: flex; align-items: baseline; gap: 8px; }
+.team-row .gap { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; color: rgba(255,255,255,0.2); font-weight: 600; }
+.team-row .week-add { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; color: #00E5A0; font-weight: 600; }
+.team-row .score-static { font-family: 'Bebas Neue', sans-serif; font-size: clamp(20px, 3.5vw, 28px); color: #fff; }
+.bar-track { height: 9px; background: rgba(255,255,255,0.06); border-radius: 5px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 5px; position: relative; transition: width 0.8s ease-out; }
+.bar-fill.leader .shimmer { position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); background-size: 200% 100%; animation: shimmer 2s linear infinite; border-radius: 5px; }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 28px; }
+.stat-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px 10px; text-align: center; }
+.stat-box .icon { font-size: 20px; margin-bottom: 3px; }
+.stat-box .val { font-family: 'Bebas Neue', sans-serif; font-size: clamp(24px, 4.5vw, 32px); }
+.stat-box .lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,0.3); text-transform: uppercase; font-weight: 600; }
+
+/* Sync bar */
+.sync-bar { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 26px; font-family: 'Barlow Condensed', sans-serif; font-size: 12px; letter-spacing: 1px; color: rgba(255,255,255,0.4); }
+.sync-bar .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.sync-bar .dot.ok { background: #00E5A0; box-shadow: 0 0 8px rgba(0,229,160,0.6); }
+.sync-bar .dot.preview { background: #F59E0B; }
+.sync-bar .dot.error { background: #EF4444; }
+.sync-bar .dot.loading { background: rgba(255,255,255,0.4); animation: pulse 1s ease-in-out infinite; }
+.sync-bar button { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 6px; color: rgba(255,255,255,0.7); font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; cursor: pointer; transition: all 0.2s; }
+.sync-bar button:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+/* Footer */
+.footer { text-align: center; padding: 30px 0 28px; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 3px; color: rgba(255,255,255,0.12); text-transform: uppercase; }
+
+@keyframes fadeInUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes crownBounce { 0%,100% { transform: scale(1) rotate(-5deg); } 50% { transform: scale(1.25) rotate(5deg); } }
+@keyframes bannerSlide { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+@keyframes pulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="top-bar"></div>
+<div class="content" id="app"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  CONFIG  —  edit these if the basics change
+// ═══════════════════════════════════════════════
+const SEASON = "May – September 2026";
+const TOTAL_WEEKS = 22;
+
+// Monday of Week 1. The board opens on whatever week we're currently in,
+// counted forward from this date — so it auto-advances and nobody has to
+// change the default each week.
+const SEASON_START = "2026-05-18";
+function computeCurrentWeek() {
+  const start = new Date(SEASON_START + "T00:00:00");
+  const now = new Date();
+  const wk = Math.floor((now - start) / (7 * 24 * 60 * 60 * 1000)) + 1;
+  return Math.max(1, Math.min(TOTAL_WEEKS, wk));
+}
+
+// Where the live scores come from.
+//
+// LIVE (Google Sheets): paste the "Publish to web → CSV" URL from the
+//   Social Committee's Google Sheet here. The dashboard fetches it on load
+//   and every 5 minutes — no further action needed. SC edits the Sheet,
+//   the board updates itself.
+//
+// LOCAL/TEST: leave as "scores.csv" to read the file next to this page.
+//   Useful while iterating on the design or if Google Sheets is ever
+//   unavailable.
+const SCORES_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTdn0cQZWNJq8pGXIemJ22tq4B5fyGzZaL3kkK7nfhBOn9mnq-QMlpCTJkjXZXXHwNTDDQt24dqc9D4/pub?output=csv";
+
+// Team definitions. The `sheet` value MUST match the column header in the
+// Excel/CSV exactly (case-insensitive). Don't rename these without also
+// renaming the matching column in the spreadsheet.
+const TEAMS = [
+  { id:"ptero",   sheet:"PTERODACTYLS", name:"Ptechy Pterodactyls", short:"PTERODACTYLS", emoji:"🦕", color:"#00E5A0", accent:"#00FFB3", bg:"rgba(0,229,160,0.08)" },
+  { id:"manatee", sheet:"MANATEES",     name:"Marketing Manatees",  short:"MANATEES",     emoji:"🦭", color:"#3B82F6", accent:"#60A5FA", bg:"rgba(59,130,246,0.08)" },
+  { id:"capy",    sheet:"CAPYBARAS",    name:"Customer Capybaras",  short:"CAPYBARAS",    emoji:"🦫", color:"#F59E0B", accent:"#FBBF24", bg:"rgba(245,158,11,0.08)" },
+  { id:"dragon",  sheet:"DRAGONS",      name:"Development Dragons", short:"DRAGONS",      emoji:"🐉", color:"#EF4444", accent:"#F87171", bg:"rgba(239,68,68,0.08)" },
+  { id:"langur",  sheet:"LANGURS",      name:"Legal Langurs",       short:"LANGURS",      emoji:"🐒", color:"#A855F7", accent:"#C084FC", bg:"rgba(168,85,247,0.08)" },
+];
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let allWeeks = {};
+let currentWeek = computeCurrentWeek();   // open on the current week by default
+let viewMode = "cumulative";
+let syncState = "loading";   // loading | ok | preview | error
+let lastSync = null;
+
+const CACHE_KEY = "bis-olympics-last-scores";
+
+function emptyWeek() {
+  const pts = {};
+  TEAMS.forEach(t => pts[t.id] = 0);
+  return { challenge: "", points: pts };
+}
+function getWeek(w) { return allWeeks["w"+w] || emptyWeek(); }
+
+// ═══════════════════════════════════════════════
+//  CSV → DATA
+// ═══════════════════════════════════════════════
+function parseCSV(text) {
+  const rows = []; let row = []; let field = ""; let inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"') {
+        if (text[i+1] === '"') { field += '"'; i++; }
+        else inQ = false;
+      } else field += c;
+    } else {
+      if (c === '"') inQ = true;
+      else if (c === ',') { row.push(field); field = ""; }
+      else if (c === '\r') { /* skip */ }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ""; }
+      else field += c;
+    }
+  }
+  row.push(field); rows.push(row);
+  return rows.filter(r => !(r.length === 1 && r[0].trim() === ""));
+}
+
+function csvToWeeks(text) {
+  const rows = parseCSV(text);
+  if (!rows.length) return {};
+  const headers = rows[0].map(h => h.trim().toUpperCase());
+  const weekIdx = headers.indexOf("WEEK");
+  const chalIdx = headers.indexOf("CHALLENGE");
+  const teamIdx = {};
+  TEAMS.forEach(t => { teamIdx[t.id] = headers.indexOf(t.sheet); });
+
+  const weeks = {};
+  for (let r = 1; r < rows.length; r++) {
+    const cells = rows[r];
+    const w = parseInt((cells[weekIdx] || "").trim());
+    if (!(w >= 1 && w <= TOTAL_WEEKS)) continue;
+    const pts = {};
+    TEAMS.forEach(t => {
+      const raw = teamIdx[t.id] >= 0 ? (cells[teamIdx[t.id]] || "").trim() : "";
+      pts[t.id] = parseInt(raw.replace(/[^0-9-]/g, "")) || 0;
+    });
+    weeks["w"+w] = { challenge: chalIdx >= 0 ? (cells[chalIdx] || "").trim() : "", points: pts };
+  }
+  return weeks;
+}
+
+// Sample data — shown only when the live file can't be reached (e.g. opening
+// this HTML directly from disk). Clearly flagged as "preview" so nobody mistakes
+// it for real scores.
+function sampleWeeks() {
+  return {
+    w1: { challenge: "Step Challenge — most team steps logged in BIStrainer", points: { ptero:120, manatee:95, capy:140, dragon:80, langur:110 } },
+    w2: { challenge: "Trivia Tuesday — company history quiz", points: { ptero:60, manatee:130, capy:70, dragon:115, langur:90 } },
+    w3: { challenge: "Hydration Heroes — log your water intake", points: { ptero:100, manatee:85, capy:95, dragon:150, langur:75 } },
+  };
+}
+
+// ═══════════════════════════════════════════════
+//  LOAD
+// ═══════════════════════════════════════════════
+function cacheSet(data) { try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch(e){} }
+function cacheGet() { try { const r = localStorage.getItem(CACHE_KEY); return r ? JSON.parse(r) : null; } catch(e){ return null; } }
+
+async function loadScores() {
+  // Opened straight from disk → fetch of a local file is blocked by the browser.
+  // Show labelled sample data so the design can still be previewed.
+  if (location.protocol === "file:") {
+    allWeeks = sampleWeeks();
+    syncState = "preview";
+    render();
+    return;
+  }
+  syncState = "loading"; render();
+  try {
+    const sep = SCORES_CSV.indexOf("?") >= 0 ? "&" : "?";
+    const res = await fetch(SCORES_CSV + sep + "cb=" + new Date().getTime(), { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const text = await res.text();
+    allWeeks = csvToWeeks(text);
+    cacheSet(allWeeks);
+    lastSync = new Date();
+    syncState = "ok";
+    render();
+  } catch (e) {
+    console.error("Could not load scores:", e);
+    const cached = cacheGet();
+    if (cached) { allWeeks = cached; }
+    syncState = "error";
+    render();
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  HASH ROUTING  (deep-link to a week / view)
+// ═══════════════════════════════════════════════
+function parseHash() {
+  const p = new URLSearchParams(location.hash.replace("#",""));
+  const w = parseInt(p.get("week"));
+  if (w >= 1 && w <= TOTAL_WEEKS) currentWeek = w;
+  if (p.get("view") === "weekly") viewMode = "weekly";
+  if (p.get("view") === "total") viewMode = "cumulative";
+}
+function updateHash() {
+  location.hash = `week=${currentWeek}&view=${viewMode === "cumulative" ? "total" : "weekly"}`;
+}
+
+// ═══════════════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════════════
+function goToWeek(w) { currentWeek = Math.max(1, Math.min(TOTAL_WEEKS, w)); updateHash(); render(); }
+function toggleView() { viewMode = viewMode === "cumulative" ? "weekly" : "cumulative"; updateHash(); render(); }
+
+// ═══════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════
+function render() {
+  const weekData = getWeek(currentWeek);
+
+  const cumulative = {};
+  TEAMS.forEach(t => cumulative[t.id] = 0);
+  for (let w = 1; w <= TOTAL_WEEKS; w++) {
+    const wd = getWeek(w);
+    TEAMS.forEach(t => cumulative[t.id] += (wd.points[t.id] || 0));
+  }
+
+  const displayPts = viewMode === "cumulative" ? cumulative : weekData.points;
+  const sorted = TEAMS.map(t => ({ ...t, points: displayPts[t.id] || 0 })).sort((a,b) => b.points - a.points);
+  const maxPts = Math.max(...sorted.map(t => t.points), 1);
+  const leader = sorted[0];
+  const totalPts = sorted.reduce((s,t) => s + t.points, 0);
+  const allZero = totalPts === 0;
+
+  const weeksWithData = new Set();
+  for (let w = 1; w <= TOTAL_WEEKS; w++) {
+    const wd = getWeek(w);
+    if (wd.challenge || TEAMS.some(t => (wd.points[t.id] || 0) > 0)) weeksWithData.add(w);
+  }
+
+  let html = "";
+
+  html += `<div class="header">
+    <div class="sub">BIS Training Solutions</div>
+    <h1>SUMMER OLYMPICS</h1>
+    <div class="season">${SEASON}</div>
+  </div>`;
+
+  html += `<div class="week-nav">
+    <button class="arrow" onclick="goToWeek(${currentWeek-1})" ${currentWeek===1?"disabled":""}>◀</button>
+    <div class="center">
+      <div class="week-label">WEEK ${currentWeek}</div>
+      <button class="view-toggle" onclick="toggleView()" style="color:${viewMode==="cumulative"?"#00E5A0":"#FF6B35"}">
+        ${viewMode==="cumulative" ? "⚡ Showing Cumulative Total" : "📌 Showing Week "+currentWeek+" Only"}
+      </button>
+    </div>
+    <button class="arrow" onclick="goToWeek(${currentWeek+1})" ${currentWeek===TOTAL_WEEKS?"disabled":""}>▶</button>
+  </div>`;
+
+  html += `<div class="week-dots">`;
+  for (let w = 1; w <= TOTAL_WEEKS; w++) {
+    const isCurrent = w === currentWeek;
+    const hasData = weeksWithData.has(w);
+    const bg = isCurrent ? "rgba(255,215,0,0.2)" : hasData ? "rgba(0,229,160,0.15)" : "rgba(255,255,255,0.03)";
+    const border = isCurrent ? "2px solid #FFD700" : "1px solid rgba(255,255,255,0.08)";
+    const color = isCurrent ? "#FFD700" : hasData ? "#00E5A0" : "rgba(255,255,255,0.25)";
+    html += `<button onclick="goToWeek(${w})" style="background:${bg};border:${border};color:${color}">${w}</button>`;
+  }
+  html += `</div>`;
+
+  const ch = weekData.challenge;
+  html += `<div class="challenge-card">
+    <div class="fire">🔥</div>
+    <div class="label"><span style="font-size:20px">🎯</span><span>Week ${currentWeek} Challenge</span></div>
+    <div class="challenge-text ${ch?"":"empty"}">${ch ? escapeHtml(ch) : "No challenge set for this week yet"}</div>
+  </div>`;
+
+  if (!allZero) {
+    html += `<div class="leader-card" style="background:linear-gradient(135deg,${leader.bg},rgba(255,215,0,0.06));border:1px solid rgba(255,215,0,0.2)">
+      <div class="bg-emoji">${leader.emoji}</div>
+      <div class="crown">👑</div>
+      <div class="info">
+        <div class="tag">${viewMode==="cumulative"?"Overall Leader":"Week "+currentWeek+" Leader"}</div>
+        <div class="name" style="color:${leader.color}">${leader.emoji} ${leader.name}</div>
+      </div>
+      <div class="pts">${leader.points.toLocaleString()}<div class="unit">PTS</div></div>
+    </div>`;
+  }
+
+  html += `<div class="standings-label">${viewMode==="cumulative"?"Overall Standings":"Week "+currentWeek+" Results"}</div>`;
+
+  sorted.forEach((team, i) => {
+    const pct = maxPts > 0 ? (team.points / maxPts) * 100 : 0;
+    const gap = i > 0 && !allZero ? sorted[0].points - team.points : 0;
+    const weekPts = weekData.points[team.id] || 0;
+    const rankColor = i === 0 && !allZero ? "#FFD700" : "rgba(255,255,255,0.2)";
+
+    html += `<div class="team-row" style="animation:fadeInUp 0.4s ease-out ${0.1+i*0.08}s both">
+      <div class="rank" style="color:${rankColor}">${i+1}</div>
+      <div class="emoji">${team.emoji}</div>
+      <div class="data">
+        <div class="top-line">
+          <span class="team-name" style="color:${team.color}">${team.short}</span>
+          <div class="score-area">
+            ${gap > 0 ? `<span class="gap">-${gap}</span>` : ""}
+            ${viewMode==="cumulative" && weekPts > 0 ? `<span class="week-add">+${weekPts}</span>` : ""}
+            <span class="score-static">${team.points.toLocaleString()}</span>
+          </div>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill ${i===0&&!allZero?"leader":""}" style="width:${pct}%;background:linear-gradient(90deg,${team.color},${team.accent})">
+            ${i===0&&!allZero?'<div class="shimmer"></div>':""}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  const cumTotal = Object.values(cumulative).reduce((a,b) => a+b, 0);
+  html += `<div class="stats">
+    <div class="stat-box"><div class="icon">⚡</div><div class="val">${cumTotal.toLocaleString()}</div><div class="lbl">Total Points</div></div>
+    <div class="stat-box"><div class="icon">🏟️</div><div class="val">${TEAMS.length}</div><div class="lbl">Teams</div></div>
+    <div class="stat-box"><div class="icon">📅</div><div class="val">${Math.max(0, TOTAL_WEEKS - currentWeek)}</div><div class="lbl">Weeks Left</div></div>
+  </div>`;
+
+  // Sync status
+  let dotClass, msg;
+  if (syncState === "ok") { dotClass = "ok"; msg = "Live scores · synced " + (lastSync ? lastSync.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}) : ""); }
+  else if (syncState === "preview") { dotClass = "preview"; msg = "Preview — sample data (live scores load once hosted)"; }
+  else if (syncState === "loading") { dotClass = "loading"; msg = "Syncing scores…"; }
+  else { dotClass = "error"; msg = "Couldn't reach the scores — showing last saved"; }
+  html += `<div class="sync-bar"><span class="dot ${dotClass}"></span> ${msg} <button onclick="loadScores()">↻ Refresh</button></div>`;
+
+  html += `<div class="footer">Play safe. Compete hard. Win together.</div>`;
+
+  document.getElementById("app").innerHTML = html;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+parseHash();
+loadScores();
+window.addEventListener("hashchange", () => { parseHash(); render(); });
+// Auto-refresh every 5 minutes for screens left open in the office.
+setInterval(loadScores, 5 * 60 * 1000);
+</script>
+</body>
+</html>

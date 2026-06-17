@@ -363,6 +363,14 @@
       "kind": "item",
       "audience": "studio",
       "category": "docs",
+      "title": "BIS Summer Olympics Dashboard",
+      "date": "2026-06-17",
+      "path": "studio/docs/bis%20olympics/index.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "docs",
       "title": "Building what matters",
       "date": "2026-06-12",
       "path": "studio/docs/building-what-matters.html"
