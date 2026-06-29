@@ -282,6 +282,15 @@
       "kind": "item",
       "audience": "showcase",
       "category": "prototypes",
+      "title": "Folder breadcrumbs",
+      "date": "2026-06-29",
+      "path": "showcase/prototypes/TKT-20996-folder-breadcrumbs.html",
+      "ticket": "TKT-20996"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "prototypes",
       "title": "Home prototype v3",
       "date": "2026-06-15",
       "path": "showcase/prototypes/home-prototype-v3-final%20ready%20for%20review.html"
