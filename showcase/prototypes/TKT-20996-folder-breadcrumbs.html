@@ -103,7 +103,7 @@
     <div class="rule">
       <table>
         <tr><td>Hidden at root</td><td>No breadcrumb on the Folders tab — only appears once you're inside a folder.</td></tr>
-        <tr><td>Pinned root</td><td>The <i class="fa-regular fa-folder-open"></i> anchor stays fixed on the left and never scrolls off, no matter how deep.</td></tr>
+        <tr><td>Pinned root</td><td>The <i class="fa-solid fa-folder-open"></i> anchor stays fixed on the left and never scrolls off, no matter how deep.</td></tr>
         <tr><td>Collapses</td><td>Deeper than 3 folders → <code>🗂 › … › last&nbsp;3</code>. The current folder is always visible.</td></tr>
         <tr><td>Tap to jump</td><td>Any crumb jumps to that level. The current folder is bold &amp; not tappable.</td></tr>
         <tr><td>"…" overflow</td><td>Opens a sheet listing every level so collapsed folders stay reachable in one tap.</td></tr>
@@ -181,7 +181,7 @@ function render(){
 
   const sepI = '<i class="fa-solid fa-angle-right sep"></i>';
   // anchor (pinned): root + overflow
-  let anchor = '<button class="crumb root" title="Folders" onclick="goRoot()"><i class="fa-regular fa-folder-open"></i></button>';
+  let anchor = '<button class="crumb root" title="Folders" onclick="goRoot()"><i class="fa-solid fa-folder-open"></i></button>';
   if(overflow>0){
     anchor += sepI + '<button class="crumb ell" onclick="openSheet()">…</button>';
   }
@@ -209,7 +209,7 @@ function render(){
 
 function openSheet(){
   const sl = document.getElementById('sheetList');
-  let html = '<button class="lvl" onclick="goRoot()"><i class="fa-regular fa-folder-open"></i>Folders</button>';
+  let html = '<button class="lvl" onclick="goRoot()"><i class="fa-solid fa-folder-open"></i>Folders</button>';
   path.forEach((it,i)=>{
     const isCur = i===path.length-1;
     html += '<button class="lvl '+(isCur?'cur':'')+'" '+(isCur?'':'onclick="jumpTo('+i+')"')+'>'+
