@@ -103,7 +103,7 @@
     <div class="rule">
       <table>
         <tr><td>Hidden at root</td><td>No breadcrumb on the Folders tab — only appears once you're inside a folder.</td></tr>
-        <tr><td>Pinned root</td><td>The <i class="fa-solid fa-folder-tree"></i> anchor stays fixed on the left and never scrolls off, no matter how deep.</td></tr>
+        <tr><td>Pinned root</td><td>The <i class="fa-regular fa-folder-open"></i> anchor stays fixed on the left and never scrolls off, no matter how deep.</td></tr>
         <tr><td>Collapses</td><td>Deeper than 3 folders → <code>🗂 › … › last&nbsp;3</code>. The current folder is always visible.</td></tr>
         <tr><td>Tap to jump</td><td>Any crumb jumps to that level. The current folder is bold &amp; not tappable.</td></tr>
         <tr><td>"…" overflow</td><td>Opens a sheet listing every level so collapsed folders stay reachable in one tap.</td></tr>
@@ -113,7 +113,7 @@
     <h2><i class="fa-solid fa-vial"></i> Try it</h2>
     <p>Use the buttons under the phone to drill in and out. Go <strong>4+ levels deep</strong> to see the <code>…</code> collapse, then tap it for the jump sheet.</p>
 
-    <p class="note">Built as production React Native components for SafeTapp (<code>Breadcrumb</code> + <code>BreadcrumbOverflowSheet</code>, wrapping the existing <code>MenuModal</code>). Code handed to dev separately. Icons shown here use Font Awesome 6 to match production: <code>folder-tree</code> root, <code>angle-right</code> separators.</p>
+    <p class="note">Built as production React Native components for SafeTapp (<code>Breadcrumb</code> + <code>BreadcrumbOverflowSheet</code>, wrapping the existing <code>MenuModal</code>). Code handed to dev separately. Icons shown here use Font Awesome 6 to match production: <code>folder-open</code> root, <code>angle-right</code> separators.</p>
   </div>
 
   <!-- DEMO -->
@@ -181,7 +181,7 @@ function render(){
 
   const sepI = '<i class="fa-solid fa-angle-right sep"></i>';
   // anchor (pinned): root + overflow
-  let anchor = '<button class="crumb root" title="Folders" onclick="goRoot()"><i class="fa-solid fa-folder-tree"></i></button>';
+  let anchor = '<button class="crumb root" title="Folders" onclick="goRoot()"><i class="fa-regular fa-folder-open"></i></button>';
   if(overflow>0){
     anchor += sepI + '<button class="crumb ell" onclick="openSheet()">…</button>';
   }
@@ -201,7 +201,7 @@ function render(){
   const sw = crumbs.querySelector('.scrollwrap'); if(sw) sw.scrollLeft = sw.scrollWidth;
 
   // contents: one demo subfolder + a couple files
-  let rows = '<div class="row" onclick="goDeeper()"><i class="fa-solid fa-folder lead"></i><span class="nm">'+esc(POOL[path.length]||'Subfolder')+'</span><i class="fa-solid fa-angle-right chev"></i></div>';
+  let rows = '<div class="row" onclick="goDeeper()"><i class="fa-regular fa-folder lead"></i><span class="nm">'+esc(POOL[path.length]||'Subfolder')+'</span><i class="fa-solid fa-angle-right chev"></i></div>';
   rows += '<div class="row"><i class="fa-regular fa-file-lines lead"></i><span class="nm">notes.pdf</span></div>';
   rows += '<div class="row"><i class="fa-regular fa-image lead"></i><span class="nm">photo.jpg</span></div>';
   list.innerHTML = rows;
@@ -209,11 +209,11 @@ function render(){
 
 function openSheet(){
   const sl = document.getElementById('sheetList');
-  let html = '<button class="lvl" onclick="goRoot()"><i class="fa-solid fa-folder-tree"></i>Folders</button>';
+  let html = '<button class="lvl" onclick="goRoot()"><i class="fa-regular fa-folder-open"></i>Folders</button>';
   path.forEach((it,i)=>{
     const isCur = i===path.length-1;
     html += '<button class="lvl '+(isCur?'cur':'')+'" '+(isCur?'':'onclick="jumpTo('+i+')"')+'>'+
-            '<i class="fa-solid fa-folder"></i>'+esc(it.label)+(isCur?'<span class="rt">Current</span>':'')+'</button>';
+            '<i class="fa-regular fa-folder"></i>'+esc(it.label)+(isCur?'<span class="rt">Current</span>':'')+'</button>';
   });
   sl.innerHTML = html;
   document.getElementById('scrim').classList.add('show');
