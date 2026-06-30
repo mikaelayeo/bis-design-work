@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TKT-19139 — Proposed Design</title>
+  <style>
+    /* ─── Reset & base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 14px;
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    /* ─── Artifact caption (outside the mock) ─── */
+    .artifact-caption {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      padding: 10px 20px;
+      font-size: 12px;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .artifact-caption strong { color: #fff; font-size: 13px; }
+    .artifact-caption .fidelity-badge {
+      background: #4a6fa5;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .artifact-caption .figma-note {
+      color: #f0a500;
+      font-size: 11px;
+    }
+
+    /* ─── Two-column layout: mock + notes panel ─── */
+    .page-wrapper {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+    }
+
+    /* ─── Mock column ─── */
+    .mock-column {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    /* ─── Notes panel ─── */
+    .notes-panel {
+      width: 300px;
+      flex-shrink: 0;
+      background: #fff;
+      border-left: 3px solid #5c3d8f;
+      padding: 20px 16px;
+      font-size: 12.5px;
+      line-height: 1.6;
+      position: sticky;
+      top: 0;
+      max-height: 100vh;
+      overflow-y: auto;
+    }
+    .notes-panel h2 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #5c3d8f;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #e0d8f0;
+    }
+    .notes-panel h3 {
+      font-size: 12px;
+      font-weight: 700;
+      color: #333;
+      margin: 14px 0 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .notes-panel p, .notes-panel li { font-size: 12.5px; color: #444; }
+    .notes-panel ul { padding-left: 16px; }
+    .notes-panel li { margin-bottom: 5px; }
+    .notes-panel .tag {
+      display: inline-block;
+      background: #f3eeff;
+      color: #5c3d8f;
+      border: 1px solid #c9b8e8;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .notes-panel .open-q { color: #c0392b; }
+    .notes-panel .decision { color: #27ae60; }
+    .figma-flag {
+      background: #fff8e1;
+      border: 1px solid #f0c040;
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 11.5px;
+      color: #7a5c00;
+      margin-top: 10px;
+    }
+
+    /* ═══════════════════════════════════════════
+       BIStrainer chrome
+    ═══════════════════════════════════════════ */
+
+    /* Top nav */
+    .top-nav {
+      background: #3d2c6e;
+      display: flex;
+      align-items: center;
+      height: 44px;
+      padding: 0 16px;
+      gap: 2px;
+    }
+    .top-nav .nav-logo {
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: 0.04em;
+      margin-right: 12px;
+    }
+    .top-nav a {
+      color: #d4c8f0;
+      text-decoration: none;
+      font-size: 12.5px;
+      padding: 4px 8px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .top-nav a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .top-nav a.active { color: #fff; background: rgba(255,255,255,0.15); }
+
+    /* Page title bar */
+    .page-title-bar {
+      background: #4a3080;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      height: 46px;
+    }
+    .page-title-bar h1 {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .btn-back {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.5);
+      color: #fff;
+      padding: 4px 14px;
+      border-radius: 3px;
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+
+    /* Blue report-selector header band */
+    .report-header-band {
+      background: #1b9dd9;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .report-select {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 5px 28px 5px 10px;
+      font-size: 13px;
+      color: #333;
+      min-width: 280px;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+    .btn-guide {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 5px 12px;
+      font-size: 12.5px;
+      color: #333;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .btn-guide .pdf-icon {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      background: #d32f2f;
+      color: #fff;
+      font-size: 7px;
+      font-weight: 800;
+      border-radius: 2px;
+      text-align: center;
+      line-height: 14px;
+      letter-spacing: 0;
+    }
+
+    /* Form body */
+    .form-body {
+      background: #f7f7f7;
+      padding: 20px;
+    }
+
+    /* Info/description box */
+    .info-box {
+      background: #e8f4fb;
+      border: 1px solid #b8ddf0;
+      border-radius: 4px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #2c5f7a;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    /* Form group */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .form-label {
+      font-weight: 700;
+      font-size: 13px;
+      color: #222;
+    }
+    .form-label .required { color: #d32f2f; margin-left: 1px; }
+    .label-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-link {
+      background: none;
+      border: none;
+      color: #1b9dd9;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+    }
+    .form-control {
+      width: 100%;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 6px 10px;
+      font-size: 13px;
+      color: #333;
+      appearance: none;
+    }
+    select.form-control {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+    }
+
+    /* Multi-select search input */
+    .multiselect-box {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 6px 10px;
+      font-size: 13px;
+      color: #999;
+    }
+    .multiselect-box.has-value { color: #333; }
+
+    /* Filter Options list box */
+    .filter-listbox {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 4px 0;
+      min-height: 52px;
+    }
+    .filter-listbox .filter-item {
+      padding: 5px 10px;
+      font-size: 13px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .filter-listbox .filter-item:hover { background: #f0f4ff; }
+    .filter-listbox .filter-item input[type="checkbox"] {
+      accent-color: #1b9dd9;
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ─── NEW: Additional Options block ─── */
+    .additional-options-block {
+      background: #fff;
+      border: 2px solid #5c3d8f;
+      border-radius: 5px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .additional-options-block::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 6px;
+      box-shadow: 0 0 0 3px rgba(92, 61, 143, 0.12);
+      pointer-events: none;
+    }
+    .additional-options-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .additional-options-header .section-label {
+      font-weight: 700;
+      font-size: 13px;
+      color: #222;
+    }
+    .new-pill {
+      background: #5c3d8f;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      border-radius: 10px;
+      text-transform: uppercase;
+    }
+
+    /* Radio group (Display Format) */
+    .radio-group-label {
+      font-weight: 600;
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .radio-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 4px;
+      border: 1px solid #e0e0e0;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .radio-option:hover { border-color: #1b9dd9; background: #f5faff; }
+    .radio-option.selected {
+      border-color: #1b9dd9;
+      background: #f0f8ff;
+    }
+    .radio-option input[type="radio"] {
+      accent-color: #1b9dd9;
+      width: 15px;
+      height: 15px;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+    .radio-option-text strong {
+      display: block;
+      font-size: 13px;
+      color: #222;
+      font-weight: 600;
+    }
+    .radio-option-text span {
+      font-size: 12px;
+      color: #777;
+    }
+    .radio-default-badge {
+      margin-left: auto;
+      flex-shrink: 0;
+      background: #e8f4fb;
+      color: #1b7aaa;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      align-self: center;
+      white-space: nowrap;
+    }
+
+    /* ─── Report output preview panel ─── */
+    .preview-panel {
+      background: #fafafa;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }
+    .preview-panel-header {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .preview-panel-header span { font-weight: 400; color: #999; text-transform: none; letter-spacing: 0; }
+    .preview-table-wrap {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .preview-table-section {
+      flex: 1;
+    }
+    .preview-table-section .section-tag {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 8px;
+      border-radius: 3px;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+    .preview-table-section.pct .section-tag {
+      background: #e8f4fb;
+      color: #1b7aaa;
+    }
+    .preview-table-section.raw .section-tag {
+      background: #f3eeff;
+      color: #5c3d8f;
+    }
+    .preview-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+    }
+    .preview-table th {
+      background: #3d2c6e;
+      color: #fff;
+      padding: 4px 8px;
+      text-align: left;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .preview-table td {
+      padding: 4px 8px;
+      border-bottom: 1px solid #eee;
+      color: #333;
+      background: #fff;
+    }
+    .preview-table td.compliance-cell {
+      font-weight: 600;
+      text-align: center;
+    }
+    .preview-table td.compliance-cell.pct-val { color: #1b9dd9; }
+    .preview-table td.compliance-cell.raw-val { color: #5c3d8f; }
+    .preview-table tr:nth-child(even) td { background: #f7f7f7; }
+    .preview-divider {
+      width: 1px;
+      align-self: stretch;
+      background: #ddd;
+      flex-shrink: 0;
+    }
+    .preview-arrow {
+      display: flex;
+      align-items: center;
+      padding: 0 4px;
+      color: #aaa;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ─── Schedule Report bar ─── */
+    .collapsible-bar {
+      background: #e8e8e8;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      margin-bottom: 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #444;
+    }
+    .collapsible-bar .chevron { color: #888; font-size: 12px; }
+
+    /* ─── Warning note ─── */
+    .warning-note {
+      background: #fffde7;
+      border: 1px solid #f9c43c;
+      border-left: 4px solid #f9a825;
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: #6d4c00;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    /* ─── Run Report button row ─── */
+    .action-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .btn-run {
+      background: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 9px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+    }
+    .btn-run:hover { background: #388e3c; }
+
+    /* ─── Section divider label ─── */
+    .section-divider {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #888;
+      border-top: 1px solid #ddd;
+      padding-top: 8px;
+      margin-bottom: 12px;
+      margin-top: 4px;
+    }
+
+    /* Responsive: stack on narrow */
+    @media (max-width: 900px) {
+      .page-wrapper { flex-direction: column; }
+      .notes-panel { width: 100%; border-left: none; border-top: 3px solid #5c3d8f; position: static; max-height: none; }
+      .top-nav a { font-size: 11px; padding: 4px 5px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── Artifact caption ─── -->
+<div class="artifact-caption">
+  <div>
+    <strong>TKT-19139 — Proposed Design</strong>
+    &nbsp;·&nbsp;
+    Add "Display Format" option (Percentage / Raw Numbers) to Training Matrix High-Level Summary Report
+  </div>
+  <span class="fidelity-badge">Level 2 — Styled Mockup</span>
+  <span class="figma-note">Figma MCP unavailable — components approximated from BIStrainer chrome description</span>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- ═══════════════════════════════════
+       Mock column
+  ═══════════════════════════════════ -->
+  <div class="mock-column">
+
+    <!-- Top nav -->
+    <nav class="top-nav">
+      <span class="nav-logo">BIS</span>
+      <a href="#">Home</a>
+      <a href="#">Profile</a>
+      <a href="#">Store</a>
+      <a href="#">Rewards</a>
+      <a href="#">Purchases</a>
+      <a href="#">Users</a>
+      <a href="#" class="active">Reporting</a>
+      <a href="#">Calendar</a>
+      <a href="#">Equipment</a>
+      <a href="#">Folders</a>
+      <a href="#">QR</a>
+      <a href="#">Admin</a>
+    </nav>
+
+    <!-- Page title bar -->
+    <div class="page-title-bar">
+      <h1>Excel Reports — BIS QAQC Test Environment</h1>
+      <button class="btn-back">Back</button>
+    </div>
+
+    <!-- Blue report-selector band -->
+    <div class="report-header-band">
+      <select class="report-select">
+        <option selected>Training Matrix High-Level Summary</option>
+      </select>
+      <button class="btn-guide">
+        <span class="pdf-icon">PDF</span>
+        Excel Reports Guide
+      </button>
+    </div>
+
+    <!-- Form body -->
+    <div class="form-body">
+
+      <!-- Info box -->
+      <div class="info-box">
+        This report provides a high-level compliance summary for all training topics by location. For each topic, it shows the percentage of assigned users who are compliant. Use the filters below to scope the report to your company, location, topics, and roles.
+      </div>
+
+      <!-- Company -->
+      <div class="form-group">
+        <div class="form-label-row">
+          <label class="form-label">Company<span class="required">*</span></label>
+        </div>
+        <select class="form-control">
+          <option>BIS QAQC Test Environment</option>
+        </select>
+      </div>
+
+      <!-- Location -->
+      <div class="form-group">
+        <div class="form-label-row">
+          <label class="form-label">Location<span class="required">*</span></label>
+        </div>
+        <select class="form-control">
+          <option>All</option>
+        </select>
+      </div>
+
+      <!-- Topics -->
+      <div class="form-group">
+        <div class="form-label-row">
+          <label class="form-label">Topics</label>
+          <div class="label-actions">
+            <button class="btn-link">Clear All</button>
+            <button class="btn-link">Select All</button>
+          </div>
+        </div>
+        <div class="multiselect-box">Search or select…</div>
+      </div>
+
+      <!-- Company Roles -->
+      <div class="form-group">
+        <div class="form-label-row">
+          <label class="form-label">Company Roles</label>
+          <div class="label-actions">
+            <button class="btn-link">Clear All</button>
+            <button class="btn-link">Select All</button>
+          </div>
+        </div>
+        <div class="multiselect-box">Search or select…</div>
+      </div>
+
+      <!-- Filter Options -->
+      <div class="form-group">
+        <div class="form-label-row">
+          <label class="form-label">Filter Options</label>
+        </div>
+        <div class="filter-listbox">
+          <label class="filter-item">
+            <input type="checkbox" checked>
+            Sublocation Data
+          </label>
+        </div>
+      </div>
+
+      <!-- ─── Divider before additional options ─── -->
+      <div class="section-divider">Additional Options</div>
+
+      <!-- NEW: Additional Options block -->
+      <div class="additional-options-block">
+        <div class="additional-options-header">
+          <span class="section-label">Display Format</span>
+          <span class="new-pill">New</span>
+        </div>
+
+        <div class="radio-group-label">Choose how compliance figures appear in the generated report:</div>
+
+        <!-- Option 1: Percentage (default) -->
+        <label class="radio-option selected" id="opt-pct" onclick="selectFormat('pct')">
+          <input type="radio" name="displayFormat" value="pct" checked>
+          <div class="radio-option-text">
+            <strong>Percentage</strong>
+            <span>e.g. 25% — existing behavior</span>
+          </div>
+          <span class="radio-default-badge">Default</span>
+        </label>
+
+        <!-- Option 2: Raw numbers -->
+        <label class="radio-option" id="opt-raw" onclick="selectFormat('raw')">
+          <input type="radio" name="displayFormat" value="raw">
+          <div class="radio-option-text">
+            <strong>Raw numbers</strong>
+            <span>e.g. 10 out of 40</span>
+          </div>
+        </label>
+
+        <!-- Preview panel -->
+        <div class="preview-panel">
+          <div class="preview-panel-header">
+            Report output preview
+            <span>— same data, two display formats</span>
+          </div>
+
+          <div class="preview-table-wrap">
+
+            <!-- Percentage side -->
+            <div class="preview-table-section pct" id="preview-pct">
+              <div class="section-tag">Percentage view</div>
+              <table class="preview-table">
+                <thead>
+                  <tr>
+                    <th>Training Topic</th>
+                    <th>Edmonton</th>
+                    <th>Calgary</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>WHMIS 2015</td>
+                    <td class="compliance-cell pct-val">25%</td>
+                    <td class="compliance-cell pct-val">63%</td>
+                  </tr>
+                  <tr>
+                    <td>Fall Protection</td>
+                    <td class="compliance-cell pct-val">80%</td>
+                    <td class="compliance-cell pct-val">50%</td>
+                  </tr>
+                  <tr>
+                    <td>First Aid</td>
+                    <td class="compliance-cell pct-val">100%</td>
+                    <td class="compliance-cell pct-val">40%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="preview-arrow">→</div>
+
+            <!-- Raw numbers side -->
+            <div class="preview-table-section raw" id="preview-raw">
+              <div class="section-tag">Raw numbers view</div>
+              <table class="preview-table">
+                <thead>
+                  <tr>
+                    <th>Training Topic</th>
+                    <th>Edmonton</th>
+                    <th>Calgary</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>WHMIS 2015</td>
+                    <td class="compliance-cell raw-val">10 / 40</td>
+                    <td class="compliance-cell raw-val">17 / 27</td>
+                  </tr>
+                  <tr>
+                    <td>Fall Protection</td>
+                    <td class="compliance-cell raw-val">32 / 40</td>
+                    <td class="compliance-cell raw-val">14 / 28</td>
+                  </tr>
+                  <tr>
+                    <td>First Aid</td>
+                    <td class="compliance-cell raw-val">40 / 40</td>
+                    <td class="compliance-cell raw-val">11 / 27</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div><!-- /preview-table-wrap -->
+        </div><!-- /preview-panel -->
+      </div><!-- /additional-options-block -->
+
+      <!-- Schedule Report (collapsed) -->
+      <div class="collapsible-bar">
+        Schedule Report
+        <span class="chevron">▶</span>
+      </div>
+
+      <!-- Warning note -->
+      <div class="warning-note">
+        Please note that reports generated are accurate at the time of download and show a date and time stamp. They should also be marked as Uncontrolled Documents for ISO compliance where needed.
+      </div>
+
+      <!-- Run Report -->
+      <div class="action-row">
+        <button class="btn-run">Run Report</button>
+      </div>
+
+    </div><!-- /form-body -->
+  </div><!-- /mock-column -->
+
+  <!-- ═══════════════════════════════════
+       Notes panel
+  ═══════════════════════════════════ -->
+  <aside class="notes-panel">
+    <h2>Design Notes</h2>
+    <p style="color:#777;font-size:11.5px;">TKT-19139 · Reporter: Luke Koop · Dev: Jithin Joy</p>
+
+    <h3>Recommendation</h3>
+    <span class="tag">Control type</span>
+    <p>
+      A <strong>radio group</strong> is the right control here. The choice between Percentage and Raw Numbers is mutually exclusive — only one display mode can be active at a time. A toggle switch implies on/off rather than a choice between two named options, which is ambiguous. A radio group makes both options visible simultaneously and labels them clearly.
+    </p>
+    <br>
+    <span class="tag">Placement</span>
+    <p>
+      "Display Format" lives in a new <strong>Additional Options</strong> section, not inside the existing Filter Options multi-select list. Filter Options is an additive list of boolean filters (e.g. Sublocation Data). Display Format is a render-mode selector — it changes how the output looks, not what data is included. Mixing them would be conceptually misleading.
+    </p>
+
+    <h3>Design Decision</h3>
+    <p class="decision">
+      Radio group over toggle. Dedicated "Additional Options" block over embedding in Filter Options. "Percentage" is pre-selected as the default to preserve current behavior for all existing users.
+    </p>
+
+    <h3>Open Questions</h3>
+    <ul>
+      <li class="open-q">
+        <strong>1. Number format string:</strong> Should raw numbers render as "10 / 40", "10 out of 40", or "10 of 40" in the actual Excel cells? Mockup uses "10 / 40" for column density; the radio label uses "10 out of 40" for readability.
+      </li>
+      <li class="open-q">
+        <strong>2. Persistence:</strong> Should the Display Format selection persist as a saved per-user preference, or reset to Percentage on each new session?
+      </li>
+      <li class="open-q">
+        <strong>3. Scheduled reports:</strong> Does this setting apply only to on-demand Excel downloads, or also to scheduled report deliveries? If scheduled, does the saved schedule store the format preference?
+      </li>
+    </ul>
+
+    <h3>Figma References</h3>
+    <div class="figma-flag">
+      Figma MCP was unavailable during generation (no API key). Component names below are based on the BIStrainer screen description and known BIS conventions — they should be verified against the design system before developer handoff.
+    </div>
+    <ul style="margin-top:10px;">
+      <li>Forms/Input/Select (Company, Location dropdowns)</li>
+      <li>Forms/Input/MultiSelect (Topics, Company Roles)</li>
+      <li>Forms/Input/Checkbox (Filter Options list)</li>
+      <li>Forms/Input/RadioGroup (Display Format — confirm or create)</li>
+      <li>Button/Primary/Green (Run Report)</li>
+      <li>Button/Secondary/Outline (Back, Excel Reports Guide)</li>
+      <li>Badge/New (purple pill — confirm component exists)</li>
+    </ul>
+
+    <h3>Fidelity</h3>
+    <p>Level 2 — Styled Mockup. Colors, layout, and control placement match BIStrainer chrome as described. Not pixel-perfect; intended for developer placement reference and stakeholder review.</p>
+  </aside>
+
+</div><!-- /page-wrapper -->
+
+<script>
+  function selectFormat(mode) {
+    var optPct = document.getElementById('opt-pct');
+    var optRaw = document.getElementById('opt-raw');
+    if (mode === 'pct') {
+      optPct.classList.add('selected');
+      optRaw.classList.remove('selected');
+      optPct.querySelector('input').checked = true;
+    } else {
+      optRaw.classList.add('selected');
+      optPct.classList.remove('selected');
+      optRaw.querySelector('input').checked = true;
+    }
+  }
+</script>
+
+</body>
+</html>

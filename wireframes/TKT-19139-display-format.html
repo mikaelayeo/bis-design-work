@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TKT-19139 — Display Format control (Figma take)</title>
+  <style>
+    /* Tokens pulled from the Figma node (219:1894):
+       --color/stroke/primary #009acb · selected row #349acf
+       --color/text/default #191919 · on-surface #feffff
+       header/xSmall 16px Segoe UI 600 · label/xSmall 12px 600 · body/xSmall 12px 400
+       spacing small 8px / xxsmall 4px / xsmall 6px · radius base 4px
+       tooltip surface #191919, text #f8f8f9, Inter 14px, beak  */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 14px; color: #212529; background: #e9ecef; padding: 24px;
+    }
+    .wrap { max-width: 760px; margin: 0 auto; }
+    h2.page-title { font-size: 18px; color: #3d2c6e; margin: 0 0 4px; }
+    .sub { color: #6c757d; font-size: 13px; margin-bottom: 18px; }
+    .card { background: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 18px; margin-bottom: 18px; }
+    .card h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: #5c3d8f; margin: 0 0 14px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+
+    /* ── Display Format label row (header/xSmall + info icon) ── */
+    .df-label-row { display: flex; align-items: center; gap: 6px; position: relative; }
+    .df-label { font-weight: 600; font-size: 16px; line-height: 24px; color: #191919; }
+    .df-info {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 1.3px solid #767676; color: #767676;
+      font-size: 9px; font-weight: 700; line-height: 12px; text-align: center;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: Georgia, 'Times New Roman', serif; font-style: italic; cursor: help;
+    }
+    /* Tooltip (dark, beak pointing down) — shown on info hover/focus */
+    .df-tooltip {
+      position: absolute; left: -4px; bottom: calc(100% + 10px);
+      width: 252px; background: #191919; color: #f8f8f9;
+      font-family: Inter, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.4;
+      text-align: center; padding: 8px 12px; border-radius: 2px;
+      box-shadow: 0 1px 2px rgba(12,12,13,.1), 0 1px 2px rgba(12,12,13,.05);
+      opacity: 0; visibility: hidden; transition: opacity .12s; z-index: 5;
+    }
+    .df-tooltip::after {
+      content: ''; position: absolute; top: 100%; left: 24px; transform: translate(-50%,-50%) rotate(45deg);
+      width: 8px; height: 8px; background: #191919;
+    }
+    .df-info:hover + .df-tooltip, .df-info:focus + .df-tooltip { opacity: 1; visibility: visible; }
+
+    /* ── Radio list box ── */
+    .df-box {
+      width: 362px; max-width: 100%; margin-top: 6px;
+      border: 1px solid #009acb; border-radius: 4px; overflow: hidden; background: #fff;
+    }
+    .df-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 4px 8px; cursor: pointer; user-select: none;
+    }
+    .df-row .lbl { font-size: 12px; line-height: 16px; color: #191919; }
+    .df-row.active { background: #349acf; }
+    .df-row.active .lbl { color: #feffff; font-weight: 600; }
+    /* custom radio */
+    .df-radio { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid #767676; flex-shrink: 0; position: relative; }
+    .df-row.active .df-radio { border-color: #fff; }
+    .df-row.active .df-radio::after {
+      content: ''; position: absolute; inset: 3px; border-radius: 50%; background: #fff;
+    }
+
+    /* ── Live output preview ── */
+    .preview-head { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: #6c757d; margin: 0 0 8px; font-weight: 700; }
+    table.matrix { border-collapse: collapse; width: 100%; font-size: 13px; }
+    table.matrix th { background: #3d2c6e; color: #fff; text-align: left; padding: 6px 10px; font-weight: 600; }
+    table.matrix td { padding: 6px 10px; border-bottom: 1px solid #eee; }
+    table.matrix tr:nth-child(even) td { background: #f7f7f7; }
+    td.val { text-align: center; font-weight: 600; color: #1b7aaa; }
+    body.raw td.val { color: #5c3d8f; }
+
+    /* ── Dev wiring panel ── */
+    .dev { background: #1e1e2e; color: #cdd6f4; border-radius: 8px; padding: 18px; font-size: 13px; line-height: 1.65; }
+    .dev h3 { color: #cba6f7; border-color: #45475a; }
+    .dev code, code.inline { background: #313244; color: #f5e0dc; padding: 1px 5px; border-radius: 3px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 12px; }
+    .dev pre { background: #11111b; border-radius: 6px; padding: 12px; overflow-x: auto; margin: 8px 0; }
+    .dev pre code { background: none; padding: 0; color: #cdd6f4; }
+    .dev ul { padding-left: 18px; margin: 6px 0; }
+    .dev .k { color: #89b4fa; } .dev .s { color: #a6e3a1; } .dev .n { color: #fab387; }
+    .alt { font-size: 12.5px; color: #6c757d; margin-top: 10px; border-left: 3px solid #cba6f7; padding-left: 10px; }
+    .q { color: #c0392b; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h2 class="page-title">Display Format — compliance as % or raw numbers</h2>
+    <div class="sub">TKT-19139 · built to follow Mika's Figma take (radio list + info-icon tooltip) and the real data-driven filter framework. Hover the&nbsp;ⓘ.</div>
+
+    <!-- The control -->
+    <div class="card">
+      <h3>The control</h3>
+      <div class="df-label-row">
+        <span class="df-label">Display Format</span>
+        <span class="df-info" tabindex="0">i</span>
+        <span class="df-tooltip">Choose how compliance figures appear in the generated report</span>
+      </div>
+      <div class="df-box" id="df">
+        <div class="df-row active" data-mode="pct" onclick="pick('pct')">
+          <span class="lbl">Percentage (e.g. 25%)</span>
+          <span class="df-radio"></span>
+        </div>
+        <div class="df-row" data-mode="raw" onclick="pick('raw')">
+          <span class="lbl">Raw numbers (e.g. 10 out of 40)</span>
+          <span class="df-radio"></span>
+        </div>
+      </div>
+      <p style="font-size:12.5px;color:#6c757d;margin:12px 0 0;">
+        Radio affordance, single-select. Selected row <code class="inline" style="background:#349acf;color:#fff;">#349acf</code>,
+        box border <code class="inline" style="background:#fff;border:1px solid #009acb;">#009acb</code>.
+        <strong>Percentage is the default</strong>, so existing reports are unchanged.
+      </p>
+    </div>
+
+    <!-- Live preview -->
+    <div class="card">
+      <h3>Report output preview <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#9aa0a6;">— updates with the control above</span></h3>
+      <div class="preview-head" id="modeLabel">Showing: Percentage view</div>
+      <table class="matrix">
+        <thead><tr><th>Training Topic</th><th>Edmonton</th><th>Calgary</th></tr></thead>
+        <tbody>
+          <tr><td>WHMIS 2015</td><td class="val" data-pct="25%" data-raw="10 / 40">25%</td><td class="val" data-pct="63%" data-raw="17 / 27">63%</td></tr>
+          <tr><td>Fall Protection</td><td class="val" data-pct="80%" data-raw="32 / 40">80%</td><td class="val" data-pct="50%" data-raw="14 / 28">50%</td></tr>
+          <tr><td>First Aid</td><td class="val" data-pct="100%" data-raw="40 / 40">100%</td><td class="val" data-pct="40%" data-raw="11 / 27">40%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Dev wiring -->
+    <div class="dev">
+      <h3>How it wires (for Jithin)</h3>
+      <p>The reports form is data-driven — <code>FilterFactory.js</code> renders rows from <code>tblReportParameters</code> by <code>parameterType</code>. A <span class="k">ToggleOptions (parameterType&nbsp;6)</span> row already renders as a single-select highlighted list and stores one value via <code>item.toggleOptionOn</code>, so this is config + backend, <strong>no new React component needed</strong>.</p>
+      <ul>
+        <li><strong>Add one parameter row</strong> for the Training Matrix High-Level Summary report:
+          <pre><code><span class="k">parameterType</span>: <span class="n">6</span>            <span style="color:#6c757d">// ToggleOptions → single-select list</span>
+<span class="k">uniqueIdentifier</span>: <span class="s">"displayformat"</span>
+<span class="k">headerLabel</span>: <span class="s">"lblReportsDisplayFormat"</span>
+<span class="k">displayColumnNo</span>: <span class="n">2</span>          <span style="color:#6c757d">// right column, beside Location (per Figma)</span>
+options: [
+  { headerLabel: <span class="s">"Percentage (e.g. 25%)"</span>,        toggleOptionOn: <span class="n">0</span> },  <span style="color:#6c757d">// default = options[0]</span>
+  { headerLabel: <span class="s">"Raw numbers (e.g. 10 out of 40)"</span>, toggleOptionOn: <span class="n">1</span> }
+]</code></pre>
+        </li>
+        <li><strong>Frontend:</strong> reuses <code>SyncMultipleSelect</code> (isToggle). One small visual tweak vs. today's component — Mika's design shows a <strong>radio</strong> on each row instead of the current <code class="inline">fa-check</code> on the active row. Swap the check glyph for a radio in that component (or a variant).</li>
+        <li><strong>Tooltip:</strong> the ⓘ helper uses the existing <code>react-tooltip</code> already imported in <code>FilterFactory.js</code> — text in <code>lblReportsDisplayFormatTooltip</code>.</li>
+        <li><strong>Backend (<code>bisadmin.RunReport</code> / generate):</strong> when <code>displayformat == 1</code>, render each compliance cell as <code class="inline">completed&nbsp;/&nbsp;assigned</code> instead of the percentage. Both numbers already exist (% is <code class="inline">completed ÷ assigned</code>).</li>
+      </ul>
+      <div class="alt"><strong>Note:</strong> today's ToggleOptions list marks the active row with a checkmark; this design uses a radio button. Functionally identical (single-select) — purely the selected-row affordance.</div>
+      <p style="margin-top:12px;"><strong>Open questions:</strong></p>
+      <ul>
+        <li class="q">Cell format string: <code class="inline">10 / 40</code>, <code class="inline">10 out of 40</code>, or <code class="inline">10 of 40</code>? (preview uses <code class="inline">10 / 40</code> for density)</li>
+        <li class="q">Persist as a saved per-user preference, or reset to Percentage each session?</li>
+        <li class="q">Apply to scheduled-report deliveries too, or on-demand downloads only?</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    function pick(mode) {
+      document.querySelectorAll('#df .df-row').forEach(r => r.classList.toggle('active', r.dataset.mode === mode));
+      document.body.classList.toggle('raw', mode === 'raw');
+      document.getElementById('modeLabel').textContent = 'Showing: ' + (mode === 'raw' ? 'Raw numbers view' : 'Percentage view');
+      document.querySelectorAll('td.val').forEach(td => { td.textContent = mode === 'raw' ? td.dataset.raw : td.dataset.pct; });
+    }
+  </script>
+</body>
+</html>

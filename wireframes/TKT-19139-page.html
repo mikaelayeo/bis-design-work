@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TKT-19139 — Display Format in context (reports.home, Figma take)</title>
+  <style>
+    /* Production CSS from the real module (home.less) + Figma tokens (node 219:1894).
+       Display Format placed in the right column beside Location, per Mika's Figma. */
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 14px; color: #212529; background: #e9ecef; padding: 20px; }
+
+    .caption { max-width: 1024px; margin: 0 auto 12px; font-size: 12.5px; color: #4a3080; background: #f3eeff; border: 1px solid #c9b8e8; border-radius: 6px; padding: 8px 14px; }
+    .caption strong { color: #3d2c6e; }
+
+    .frame { max-width: 1024px; margin: 0 auto; background: #fff; border-radius: 6px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+
+    /* ── BIS chrome ── */
+    .topnav { display: flex; align-items: center; gap: 2px; padding: 0 14px; height: 40px; border-bottom: 1px solid #eee; }
+    .topnav .logo { font-weight: 800; color: #3d2c6e; font-size: 15px; margin-right: 14px; }
+    .topnav a { color: #333; text-decoration: none; font-size: 13px; padding: 4px 8px; }
+    .topnav a.active { color: #1b9dd9; font-weight: 600; }
+    .titlebar { background: #4a3080; color: #fff; padding: 10px 18px; display: flex; align-items: center; justify-content: space-between; }
+    .titlebar h1 { font-size: 16px; margin: 0; font-weight: 600; }
+    .titlebar h1 small { font-weight: 400; color: #d4c8f0; margin-left: 8px; font-size: 13px; }
+    .titlebar .back { background: #fff; color: #333; border: 0; border-radius: 3px; padding: 4px 12px; font-size: 12px; cursor: pointer; }
+
+    .report-form { padding: 10px; }
+    .report-heading-strip { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; background: #349acf; color: #fff; border-radius: 3px 3px 0 0; padding: 6px 8px; }
+    .report-select { background: #fff; color: #212529; border: 1px solid #ccc; border-radius: 3px; padding: 4px 26px 4px 10px; font-size: 13px; appearance: none; min-width: 290px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 9px center; }
+    .report-guide { font-size: 13px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .pdf-ico { background: #d32f2f; color: #fff; font-size: 7px; font-weight: 800; border-radius: 2px; padding: 2px 3px; }
+
+    .report-generation { padding: 12px 10px; border-left: 1px solid #b5bbb6; border-right: 1px solid #b5bbb6; }
+    .alert-secondary { background: #e2e3e5; border: 1px solid #d6d8db; color: #383d41; border-radius: 6px; padding: 10px 12px; font-size: 13px; line-height: 1.5; margin-bottom: 12px; }
+
+    .component-title { font-weight: 700; font-size: 15px; padding: 5px 0; margin: 8px 0 0; }
+    .component-title .req { color: red; font-size: 8px; padding-left: 3px; vertical-align: super; }
+    .text-component { display: flex; align-items: center; justify-content: space-between; min-height: 35px; background: #fff; border: 1px solid #008bb8; border-radius: 4px; padding: 4px 10px; font-size: 14px; margin-top: 4px; }
+    .text-component.placeholder { color: #9aa0a6; }
+    .text-component .caret { color: #666; font-size: 11px; }
+    .label-actions { float: right; font-weight: 400; font-size: 12px; }
+    .label-actions a { color: #008bb8; text-decoration: none; margin-left: 8px; cursor: pointer; }
+    .label-actions a:hover { text-decoration: underline; }
+
+    /* Filter Options list (checkbox style, parameterType 5) */
+    .option-listbox { border: 1px solid #008bb8; border-radius: 4px; background: #fff; margin-top: 4px; padding: 0 4px; font-size: 14px; }
+    .option-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 8px; border-bottom: 1px solid #eee; cursor: pointer; user-select: none; }
+    .option-row:last-child { border-bottom: 0; }
+    .option-row.active { background: #349acf; color: #fff; }
+    .option-row .check { display: none; }
+    .option-row.active .check { display: inline; }
+
+    /* two-column form region */
+    .cols { display: flex; flex-wrap: wrap; gap: 0 28px; }
+    .col { flex: 1 1 320px; min-width: 280px; padding: 0 4px; }
+
+    /* ── NEW Display Format (Figma take) ── */
+    .new-flag { position: relative; border: 2px dashed #5c3d8f; border-radius: 8px; padding: 4px 10px 12px; margin-top: 12px; background: #faf8ff; }
+    .new-pill { position: absolute; top: -11px; left: 12px; background: #5c3d8f; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; }
+    .df-label-row { display: flex; align-items: center; gap: 6px; position: relative; margin: 8px 0 0; }
+    .df-label { font-weight: 600; font-size: 16px; line-height: 24px; color: #191919; }
+    .df-info { width: 14px; height: 14px; border-radius: 50%; border: 1.3px solid #767676; color: #767676; font-size: 9px; line-height: 12px; text-align: center; display: inline-flex; align-items: center; justify-content: center; font-family: Georgia, serif; font-style: italic; cursor: help; }
+    .df-tooltip { position: absolute; left: -4px; bottom: calc(100% + 10px); width: 252px; background: #191919; color: #f8f8f9; font-family: Inter, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.4; text-align: center; padding: 8px 12px; border-radius: 2px; box-shadow: 0 1px 2px rgba(12,12,13,.1); opacity: 0; visibility: hidden; transition: opacity .12s; z-index: 5; }
+    .df-tooltip::after { content: ''; position: absolute; top: 100%; left: 24px; transform: translate(-50%,-50%) rotate(45deg); width: 8px; height: 8px; background: #191919; }
+    .df-info:hover + .df-tooltip, .df-info:focus + .df-tooltip { opacity: 1; visibility: visible; }
+    .df-box { width: 362px; max-width: 100%; margin-top: 6px; border: 1px solid #009acb; border-radius: 4px; overflow: hidden; background: #fff; }
+    .df-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 8px; cursor: pointer; user-select: none; }
+    .df-row .lbl { font-size: 12px; line-height: 16px; color: #191919; }
+    .df-row.active { background: #349acf; }
+    .df-row.active .lbl { color: #feffff; font-weight: 600; }
+    .df-radio { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid #767676; flex-shrink: 0; position: relative; }
+    .df-row.active .df-radio { border-color: #fff; }
+    .df-row.active .df-radio::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: #fff; }
+
+    .schedule-report { margin-top: 14px; background: #f1f1f1; border-radius: 3px; padding: 10px 8px; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 16px; color: #495057; cursor: pointer; }
+    .schedule-report .chev { font-size: 14px; color: #888; }
+    .downloadInfo { font-size: 13px; padding: 8px 10px; border-radius: 6px; background-color: #ebc500; margin-top: 10px; font-weight: 600; color: #4d3b00; }
+    .run-buttons { display: flex; justify-content: flex-end; background: #f1f1f1; border: 1px solid #b5bbb6; border-top: 0; border-radius: 0 0 5px 5px; padding: 6px; }
+    .run-report-btn { color: #fff; background: #6cac00; border: 1px solid #6cac00; border-radius: 4px; padding: 6px 18px; margin: 4px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .run-report-btn:hover { background: #8abe31; }
+  </style>
+</head>
+<body>
+  <div class="caption">
+    <strong>TKT-19139 — Display Format, in context (Mika's Figma take).</strong>
+    Real <code>reports.home</code> CSS, with the new control in the <strong>right column beside Location</strong> (production: <code>displayColumnNo&nbsp;2</code>),
+    radio rows + info-icon tooltip. Hover the&nbsp;ⓘ. Click rows to switch.
+  </div>
+
+  <div class="frame">
+    <!-- chrome -->
+    <nav class="topnav">
+      <span class="logo">◆ BIS</span>
+      <a href="#">Home</a><a href="#">Profile</a><a href="#">Store</a><a href="#">Rewards</a>
+      <a href="#">Purchases</a><a href="#">Users</a><a href="#" class="active">Reporting</a><a href="#">Calendar</a>
+      <a href="#">Equipment</a><a href="#">Folders</a><a href="#">QR</a><a href="#">Admin</a>
+    </nav>
+    <div class="titlebar">
+      <h1>Excel Reports <small>BIS QAQC Test Environment</small></h1>
+      <button class="back">Back ◀◀</button>
+    </div>
+
+    <div class="report-form">
+      <div class="report-heading-strip">
+        <select class="report-select"><option selected>Training Matrix High-Level Summary</option></select>
+        <span class="report-guide"><span class="pdf-ico">PDF</span> Excel Reports Guide</span>
+      </div>
+
+      <div class="report-generation">
+        <div class="alert-secondary">
+          This report displays all the training topics from your company Training Matrix and all your locations or departments
+          as shown in your company hierarchy. For each location or department, it shows the percentage of users who have
+          satisfied the training requirement for each topic.
+        </div>
+
+        <!-- Company spans full width -->
+        <div style="padding:0 4px;">
+          <div class="component-title">Company<span class="req">✱</span></div>
+          <div class="text-component"><span>BIS QAQC Test Environment</span><span class="caret">▼</span></div>
+        </div>
+
+        <!-- two columns -->
+        <div class="cols">
+          <!-- left column -->
+          <div class="col">
+            <div class="component-title">Location<span class="req">✱</span></div>
+            <div class="text-component"><span>All</span><span class="caret">▼</span></div>
+
+            <div class="component-title">Topics <span class="label-actions"><a>Clear All</a><a>Select All</a></span></div>
+            <div class="text-component placeholder"><span>Search or select…</span><span class="caret">▼</span></div>
+
+            <div class="component-title">Company Roles <span class="label-actions"><a>Clear All</a><a>Select All</a></span></div>
+            <div class="text-component placeholder"><span>Search or select…</span><span class="caret">▼</span></div>
+
+            <div class="component-title">Filter Options</div>
+            <div class="option-listbox">
+              <div class="option-row active"><span>Sublocation Data</span><span class="check">✓</span></div>
+            </div>
+          </div>
+
+          <!-- right column: NEW Display Format -->
+          <div class="col">
+            <div class="new-flag">
+              <span class="new-pill">New · TKT-19139</span>
+              <div class="df-label-row">
+                <span class="df-label">Display Format</span>
+                <span class="df-info" tabindex="0">i</span>
+                <span class="df-tooltip">Choose how compliance figures appear in the generated report</span>
+              </div>
+              <div class="df-box" id="df">
+                <div class="df-row active" data-mode="pct" onclick="pick('pct')">
+                  <span class="lbl">Percentage (e.g. 25%)</span><span class="df-radio"></span>
+                </div>
+                <div class="df-row" data-mode="raw" onclick="pick('raw')">
+                  <span class="lbl">Raw numbers (e.g. 10 out of 40)</span><span class="df-radio"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="schedule-report">Schedule Report <span class="chev">▼</span></div>
+        <div class="downloadInfo">Please note that reports generated are accurate at the time of download and show a date and time stamp. They should also be marked as Uncontrolled Documents for ISO compliance where needed.</div>
+      </div>
+
+      <div class="run-buttons"><button class="run-report-btn">Run Report</button></div>
+    </div>
+  </div>
+
+  <script>
+    function pick(mode) {
+      document.querySelectorAll('#df .df-row').forEach(r => r.classList.toggle('active', r.dataset.mode === mode));
+    }
+  </script>
+</body>
+</html>

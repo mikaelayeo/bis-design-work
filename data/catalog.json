@@ -181,6 +181,11 @@
       "date": "2026-05-05",
       "children": [
         {
+          "title": "Admin page redesign v2",
+          "path": "showcase/prototypes/admin-redesign/admin-page-redesign-v2.html",
+          "date": "2026-06-30"
+        },
+        {
           "title": "Admin page — prototype",
           "path": "showcase/prototypes/admin-redesign/admin-page-redesign.html",
           "date": "2026-05-05"
@@ -252,6 +257,27 @@
           "date": "2026-06-15"
         }
       ]
+    },
+    {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "prototypes",
+      "id": "TKT-19139-display-format",
+      "title": "Display Format — Training Matrix",
+      "date": "2026-06-30",
+      "children": [
+        {
+          "title": "Display Format control",
+          "path": "showcase/prototypes/TKT-19139-display-format/TKT-19139-display-format.html",
+          "date": "2026-06-30"
+        },
+        {
+          "title": "In context (reports.home)",
+          "path": "showcase/prototypes/TKT-19139-display-format/TKT-19139-page.html",
+          "date": "2026-06-30"
+        }
+      ],
+      "ticket": "TKT-19139"
     },
     {
       "kind": "folder",
