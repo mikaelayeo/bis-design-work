@@ -436,6 +436,7 @@ const OPS=[
 const RECO_OPS=['+','-','*','/','==','!=','>','>=','<','<='];
 const FORMULAS=[
   {id:'trif',name:'TRIF Rate',grp:'SAFETY',desc:'Your recordable injury rate per 200,000 hours worked. The standard safety KPI.',ex:[['( CB_9','==','Yes )','* 200000 /','{Hours}']]},
+  {id:'trir',name:'TRIR Rate',grp:'SAFETY',desc:'Your total recordable incident rate per 200,000 hours worked. Like TRIF, but counts all recordable incidents, not just injuries.',ex:[['( DD_9','==','Recordable )','* 200000 /','{Hours}']]},
   {id:'inj',name:'Injury Rate %',grp:'SAFETY',desc:'The share of submitted forms that reported an injury.',ex:[['CB_9','==','Yes','/ total * 100']]},
   {id:'cnt',name:'Incident Count',grp:'GENERAL',desc:'A simple count of forms matching one incident type.',ex:[['DD_9','==','Recordable']]},
 ];
@@ -530,7 +531,7 @@ function addToken(tok){
 
 /* ───────── PRESETS — fields are EMPTY slots the user must pick ───────── */
 function applyPreset(f){
-  if(f.id==='trif') tokens=[{k:'op',label:'('},{k:'slot',role:'field'},{k:'op',label:'=='},{k:'slot',role:'value'},{k:'op',label:')'},{k:'op',label:'*'},{k:'value',label:'200000'},{k:'op',label:'/'},{k:'hours',label:'{Hours}'}];
+  if(f.id==='trif'||f.id==='trir') tokens=[{k:'op',label:'('},{k:'slot',role:'field'},{k:'op',label:'=='},{k:'slot',role:'value'},{k:'op',label:')'},{k:'op',label:'*'},{k:'value',label:'200000'},{k:'op',label:'/'},{k:'hours',label:'{Hours}'}];
   else if(f.id==='cnt') tokens=[{k:'slot',role:'field'},{k:'op',label:'=='},{k:'slot',role:'value'}];
   else tokens=[{k:'op',label:'('},{k:'slot',role:'field'},{k:'op',label:'=='},{k:'slot',role:'value'},{k:'op',label:')'},{k:'op',label:'/'},{k:'value',label:'total'},{k:'op',label:'*'},{k:'value',label:'100'}];
   render(); validate(); hideOpDropdown();

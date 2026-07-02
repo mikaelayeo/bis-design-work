@@ -25,7 +25,7 @@ The Custom Metric Builder redesigns how analysts create custom metrics on the Re
 - A modal formula editor that renders the formula as colour-coded tokens (chips).
 - Two equally supported ways to build a formula: **typing** (autocomplete + inline recommendation dropdowns) and the **option-selector** (clicking items in the reference panel).
 - A reference panel with Fields / Operators / Formulas tabs, hover-to-preview, click-to-insert, and search.
-- Preset formulas (TRIF Rate, Injury Rate %, Incident Count) that insert with empty field slots the user fills in.
+- Preset formulas (TRIF Rate, TRIR Rate, Injury Rate %, Incident Count) that insert with empty field slots the user fills in.
 - Real-time validation with a clear, human-readable error message; Save is blocked while invalid.
 - AI Assist: a single editable prompt that generates an editable formula, with feedback (thumbs) and revert.
 - Paste support: a JavaScript-style formula pasted from elsewhere is parsed into tokens.
@@ -87,6 +87,14 @@ Top to bottom, the modal contains:
 | **Sub-locations toggle** | "Include hours from sub-locations" — appears only when `{Hours}` is in the formula. |
 | **Reference panel** | Tabs (Fields / Operators / Formulas) + search; a grouped list on the left, a detail pane on the right. |
 | **Footer** | Cancel and Save. |
+
+### Two ways to build a formula
+
+Users build a formula either by **typing** or by **clicking** the reference panel. Both are first-class; the most recent action decides which assist is active.
+
+1. **Typing** — a dropdown auto-suggests fields; pick a field and it recommends operators, then values. Fully keyboard-driven (↑ ↓ Enter Tab), **Esc to exit**.
+2. **Clicking** — click a field and the panel jumps to the Operators tab; click an operator and it jumps back to Fields. It ping-pongs you through the formula.
+3. **Mixed** — most recent action wins. Start clicking then type an operator → stays in the click flow (back to Fields). Start typing then click an operator in the Operators tab → switches to the click flow (back to Fields).
 
 ---
 
@@ -311,6 +319,7 @@ Descriptions are written per field **type**, so every checkbox shares one descri
 | Name | Group | Description |
 |---|---|---|
 | TRIF Rate | Safety | Your recordable injury rate per 200,000 hours worked. The standard safety KPI. |
+| TRIR Rate | Safety | Your total recordable incident rate per 200,000 hours worked. Like TRIF, but counts all recordable incidents, not just injuries. |
 | Injury Rate % | Safety | The share of submitted forms that reported an injury. |
 | Incident Count | General | A simple count of forms matching one incident type. |
 

@@ -76,6 +76,14 @@
   .frame .bar{height:30px;background:#e9ebee;display:flex;align-items:center;gap:6px;padding:0 12px;border-bottom:1px solid var(--line);}
   .frame .bar i{width:9px;height:9px;border-radius:50%;background:#cdd2d8;display:inline-block;}
   .frame iframe{width:100%;height:560px;border:0;display:block;background:#ececed;}
+  .proto-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;font-weight:600;font-size:15px;padding:12px 22px;border-radius:10px;text-decoration:none;box-shadow:0 4px 14px rgba(0,120,179,.28);}
+  .proto-btn:hover{background:#0a3a54;}
+  .ways{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:8px 0 4px;}
+  .way{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:12px;padding:16px;}
+  .way-h{font-weight:700;font-size:15px;margin-bottom:8px;display:flex;align-items:center;gap:8px;color:var(--ink);}
+  .way-h i{color:var(--accent);}
+  .way p{font-size:13px;margin:0;}
+  @media(max-width:680px){.ways{grid-template-columns:1fr;}}
 
   /* ─── BIS component visuals (reused tokens) ─── */
   .viz{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px;}
@@ -127,8 +135,8 @@
       <div><b>Updated</b>16 Jun 2026</div>
       <div><b>Owner</b>Mikaela Yeo</div>
     </div>
-    <div class="pending-banner"><i class="fa-solid fa-circle-info"></i>
-      <span><b>One thing pending:</b> final UI copy (Section 7) is with the technical writer. Everything else in scope is settled.</span>
+    <div class="pending-banner"><i class="fa-solid fa-circle-check"></i>
+      <span><b>Ready for build review.</b> Scope, behaviour, and copy are all settled. Open questions for the team are in Section 9.</span>
     </div>
   </div>
 </header>
@@ -137,15 +145,16 @@
   <div class="doc">
     <nav class="toc">
       <div class="toc-h">Contents</div>
-      <a href="#live">Live prototype</a>
+      <a href="#live">Prototype</a>
       <a href="#scope">1 · Scope</a>
-      <a href="#decisions">2 · Key decisions</a>
-      <a href="#anatomy">3 · Anatomy</a>
-      <a href="#visuals">4 · Component visuals</a>
-      <a href="#behaviour">5 · Behaviour (QA)</a>
-      <a href="#tech">6 · Technical</a>
-      <a href="#copy">7 · Copy <span class="pill p-pend">Pending</span></a>
-      <a href="#open">8 · Open questions</a>
+      <a href="#build">2 · Two ways to build</a>
+      <a href="#decisions">3 · Key decisions</a>
+      <a href="#anatomy">4 · Anatomy</a>
+      <a href="#visuals">5 · Component visuals</a>
+      <a href="#behaviour">6 · Behaviour (QA)</a>
+      <a href="#tech">7 · Technical</a>
+      <a href="#copy">8 · Copy</a>
+      <a href="#open">9 · Open questions</a>
     </nav>
 
     <main>
@@ -155,21 +164,13 @@
         <span><span class="pill p-chg">✎ Changed</span> from ticket</span>
         <span><span class="pill p-new">+ New</span> this design</span>
         <span><span class="pill p-drop">✕ Dropped</span> from ticket</span>
-        <span><span class="pill p-pend">Pending</span> writer review</span>
       </div>
 
       <!-- LIVE -->
       <section id="live">
-        <h2>Live prototype</h2>
-        <p>The interactive prototype is embedded below. Click through it — every state in this doc is reachable from the “State” bar at the bottom of the prototype.</p>
-        <div class="embed-head">
-          <span style="font-size:13px;color:var(--ink-3)">custom-metric-editor-v5 · BIS design system</span>
-          <a href="custom-metric-editor-v5-bis.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full screen</a>
-        </div>
-        <div class="frame">
-          <div class="bar"><i></i><i></i><i></i></div>
-          <iframe src="custom-metric-editor-v5-bis.html" title="Custom Metric Builder prototype" loading="lazy"></iframe>
-        </div>
+        <h2>Prototype</h2>
+        <p>The interactive prototype is the source of truth for interactions and states. Open it in a new tab and use the “State” bar at the bottom to jump to any state referenced in this doc.</p>
+        <a class="proto-btn" href="custom-metric-editor-v5-bis.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open the live prototype</a>
       </section>
 
       <!-- SCOPE -->
@@ -193,9 +194,30 @@
         </ul>
       </section>
 
+      <!-- TWO WAYS -->
+      <section id="build">
+        <h2><span class="num">2</span>Two ways to build a formula</h2>
+        <p>Users build a formula either by <b>typing</b> or by <b>clicking</b> items in the reference panel. Both are first-class, and the most recent action decides which assist is active.</p>
+        <div class="ways">
+          <div class="way">
+            <div class="way-h"><i class="fa-solid fa-keyboard"></i> 1 · Typing</div>
+            <p>Start typing and a dropdown auto-suggests fields. Pick a field and it recommends operators, then values. Fully keyboard-driven: ↑ ↓ to move, Enter / Tab to select, <b>Esc to exit</b>.</p>
+          </div>
+          <div class="way">
+            <div class="way-h"><i class="fa-solid fa-hand-pointer"></i> 2 · Clicking</div>
+            <p>Click a field in the panel and it jumps to the <b>Operators</b> tab; click an operator and it jumps back to <b>Fields</b>. The panel ping-pongs you through the formula.</p>
+          </div>
+          <div class="way">
+            <div class="way-h"><i class="fa-solid fa-shuffle"></i> 3 · Mixed</div>
+            <p>The most recent action wins. Start clicking, then type an operator → stays in the click flow (back to Fields). Start typing, then click an operator in the Operators tab → switches to the click flow (back to Fields).</p>
+          </div>
+        </div>
+        <div class="callout"><i class="fa-solid fa-circle-info"></i> &nbsp;Whichever way they start, users can switch mid-formula and it keeps working.</div>
+      </section>
+
       <!-- DECISIONS -->
       <section id="decisions">
-        <h2><span class="num">2</span>Key decisions</h2>
+        <h2><span class="num">3</span>Key decisions</h2>
         <table>
           <tr><th style="width:24%">Decision</th><th>Resolution</th><th style="width:8%"></th></tr>
           <tr><td>Operator syntax</td><td>Use JavaScript operators <code>== != &gt; &gt;= &lt; &lt;= &amp;&amp; ||</code> and <code>+ - * /</code>. Replaces <code>IN</code> / <code>NOT IN</code>.</td><td><span class="pill p-chg">✎</span></td></tr>
@@ -211,7 +233,7 @@
 
       <!-- ANATOMY -->
       <section id="anatomy">
-        <h2><span class="num">3</span>Anatomy</h2>
+        <h2><span class="num">4</span>Anatomy</h2>
         <p>Top to bottom, the modal contains:</p>
         <table>
           <tr><th style="width:26%">Zone</th><th>Contents</th></tr>
@@ -226,7 +248,7 @@
 
       <!-- VISUALS -->
       <section id="visuals">
-        <h2><span class="num">4</span>Component visuals</h2>
+        <h2><span class="num">5</span>Component visuals</h2>
 
         <h3>Tokens — chips vs badges</h3>
         <div class="viz">
@@ -287,7 +309,7 @@
 
       <!-- BEHAVIOUR -->
       <section id="behaviour">
-        <h2><span class="num">5</span>Behaviour <span style="font-size:14px;font-weight:500;color:var(--ink-3)">— QA reference</span></h2>
+        <h2><span class="num">6</span>Behaviour <span style="font-size:14px;font-weight:500;color:var(--ink-3)">· QA reference</span></h2>
         <p>Stable IDs so QA and dev can reference scenarios in tickets and test plans.</p>
 
         <h3>5.1 Building a formula</h3>
@@ -335,7 +357,7 @@
 
       <!-- TECH -->
       <section id="tech">
-        <h2><span class="num">6</span>Technical</h2>
+        <h2><span class="num">7</span>Technical</h2>
         <h3>Operators → JavaScript</h3>
         <table>
           <tr><th>Token</th><th>Maps to</th><th>Group</th><th>Notes</th></tr>
@@ -357,8 +379,8 @@
 
       <!-- COPY -->
       <section id="copy">
-        <h2><span class="num">7</span>Copy <span class="pill p-pend">Pending writer review</span></h2>
-        <div class="callout"><i class="fa-solid fa-pen-nib"></i> &nbsp;This is the one open item. Every user-visible string is below for the technical writer to refine. <b>The UI has no em-dashes by design — please keep it that way.</b></div>
+        <h2><span class="num">8</span>Copy</h2>
+        <div class="callout"><i class="fa-solid fa-circle-check"></i> &nbsp;Copy is finalized. Every user-visible string is listed below. The UI has no em-dashes by design, please keep it that way.</div>
 
         <h3>Interface &amp; buttons</h3>
         <table>
@@ -422,6 +444,7 @@
         <table>
           <tr><th style="width:24%">Name</th><th>Description</th></tr>
           <tr><td>TRIF Rate</td><td>Your recordable injury rate per 200,000 hours worked. The standard safety KPI.</td></tr>
+          <tr><td>TRIR Rate</td><td>Your total recordable incident rate per 200,000 hours worked. Like TRIF, but counts all recordable incidents, not just injuries.</td></tr>
           <tr><td>Injury Rate %</td><td>The share of submitted forms that reported an injury.</td></tr>
           <tr><td>Incident Count</td><td>A simple count of forms matching one incident type.</td></tr>
         </table>
@@ -429,7 +452,7 @@
 
       <!-- OPEN -->
       <section id="open">
-        <h2><span class="num">8</span>Open questions</h2>
+        <h2><span class="num">9</span>Open questions</h2>
         <ul>
           <li><b>IN → ==</b>: confirm the operator change with dev + define the migration mapping for existing formulas.</li>
           <li><b>Multi-select semantics</b>: confirm the “contains” behaviour and wording for == / != on multi-select checkbox &amp; dropdown fields.</li>
