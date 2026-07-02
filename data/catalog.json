@@ -113,6 +113,15 @@
       "kind": "item",
       "audience": "showcase",
       "category": "wireframes",
+      "title": "Demo / Trial Mode — Design Proposal",
+      "date": "2026-07-02",
+      "path": "showcase/wireframes/TKT-21153.html",
+      "ticket": "TKT-21153"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
       "title": "Mobile File Upload component",
       "date": "2026-04-23",
       "path": "showcase/wireframes/TKT-18984.html",
@@ -162,15 +171,6 @@
       "date": "2026-06-15",
       "path": "showcase/wireframes/TKT-14038.html",
       "ticket": "TKT-14038"
-    },
-    {
-      "kind": "item",
-      "audience": "showcase",
-      "category": "wireframes",
-      "title": "Demo / Trial Mode — Design Proposal",
-      "date": "2026-07-02",
-      "path": "showcase/wireframes/TKT-21153.html",
-      "ticket": "TKT-21153"
     },
     {
       "kind": "item",
