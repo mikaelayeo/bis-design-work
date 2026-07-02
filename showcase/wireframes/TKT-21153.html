@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TKT-21153 — Demo/Trial Mode — Design Proposal</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      background: #f0f0f0;
+      color: #111;
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    .page-header {
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #bbb;
+    }
+    .page-header h1 { font-size: 18px; font-weight: 700; color: #333; }
+    .page-header .sub { font-size: 13px; color: #555; margin-top: 4px; }
+    .page-header .meta { font-size: 12px; color: #666; margin-top: 6px; }
+    .badge {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      background: #ddd; color: #444; border-radius: 3px;
+      padding: 1px 6px; margin-right: 6px;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex; gap: 18px; flex-wrap: wrap;
+      background: #fff; border: 1px solid #ccc; border-radius: 4px;
+      padding: 10px 14px; margin-bottom: 20px; font-size: 12px; color: #444;
+    }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .dot.reused { background: #4a8f4a; }
+    .dot.new { background: #2f6fa8; }
+    .dot.question { background: #b5872a; }
+
+    .canvas { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+
+    .main-col { display: flex; flex-direction: column; gap: 18px; width: 720px; min-width: 320px; flex-shrink: 0; }
+
+    .section {
+      background: #fff; border: 1px solid #ccc; border-radius: 4px; overflow: hidden;
+    }
+    .section__title {
+      background: #e2e2e2; border-bottom: 1px solid #ccc;
+      padding: 9px 14px; font-size: 13px; font-weight: 700; color: #333;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .tag {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+      border-radius: 3px; padding: 2px 7px;
+    }
+    .tag.reused { background: #e2f0e2; color: #2f6b2f; border: 1px solid #b8dab8; }
+    .tag.new { background: #dbe9f5; color: #2f6fa8; border: 1px solid #aecfe8; }
+    .section__body { padding: 14px; }
+    .section__note {
+      font-size: 12px; color: #666; padding: 10px 14px; background: #f7f7f7;
+      border-top: 1px dashed #ddd;
+    }
+
+    /* Warning banner */
+    .trial-banner {
+      display: flex; align-items: center; gap: 10px;
+      background: #fdf3d6; border: 1px solid #eecf85;
+      border-radius: 3px; padding: 10px 14px; margin-bottom: 10px; font-size: 13px; color: #5c4a1a;
+    }
+    .trial-banner__icon { font-size: 15px; color: #c9971f; flex-shrink: 0; }
+    .trial-banner__text { flex: 1; }
+    .trial-banner__btn {
+      flex-shrink: 0; background: #fff; border: 1px solid #999; color: #333;
+      border-radius: 3px; padding: 6px 12px; font-size: 12px; font-weight: 600; white-space: nowrap;
+    }
+
+    .trial-banner.warn { background: #fbe6d9; border-color: #eba872; color: #6b3a10; }
+    .trial-banner.warn .trial-banner__icon { color: #c9601f; }
+    .trial-banner.critical { background: #f8d9d9; border-color: #e59a9a; color: #6b1a1a; }
+    .trial-banner.critical .trial-banner__icon { color: #c92f2f; }
+
+    table.wording-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
+    table.wording-table th {
+      background: #e5e5e5; border: 1px solid #ccc; padding: 6px 8px; text-align: left; font-weight: 600; color: #444;
+    }
+    table.wording-table td { border: 1px solid #ddd; padding: 6px 8px; color: #333; vertical-align: top; }
+    table.wording-table td.center { text-align: center; white-space: nowrap; }
+
+    /* Pop-up mockups */
+    .modal-frame {
+      background: #eaeaea; border: 1px solid #ccc; border-radius: 4px;
+      padding: 30px 20px; display: flex; justify-content: center;
+    }
+    .modal {
+      background: #fff; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      width: 340px; padding: 20px; position: relative;
+    }
+    .modal__close {
+      position: absolute; top: 12px; right: 14px; font-size: 15px; color: #888; cursor: pointer;
+    }
+    .modal__icon { font-size: 22px; margin-bottom: 8px; }
+    .modal__icon.lock { color: #999; }
+    .modal__icon.check { color: #3f9142; }
+    .modal__title { font-size: 15px; font-weight: 700; color: #222; margin-bottom: 8px; }
+    .modal__body { font-size: 12px; color: #444; margin-bottom: 16px; }
+    .modal__actions { display: flex; justify-content: flex-end; gap: 10px; align-items: center; }
+    .modal__link { font-size: 12px; color: #555; cursor: pointer; }
+    .modal__btn {
+      background: #2a4d6e; color: #fff; border: none; border-radius: 3px;
+      padding: 7px 14px; font-size: 12px; font-weight: 600;
+    }
+
+    /* Toggle proposal */
+    .settings-dropdown {
+      border: 1px solid #ccc; border-radius: 3px; background: #fafafa; padding: 12px 14px;
+    }
+    .settings-dropdown__label { font-size: 12px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+    .toggle-row { display: flex; align-items: flex-start; gap: 12px; }
+    .toggle-switch {
+      width: 36px; height: 20px; background: #2f6fa8; border-radius: 10px; position: relative; flex-shrink: 0; margin-top: 2px;
+    }
+    .toggle-switch::after {
+      content: ''; position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%;
+    }
+    .toggle-copy { font-size: 12px; color: #333; }
+    .toggle-copy strong { display: block; margin-bottom: 3px; }
+    .toggle-status {
+      margin-top: 8px; font-size: 11px; color: #2f6fa8; background: #eaf2f8;
+      border: 1px dashed #aecfe8; border-radius: 3px; padding: 6px 8px;
+    }
+
+    /* Internal admin pill reference */
+    .pill-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .pill {
+      font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 3px; color: #fff;
+    }
+    .pill.green { background: #4a8f4a; }
+    .pill.orange { background: #d18a2c; }
+    .pill.red { background: #c94141; }
+    .pill.gray { background: #999; border: 1px dashed #666; }
+
+    ul.plain { padding-left: 18px; font-size: 12px; color: #333; }
+    ul.plain li { margin-bottom: 6px; }
+
+    /* Notes panel */
+    .design-notes {
+      width: 300px; min-width: 260px; background: #fff; border: 1px solid #ccc; border-radius: 4px;
+      padding: 16px; flex-shrink: 0; align-self: flex-start;
+    }
+    .design-notes h3 {
+      font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #666;
+      margin-top: 16px; margin-bottom: 6px; padding-top: 12px; border-top: 1px solid #eee;
+    }
+    .design-notes h3:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+    .design-notes ul { list-style: disc; padding-left: 16px; }
+    .design-notes li { font-size: 12px; color: #444; margin-bottom: 6px; line-height: 1.5; }
+    .design-notes .status-tag {
+      display: inline-block; font-size: 11px; background: #fff3cd; color: #7a5c00;
+      border: 1px solid #e8d98a; border-radius: 3px; padding: 2px 7px; margin-bottom: 10px; font-weight: 600;
+    }
+    .design-notes li.risk { color: #8a3b3b; }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>Demo / Trial Mode — Design Proposal</h1>
+    <div class="sub">Ticket TKT-21153 — builds on the trial/demo work already shipped under TKT-16203</div>
+    <div class="meta">
+      <span class="badge">Draft — for review</span>
+      <span class="badge">Prepared for: Accounting team walkthrough</span>
+      <span style="font-size:12px; color:#888;">2026-07-02</span>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot reused"></span> Already live today</span>
+    <span><span class="dot new"></span> New — being proposed</span>
+    <span><span class="dot question"></span> Needs a decision from you</span>
+  </div>
+
+  <div class="canvas">
+    <div class="main-col">
+
+      <!-- SECTION A: Trial banner -->
+      <div class="section">
+        <div class="section__title">A. Trial Mode Banner <span class="tag reused">Already live</span></div>
+        <div class="section__body">
+          <div class="trial-banner">
+            <span class="trial-banner__icon">⚠</span>
+            <span class="trial-banner__text">Your Classroom Calendar is in trial mode until October 12, 2025. Please contact your account manager if you would like to access the full features of this module.</span>
+            <button class="trial-banner__btn">Notify Account Manager</button>
+          </div>
+          <p style="font-size:12px; color:#666; margin-bottom:8px;">This is the same yellow banner your clients already see today on Calendar and Forms. We're proposing to reuse it everywhere, with a slightly cleaner look, and add it to four modules that don't have it yet.</p>
+          <table class="wording-table">
+            <thead><tr><th>Module</th><th>Where it appears</th><th>Status</th><th>Banner wording</th></tr></thead>
+            <tbody>
+              <tr><td>Calendar</td><td>Admin view (Classroom Calendar)</td><td class="center">Live today</td><td>"Your Classroom Calendar is in trial mode until October 12, 2025. Please contact your account manager if you would like to access the full features of this module."</td></tr>
+              <tr><td>Forms</td><td>Admin view (Forms list)</td><td class="center">Live today</td><td>"Your Digital Forms is in trial mode until October 12, 2025. Please contact your account manager if you would like to access the full features of this module."</td></tr>
+              <tr><td>LMS</td><td>Admin view</td><td class="center">New wording</td><td>"Your LMS is in trial mode until {date}. Please contact your account manager if you would like to access the full features of this module."</td></tr>
+              <tr><td>TRMS</td><td>Admin view</td><td class="center">New wording</td><td>"Your Training Record Management System is in trial mode until {date}. Please contact your account manager if you would like to access the full features of this module."</td></tr>
+              <tr><td>Folders</td><td>Admin view</td><td class="center">New wording</td><td>"Your Folders is in trial mode until {date}. Please contact your account manager if you would like to access the full features of this module."</td></tr>
+              <tr><td>Assets</td><td>Admin view</td><td class="center">New wording</td><td>"Your Assets is in trial mode until {date}. Please contact your account manager if you would like to access the full features of this module."</td></tr>
+              <tr><td>Rewards</td><td>Rewards admin view</td><td class="center">New — no banner today</td><td>"Your Rewards program is in trial mode until {date}. Please contact your account manager if you would like to access the full features of this module."</td></tr>
+              <tr><td>Playbooks</td><td>Playbooks admin view</td><td class="center">New — no banner today</td><td>"Your Playbooks is in trial mode until {date}. Please contact your account manager if you would like to access the full features of this module."</td></tr>
+              <tr><td>Driver Management</td><td>Company Settings &gt; System Modules &gt; Driver Mgmt edit page</td><td class="center">New — no banner today</td><td>"Your Driver Management is in trial mode until {date}. Please contact your account manager if you would like to access the full features of this module."</td></tr>
+              <tr><td>Lone Worker</td><td>Mobile app</td><td class="center">New — mobile, no banner today</td><td>"Your Lone Worker module is in trial mode until {date}. Please contact your account manager if you would like to access the full features of this module."</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="section__note">Note: the live Forms banner today has a small typo ("...if you want like to access...") — worth fixing to "would like to" while this is being updated anyway.</div>
+      </div>
+
+      <!-- SECTION B: escalating urgency -->
+      <div class="section">
+        <div class="section__title">B. Getting Louder As the Deadline Gets Closer <span class="tag new">New — being proposed</span></div>
+        <div class="section__body">
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">As a trial gets closer to ending, we suggest the banner's color and wording become more urgent — same banner, just harder to miss the closer you get to the deadline.</p>
+          <div class="trial-banner">
+            <span class="trial-banner__icon">⚠</span>
+            <span class="trial-banner__text">More than 14 days left — standard banner, as shown above</span>
+          </div>
+          <div class="trial-banner warn">
+            <span class="trial-banner__icon">⚠</span>
+            <span class="trial-banner__text">3–14 days left — "Your Forms trial ends in 6 days. Contact your account manager now to keep full access."</span>
+          </div>
+          <div class="trial-banner critical">
+            <span class="trial-banner__icon">⚠</span>
+            <span class="trial-banner__text">Less than 3 days left — "Your Forms trial ends tomorrow. Notify your account manager today to avoid losing admin access."</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION C: Trial expired -->
+      <div class="section">
+        <div class="section__title">C. Trial Ended — 90-Day Lock <span class="tag question">Needs a decision</span></div>
+        <div class="section__body">
+          <div class="modal-frame">
+            <div class="modal">
+              <span class="modal__close">✕</span>
+              <div class="modal__icon lock">🔒</div>
+              <div class="modal__title">Trial Expired</div>
+              <div class="modal__body">Thank you for using the Forms module! Your trial period has ended. If you would like to continue using your digital forms, please click Notify Account Manager. Your account manager will reach out to you.<br><br><span style="background:#dbe9f5; color:#2f6fa8; padding:1px 3px; border-radius:2px;">Proposed addition: "Please note that if you choose not to enable the Forms module, all data created during your trial will be permanently deleted."</span></div>
+              <div class="modal__actions">
+                <span class="modal__link">Close</span>
+                <button class="modal__btn">Notify Account Manager</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="section__note">The text above the highlighted line is exactly what clients see today. The highlighted sentence is new wording we're proposing to add. <br><br><strong>The decision we need from you:</strong> today, clients can close this pop-up and keep working elsewhere. TKT-21153 asks for a version that <em>can't</em> be closed at all, so it can't just be dismissed and forgotten — reasonable, given data is about to be deleted. But a pop-up with absolutely no way out needs to be built carefully so people using accessibility tools (screen readers, keyboard-only navigation) aren't left stuck with no path forward. We'd recommend deciding this before development starts.</div>
+      </div>
+
+      <!-- SECTION D: confirmation -->
+      <div class="section">
+        <div class="section__title">D. "Request Sent" Confirmation <span class="tag reused">Already live</span></div>
+        <div class="section__body">
+          <div class="modal-frame">
+            <div class="modal">
+              <div class="modal__icon check">✓</div>
+              <div class="modal__title">Request is sent!</div>
+              <div class="modal__body">We've notified your account manager to activate this module. When activated, you'll have access to all your current forms and many more features!</div>
+              <div class="modal__actions">
+                <button class="modal__btn">Okay</button>
+              </div>
+            </div>
+          </div>
+          <ul class="plain" style="margin-top:10px;">
+            <li>New behavior to add: the "Notify Account Manager" button disables after the first click, and only re-enables after the page is refreshed — this stops a client from sending the same request multiple times in a row.</li>
+            <li>New: if the account manager on file is no longer active, send the notification to sales@bistraining.ca instead.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SECTION E: purge -->
+      <div class="section">
+        <div class="section__title">E. What Happens After the Trial Ends (60-Day Countdown to Deletion) <span class="tag new">New — nothing like this exists today</span></div>
+        <div class="section__body">
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">This part was never built for TKT-16203. The current plan is: one warning pop-up at day 90, then everything gets permanently deleted 60 days after that with no further notice. We think that's risky — a client could easily miss or forget a single early warning. We'd suggest:</p>
+          <div class="trial-banner critical">
+            <span class="trial-banner__icon">⚠</span>
+            <span class="trial-banner__text">Suggested reminder (30 days before deletion): "Forms data will be permanently deleted in 30 days. Export your data or notify your account manager to keep access."</span>
+          </div>
+          <ul class="plain" style="margin-top:10px;">
+            <li>Send a few reminders across those 60 days (for example, at 30 days and 7 days left), not just one notice right at the start.</li>
+            <li>Add a way for the client to download/export their data before it's deleted, alongside the reminders and inside the Trial Expired pop-up.</li>
+            <li>Ask for a clear, separate confirmation right before the actual deletion happens — not just rely on something the client acknowledged 60 days earlier.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SECTION F: override toggle -->
+      <div class="section">
+        <div class="section__title">F. Trial Override Switch <span class="tag new">New</span></div>
+        <div class="section__body">
+          <div class="settings-dropdown">
+            <div class="settings-dropdown__label">Folders — Module Settings (new settings area; Folders doesn't have one today)</div>
+            <div class="toggle-row">
+              <div class="toggle-switch"></div>
+              <div class="toggle-copy">
+                <strong>Trial Override</strong>
+                Extends the client's 90-day trial period, allowing continued access to the module in Trial Mode until this setting is disabled.
+              </div>
+            </div>
+            <div class="toggle-status">Countdown suspended — trial will not expire until this is turned off.</div>
+          </div>
+          <p style="font-size:12px; color:#666; margin-top:10px;">We suggest adding that status line under the switch, so it's obvious at a glance the countdown is paused — not something you only find out by reading the switch's small-print label.</p>
+          <p style="font-size:12px; color:#666; margin-top:8px;">When this is turned on: the banner drops the end date — "Your Classroom Calendar is in trial mode. Please contact your account manager if you would like to access the full features of this module." The watermark on documents and the Notify button stay as-is.</p>
+        </div>
+      </div>
+
+      <!-- SECTION G: internal admin -->
+      <div class="section">
+        <div class="section__title">G. Internal Company List (BIS staff only) <span class="tag question">Needs a decision</span></div>
+        <div class="section__body">
+          <p style="font-size:12px; color:#666;">The internal company list that BIS staff use already color-codes each module's status:</p>
+          <div class="pill-row">
+            <span class="pill green">LMS</span>
+            <span class="pill orange">TRMS</span>
+            <span class="pill red">Forms</span>
+            <span class="pill gray">+ new: Override active?</span>
+            <span class="pill gray">+ new: Data deleted?</span>
+          </div>
+          <p style="font-size:12px; color:#666; margin-top:8px;">Green = paying customer, orange = trialing and within their usage limit, red = trialing and over their usage limit. This ticket introduces two new situations (Override turned on, data already deleted) that this internal list has no color for yet. Worth deciding whether that's in scope for this ticket, or a follow-up.</p>
+        </div>
+      </div>
+
+    </div><!-- /main-col -->
+
+    <!-- NOTES -->
+    <aside class="design-notes">
+      <div class="status-tag">Draft — for your review</div>
+
+      <h3>What We Reused vs. Proposed</h3>
+      <ul>
+        <li>The banner, the Trial Expired pop-up, and the confirmation pop-up are the same ones already live today wherever the ticket doesn't call for new behavior — this is an update, not a rebuild.</li>
+        <li>The four new banner spots (Rewards, Playbooks, Driver Management, Lone Worker) use the exact same banner design — just new places to put it, once the related admin-page work (TKT-18451) ships.</li>
+        <li>The "getting louder" banner idea reuses the same banner shape with different wording and color — not a new design, just new copy rules.</li>
+        <li>Everything about the 60-day deletion countdown (Section E) is genuinely new — there's no existing version of this to reuse.</li>
+      </ul>
+
+      <h3>Questions for the Review Meeting</h3>
+      <ul>
+        <li class="risk"><strong>1. Trial start date:</strong> for modules already in trial today, how do we know when their 90 days actually started? This exact question stalled the previous version of this project (TKT-16203) and doesn't look answered yet.</li>
+        <li><strong>2. Driver Management / Rewards / Playbooks / Lone Worker:</strong> the related ticket that adds these to the admin pages (TKT-18451) is in code review and close to shipping — worth confirming exactly what it adds before we finalize where these banners go.</li>
+        <li><strong>3. "Platform 2.0":</strong> does the "2.0" in this ticket's title mean a bigger redesign is happening elsewhere, or is it just a version label? This affects whether we design using today's look or something new.</li>
+        <li class="risk"><strong>4. Closeable vs. non-closeable pop-up (Section C):</strong> needs a decision, plus a plan for making a non-closeable version safe for people using accessibility tools.</li>
+        <li><strong>5. Deletion safeguards (Section E):</strong> do we want the extra reminders and the export-your-data option? That would expand this ticket a bit beyond what's currently written.</li>
+        <li><strong>6. Internal company list (Section G):</strong> do we need new colors for "Override on" and "Data deleted," or is that a separate piece of work?</li>
+      </ul>
+    </aside>
+
+  </div><!-- /canvas -->
+
+</body>
+</html>

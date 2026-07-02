@@ -167,6 +167,15 @@
       "kind": "item",
       "audience": "showcase",
       "category": "wireframes",
+      "title": "Demo / Trial Mode — Design Proposal",
+      "date": "2026-07-02",
+      "path": "showcase/wireframes/TKT-21153.html",
+      "ticket": "TKT-21153"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
       "title": "Toolbar density",
       "date": "2026-06-15",
       "path": "showcase/wireframes/TKT-20792-toolbar-density.html",
