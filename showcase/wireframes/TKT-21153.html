@@ -5,6 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TKT-21153 — Demo/Trial Mode — Design Proposal</title>
   <style>
+    /* === BIStrainer UI Library design tokens (from BIStrainer_UI-Library-Guide) === */
+    :root {
+      --surface-primary: #0078b3;
+      --surface-primary-lightest: #f2fcff;
+      --icon-primary: #009acb;
+      --surface-error: #cc2222;
+      --surface-error-lightest: #fff2f2;
+      --icon-error: #cc2222;
+      --text-error: #cc2222;
+      --surface-warning: #a1851f;        /* modal warning primary button */
+      --surface-warning-light: #e8b203;  /* banner warning button */
+      --surface-warning-lightest: #fffcf2;
+      --icon-warning: #c29c14;
+      --text-warning: #a1851f;
+      --surface-success: #167b00;
+      --surface-success-lightest: #fafff2;
+      --icon-success: #167b00;
+      --text-success: #167b00;
+      --text-default: #191919;
+      --text-on-surface: #feffff;
+      --surface-default: #feffff;
+      --stroke-default: #b2b2b3;
+      --text-secondary: #666666;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -16,21 +41,15 @@
       line-height: 1.5;
     }
 
-    .page-header {
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid #bbb;
-    }
+    .page-header { margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #bbb; }
     .page-header h1 { font-size: 18px; font-weight: 700; color: #333; }
     .page-header .sub { font-size: 13px; color: #555; margin-top: 4px; }
     .page-header .meta { font-size: 12px; color: #666; margin-top: 6px; }
     .badge {
       display: inline-block; font-size: 11px; font-weight: 600;
-      background: #ddd; color: #444; border-radius: 3px;
-      padding: 1px 6px; margin-right: 6px;
+      background: #ddd; color: #444; border-radius: 3px; padding: 1px 6px; margin-right: 6px;
     }
 
-    /* Legend */
     .legend {
       display: flex; gap: 18px; flex-wrap: wrap;
       background: #fff; border: 1px solid #ccc; border-radius: 4px;
@@ -40,130 +59,134 @@
     .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
     .dot.reused { background: #4a8f4a; }
     .dot.new { background: #2f6fa8; }
-    .dot.question { background: #b5872a; }
+    .dot.question { background: #35507a; }
 
     .canvas { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
-
     .main-col { display: flex; flex-direction: column; gap: 18px; width: 720px; min-width: 320px; flex-shrink: 0; }
 
-    .section {
-      background: #fff; border: 1px solid #ccc; border-radius: 4px; overflow: hidden;
-    }
+    .section { background: #fff; border: 1px solid #ccc; border-radius: 4px; overflow: hidden; }
     .section__title {
       background: #e2e2e2; border-bottom: 1px solid #ccc;
       padding: 9px 14px; font-size: 13px; font-weight: 700; color: #333;
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
     }
     .tag {
       font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
-      border-radius: 3px; padding: 2px 7px;
+      border-radius: 3px; padding: 2px 7px; white-space: nowrap;
     }
     .tag.reused { background: #e2f0e2; color: #2f6b2f; border: 1px solid #b8dab8; }
     .tag.new { background: #dbe9f5; color: #2f6fa8; border: 1px solid #aecfe8; }
+    .tag.done { background: #e4ecf7; color: #35507a; border: 1px solid #b3c6e2; }
     .section__body { padding: 14px; }
-    .section__note {
-      font-size: 12px; color: #666; padding: 10px 14px; background: #f7f7f7;
-      border-top: 1px dashed #ddd;
-    }
+    .section__note { font-size: 12px; color: #666; padding: 10px 14px; background: #f7f7f7; border-top: 1px dashed #ddd; }
 
-    /* Warning banner */
-    .trial-banner {
-      display: flex; align-items: center; gap: 10px;
-      background: #fdf3d6; border: 1px solid #eecf85;
-      border-radius: 3px; padding: 10px 14px; margin-bottom: 10px; font-size: 13px; color: #5c4a1a;
+    /* === DS Banner (sharp variant — flush, no radius) === */
+    .ds-banner {
+      display: flex; align-items: center; gap: 16px; padding: 12px;
+      font-family: "Segoe UI", system-ui, sans-serif;
     }
-    .trial-banner__icon { font-size: 15px; color: #c9971f; flex-shrink: 0; }
-    .trial-banner__text { flex: 1; }
-    .trial-banner__btn {
-      flex-shrink: 0; background: #fff; border: 1px solid #999; color: #333;
-      border-radius: 3px; padding: 6px 12px; font-size: 12px; font-weight: 600; white-space: nowrap;
-    }
+    .ds-banner + .ds-banner { margin-top: 8px; }
+    .ds-banner__main { flex: 1 1 0; display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .ds-banner__icon { flex-shrink: 0; display: flex; align-items: center; }
+    .ds-banner__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .ds-banner__label { font-size: 14px; font-weight: 600; line-height: 18px; color: var(--text-default); }
+    .ds-banner__desc { font-size: 12px; font-weight: 400; line-height: 20px; color: var(--text-default); }
+    .ds-banner.info { background: var(--surface-primary-lightest); }
+    .ds-banner.warning { background: var(--surface-warning-lightest); }
+    .ds-banner.error { background: var(--surface-error-lightest); }
+    .ds-banner.success { background: var(--surface-success-lightest); }
 
-    .trial-banner.warn { background: #fbe6d9; border-color: #eba872; color: #6b3a10; }
-    .trial-banner.warn .trial-banner__icon { color: #c9601f; }
-    .trial-banner.critical { background: #f8d9d9; border-color: #e59a9a; color: #6b1a1a; }
-    .trial-banner.critical .trial-banner__icon { color: #c92f2f; }
+    /* === DS Buttons === */
+    .ds-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; flex-shrink: 0;
+      font-family: "Segoe UI", system-ui, sans-serif; font-size: 15px; font-weight: 600; line-height: 24px; white-space: nowrap;
+    }
+    .ds-btn--primary-blue { background: var(--surface-primary); color: var(--text-on-surface); }
+    .ds-btn--primary-error { background: var(--surface-error); color: var(--text-on-surface); }
+    .ds-btn--primary-warning { background: var(--surface-warning); color: var(--text-on-surface); }
+    .ds-btn--banner-warning { background: var(--surface-warning-light); color: var(--text-default); }
+    .ds-btn--primary-success { background: var(--surface-success); color: var(--text-on-surface); }
+    .ds-btn--secondary-error { background: transparent; border: 1px solid var(--stroke-default); color: var(--text-error); }
+    .ds-btn--secondary-success { background: transparent; border: 1px solid var(--stroke-default); color: var(--text-success); }
+    .ds-btn--tertiary { background: transparent; color: var(--text-default); }
+
+    /* === DS Modal === */
+    .ds-modal-frame { background: #eaeaea; border: 1px solid #ccc; border-radius: 4px; padding: 24px; display: flex; justify-content: center; }
+    .ds-modal {
+      background: var(--surface-default); border-radius: 4px; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.15);
+      width: 525px; max-width: 100%; overflow: hidden; font-family: "Segoe UI", system-ui, sans-serif;
+    }
+    .ds-modal__header { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 6px; gap: 8px; }
+    .ds-modal__title-group { display: flex; align-items: center; gap: 8px; }
+    .ds-modal__icon { width: 20px; height: 20px; flex-shrink: 0; display: flex; }
+    .ds-modal__title { font-size: 20px; font-weight: 600; line-height: 28px; color: var(--text-default); }
+    .ds-modal__close { width: 20px; height: 20px; cursor: pointer; flex-shrink: 0; display: flex; }
+    .ds-modal__body { padding: 16px; font-size: 16px; font-weight: 400; line-height: 24px; color: var(--text-default); }
+    .ds-modal__footer { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 16px; }
 
     table.wording-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
-    table.wording-table th {
-      background: #e5e5e5; border: 1px solid #ccc; padding: 6px 8px; text-align: left; font-weight: 600; color: #444;
-    }
+    table.wording-table th { background: #e5e5e5; border: 1px solid #ccc; padding: 6px 8px; text-align: left; font-weight: 600; color: #444; }
     table.wording-table td { border: 1px solid #ddd; padding: 6px 8px; color: #333; vertical-align: top; }
     table.wording-table td.center { text-align: center; white-space: nowrap; }
 
-    /* Pop-up mockups */
-    .modal-frame {
-      background: #eaeaea; border: 1px solid #ccc; border-radius: 4px;
-      padding: 30px 20px; display: flex; justify-content: center;
+    /* mock module header — shows the banner flush below it */
+    .mock-header {
+      background: #46405f; color: #fff; font-size: 14px; font-weight: 600;
+      padding: 12px 16px; font-family: "Segoe UI", system-ui, sans-serif;
     }
-    .modal {
-      background: #fff; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-      width: 340px; padding: 20px; position: relative;
-    }
-    .modal__close {
-      position: absolute; top: 12px; right: 14px; font-size: 15px; color: #888; cursor: pointer;
-    }
-    .modal__icon { font-size: 22px; margin-bottom: 8px; }
-    .modal__icon.lock { color: #999; }
-    .modal__icon.check { color: #3f9142; }
-    .modal__title { font-size: 15px; font-weight: 700; color: #222; margin-bottom: 8px; }
-    .modal__body { font-size: 12px; color: #444; margin-bottom: 16px; }
-    .modal__actions { display: flex; justify-content: flex-end; gap: 10px; align-items: center; }
-    .modal__link { font-size: 12px; color: #555; cursor: pointer; }
-    .modal__btn {
-      background: #2a4d6e; color: #fff; border: none; border-radius: 3px;
-      padding: 7px 14px; font-size: 12px; font-weight: 600;
-    }
+    .flush-wrap { border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
 
-    /* Toggle proposal */
-    .settings-dropdown {
-      border: 1px solid #ccc; border-radius: 3px; background: #fafafa; padding: 12px 14px;
-    }
-    .settings-dropdown__label { font-size: 12px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
-    .toggle-row { display: flex; align-items: flex-start; gap: 12px; }
-    .toggle-switch {
-      width: 36px; height: 20px; background: #2f6fa8; border-radius: 10px; position: relative; flex-shrink: 0; margin-top: 2px;
-    }
-    .toggle-switch::after {
-      content: ''; position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%;
-    }
-    .toggle-copy { font-size: 12px; color: #333; }
-    .toggle-copy strong { display: block; margin-bottom: 3px; }
-    .toggle-status {
-      margin-top: 8px; font-size: 11px; color: #2f6fa8; background: #eaf2f8;
-      border: 1px dashed #aecfe8; border-radius: 3px; padding: 6px 8px;
-    }
+    /* System Modules settings (Section F) — matches Company Settings > System Modules */
+    .sys-module { border: 1px solid #e0e0e0; border-radius: 4px; background: #fff; overflow: hidden; font-family: "Segoe UI", system-ui, sans-serif; }
+    .sys-module__top { height: 4px; background: #e8b203; } /* module in trial */
+    .sys-module__header { display: flex; align-items: center; gap: 14px; padding: 14px 16px; }
+    .sys-module__title { flex: 1; font-size: 18px; font-weight: 600; color: #222; }
+    .sys-body { padding: 0 16px 16px; }
+    .sys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .sys-setting, .sys-row { border: 1px solid #e0e0e0; border-radius: 4px; padding: 12px 14px; }
+    .sys-row { margin-bottom: 12px; }
+    .sys-row--muted { background: #f7f7f7; margin-bottom: 0; }
+    .sys-setting__head { display: flex; align-items: center; gap: 12px; }
+    .sys-setting__label { flex: 1; font-size: 14px; font-weight: 600; color: #333; }
+    .sys-chevron { flex-shrink: 0; display: flex; }
+    .sys-setting__desc { display: flex; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f0f0f0; font-style: italic; color: #6f6f6f; font-size: 13px; line-height: 1.5; }
+    .sys-setting__desc svg { flex-shrink: 0; margin-top: 2px; }
+    .sys-row--new { border: 2px solid #2f6fa8; }
+    .sys-new-tag { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: #dbe9f5; color: #2f6fa8; border: 1px solid #aecfe8; border-radius: 3px; padding: 1px 6px; margin-left: 8px; vertical-align: middle; }
+    .sys-tgl { width: 42px; height: 22px; border-radius: 11px; position: relative; flex-shrink: 0; }
+    .sys-tgl::after { content: ''; position: absolute; top: 2px; width: 18px; height: 18px; background: #fff; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    .sys-tgl.on { background: #7ab648; }
+    .sys-tgl.on::after { right: 2px; }
+    .sys-tgl.off { background: #4a4a4a; }
+    .sys-tgl.off::after { left: 2px; }
 
-    /* Internal admin pill reference */
+    /* Pills (Section G) */
     .pill-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-    .pill {
-      font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 3px; color: #fff;
-    }
+    .pill { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 3px; color: #fff; }
     .pill.green { background: #4a8f4a; }
     .pill.orange { background: #d18a2c; }
     .pill.red { background: #c94141; }
-    .pill.gray { background: #999; border: 1px dashed #666; }
+    .pill.blue { background: #2f6fa8; }
+    .pill.gray { background: #8a8a8a; }
+    .pill-legend { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; font-size: 12px; color: #444; }
+    .pill-legend div { display: flex; align-items: center; gap: 8px; }
+    .pill-legend .swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+    .pill-legend .swatch.green { background: #4a8f4a; }
+    .pill-legend .swatch.orange { background: #d18a2c; }
+    .pill-legend .swatch.red { background: #c94141; }
+    .pill-legend .swatch.blue { background: #2f6fa8; }
+    .pill-legend .swatch.gray { background: #8a8a8a; }
 
     ul.plain { padding-left: 18px; font-size: 12px; color: #333; }
     ul.plain li { margin-bottom: 6px; }
 
-    /* Notes panel */
-    .design-notes {
-      width: 300px; min-width: 260px; background: #fff; border: 1px solid #ccc; border-radius: 4px;
-      padding: 16px; flex-shrink: 0; align-self: flex-start;
-    }
-    .design-notes h3 {
-      font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #666;
-      margin-top: 16px; margin-bottom: 6px; padding-top: 12px; border-top: 1px solid #eee;
-    }
+    .design-notes { width: 300px; min-width: 260px; background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 16px; flex-shrink: 0; align-self: flex-start; }
+    .design-notes h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #666; margin-top: 16px; margin-bottom: 6px; padding-top: 12px; border-top: 1px solid #eee; }
     .design-notes h3:first-child { margin-top: 0; padding-top: 0; border-top: none; }
     .design-notes ul { list-style: disc; padding-left: 16px; }
     .design-notes li { font-size: 12px; color: #444; margin-bottom: 6px; line-height: 1.5; }
-    .design-notes .status-tag {
-      display: inline-block; font-size: 11px; background: #fff3cd; color: #7a5c00;
-      border: 1px solid #e8d98a; border-radius: 3px; padding: 2px 7px; margin-bottom: 10px; font-weight: 600;
-    }
-    .design-notes li.risk { color: #8a3b3b; }
+    .design-notes .status-tag { display: inline-block; font-size: 11px; background: #fff3cd; color: #7a5c00; border: 1px solid #e8d98a; border-radius: 3px; padding: 2px 7px; margin-bottom: 10px; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -172,16 +195,16 @@
     <h1>Demo / Trial Mode — Design Proposal</h1>
     <div class="sub">Ticket TKT-21153 — builds on the trial/demo work already shipped under TKT-16203</div>
     <div class="meta">
-      <span class="badge">Draft — for review</span>
+      <span class="badge">Round 3 — built with BIStrainer UI Library components</span>
       <span class="badge">Prepared for: Accounting team walkthrough</span>
-      <span style="font-size:12px; color:#888;">2026-07-02</span>
+      <span style="font-size:12px; color:#888;">2026-07-03</span>
     </div>
   </div>
 
   <div class="legend">
     <span><span class="dot reused"></span> Already live today</span>
     <span><span class="dot new"></span> New — being proposed</span>
-    <span><span class="dot question"></span> Needs a decision from you</span>
+    <span><span class="dot question"></span> Confirmed / updated from your review</span>
   </div>
 
   <div class="canvas">
@@ -189,14 +212,24 @@
 
       <!-- SECTION A: Trial banner -->
       <div class="section">
-        <div class="section__title">A. Trial Mode Banner <span class="tag reused">Already live</span></div>
+        <div class="section__title">A. Trial Mode Banner <span class="tag done">✓ Approved — using design-system Banner (sharp)</span></div>
         <div class="section__body">
-          <div class="trial-banner">
-            <span class="trial-banner__icon">⚠</span>
-            <span class="trial-banner__text">Your Classroom Calendar is in trial mode until October 12, 2025. Please contact your account manager if you would like to access the full features of this module.</span>
-            <button class="trial-banner__btn">Notify Account Manager</button>
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">Using the design system's <strong>Banner</strong> component, sharp variant, so it sits flush directly under the module header. This is the <strong>info</strong> style (the neutral, most-days-left state):</p>
+          <div class="flush-wrap">
+            <div class="mock-header">Classroom Calendar</div>
+            <div class="ds-banner info">
+              <div class="ds-banner__main">
+                <span class="ds-banner__icon">
+                  <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#009acb"/><rect x="7.1" y="7" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="4.6" r="1.05" fill="#fff"/></svg>
+                </span>
+                <span class="ds-banner__text">
+                  <span class="ds-banner__label">Your Classroom Calendar is in trial mode until October 12, 2025.</span>
+                  <span class="ds-banner__desc">Please contact your account manager if you would like to access the full features of this module.</span>
+                </span>
+              </div>
+              <button class="ds-btn ds-btn--primary-blue">Notify Account Manager</button>
+            </div>
           </div>
-          <p style="font-size:12px; color:#666; margin-bottom:8px;">This is the same yellow banner your clients already see today on Calendar and Forms. We're proposing to reuse it everywhere, with a slightly cleaner look, and add it to four modules that don't have it yet.</p>
           <table class="wording-table">
             <thead><tr><th>Module</th><th>Where it appears</th><th>Status</th><th>Banner wording</th></tr></thead>
             <tbody>
@@ -218,55 +251,105 @@
 
       <!-- SECTION B: escalating urgency -->
       <div class="section">
-        <div class="section__title">B. Getting Louder As the Deadline Gets Closer <span class="tag new">New — being proposed</span></div>
+        <div class="section__title">B. Getting Louder As the Deadline Gets Closer <span class="tag done">✓ Approved — info → warning → error</span></div>
         <div class="section__body">
-          <p style="font-size:12px; color:#666; margin-bottom:10px;">As a trial gets closer to ending, we suggest the banner's color and wording become more urgent — same banner, just harder to miss the closer you get to the deadline.</p>
-          <div class="trial-banner">
-            <span class="trial-banner__icon">⚠</span>
-            <span class="trial-banner__text">More than 14 days left — standard banner, as shown above</span>
+          <p style="font-size:12px; color:#666; margin-bottom:6px;">Same Banner component, stepping through the design system's semantic colors as the deadline nears — info (blue), then warning (amber), then error (red).</p>
+          <p style="font-size:12px; color:#8a6d1a; background:#fffcf2; border:1px solid #eecf85; border-radius:3px; padding:6px 8px; margin-bottom:14px;">Heads up: this escalating-urgency idea is a design suggestion beyond the original ticket, which only asks for a single banner showing the end date. Optional — easy to drop if you'd rather keep to the original scope.</p>
+
+          <p style="font-size:12px; font-weight:600; color:#555; margin-bottom:6px;">More than 14 days left</p>
+          <div class="ds-banner info">
+            <div class="ds-banner__main">
+              <span class="ds-banner__icon">
+                <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#009acb"/><rect x="7.1" y="7" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="4.6" r="1.05" fill="#fff"/></svg>
+              </span>
+              <span class="ds-banner__text">
+                <span class="ds-banner__label">Your Classroom Calendar is in trial mode until October 12, 2025.</span>
+                <span class="ds-banner__desc">Please contact your account manager if you would like to access the full features of this module.</span>
+              </span>
+            </div>
+            <button class="ds-btn ds-btn--primary-blue">Notify Account Manager</button>
           </div>
-          <div class="trial-banner warn">
-            <span class="trial-banner__icon">⚠</span>
-            <span class="trial-banner__text">3–14 days left — "Your Forms trial ends in 6 days. Contact your account manager now to keep full access."</span>
+
+          <p style="font-size:12px; font-weight:600; color:#555; margin:16px 0 6px;">3–14 days left</p>
+          <div class="ds-banner warning">
+            <div class="ds-banner__main">
+              <span class="ds-banner__icon">
+                <svg viewBox="0 0 16 15" width="16" height="15"><path d="M8 0.5 L15.5 14 L0.5 14 Z" fill="#c29c14"/><rect x="7.1" y="5" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="12.2" r="1.05" fill="#fff"/></svg>
+              </span>
+              <span class="ds-banner__text">
+                <span class="ds-banner__label">Your Classroom Calendar trial ends in 6 days, on October 12, 2025.</span>
+                <span class="ds-banner__desc">Contact your account manager now to keep full access to this module.</span>
+              </span>
+            </div>
+            <button class="ds-btn ds-btn--banner-warning">Notify Account Manager</button>
           </div>
-          <div class="trial-banner critical">
-            <span class="trial-banner__icon">⚠</span>
-            <span class="trial-banner__text">Less than 3 days left — "Your Forms trial ends tomorrow. Notify your account manager today to avoid losing admin access."</span>
+
+          <p style="font-size:12px; font-weight:600; color:#555; margin:16px 0 6px;">Less than 3 days left</p>
+          <div class="ds-banner error">
+            <div class="ds-banner__main">
+              <span class="ds-banner__icon">
+                <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg>
+              </span>
+              <span class="ds-banner__text">
+                <span class="ds-banner__label">Your Classroom Calendar trial ends tomorrow, October 12, 2025.</span>
+                <span class="ds-banner__desc">Notify your account manager today to avoid losing admin access to this module.</span>
+              </span>
+            </div>
+            <button class="ds-btn ds-btn--primary-error">Notify Account Manager</button>
           </div>
         </div>
       </div>
 
       <!-- SECTION C: Trial expired -->
       <div class="section">
-        <div class="section__title">C. Trial Ended — 90-Day Lock <span class="tag question">Needs a decision</span></div>
+        <div class="section__title">C. Trial Ended — 90-Day Lock <span class="tag done">✓ Confirmed — Warning modal, stays closeable</span></div>
         <div class="section__body">
-          <div class="modal-frame">
-            <div class="modal">
-              <span class="modal__close">✕</span>
-              <div class="modal__icon lock">🔒</div>
-              <div class="modal__title">Trial Expired</div>
-              <div class="modal__body">Thank you for using the Forms module! Your trial period has ended. If you would like to continue using your digital forms, please click Notify Account Manager. Your account manager will reach out to you.<br><br><span style="background:#dbe9f5; color:#2f6fa8; padding:1px 3px; border-radius:2px;">Proposed addition: "Please note that if you choose not to enable the Forms module, all data created during your trial will be permanently deleted."</span></div>
-              <div class="modal__actions">
-                <span class="modal__link">Close</span>
-                <button class="modal__btn">Notify Account Manager</button>
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">Using the design system's <strong>Warning modal</strong>. It stays closeable (X in the corner + a Close button), with "Notify Account Manager" as the main action:</p>
+          <div class="ds-modal-frame">
+            <div class="ds-modal">
+              <div class="ds-modal__header">
+                <div class="ds-modal__title-group">
+                  <span class="ds-modal__icon">
+                    <svg viewBox="0 0 22 20" width="22" height="20"><path d="M11 1.5 L20.5 18.5 L1.5 18.5 Z" fill="none" stroke="#c29c14" stroke-width="1.6" stroke-linejoin="round"/><rect x="10.1" y="7" width="1.8" height="6" rx="0.9" fill="#c29c14"/><circle cx="11" cy="16" r="1.05" fill="#c29c14"/></svg>
+                  </span>
+                  <span class="ds-modal__title">Trial Expired</span>
+                </div>
+                <span class="ds-modal__close">
+                  <svg viewBox="0 0 20 20" width="20" height="20"><path d="M4.5 4.5 L15.5 15.5 M15.5 4.5 L4.5 15.5" stroke="#191919" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+              </div>
+              <div class="ds-modal__body">Thank you for using the Forms module! Your trial period has ended. If you would like to continue using your digital forms, please click Notify Account Manager. Your account manager will reach out to you. Please note if you choose not to enable the Forms module, all data created during your trial will be permanently deleted in 60 days.</div>
+              <div class="ds-modal__footer">
+                <button class="ds-btn ds-btn--tertiary">Close</button>
+                <button class="ds-btn ds-btn--primary-warning">Notify Account Manager</button>
               </div>
             </div>
           </div>
         </div>
-        <div class="section__note">The text above the highlighted line is exactly what clients see today. The highlighted sentence is new wording we're proposing to add. <br><br><strong>The decision we need from you:</strong> today, clients can close this pop-up and keep working elsewhere. TKT-21153 asks for a version that <em>can't</em> be closed at all, so it can't just be dismissed and forgotten — reasonable, given data is about to be deleted. But a pop-up with absolutely no way out needs to be built carefully so people using accessibility tools (screen readers, keyboard-only navigation) aren't left stuck with no path forward. We'd recommend deciding this before development starts.</div>
+        <div class="section__note"><strong>Your decision:</strong> the pop-up stays closeable — "Close" or "Notify Account Manager." The wording now spells out "<strong>in 60 days</strong>" so a client who clicks Close doesn't think everything is deleted the moment they dismiss it. The stronger, hard-to-miss confirmation comes later, right before the actual deletion (see Section E).</div>
       </div>
 
       <!-- SECTION D: confirmation -->
       <div class="section">
-        <div class="section__title">D. "Request Sent" Confirmation <span class="tag reused">Already live</span></div>
+        <div class="section__title">D. "Request Sent" Confirmation <span class="tag done">✓ Approved — Success modal</span></div>
         <div class="section__body">
-          <div class="modal-frame">
-            <div class="modal">
-              <div class="modal__icon check">✓</div>
-              <div class="modal__title">Request is sent!</div>
-              <div class="modal__body">We've notified your account manager to activate this module. When activated, you'll have access to all your current forms and many more features!</div>
-              <div class="modal__actions">
-                <button class="modal__btn">Okay</button>
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">Using the design system's <strong>Success modal</strong> for the "request sent" confirmation:</p>
+          <div class="ds-modal-frame">
+            <div class="ds-modal">
+              <div class="ds-modal__header">
+                <div class="ds-modal__title-group">
+                  <span class="ds-modal__icon">
+                    <svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#167b00"/><path d="M5.5 10.5 L8.6 13.5 L14.5 6.7" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                  <span class="ds-modal__title">Request is sent!</span>
+                </div>
+                <span class="ds-modal__close">
+                  <svg viewBox="0 0 20 20" width="20" height="20"><path d="M4.5 4.5 L15.5 15.5 M15.5 4.5 L4.5 15.5" stroke="#191919" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+              </div>
+              <div class="ds-modal__body">We've notified your account manager to activate this module. When activated, you'll have access to all your current forms and many more features!</div>
+              <div class="ds-modal__footer">
+                <button class="ds-btn ds-btn--primary-success">Okay</button>
               </div>
             </div>
           </div>
@@ -279,54 +362,170 @@
 
       <!-- SECTION E: purge -->
       <div class="section">
-        <div class="section__title">E. What Happens After the Trial Ends (60-Day Countdown to Deletion) <span class="tag new">New — nothing like this exists today</span></div>
+        <div class="section__title">E. What Happens After the Trial Ends (60-Day Countdown to Deletion) <span class="tag done">✓ Confirmed — Error banners + Error modal</span></div>
         <div class="section__body">
-          <p style="font-size:12px; color:#666; margin-bottom:10px;">This part was never built for TKT-16203. The current plan is: one warning pop-up at day 90, then everything gets permanently deleted 60 days after that with no further notice. We think that's risky — a client could easily miss or forget a single early warning. We'd suggest:</p>
-          <div class="trial-banner critical">
-            <span class="trial-banner__icon">⚠</span>
-            <span class="trial-banner__text">Suggested reminder (30 days before deletion): "Forms data will be permanently deleted in 30 days. Export your data or notify your account manager to keep access."</span>
+          <p style="font-size:12px; color:#666; margin-bottom:12px;">After the trial ends (day 90), the client has 60 more days before their trial data is permanently deleted. We send reminders as the date approaches, then one final confirmation right before it happens.</p>
+
+          <p style="font-size:12px; font-weight:700; color:#444; margin-bottom:8px;">1. Reminders during the 60-day window — design system Error banner</p>
+
+          <div class="ds-banner error">
+            <div class="ds-banner__main">
+              <span class="ds-banner__icon">
+                <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg>
+              </span>
+              <span class="ds-banner__text">
+                <span class="ds-banner__label">Your Forms trial data will be permanently deleted in 30 days.</span>
+                <span class="ds-banner__desc">Contact your account manager to keep full access, or to export your data before it's deleted.</span>
+              </span>
+            </div>
+            <button class="ds-btn ds-btn--primary-error">Notify Account Manager</button>
           </div>
-          <ul class="plain" style="margin-top:10px;">
-            <li>Send a few reminders across those 60 days (for example, at 30 days and 7 days left), not just one notice right at the start.</li>
-            <li>Add a way for the client to download/export their data before it's deleted, alongside the reminders and inside the Trial Expired pop-up.</li>
-            <li>Ask for a clear, separate confirmation right before the actual deletion happens — not just rely on something the client acknowledged 60 days earlier.</li>
-          </ul>
+
+          <div class="ds-banner error">
+            <div class="ds-banner__main">
+              <span class="ds-banner__icon">
+                <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg>
+              </span>
+              <span class="ds-banner__text">
+                <span class="ds-banner__label">Your Forms trial data will be permanently deleted in 7 days.</span>
+                <span class="ds-banner__desc">Contact your account manager to keep full access, or to export your data before it's deleted.</span>
+              </span>
+            </div>
+            <button class="ds-btn ds-btn--primary-error">Notify Account Manager</button>
+          </div>
+
+          <div class="ds-banner error">
+            <div class="ds-banner__main">
+              <span class="ds-banner__icon">
+                <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg>
+              </span>
+              <span class="ds-banner__text">
+                <span class="ds-banner__label">Your Forms trial data will be permanently deleted tomorrow.</span>
+                <span class="ds-banner__desc">Contact your account manager now to keep full access, or to export your data before it's deleted.</span>
+              </span>
+            </div>
+            <button class="ds-btn ds-btn--primary-error">Notify Account Manager</button>
+          </div>
+
+          <p style="font-size:12px; font-weight:700; color:#444; margin:16px 0 8px;">2. Exporting data — through the account manager</p>
+          <p style="font-size:12px; color:#555;">There's no self-serve export in BIS — clients can't download the things they build (courses, form templates) on their own. So during this 60-day window, the account manager is the single path for both options: a client contacts them to either <strong>make the module full access</strong>, or <strong>export their data</strong> before it's deleted. The banners and the final pop-up above both say this, so there's no self-serve "export" button that promises something the system doesn't do.</p>
+
+          <p style="font-size:12px; font-weight:700; color:#444; margin:16px 0 8px;">3. Final confirmation — design system Error modal</p>
+          <p style="font-size:12px; color:#555; margin-bottom:10px;">On the last day, one clear pop-up. There's <strong>no "cancel deletion" button and no X</strong> — the only way to keep the data is through the account manager. The two options are Confirm, or Notify Account Manager:</p>
+          <div class="ds-modal-frame">
+            <div class="ds-modal">
+              <div class="ds-modal__header">
+                <div class="ds-modal__title-group">
+                  <span class="ds-modal__icon">
+                    <svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#cc2222"/><path d="M6.5 6.5 L13.5 13.5 M13.5 6.5 L6.5 13.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  </span>
+                  <span class="ds-modal__title">Data will be deleted today</span>
+                </div>
+              </div>
+              <div class="ds-modal__body">All data in this module will be permanently deleted today. This cannot be undone. Please confirm, or contact your account manager if you would like to keep access to this module or export your data.</div>
+              <div class="ds-modal__footer">
+                <button class="ds-btn ds-btn--secondary-error">Notify Account Manager</button>
+                <button class="ds-btn ds-btn--primary-error">Confirm</button>
+              </div>
+            </div>
+          </div>
         </div>
+        <div class="section__note">One thing to confirm: in your Section E note you listed three reminders (30, 7, and 1 day), and in your written answer you mentioned two (30 and 7). We've built in all three above — easy to drop the 1-day one if you'd rather keep it to two.</div>
       </div>
 
       <!-- SECTION F: override toggle -->
       <div class="section">
-        <div class="section__title">F. Trial Override Switch <span class="tag new">New</span></div>
+        <div class="section__title">F. Trial Override Switch <span class="tag done">✓ Approved — as a System Modules setting</span></div>
         <div class="section__body">
-          <div class="settings-dropdown">
-            <div class="settings-dropdown__label">Folders — Module Settings (new settings area; Folders doesn't have one today)</div>
-            <div class="toggle-row">
-              <div class="toggle-switch"></div>
-              <div class="toggle-copy">
-                <strong>Trial Override</strong>
-                Extends the client's 90-day trial period, allowing continued access to the module in Trial Mode until this setting is disabled.
+          <p style="font-size:12px; color:#666; margin-bottom:12px;">This lives in <strong>Company Settings &gt; System Modules</strong>, as a new setting at the very end of the module's list — right above the "AI" setting — following the same accordion + description pattern as the existing settings (e.g. Dataset Module). Shown expanded below:</p>
+
+          <div class="sys-module">
+            <div class="sys-module__top"></div>
+            <div class="sys-module__header">
+              <span class="sys-tgl on"></span>
+              <span class="sys-module__title">Forms</span>
+              <span class="sys-chevron"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 10 L8 6 L12 10" stroke="#888" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </div>
+            <div class="sys-body">
+              <div class="sys-grid">
+                <div class="sys-setting">
+                  <div class="sys-setting__head">
+                    <span class="sys-tgl off"></span>
+                    <span class="sys-setting__label">Form Notifications</span>
+                    <span class="sys-chevron"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 6 L8 10 L12 6" stroke="#999" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  </div>
+                </div>
+                <div class="sys-setting">
+                  <div class="sys-setting__head">
+                    <span class="sys-tgl on"></span>
+                    <span class="sys-setting__label">Dataset Module</span>
+                    <span class="sys-chevron"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 6 L8 10 L12 6" stroke="#999" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  </div>
+                </div>
+                <div class="sys-setting">
+                  <div class="sys-setting__head">
+                    <span class="sys-tgl on"></span>
+                    <span class="sys-setting__label">Form Delegation</span>
+                    <span class="sys-chevron"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 6 L8 10 L12 6" stroke="#999" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  </div>
+                </div>
+                <div class="sys-setting">
+                  <div class="sys-setting__head">
+                    <span class="sys-tgl off"></span>
+                    <span class="sys-setting__label">Allow Asset Form Lock</span>
+                    <span class="sys-chevron"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 6 L8 10 L12 6" stroke="#999" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- NEW setting, expanded, above AI -->
+              <div class="sys-row sys-row--new">
+                <div class="sys-setting__head">
+                  <span class="sys-tgl on"></span>
+                  <span class="sys-setting__label">Trial Override <span class="sys-new-tag">New</span></span>
+                  <span class="sys-chevron"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 10 L8 6 L12 10" stroke="#888" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                </div>
+                <div class="sys-setting__desc">
+                  <svg viewBox="0 0 16 16" width="15" height="15"><circle cx="8" cy="8" r="8" fill="#009acb"/><rect x="7.1" y="7" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="4.6" r="1.05" fill="#fff"/></svg>
+                  <span>Extends the client's 90-day trial period, allowing continued access to the module in Trial Mode until this setting is disabled. All trial banners, the Notify Account Manager button, and SAMPLE watermarks stay in place — only the trial end date is removed.</span>
+                </div>
+              </div>
+
+              <!-- AI accordion (existing) -->
+              <div class="sys-row sys-row--muted">
+                <div class="sys-setting__head">
+                  <span class="sys-setting__label">AI</span>
+                  <span class="sys-chevron"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M4 6 L8 10 L12 6" stroke="#999" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                </div>
               </div>
             </div>
-            <div class="toggle-status">Countdown suspended — trial will not expire until this is turned off.</div>
           </div>
-          <p style="font-size:12px; color:#666; margin-top:10px;">We suggest adding that status line under the switch, so it's obvious at a glance the countdown is paused — not something you only find out by reading the switch's small-print label.</p>
-          <p style="font-size:12px; color:#666; margin-top:8px;">When this is turned on: the banner drops the end date — "Your Classroom Calendar is in trial mode. Please contact your account manager if you would like to access the full features of this module." The watermark on documents and the Notify button stay as-is.</p>
+
+          <p style="font-size:12px; color:#666; margin-top:12px;">When this is turned on, the banner drops the end date and simply reads: "Your Classroom Calendar is in trial mode. Please contact your account manager if you would like to access the full features of this module."</p>
+          <p style="font-size:12px; color:#666; margin-top:6px;">For modules that don't have a settings dropdown today (e.g. Folders), we'll add one so this setting has a place to live.</p>
         </div>
       </div>
 
       <!-- SECTION G: internal admin -->
       <div class="section">
-        <div class="section__title">G. Internal Company List (BIS staff only) <span class="tag question">Needs a decision</span></div>
+        <div class="section__title">G. Internal Company List (BIS staff only) <span class="tag done">✓ Confirmed — two new colors added</span></div>
         <div class="section__body">
-          <p style="font-size:12px; color:#666;">The internal company list that BIS staff use already color-codes each module's status:</p>
+          <p style="font-size:12px; color:#666; margin-bottom:4px;">The internal company list that BIS staff use color-codes each module. We're adding two new colors so staff can tell at a glance when a client's trial has been manually extended, or when their data has already been deleted:</p>
           <div class="pill-row">
             <span class="pill green">LMS</span>
             <span class="pill orange">TRMS</span>
             <span class="pill red">Forms</span>
-            <span class="pill gray">+ new: Override active?</span>
-            <span class="pill gray">+ new: Data deleted?</span>
+            <span class="pill blue">Calendar</span>
+            <span class="pill gray">Assets</span>
           </div>
-          <p style="font-size:12px; color:#666; margin-top:8px;">Green = paying customer, orange = trialing and within their usage limit, red = trialing and over their usage limit. This ticket introduces two new situations (Override turned on, data already deleted) that this internal list has no color for yet. Worth deciding whether that's in scope for this ticket, or a follow-up.</p>
+          <div class="pill-legend">
+            <div><span class="swatch green"></span> <strong>Green</strong> — paying customer</div>
+            <div><span class="swatch orange"></span> <strong>Orange</strong> — trialing, within their usage limit</div>
+            <div><span class="swatch red"></span> <strong>Red</strong> — trialing, over their usage limit</div>
+            <div><span class="swatch blue"></span> <strong>Blue (new)</strong> — not paying, but the Trial Override switch is turned on</div>
+            <div><span class="swatch gray"></span> <strong>Grey (new)</strong> — data deleted; client trialed this module and chose not to keep it</div>
+          </div>
+          <p style="font-size:12px; color:#666; margin-top:10px;">The grey state is useful history — it clearly shows a client already trialed a module and decided not to use it, rather than leaving staff to guess.</p>
         </div>
       </div>
 
@@ -334,16 +533,44 @@
 
     <!-- NOTES -->
     <aside class="design-notes">
-      <div class="status-tag">Draft — for your review</div>
+      <div class="status-tag">Round 3 — design-system components applied</div>
 
-      <h3>What We Reused vs. Proposed</h3>
+      <h3>Components Used</h3>
       <ul>
-        <li>The banner, the Trial Expired pop-up, and the confirmation pop-up are the same ones already live today wherever the ticket doesn't call for new behavior — this is an update, not a rebuild.</li>
-        <li>The four new banner spots (Rewards, Playbooks, Driver Management, Lone Worker) use the exact same banner design — just new places to put it, once the related admin-page work (TKT-18451) ships.</li>
-        <li>The "getting louder" banner idea reuses the same banner shape with different wording and color — not a new design, just new copy rules.</li>
-        <li>Everything about the 60-day deletion countdown (Section E) is genuinely new — there's no existing version of this to reuse.</li>
+        <li><strong>Banner (sharp)</strong> — Sections A, B, E. Sits flush below the module header. Semantic colors: info (blue), warning (amber), error (red).</li>
+        <li><strong>Warning modal</strong> — Section C (Trial Expired). Closeable.</li>
+        <li><strong>Success modal</strong> — Section D (Request Sent).</li>
+        <li><strong>Error modal</strong> — Section E final confirmation. No X, no cancel — deletion only stopped via account manager.</li>
+        <li>All pulled from the BIStrainer UI Library so the build matches the live system exactly.</li>
       </ul>
 
+      <h3>Decisions Confirmed</h3>
+      <ul>
+        <li><strong>A</strong> — update all module wording, fix Forms typo. ✓</li>
+        <li><strong>B</strong> — info → warning → error as it gets closer. ✓</li>
+        <li><strong>C</strong> — closeable; "in 60 days" added. ✓</li>
+        <li><strong>D</strong> — success modal + duplicate-click guard. ✓</li>
+        <li><strong>E</strong> — reminders 30 / 7 / 1 day; no new export; error modal with Confirm / Notify (no cancel). ✓</li>
+        <li><strong>F</strong> — override switch. ✓</li>
+        <li><strong>G</strong> — blue = override on, grey = data deleted. ✓</li>
+      </ul>
+
+      <h3>Answered — Trial Start Date</h3>
+      <ul>
+        <li>The 90-day countdown starts from the date the module was turned on — matching the note added to the Notes section on the Company Settings page when a module is enabled. That note date is the source of truth.</li>
+      </ul>
+
+      <h3>Still Open</h3>
+      <ul>
+        <li><strong>Reminder count:</strong> confirm 3 reminders (30/7/1) vs. 2 (30/7).</li>
+        <li><strong>"Platform 2.0":</strong> broader redesign, or just a version label? (affects styling).</li>
+        <li><strong>TKT-18451:</strong> confirm exactly what admin pages it adds before placing the four new banners.</li>
+      </ul>
+
+      <h3>Next Step</h3>
+      <ul>
+        <li>Build these into the actual screens (real pages, in context) rather than these isolated component mock-ups.</li>
+      </ul>
     </aside>
 
   </div><!-- /canvas -->
