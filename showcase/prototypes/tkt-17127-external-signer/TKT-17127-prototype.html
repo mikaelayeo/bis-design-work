@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TKT-17127 — External Signer Support — Interactive Prototype</title>
+<style>
+  :root {
+    --surface-primary: #0078b3;
+    --surface-primary-lightest: #f2fcff;
+    --surface-error: #cc2222;
+    --surface-error-lightest: #fff2f2;
+    --surface-warning: #a1851f;
+    --surface-warning-light: #e8b203;
+    --surface-warning-lightest: #fffcf2;
+    --icon-warning: #c29c14;
+    --surface-success: #167b00;
+    --surface-success-lightest: #fafff2;
+    --text-default: #191919;
+    --text-on-surface: #feffff;
+    --surface-default: #feffff;
+    --stroke-default: #b2b2b3;
+    --text-secondary: #666666;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; font-size: 14px; background: #f0f0f0; color: #111; line-height: 1.5; }
+
+  /* ===== Step nav (jump between workflow steps, modeled on the showcase folder-jump pattern) ===== */
+  .step-nav { position: sticky; top: 0; z-index: 20; background: #22203a; color: #fff; display: flex; align-items: center; gap: 4px; padding: 0 12px; overflow-x: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+  .step-nav .brand { font-weight: 700; font-size: 13px; padding: 12px 14px 12px 0; border-right: 1px solid rgba(255,255,255,0.15); margin-right: 8px; white-space: nowrap; }
+  .step-tab { flex-shrink: 0; background: none; border: none; color: rgba(255,255,255,0.65); font-family: inherit; font-size: 13px; font-weight: 600; padding: 12px 14px; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+  .step-tab:hover { color: #fff; }
+  .step-tab.active { color: #fff; border-bottom-color: #4fb3e8; }
+  .step-tab .n { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.15); font-size: 10px; margin-right: 6px; }
+  .step-tab.active .n { background: #4fb3e8; color: #22203a; }
+  .step-nav .spacer { flex: 1; }
+  .step-prevnext { display: flex; gap: 6px; padding: 8px 0; flex-shrink: 0; }
+  .step-prevnext button { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-family: inherit; font-size: 12px; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
+  .step-prevnext button:hover { background: rgba(255,255,255,0.2); }
+  .step-prevnext button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .stage { display: none; padding: 28px 24px 60px; max-width: 760px; margin: 0 auto; }
+  .stage.active { display: block; }
+  .stage-head { margin-bottom: 18px; }
+  .stage-head .kicker { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--surface-primary); }
+  .stage-head h1 { font-size: 20px; font-weight: 700; color: #222; margin-top: 4px; }
+  .stage-head p { font-size: 13px; color: #666; margin-top: 6px; }
+
+  .panel { background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 18px; }
+
+  /* Form Builder config mock */
+  .fb-field { margin-bottom: 14px; }
+  .fb-field label { display: block; font-size: 12px; font-weight: 600; color: #444; margin-bottom: 4px; }
+  .fb-select, .fb-input { width: 100%; border: 1px solid var(--stroke-default); border-radius: 4px; padding: 7px 10px; font-size: 13px; background: #fff; font-family: inherit; }
+  .fb-checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; margin-bottom: 10px; }
+  .fb-option-row { display: flex; align-items: center; justify-content: space-between; border: 1px solid #ddd; border-radius: 4px; padding: 8px 10px; margin-bottom: 6px; font-size: 13px; background: #fff; }
+  .fb-options-row { display: flex; gap: 8px; align-items: center; }
+  .fb-options-row input { flex: 1; }
+  .fb-icon-btn { width: 34px; height: 34px; flex-shrink: 0; border: 1px solid var(--stroke-default); border-radius: 4px; background: #fff; color: var(--surface-primary); display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  .ext-email-wrap { display: none; margin-top: 10px; }
+  .ext-email-wrap.show { display: block; }
+  .validity-msg { font-size: 11px; margin-top: 4px; display: none; }
+  .validity-msg.ok { color: var(--surface-success); display: block; }
+  .validity-msg.err { color: var(--surface-error); display: block; }
+  .fb-input.ok { border-color: var(--surface-success); }
+  .fb-input.err { border-color: var(--surface-error); }
+  .type-config { display: none; }
+  .type-config.show { display: block; }
+
+  /* ===== Form Builder page skeleton (matches the live app) ===== */
+  .fb-shell { border: 1px solid #ccc; background: #fff; }
+  .fb-topbar { background: #443b5a; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; font-size: 14px; font-weight: 600; flex-wrap: wrap; gap: 8px; }
+  .fb-topbar-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .fb-pill { border: none; border-radius: 4px; padding: 6px 10px; font-size: 11px; font-weight: 600; background: #5a5170; color: #fff; cursor: default; }
+  .fb-pill.purple { background: #7b5fa8; }
+  .fb-pill.orange { background: #d18a2c; }
+  .fb-pill.red { background: #c94141; }
+  .fb-pill.green { background: #4a8f4a; }
+  .fb-body { display: flex; min-height: 540px; }
+  .fb-rail { width: 168px; flex-shrink: 0; border-right: 1px solid #ddd; background: #faf9fc; padding: 10px 0; overflow-y: auto; }
+  .fb-rail-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #888; padding: 6px 14px; }
+  .fb-rail-item { font-size: 12px; color: #444; padding: 6px 14px; }
+  .fb-rail-item.active { background: #e7f4fb; color: #0078b3; font-weight: 600; border-left: 3px solid #0078b3; }
+  .fb-canvas { flex: 1; padding: 18px; background: #f4f4f4; overflow-y: auto; }
+  .fb-canvas-block { background: #fff; border: 1px solid #ddd; border-radius: 4px; padding: 14px; margin-bottom: 14px; position: relative; }
+  .fb-canvas-block.active-block { border: 2px solid #333; }
+  .fb-canvas-toolbar { position: absolute; top: 8px; right: 8px; background: #000; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 3px; }
+  .fb-canvas-label { font-weight: 600; font-size: 13px; margin-bottom: 8px; }
+  .fb-canvas-sig { border: 1px dashed #ccc; border-radius: 4px; height: 64px; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 22px; }
+  .fb-rightpanel { width: 300px; flex-shrink: 0; border-left: 1px solid #ddd; padding: 14px; overflow-y: auto; }
+  .fb-rightpanel h4 { font-size: 11px; text-transform: uppercase; color: #888; margin-bottom: 10px; letter-spacing: 0.04em; }
+  .stage-inner { max-width: 760px; margin: 18px auto 0; padding: 0 24px; }
+  @media (max-width: 900px) { .fb-rail, .fb-rightpanel { display: none; } }
+
+  .ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer; font-family: "Segoe UI", system-ui, sans-serif; font-size: 15px; font-weight: 600; line-height: 22px; }
+  .ds-btn--primary-blue { background: var(--surface-primary); color: var(--text-on-surface); }
+  .ds-btn--primary-warning { background: var(--surface-warning); color: var(--text-on-surface); }
+  .ds-btn--primary-success { background: var(--surface-success); color: var(--text-on-surface); }
+  .ds-btn--secondary { background: transparent; border: 1px solid var(--stroke-default); color: var(--text-secondary); }
+  .ds-btn--secondary-error { background: transparent; border: 1px solid var(--stroke-default); color: var(--surface-error); }
+  .ds-btn--tertiary { background: transparent; color: var(--text-default); }
+  .ds-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* modal overlay (real interactive) */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 50; }
+  .overlay.show { display: flex; }
+  .ds-modal { background: var(--surface-default); border-radius: 4px; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.15); width: 480px; max-width: 90vw; overflow: hidden; font-family: "Segoe UI", system-ui, sans-serif; }
+  .ds-modal__header { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 6px; gap: 8px; }
+  .ds-modal__title-group { display: flex; align-items: center; gap: 8px; }
+  .ds-modal__title { font-size: 20px; font-weight: 600; color: var(--text-default); }
+  .ds-modal__close { cursor: pointer; }
+  .ds-modal__body { padding: 16px; font-size: 16px; color: var(--text-default); }
+  .ds-modal__footer { display: flex; justify-content: flex-end; gap: 8px; padding: 16px; }
+
+  .ds-modal-service { background: var(--surface-default); border-radius: 8px; box-shadow: 0 0 8px 0 rgba(0,0,0,0.15); width: 420px; max-width: 90vw; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; font-family: "Segoe UI", system-ui, sans-serif; }
+  .ds-modal-service__icon { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--surface-success); display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+  .ds-modal-service__header { font-weight: 600; font-size: 22px; color: var(--text-default); text-align: center; }
+  .ds-modal-service__desc { font-size: 15px; color: var(--text-default); text-align: center; margin-top: 8px; }
+  .ds-modal-service__buttons { display: flex; gap: 12px; margin-top: 20px; }
+
+  /* email mock */
+  .email-subject-bar { background: #fff; border-radius: 4px; box-shadow: 0 0 4px 0 rgba(0,0,0,0.15); padding: 10px 12px; font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .email-card { background: #fff; border-radius: 4px; box-shadow: 0 0 4px 0 rgba(0,0,0,0.15); overflow: hidden; }
+  .email-body { padding: 16px; }
+  .email-sender { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .email-sender .avatar { width: 28px; height: 28px; border-radius: 50%; background: #d81b60; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .email-sender .to { font-size: 12px; color: #666; }
+  .email-sender .date { margin-left: auto; font-size: 11px; color: #888; }
+  .email-text { font-size: 16px; margin-bottom: 16px; }
+  .email-footer { border-top: 1px solid var(--stroke-default); margin-top: 16px; padding: 12px 0 0; font-size: 12px; }
+  .email-footer p { margin-bottom: 2px; }
+  .email-footer .link { color: #0078b3; font-weight: 600; }
+
+  /* end-user form mock */
+  .eu-frame { border: 1px solid #999; border-radius: 4px; overflow: hidden; }
+  .eu-topbar { background: #f4f4f4; border-bottom: 1px solid #ccc; padding: 6px 10px; font-size: 11px; color: #666; }
+  .eu-body { padding: 20px; background: #fff; }
+  .eu-title { font-size: 22px; font-weight: 700; color: #222; }
+  .eu-subtitle { font-size: 13px; color: #8a6d9e; margin: 2px 0 14px; }
+  .eu-divider { border-top: 2px solid #333; margin-bottom: 16px; }
+  .eu-field-group { margin-bottom: 18px; }
+  .eu-field-group.locked { opacity: 0.55; }
+  .eu-field-group .label { font-size: 15px; font-weight: 700; color: #333; }
+  .eu-field-group .req { color: #cc2222; }
+  .eu-field-group .hint { font-size: 12px; color: #666; margin-bottom: 8px; }
+  .eu-check-row { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #333; margin-bottom: 6px; }
+  .eu-lock-note { font-size: 11px; color: #999; font-style: italic; margin-top: 4px; }
+  .eu-sig-block { border: 2px solid var(--surface-primary); border-radius: 4px; background: #f9fdff; padding: 16px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .eu-sig-canvas { flex: 1; min-width: 180px; border: 2px dashed #bbb; border-radius: 4px; background: #fff; min-height: 120px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 26px; }
+  .eu-sig-side { width: 200px; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
+  .eu-sig-side input { border: 1px solid var(--stroke-default); border-radius: 4px; padding: 7px 10px; font-size: 13px; background: #f3f3f3; color: #555; width: 100%; }
+  .eu-sig-side .btnrow { display: flex; gap: 8px; }
+  .eu-bottombar { background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; font-size: 12px; flex-wrap: wrap; gap: 8px; }
+  .eu-bottombar .meta { display: flex; gap: 16px; color: #ccc; flex-wrap: wrap; }
+
+  .hint-box { background: #f7f7f7; border: 1px dashed #ddd; border-radius: 4px; padding: 10px 12px; font-size: 12px; color: #666; margin-top: 16px; }
+
+  /* secure sign-in card (identity + privacy gate) */
+  .secure-topbar { background: var(--surface-primary); color: #fff; padding: 12px 20px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; font-family: "Segoe UI", system-ui, sans-serif; }
+  .secure-page-bg { background: #eef1f4; padding: 36px 20px 60px; display: flex; justify-content: center; }
+  .bis-section { background: #fff; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); overflow: hidden; width: 420px; max-width: 100%; }
+  .bis-section__accent { height: 4px; background: var(--surface-primary); }
+  .bis-section__body { padding: 26px 24px; }
+  .bis-section__title { font-size: 15px; font-weight: 700; color: var(--text-default); margin-bottom: 4px; }
+  .bis-section__sub { font-size: 12px; color: #666; margin-bottom: 18px; }
+  .field-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .secure-note { font-size: 11px; color: #888; text-align: center; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+</style>
+</head>
+<body>
+
+  <!-- ===== STEP NAV — jump directly to any stage, like the showcase folder-jump pattern ===== -->
+  <nav class="step-nav" id="stepNav">
+    <span class="brand">TKT-17127 Prototype</span>
+    <button class="step-tab" data-step="1"><span class="n">1</span>Configure Signer</button>
+    <button class="step-tab" data-step="2"><span class="n">2</span>Confirm Send</button>
+    <button class="step-tab" data-step="3"><span class="n">3</span>Email Received</button>
+    <button class="step-tab" data-step="4"><span class="n">4</span>Identity Check</button>
+    <button class="step-tab" data-step="5"><span class="n">5</span>Sign the Form</button>
+    <button class="step-tab" data-step="6"><span class="n">6</span>Confirmation</button>
+    <span class="spacer"></span>
+    <div class="step-prevnext">
+      <button id="prevBtn">◂ Back</button>
+      <button id="nextBtn">Next ▸</button>
+    </div>
+  </nav>
+
+  <!-- ===== STAGE 1 — Configure the External Party signer, in the actual Form Builder page ===== -->
+  <section class="stage" data-stage="1" style="max-width:none; padding:0 0 40px;">
+    <div class="stage-inner" style="margin-top:24px;">
+      <div class="stage-head">
+        <div class="kicker">Form Builder</div>
+        <h1>Add an External Party as a signer</h1>
+        <p>Skeleton of the real Form Builder page. Switch Type in the right panel to see how each route configures its External Party.</p>
+      </div>
+    </div>
+
+    <div class="fb-shell">
+      <div class="fb-topbar">
+        <span>Form Builder</span>
+        <div class="fb-topbar-actions">
+          <button class="fb-pill">◂ Back</button>
+          <button class="fb-pill purple">PDF Layouts</button>
+          <button class="fb-pill">Preview</button>
+          <button class="fb-pill orange">Translate</button>
+          <button class="fb-pill">Report</button>
+          <button class="fb-pill">Settings</button>
+          <button class="fb-pill">Save As</button>
+          <button class="fb-pill red">Clear</button>
+          <button class="fb-pill green">Save</button>
+        </div>
+      </div>
+      <div class="fb-body">
+        <div class="fb-rail">
+          <div class="fb-rail-title">Input Fields</div>
+          <div class="fb-rail-item">☑ Checkbox</div>
+          <div class="fb-rail-item">▾ Drop-down</div>
+          <div class="fb-rail-item">✎ Text Field</div>
+          <div class="fb-rail-item">⊞ Likert Scale</div>
+          <div class="fb-rail-item">📈 Chart</div>
+          <div class="fb-rail-item">📅 Date</div>
+          <div class="fb-rail-item">🕐 Time</div>
+          <div class="fb-rail-item">📎 Upload File/Image</div>
+          <div class="fb-rail-item active">✍ Signature</div>
+          <div class="fb-rail-item">● Mark</div>
+          <div class="fb-rail-item">🚗 Hours Mileage</div>
+          <div class="fb-rail-item">☰ Task/Form Assignment</div>
+          <div class="fb-rail-item">🧰 Equipment Field</div>
+          <div class="fb-rail-item">🗺 Diagram</div>
+          <div class="fb-rail-item">📍 Attendance</div>
+          <div class="fb-rail-item">📡 GPS Tracker</div>
+          <div class="fb-rail-item">📦 Assets</div>
+          <div class="fb-rail-item">👤 User Profile Field</div>
+        </div>
+
+        <div class="fb-canvas">
+          <div class="fb-canvas-block">
+            <div class="fb-canvas-label" id="canvasLabel1">Sign below or upload your signature</div>
+            <div class="fb-canvas-sig">✍</div>
+          </div>
+          <div class="fb-canvas-block active-block">
+            <span class="fb-canvas-toolbar">↑ ↓ SG_2 ✕</span>
+            <div class="fb-canvas-label" id="canvasLabel2">Multi</div>
+            <div class="fb-canvas-sig">✍</div>
+          </div>
+        </div>
+
+        <div class="fb-rightpanel">
+          <h4>Field Settings</h4>
+          <div class="fb-field">
+            <label>Type</label>
+            <select class="fb-select" id="typeSelect">
+              <option value="single">Single Signature</option>
+              <option value="multi" selected>Multiple Signatures</option>
+            </select>
+          </div>
+
+          <!-- ROUTE 1: Single Signature config -->
+          <div class="type-config" id="singleConfig">
+            <div class="fb-checkbox-row"><input type="checkbox" checked><span>Display name of the signing user</span></div>
+            <div class="fb-checkbox-row"><input type="checkbox" checked><span>Display date signed</span></div>
+            <div class="fb-checkbox-row"><input type="checkbox" id="singleExtCheckbox"><span>External Party (no BIS account)</span></div>
+            <div class="ext-email-wrap" id="singleEmailWrap">
+              <div class="fb-field">
+                <label>Email address</label>
+                <input class="fb-input" id="singleEmail" placeholder="contractor@example.com">
+                <p class="validity-msg" id="singleEmailMsg"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROUTE 2: Multiple Signatures config -->
+          <div class="type-config show" id="multiConfig">
+            <div class="fb-checkbox-row"><input type="checkbox" checked><span>Show Username</span></div>
+            <div class="fb-field">
+              <label>Options</label>
+              <div class="fb-options-row">
+                <input class="fb-input" id="multiEmail" placeholder="Search internal users…">
+                <button class="fb-icon-btn" type="button">+</button>
+                <button class="fb-icon-btn" type="button">▾</button>
+              </div>
+              <p class="validity-msg" id="multiEmailMsg"></p>
+            </div>
+            <div class="fb-field">
+              <label>Signature Categories</label>
+              <select class="fb-select" id="multiCategorySelect">
+                <option value="person">Specific name of a person</option>
+                <option value="eval1">Evaluator 1</option>
+                <option value="eval2">Evaluator 2</option>
+                <option value="manager">Manager</option>
+                <option value="external">External Party (no BIS account)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-inner">
+      <div class="hint-box">Route 1 (Single Signature): "External Party" is a plain checkbox alongside the others — checking it reveals a validated email field below. Route 2 (Multiple Signatures): "External Party" is a new item in the Signature Categories dropdown — selecting it turns the Options field above the dropdown into the email entry directly. No extra field or dropdown appears below.</div>
+      <div style="margin-top:18px;"><button class="ds-btn ds-btn--primary-blue" onclick="goTo(2)">Save &amp; Continue ▸</button></div>
+    </div>
+  </section>
+
+  <!-- ===== STAGE 2 — Confirm send ===== -->
+  <section class="stage" data-stage="2">
+    <div class="stage-head">
+      <div class="kicker">Before the form leaves BIS</div>
+      <h1>Confirm external send</h1>
+      <p>This interrupts once, whenever BIS is about to notify someone with no account.</p>
+    </div>
+    <div class="panel" style="display:flex; justify-content:center; background:#eaeaea;">
+      <div class="ds-modal">
+        <div class="ds-modal__header">
+          <div class="ds-modal__title-group">
+            <svg viewBox="0 0 22 20" width="22" height="20"><path d="M11 1.5 L20.5 18.5 L1.5 18.5 Z" fill="none" stroke="#c29c14" stroke-width="1.6" stroke-linejoin="round"/><rect x="10.1" y="7" width="1.8" height="6" rx="0.9" fill="#c29c14"/><circle cx="11" cy="16" r="1.05" fill="#c29c14"/></svg>
+            <span class="ds-modal__title">Confirm external send</span>
+          </div>
+          <span class="ds-modal__close">✕</span>
+        </div>
+        <div class="ds-modal__body">You're sending this form outside the BIS system to a recipient who is not a BIS account holder. BIS is not responsible for misdelivery, and this cannot be reversed once the external party signs.</div>
+        <div class="ds-modal__footer">
+          <button class="ds-btn ds-btn--tertiary" onclick="goTo(1)">Cancel</button>
+          <button class="ds-btn ds-btn--primary-warning" onclick="goTo(3)">Confirm &amp; Send</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STAGE 3 — Email received ===== -->
+  <section class="stage" data-stage="3">
+    <div class="stage-head">
+      <div class="kicker">External Party's inbox</div>
+      <h1>Email they receive</h1>
+      <p>Built from the standard BIStrainer email pattern — reused as-is, new copy only.</p>
+    </div>
+    <div class="email-subject-bar">You've been asked to sign: Site Inspection Form</div>
+    <div class="email-card">
+      <div class="email-body">
+        <div class="email-sender">
+          <span class="avatar">B</span>
+          <span>BIS Safety Software<br><span class="to">To: jane.doe@example.com</span></span>
+          <span class="date">Mon 7/6/2026 10:52 AM</span>
+        </div>
+        <div class="email-text">Alex Koyich has completed the <strong>Site Inspection Form</strong> and is requesting your signature. This does not require you to create a BIS account.</div>
+        <button class="ds-btn ds-btn--primary-blue" onclick="goTo(4)">Review &amp; Sign</button>
+        <div class="email-footer">
+          <p>Have a question? Contact our Support Team by phoning 1-866-416-1660 or emailing <span class="link">help@bissafety.app</span>.</p>
+          <p>BIS Safety Software | 261 Seneca Road, Sherwood Park AB T8A 4G6, Canada</p>
+          <p><span class="link">Terms and Conditions</span> &nbsp; <span class="link">Privacy Policy</span></p>
+          <p>This email was sent to jane.doe@example.com. Please do not reply to this email.</p>
+          <p>Source: Form Builder &gt; External Signer</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STAGE 4 — Identity + privacy gate (bis-section card) ===== -->
+  <section class="stage" data-stage="4" style="max-width:none; padding:0;">
+    <div class="stage-inner" style="margin-top:24px;">
+      <div class="stage-head">
+        <div class="kicker">Reached via "Review &amp; Sign" — no login, no account created</div>
+        <h1>Confirm identity before opening the form</h1>
+        <p>Continue is disabled until name, email, and the privacy checkbox are all filled in.</p>
+      </div>
+    </div>
+    <div class="secure-topbar">🔒 Secure Sign-In</div>
+    <div class="secure-page-bg">
+      <div class="bis-section">
+        <div class="bis-section__accent"></div>
+        <div class="bis-section__body">
+          <div class="bis-section__title">Confirm who you are</div>
+          <div class="bis-section__sub">Site Inspection Form — before you can sign, we need a few details.</div>
+          <div class="field-row-2">
+            <div class="fb-field"><label>First name</label><input class="fb-input" id="idFirst" placeholder="Jane"></div>
+            <div class="fb-field"><label>Last name</label><input class="fb-input" id="idLast" placeholder="Doe"></div>
+          </div>
+          <div class="fb-field"><label>Email</label><input class="fb-input" id="idEmail" placeholder="jane.doe@example.com"></div>
+          <div class="eu-check-row"><input type="checkbox" id="idPrivacy"><span>I have read and accept the privacy policy</span></div>
+          <button class="ds-btn ds-btn--primary-blue" id="idContinueBtn" disabled style="margin-top:14px; width:100%;" onclick="goTo(5)">Continue</button>
+          <div class="secure-note">🔒 We don't create a BIS account for you</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STAGE 5 — Sign the form ===== -->
+  <section class="stage" data-stage="5">
+    <div class="stage-head">
+      <div class="kicker">No BIS account — reached via emailed link only</div>
+      <h1>External signer's view</h1>
+      <p>Title checkbox group is locked; only the signature block is interactive.</p>
+    </div>
+    <div class="eu-frame">
+      <div class="eu-topbar">🔒 www.bissafety.app/v1/sign/{token}</div>
+      <div class="eu-body">
+        <div class="eu-title">Site Inspection Form</div>
+        <div class="eu-subtitle">Form/assessment description</div>
+        <div class="eu-divider"></div>
+        <div class="eu-field-group locked">
+          <div class="label">Title<span class="req">*</span></div>
+          <div class="hint">Check all that apply</div>
+          <div class="eu-check-row"><input type="checkbox" disabled><span>First Choice</span></div>
+          <div class="eu-check-row"><input type="checkbox" disabled><span>Second Choice</span></div>
+          <div class="eu-check-row"><input type="checkbox" disabled><span>Third Choice</span></div>
+          <div class="eu-lock-note">🔒 Locked — this field belongs to the form initiator, not the external signer</div>
+        </div>
+        <div class="eu-field-group">
+          <div class="label">Single</div>
+          <div class="hint">Sign below or upload your signature</div>
+          <div class="eu-sig-block">
+            <div class="eu-sig-canvas">✍</div>
+            <div class="eu-sig-side">
+              <input value="Jane Doe" disabled>
+              <input value="06-Jul-2026" disabled>
+              <div class="btnrow">
+                <button class="ds-btn ds-btn--secondary-error" style="flex:1; padding:8px;">Clear</button>
+                <button class="ds-btn ds-btn--primary-success" style="flex:1; padding:8px;">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="eu-bottombar">
+        <span>Jane Doe — External signer</span>
+        <div class="meta"><span>Location: Site Inspection Form</span><span>Form ID: 6970811</span></div>
+        <button class="ds-btn ds-btn--primary-success" onclick="goTo(6); openModal('modalSubmitted')">Submit ▸</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STAGE 6 — Confirmation (chained ModalService) ===== -->
+  <section class="stage" data-stage="6">
+    <div class="stage-head">
+      <div class="kicker">After Submit</div>
+      <h1>Post-submission confirmation</h1>
+      <p>Two chained ModalService pop-ups. Click through them below.</p>
+    </div>
+    <div style="text-align:center;">
+      <button class="ds-btn ds-btn--primary-success" onclick="openModal('modalSubmitted')">Re-open: Form submitted modal</button>
+    </div>
+  </section>
+
+  <!-- ===== OVERLAYS ===== -->
+  <div class="overlay" id="modalSubmitted">
+    <div class="ds-modal-service">
+      <span class="ds-modal-service__icon">
+        <svg viewBox="0 0 20 20" width="32" height="32"><circle cx="10" cy="10" r="10" fill="#167b00"/><path d="M5.5 10.5 L8.6 13.5 L14.5 6.7" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <div class="ds-modal-service__header">Form submitted</div>
+      <div class="ds-modal-service__desc">Thanks for signing! You can download a copy of the completed form for your records.</div>
+      <div class="ds-modal-service__buttons">
+        <button class="ds-btn ds-btn--secondary" onclick="closeModal('modalSubmitted')">Close</button>
+        <button class="ds-btn ds-btn--primary-blue" onclick="closeModal('modalSubmitted'); openModal('modalDownloaded')">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="modalDownloaded">
+    <div class="ds-modal-service">
+      <span class="ds-modal-service__icon">
+        <svg viewBox="0 0 20 20" width="32" height="32"><circle cx="10" cy="10" r="10" fill="#167b00"/><path d="M5.5 10.5 L8.6 13.5 L14.5 6.7" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <div class="ds-modal-service__header">Download complete</div>
+      <div class="ds-modal-service__desc">Your signed copy has been saved to your device. You can safely leave this page now.</div>
+      <div class="ds-modal-service__buttons">
+        <button class="ds-btn ds-btn--primary-blue" onclick="closeModal('modalDownloaded')">Leave this page</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const TOTAL_STEPS = 6;
+  let current = 1;
+
+  function goTo(step) {
+    current = step;
+    document.querySelectorAll('.stage').forEach(s => s.classList.toggle('active', Number(s.dataset.stage) === step));
+    document.querySelectorAll('.step-tab').forEach(t => t.classList.toggle('active', Number(t.dataset.step) === step));
+    document.getElementById('prevBtn').disabled = step === 1;
+    document.getElementById('nextBtn').disabled = step === TOTAL_STEPS;
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  document.querySelectorAll('.step-tab').forEach(tab => {
+    tab.addEventListener('click', () => goTo(Number(tab.dataset.step)));
+  });
+  document.getElementById('prevBtn').addEventListener('click', () => { if (current > 1) goTo(current - 1); });
+  document.getElementById('nextBtn').addEventListener('click', () => { if (current < TOTAL_STEPS) goTo(current + 1); });
+
+  function openModal(id) { document.getElementById(id).classList.add('show'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  function wireValidation(input, msgEl) {
+    input.addEventListener('input', () => {
+      const val = input.value.trim();
+      if (!val) { input.classList.remove('ok','err'); msgEl.className = 'validity-msg'; return; }
+      if (EMAIL_RE.test(val)) {
+        input.classList.add('ok'); input.classList.remove('err');
+        msgEl.textContent = '✓ Valid email address'; msgEl.className = 'validity-msg ok';
+      } else {
+        input.classList.add('err'); input.classList.remove('ok');
+        msgEl.textContent = '⚠ Enter a valid email address'; msgEl.className = 'validity-msg err';
+      }
+    });
+  }
+
+  /* Type dropdown: switch between the Single Signature and Multiple Signatures config panels */
+  const typeSelect = document.getElementById('typeSelect');
+  const singleConfig = document.getElementById('singleConfig');
+  const multiConfig = document.getElementById('multiConfig');
+  const canvasLabel2 = document.getElementById('canvasLabel2');
+
+  typeSelect.addEventListener('change', () => {
+    const isMulti = typeSelect.value === 'multi';
+    singleConfig.classList.toggle('show', !isMulti);
+    multiConfig.classList.toggle('show', isMulti);
+    canvasLabel2.textContent = isMulti ? 'Multi' : 'Single';
+  });
+
+  /* Route 1 — Single Signature: plain checkbox reveals an email field below it */
+  const singleExtCheckbox = document.getElementById('singleExtCheckbox');
+  const singleEmailWrap = document.getElementById('singleEmailWrap');
+  const singleEmail = document.getElementById('singleEmail');
+  const singleEmailMsg = document.getElementById('singleEmailMsg');
+  singleExtCheckbox.addEventListener('change', () => {
+    singleEmailWrap.classList.toggle('show', singleExtCheckbox.checked);
+    if (!singleExtCheckbox.checked) { singleEmail.value = ''; singleEmail.classList.remove('ok','err'); singleEmailMsg.className = 'validity-msg'; }
+  });
+  wireValidation(singleEmail, singleEmailMsg);
+
+  /* Route 2 — Multiple Signatures: "External Party" is a Signature Categories dropdown item.
+     Selecting it turns the Options field ABOVE the dropdown into the email entry — no separate field appears. */
+  const multiCategorySelect = document.getElementById('multiCategorySelect');
+  const multiEmail = document.getElementById('multiEmail');
+  const multiEmailMsg = document.getElementById('multiEmailMsg');
+  multiCategorySelect.addEventListener('change', () => {
+    const isExternal = multiCategorySelect.value === 'external';
+    multiEmail.placeholder = isExternal ? 'contractor@example.com' : 'Search internal users…';
+    multiEmail.value = '';
+    multiEmail.classList.remove('ok','err');
+    multiEmailMsg.className = 'validity-msg';
+  });
+  multiEmail.addEventListener('input', () => {
+    if (multiCategorySelect.value !== 'external') return;
+    const val = multiEmail.value.trim();
+    if (!val) { multiEmail.classList.remove('ok','err'); multiEmailMsg.className = 'validity-msg'; return; }
+    if (EMAIL_RE.test(val)) {
+      multiEmail.classList.add('ok'); multiEmail.classList.remove('err');
+      multiEmailMsg.textContent = '✓ Valid email address'; multiEmailMsg.className = 'validity-msg ok';
+    } else {
+      multiEmail.classList.add('err'); multiEmail.classList.remove('ok');
+      multiEmailMsg.textContent = '⚠ Enter a valid email address'; multiEmailMsg.className = 'validity-msg err';
+    }
+  });
+
+  /* Stage 4 — Identity + privacy gate: Continue only enables once everything is filled in */
+  const idFirst = document.getElementById('idFirst');
+  const idLast = document.getElementById('idLast');
+  const idEmail = document.getElementById('idEmail');
+  const idPrivacy = document.getElementById('idPrivacy');
+  const idContinueBtn = document.getElementById('idContinueBtn');
+  function checkIdentityForm() {
+    idContinueBtn.disabled = !(idFirst.value.trim() && idLast.value.trim() && EMAIL_RE.test(idEmail.value.trim()) && idPrivacy.checked);
+  }
+  [idFirst, idLast, idEmail].forEach(el => el.addEventListener('input', checkIdentityForm));
+  idPrivacy.addEventListener('change', checkIdentityForm);
+
+  goTo(1);
+</script>
+</body>
+</html>

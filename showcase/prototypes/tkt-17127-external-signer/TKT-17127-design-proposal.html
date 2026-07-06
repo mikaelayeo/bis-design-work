@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TKT-17127 — External Signer Support for Forms — Design Proposal</title>
+  <style>
+    /* === BIStrainer UI Library design tokens (from BIStrainer_UI-Library-Guide) === */
+    :root {
+      --surface-primary: #0078b3;
+      --surface-primary-lightest: #f2fcff;
+      --icon-primary: #009acb;
+      --surface-error: #cc2222;
+      --surface-error-lightest: #fff2f2;
+      --icon-error: #cc2222;
+      --text-error: #cc2222;
+      --surface-warning: #a1851f;
+      --surface-warning-light: #e8b203;
+      --surface-warning-lightest: #fffcf2;
+      --icon-warning: #c29c14;
+      --text-warning: #a1851f;
+      --surface-success: #167b00;
+      --surface-success-lightest: #fafff2;
+      --icon-success: #167b00;
+      --text-success: #167b00;
+      --text-default: #191919;
+      --text-on-surface: #feffff;
+      --surface-default: #feffff;
+      --stroke-default: #b2b2b3;
+      --text-secondary: #666666;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      background: #f0f0f0;
+      color: #111;
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    .page-header { margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #bbb; }
+    .page-header h1 { font-size: 18px; font-weight: 700; color: #333; }
+    .page-header .sub { font-size: 13px; color: #555; margin-top: 4px; }
+    .page-header .meta { font-size: 12px; color: #666; margin-top: 6px; }
+    .badge {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      background: #ddd; color: #444; border-radius: 3px; padding: 1px 6px; margin-right: 6px;
+    }
+
+    .legend {
+      display: flex; gap: 18px; flex-wrap: wrap;
+      background: #fff; border: 1px solid #ccc; border-radius: 4px;
+      padding: 10px 14px; margin-bottom: 20px; font-size: 12px; color: #444;
+    }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .dot.reused { background: #4a8f4a; }
+    .dot.new { background: #2f6fa8; }
+    .dot.question { background: #35507a; }
+
+    .canvas { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+    .main-col { display: flex; flex-direction: column; gap: 18px; width: 720px; min-width: 320px; flex-shrink: 0; }
+
+    .section { background: #fff; border: 1px solid #ccc; border-radius: 4px; overflow: hidden; }
+    .section__title {
+      background: #e2e2e2; border-bottom: 1px solid #ccc;
+      padding: 9px 14px; font-size: 13px; font-weight: 700; color: #333;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .tag {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+      border-radius: 3px; padding: 2px 7px; white-space: nowrap;
+    }
+    .tag.reused { background: #e2f0e2; color: #2f6b2f; border: 1px solid #b8dab8; }
+    .tag.new { background: #dbe9f5; color: #2f6fa8; border: 1px solid #aecfe8; }
+    .tag.question { background: #e4ecf7; color: #35507a; border: 1px solid #b3c6e2; }
+    .section__body { padding: 14px; }
+    .section__note { font-size: 12px; color: #666; padding: 10px 14px; background: #f7f7f7; border-top: 1px dashed #ddd; }
+
+    /* === DS Buttons === */
+    .ds-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; flex-shrink: 0;
+      font-family: "Segoe UI", system-ui, sans-serif; font-size: 15px; font-weight: 600; line-height: 24px; white-space: nowrap;
+    }
+    .ds-btn--primary-blue { background: var(--surface-primary); color: var(--text-on-surface); }
+    .ds-btn--primary-error { background: var(--surface-error); color: var(--text-on-surface); }
+    .ds-btn--primary-warning { background: var(--surface-warning); color: var(--text-on-surface); }
+    .ds-btn--primary-success { background: var(--surface-success); color: var(--text-on-surface); }
+    .ds-btn--secondary { background: transparent; border: 1px solid var(--stroke-default); color: var(--text-secondary); }
+    .ds-btn--secondary-error { background: transparent; border: 1px solid var(--stroke-default); color: var(--text-error); }
+    .ds-btn--tertiary { background: transparent; color: var(--text-default); }
+    .ds-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    /* larger variant used by ModalService per Figma spec (px16 py12, 18px label, 8px radius) */
+    .ds-btn--lg { padding: 12px 16px; font-size: 18px; border-radius: 8px; }
+
+    /* === DS Modal (Warning / confirmation style, header+body+footer) === */
+    .ds-modal-frame { background: #eaeaea; border: 1px solid #ccc; border-radius: 4px; padding: 24px; display: flex; justify-content: center; }
+    .ds-modal {
+      background: var(--surface-default); border-radius: 4px; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.15);
+      width: 525px; max-width: 100%; overflow: hidden; font-family: "Segoe UI", system-ui, sans-serif;
+    }
+    .ds-modal__header { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 6px; gap: 8px; }
+    .ds-modal__title-group { display: flex; align-items: center; gap: 8px; }
+    .ds-modal__icon { width: 20px; height: 20px; flex-shrink: 0; display: flex; }
+    .ds-modal__title { font-size: 20px; font-weight: 600; line-height: 28px; color: var(--text-default); }
+    .ds-modal__close { width: 20px; height: 20px; cursor: pointer; flex-shrink: 0; display: flex; }
+    .ds-modal__body { padding: 16px; font-size: 16px; font-weight: 400; line-height: 24px; color: var(--text-default); }
+    .ds-modal__footer { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 16px; }
+
+    /* === ModalService (BIStrainer UI Library — success confirmation, exact spec from Figma 3999:898) === */
+    .ds-modal-service {
+      background: var(--surface-default); border-radius: 8px; box-shadow: 0 0 8px 0 rgba(0,0,0,0.15);
+      width: 450px; max-width: 100%; padding: 24px; display: flex; flex-direction: column;
+      align-items: center; gap: 10px; font-family: "Segoe UI", system-ui, sans-serif;
+    }
+    .ds-modal-service__dismiss { align-self: flex-end; width: 14px; height: 14px; cursor: pointer; color: #666; font-size: 14px; line-height: 1; }
+    .ds-modal-service__icon {
+      width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--surface-success);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 8px; flex-shrink: 0;
+    }
+    .ds-modal-service__icon svg { width: 32px; height: 32px; }
+    .ds-modal-service__body { display: flex; flex-direction: column; align-items: center; gap: 24px; width: 100%; }
+    .ds-modal-service__text { text-align: center; display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .ds-modal-service__header { font-weight: 600; font-size: 24px; line-height: 32px; color: var(--text-default); }
+    .ds-modal-service__desc { font-size: 16px; line-height: 24px; color: var(--text-default); font-weight: 400; }
+    .ds-modal-service__buttons { display: flex; gap: 12px; align-items: center; }
+
+    /* === Form Builder config panel mock (right-hand field settings, matches live Form Builder) === */
+    .fb-panel { border: 1px solid #ccc; border-radius: 4px; overflow: hidden; background: #fff; }
+    .fb-panel__header { background: #f4f4f4; border-bottom: 1px solid #ddd; padding: 8px 12px; font-size: 12px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.03em; }
+    .fb-panel__body { padding: 14px; }
+    .fb-field { margin-bottom: 14px; }
+    .fb-field label { display: block; font-size: 12px; font-weight: 600; color: #444; margin-bottom: 4px; }
+    .fb-select, .fb-input { width: 100%; border: 1px solid var(--stroke-default); border-radius: 4px; padding: 7px 10px; font-size: 13px; background: #fff; font-family: inherit; }
+    .fb-checkbox-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; margin-bottom: 10px; }
+    .fb-option-row { display: flex; align-items: center; justify-content: space-between; border: 1px solid #ddd; border-radius: 4px; padding: 8px 10px; margin-bottom: 6px; font-size: 13px; background: #fff; }
+    .fb-options-row { display: flex; gap: 8px; align-items: center; }
+    .fb-options-row input { flex: 1; }
+    .fb-icon-btn { width: 34px; height: 34px; flex-shrink: 0; border: 1px solid var(--stroke-default); border-radius: 4px; background: #fff; color: var(--surface-primary); display: flex; align-items: center; justify-content: center; font-size: 15px; }
+    .fb-option-row--new { border: 2px solid #2f6fa8; background: #f7fafd; }
+    .fb-dropdown-list { border: 1px solid #ccc; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+    .fb-dropdown-item { padding: 8px 10px; font-size: 13px; border-bottom: 1px solid #eee; color: #333; }
+    .fb-dropdown-item:last-child { border-bottom: none; }
+    .fb-dropdown-item--active { background: #555; color: #fff; }
+    .fb-dropdown-item--new { background: #f7fafd; color: #2f6fa8; font-weight: 600; }
+    .route-label { font-size: 12px; font-weight: 700; color: #444; margin: 14px 0 8px; }
+    .route-label:first-child { margin-top: 0; }
+
+    /* === Email template mock (BIStrainer email pattern, reused as-is) === */
+    .email-subject-bar { background: #fff; border-radius: 4px; box-shadow: 0 0 4px 0 rgba(0,0,0,0.15); padding: 10px 12px; font-size: 15px; font-weight: 600; color: var(--text-default); margin-bottom: 10px; font-family: "Segoe UI", system-ui, sans-serif; }
+    .email-card { background: #fff; border-radius: 4px; box-shadow: 0 0 4px 0 rgba(0,0,0,0.15); overflow: hidden; font-family: "Segoe UI", system-ui, sans-serif; }
+    .email-body { padding: 16px; }
+    .email-sender { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .email-sender .avatar { width: 28px; height: 28px; border-radius: 50%; background: #d81b60; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .email-sender .who { font-size: 13px; color: var(--text-default); }
+    .email-sender .who .to { font-size: 12px; color: #666; }
+    .email-sender .date { margin-left: auto; font-size: 11px; color: #888; white-space: nowrap; }
+    .email-text { font-size: 16px; color: var(--text-default); margin-bottom: 16px; line-height: 24px; }
+    .email-footer { border-top: 1px solid var(--stroke-default); margin-top: 16px; padding: 12px 0 0; font-size: 12px; color: var(--text-default); }
+    .email-footer p { margin-bottom: 2px; }
+    .email-footer .link { color: #0078b3; font-weight: 600; }
+
+    /* === End-user form mock (matches the live external-facing form screenshot) === */
+    .eu-frame { border: 1px solid #999; border-radius: 4px; overflow: hidden; }
+    .eu-topbar { background: #f4f4f4; border-bottom: 1px solid #ccc; padding: 6px 10px; font-size: 11px; color: #666; }
+    .eu-body { padding: 20px; background: #fff; }
+    .eu-title { font-size: 22px; font-weight: 700; color: #222; }
+    .eu-subtitle { font-size: 13px; color: #8a6d9e; margin: 2px 0 14px; }
+    .eu-divider { border-top: 2px solid #333; margin-bottom: 16px; }
+    .eu-field-group { margin-bottom: 18px; }
+    .eu-field-group.locked { opacity: 0.55; }
+    .eu-field-group .label { font-size: 15px; font-weight: 700; color: #333; }
+    .eu-field-group .req { color: #cc2222; }
+    .eu-field-group .hint { font-size: 12px; color: #666; margin-bottom: 8px; }
+    .eu-check-row { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #333; margin-bottom: 6px; }
+    .eu-lock-note { font-size: 11px; color: #999; font-style: italic; margin-top: 4px; }
+    .eu-sig-block { border: 2px solid var(--surface-primary); border-radius: 4px; background: #f9fdff; padding: 16px; display: flex; gap: 16px; }
+    .eu-sig-canvas { flex: 1; border: 2px dashed #bbb; border-radius: 4px; background: #fff; min-height: 130px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 28px; }
+    .eu-sig-side { width: 200px; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
+    .eu-sig-side input { border: 1px solid var(--stroke-default); border-radius: 4px; padding: 7px 10px; font-size: 13px; background: #f3f3f3; color: #555; width: 100%; }
+    .eu-sig-side .btnrow { display: flex; gap: 8px; }
+    .eu-bottombar { background: #1a1a1a; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; font-size: 12px; }
+    .eu-bottombar .who { display: flex; flex-direction: column; gap: 2px; }
+    .eu-bottombar .who .name { font-weight: 600; }
+    .eu-bottombar .meta { display: flex; gap: 20px; color: #ccc; }
+
+    /* === Secure sign-in card (identity + privacy gate landing page) === */
+    .secure-topbar { background: var(--surface-primary); color: #fff; padding: 12px 20px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; font-family: "Segoe UI", system-ui, sans-serif; }
+    .secure-page-bg { background: #eef1f4; padding: 36px 20px; display: flex; justify-content: center; }
+    .bis-section { background: #fff; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.12); overflow: hidden; width: 420px; max-width: 100%; }
+    .bis-section__accent { height: 4px; background: var(--surface-primary); }
+    .bis-section__body { padding: 26px 24px; }
+    .bis-section__title { font-size: 15px; font-weight: 700; color: var(--text-default); margin-bottom: 4px; }
+    .bis-section__sub { font-size: 12px; color: #666; margin-bottom: 18px; }
+    .field-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .secure-note { font-size: 11px; color: #888; text-align: center; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+
+    .step-num {
+      display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center;
+      background: #2f6fa8; color: #fff; border-radius: 50%; font-size: 10px; margin-right: 6px;
+    }
+
+    ul.plain { padding-left: 18px; font-size: 12px; color: #333; }
+    ul.plain li { margin-bottom: 6px; }
+
+    .design-notes { width: 300px; min-width: 260px; background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 16px; flex-shrink: 0; align-self: flex-start; }
+    .design-notes h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #666; margin-top: 16px; margin-bottom: 6px; padding-top: 12px; border-top: 1px solid #eee; }
+    .design-notes h3:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+    .design-notes ul { list-style: disc; padding-left: 16px; }
+    .design-notes li { font-size: 12px; color: #444; margin-bottom: 6px; line-height: 1.5; }
+    .design-notes .status-tag { display: inline-block; font-size: 11px; background: #fff3cd; color: #7a5c00; border: 1px solid #e8d98a; border-radius: 3px; padding: 2px 7px; margin-bottom: 10px; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>External Signer Support for Forms</h1>
+    <div class="sub">Ticket TKT-17127 — external, non-BIS-account signers with privacy policy acknowledgement (reuses the consent pattern from TKT-12798)</div>
+    <div class="meta">
+      <span class="badge">Round 2 — grounded in live Form Builder + BIStrainer email/modal components</span>
+      <span class="badge">Prepared for: Alex Koyich / Erica To review</span>
+      <span style="font-size:12px; color:#888;">2026-07-06</span>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot reused"></span> Already live today</span>
+    <span><span class="dot new"></span> New — being proposed</span>
+    <span><span class="dot question"></span> Open question — needs a decision</span>
+  </div>
+
+  <div class="canvas">
+    <div class="main-col">
+
+      <!-- SECTION A -->
+      <div class="section">
+        <div class="section__title">A. Signature Field Configuration — Two Possible Routes <span class="tag question">Open — which route(s) are in scope</span></div>
+        <div class="section__body">
+          <p style="font-size:12px; color:#666; margin-bottom:12px;">The live Form Builder already has two signature field types. External Party support needs to slot into whichever one (or both) this ticket covers — flagged as an open question in the sidebar.</p>
+
+          <p class="route-label">Route 1 — Single Signature <span class="tag reused" style="margin-left:4px;">Existing type</span></p>
+          <p style="font-size:12px; color:#666; margin-bottom:8px;">"Allows the respondent to add their signature to the form." One signer, filled in while completing the form itself. External Party is just one more plain checkbox alongside the existing ones — no special box or highlight — that reveals an email field underneath when checked.</p>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <div class="fb-panel" style="flex:1; min-width:260px;">
+              <div class="fb-panel__header">Field Settings — unchecked</div>
+              <div class="fb-panel__body">
+                <div class="fb-field">
+                  <label>Type</label>
+                  <select class="fb-select"><option>Single Signature</option></select>
+                </div>
+                <div class="fb-checkbox-row"><input type="checkbox" checked><span>Display name of the signing user</span></div>
+                <div class="fb-checkbox-row"><input type="checkbox" checked><span>Display date signed</span></div>
+                <div class="fb-checkbox-row"><input type="checkbox"><span>External Party (no BIS account)</span><span class="tag new" style="margin-left:4px;">New</span></div>
+              </div>
+            </div>
+            <div class="fb-panel" style="flex:1; min-width:260px;">
+              <div class="fb-panel__header">Field Settings — checked</div>
+              <div class="fb-panel__body">
+                <div class="fb-field">
+                  <label>Type</label>
+                  <select class="fb-select"><option>Single Signature</option></select>
+                </div>
+                <div class="fb-checkbox-row"><input type="checkbox" checked><span>Display name of the signing user</span></div>
+                <div class="fb-checkbox-row"><input type="checkbox" checked><span>Display date signed</span></div>
+                <div class="fb-checkbox-row"><input type="checkbox" checked><span>External Party (no BIS account)</span><span class="tag new" style="margin-left:4px;">New</span></div>
+                <div class="fb-field" style="margin-top:10px;">
+                  <label>Email address</label>
+                  <input class="fb-input" style="border-color:#167b00;" value="contractor@example.com">
+                  <p style="font-size:11px; color:#167b00; margin-top:4px;">✓ Valid email address</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="route-label">Route 2 — Multiple Signatures <span class="tag reused" style="margin-left:4px;">Existing type</span></p>
+          <p style="font-size:12px; color:#666; margin-bottom:8px;">"Allows multiple respondents (e.g. Evaluator 1, Evaluator 2, Manager) to sign off on a <em>completed</em> form. Each receives a PDF of the completed form and is asked to sign off — the form is submitted before it's ready for digital sign-off, and can't be returned to the initiator." This is much closer to how an external party would actually be looped in. Here the mechanism is different from Route 1: "External Party" is a new item directly in the existing Signature Categories dropdown — picking it reveals an email field below the dropdown.</p>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <div class="fb-panel" style="flex:1; min-width:260px;">
+              <div class="fb-panel__header">Signature Categories — default</div>
+              <div class="fb-panel__body">
+                <div class="fb-checkbox-row"><input type="checkbox" checked><span>Show Username</span></div>
+                <div class="fb-field">
+                  <label>Options</label>
+                  <div class="fb-options-row">
+                    <input class="fb-input" placeholder="Search internal users…">
+                    <button class="fb-icon-btn">+</button>
+                    <button class="fb-icon-btn">▾</button>
+                  </div>
+                </div>
+                <div class="fb-field">
+                  <label>Signature Categories</label>
+                  <select class="fb-select"><option>Specific name of a person</option><option>Evaluator 1</option><option>Evaluator 2</option><option>Manager</option><option>External Party (no BIS account)</option></select>
+                  <p style="font-size:11px; color:#888; margin-top:4px;">"External Party" added to the existing list <span class="tag new">New</span></p>
+                </div>
+              </div>
+            </div>
+            <div class="fb-panel" style="flex:1; min-width:260px;">
+              <div class="fb-panel__header">Signature Categories — External Party selected</div>
+              <div class="fb-panel__body">
+                <div class="fb-checkbox-row"><input type="checkbox" checked><span>Show Username</span></div>
+                <div class="fb-field">
+                  <label>Options</label>
+                  <div class="fb-options-row">
+                    <input class="fb-input" value="mikaelayeo21@gmail.com">
+                    <button class="fb-icon-btn">+</button>
+                    <button class="fb-icon-btn">▾</button>
+                  </div>
+                </div>
+                <div class="fb-field">
+                  <label>Signature Categories</label>
+                  <select class="fb-select"><option selected>External Party (no BIS account)</option><option>Specific name of a person</option><option>Evaluator 1</option><option>Evaluator 2</option><option>Manager</option></select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="section__note">Resolved: this is signature-only either way — the external party never fills out other fields on the stage/form, just their assigned signature block. Resolved: the two routes use different mechanisms — Route 1 is a plain checkbox (styled like any other option, nothing boxed or highlighted); Route 2 adds "External Party" as a Signature Categories dropdown item, and the same Options field (the single input + "+"/"▾" row, normally the person-search) becomes the email entry when it's selected — no extra field appears.</div>
+      </div>
+
+      <!-- SECTION B -->
+      <div class="section">
+        <div class="section__title">B. Confirmation Before the Form Leaves BIS <span class="tag new">New</span></div>
+        <div class="section__body">
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">Whichever route is used, the moment BIS is about to notify someone with no account — either right after adding their email in Section A, or when the completed form fans out sign-off requests — this confirmation interrupts once.</p>
+          <div class="ds-modal-frame">
+            <div class="ds-modal">
+              <div class="ds-modal__header">
+                <div class="ds-modal__title-group">
+                  <span class="ds-modal__icon">
+                    <svg viewBox="0 0 22 20" width="22" height="20"><path d="M11 1.5 L20.5 18.5 L1.5 18.5 Z" fill="none" stroke="#c29c14" stroke-width="1.6" stroke-linejoin="round"/><rect x="10.1" y="7" width="1.8" height="6" rx="0.9" fill="#c29c14"/><circle cx="11" cy="16" r="1.05" fill="#c29c14"/></svg>
+                  </span>
+                  <span class="ds-modal__title">Confirm external send</span>
+                </div>
+                <span class="ds-modal__close">
+                  <svg viewBox="0 0 20 20" width="20" height="20"><path d="M4.5 4.5 L15.5 15.5 M15.5 4.5 L4.5 15.5" stroke="#191919" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+              </div>
+              <div class="ds-modal__body">You're sending this form outside the BIS system to a recipient who is not a BIS account holder. BIS is not responsible for misdelivery, and this cannot be reversed once the external party signs.</div>
+              <div class="ds-modal__footer">
+                <button class="ds-btn ds-btn--tertiary">Cancel</button>
+                <button class="ds-btn ds-btn--primary-warning">Confirm &amp; Send</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="section__note">Resolved: submission succeeds even if the external party never signs — since they're not a system user, their non-response can't block the internal workflow.</div>
+      </div>
+
+      <!-- SECTION C -->
+      <div class="section">
+        <div class="section__title">C. Email the External Signer Receives <span class="tag reused">Reused — BIStrainer email template</span></div>
+        <div class="section__body">
+          <p style="font-size:12px; color:#666; margin-bottom:10px;">Built from the standard BIS notification email pattern (subject card, banner, body + action button, footer) — no new email template needed, just new copy.</p>
+          <div class="email-subject-bar">You've been asked to sign: Site Inspection Form</div>
+          <div class="email-card">
+            <div class="email-body">
+              <div class="email-sender">
+                <span class="avatar">B</span>
+                <span class="who">BIS Safety Software<br><span class="to">To: jane.doe@example.com</span></span>
+                <span class="date">Mon 7/6/2026 10:52 AM</span>
+              </div>
+              <div class="email-text">Alex Koyich has completed the <strong>Site Inspection Form</strong> and is requesting your signature. This does not require you to create a BIS account.</div>
+              <button class="ds-btn ds-btn--primary-blue">Review &amp; Sign</button>
+              <div class="email-footer">
+                <p>Have a question? Contact our Support Team by phoning 1-866-416-1660 or emailing <span class="link">help@bissafety.app</span>.</p>
+                <p>BIS Safety Software | 261 Seneca Road, Sherwood Park AB T8A 4G6, Canada</p>
+                <p><span class="link">Terms and Conditions</span> &nbsp; <span class="link">Privacy Policy</span></p>
+                <p>This email was sent to jane.doe@example.com. Please do not reply to this email.</p>
+                <p>Source: Form Builder &gt; External Signer</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION D -->
+      <div class="section">
+        <div class="section__title">D. External Signer's Experience (No BIS Account) <span class="tag new">New</span></div>
+        <div class="section__body">
+          <p style="font-size:12px; color:#666; margin-bottom:12px;">Reached only via the "Review &amp; Sign" link above — no login, no account created.</p>
+
+          <p style="font-size:12px; font-weight:700; color:#444; margin-bottom:6px;"><span class="step-num">1</span>Identity + privacy gate (shown before the form loads) <span class="tag new" style="margin-left:4px;">New — bis-section card</span></p>
+          <div class="eu-frame" style="margin-bottom:18px;">
+            <div class="secure-topbar">🔒 Secure Sign-In</div>
+            <div class="secure-page-bg">
+              <div class="bis-section">
+                <div class="bis-section__accent"></div>
+                <div class="bis-section__body">
+                  <div class="bis-section__title">Confirm who you are</div>
+                  <div class="bis-section__sub">Site Inspection Form — before you can sign, we need a few details.</div>
+                  <div class="field-row-2">
+                    <div class="fb-field"><label>First name</label><input class="fb-input" placeholder="Jane"></div>
+                    <div class="fb-field"><label>Last name</label><input class="fb-input" placeholder="Doe"></div>
+                  </div>
+                  <div class="fb-field"><label>Email</label><input class="fb-input" placeholder="jane.doe@example.com"></div>
+                  <div class="eu-check-row"><input type="checkbox"><span>I have read and accept the privacy policy <span class="tag reused" style="margin-left:4px;">Reused from #12798</span></span></div>
+                  <button class="ds-btn ds-btn--primary-blue" disabled style="margin-top:14px; width:100%;">Continue</button>
+                  <div class="secure-note">🔒 We don't create a BIS account for you</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p style="font-size:12px; font-weight:700; color:#444; margin-bottom:6px;"><span class="step-num">2</span>The form itself — matches the live signature field exactly, other fields locked</p>
+          <div class="eu-frame">
+            <div class="eu-topbar">🔒 www.bissafety.app/v1/sign/{token}</div>
+            <div class="eu-body">
+              <div class="eu-title">Site Inspection Form</div>
+              <div class="eu-subtitle">Form/assessment description</div>
+              <div class="eu-divider"></div>
+
+              <div class="eu-field-group locked">
+                <div class="label">Title<span class="req">*</span></div>
+                <div class="hint">Check all that apply</div>
+                <div class="eu-check-row"><input type="checkbox" disabled><span>First Choice</span></div>
+                <div class="eu-check-row"><input type="checkbox" disabled><span>Second Choice</span></div>
+                <div class="eu-check-row"><input type="checkbox" disabled><span>Third Choice</span></div>
+                <div class="eu-lock-note">🔒 Locked — this field belongs to the form initiator, not the external signer</div>
+              </div>
+
+              <div class="eu-field-group">
+                <div class="label">Single</div>
+                <div class="hint">Sign below or upload your signature</div>
+                <div class="eu-sig-block">
+                  <div class="eu-sig-canvas">✍</div>
+                  <div class="eu-sig-side">
+                    <input value="Jane Doe" disabled>
+                    <input value="06-Jul-2026" disabled>
+                    <div class="btnrow">
+                      <button class="ds-btn ds-btn--secondary-error" style="flex:1;">Clear</button>
+                      <button class="ds-btn ds-btn--primary-success" style="flex:1;">Save</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="eu-bottombar">
+              <div class="who"><span class="name">Jane Doe</span><span>External signer</span></div>
+              <div class="meta"><span>Location: Site Inspection Form</span><span>Form ID: 6970811</span></div>
+              <button class="ds-btn ds-btn--primary-success">Submit ▸</button>
+            </div>
+          </div>
+        </div>
+        <div class="section__note">Per your note: name/date are pre-filled from Step 1 and greyed out (not re-editable); the Title checkbox group is fully locked/disabled; only the signature canvas stays interactive.</div>
+      </div>
+
+      <!-- SECTION E -->
+      <div class="section">
+        <div class="section__title">E. Post-Submission Confirmation <span class="tag reused">Reused — ModalService component</span></div>
+        <div class="section__body">
+          <p style="font-size:12px; color:#666; margin-bottom:12px;">Two chained ModalService pop-ups, exactly per the design system's success-modal spec (70px check icon, header, description, button row).</p>
+
+          <p style="font-size:12px; font-weight:700; color:#444; margin-bottom:6px;"><span class="step-num">1</span>Immediately after clicking Submit</p>
+          <div class="ds-modal-frame" style="margin-bottom:18px;">
+            <div class="ds-modal-service">
+              <span class="ds-modal-service__dismiss">✕</span>
+              <span class="ds-modal-service__icon">
+                <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#167b00"/><path d="M5.5 10.5 L8.6 13.5 L14.5 6.7" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <div class="ds-modal-service__body">
+                <div class="ds-modal-service__text">
+                  <div class="ds-modal-service__header">Form submitted</div>
+                  <div class="ds-modal-service__desc">Thanks for signing! You can download a copy of the completed form for your records.</div>
+                </div>
+                <div class="ds-modal-service__buttons">
+                  <button class="ds-btn ds-btn--secondary ds-btn--lg">Close</button>
+                  <button class="ds-btn ds-btn--primary-blue ds-btn--lg">Download</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:12px; color:#666; margin-bottom:16px;">"Close" closes this browser tab. "Download" triggers the download, then chains straight into the second modal below.</p>
+
+          <p style="font-size:12px; font-weight:700; color:#444; margin-bottom:6px;"><span class="step-num">2</span>After clicking Download</p>
+          <div class="ds-modal-frame">
+            <div class="ds-modal-service">
+              <span class="ds-modal-service__icon">
+                <svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#167b00"/><path d="M5.5 10.5 L8.6 13.5 L14.5 6.7" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <div class="ds-modal-service__body">
+                <div class="ds-modal-service__text">
+                  <div class="ds-modal-service__header">Download complete</div>
+                  <div class="ds-modal-service__desc">Your signed copy has been saved to your device. You can safely leave this page now.</div>
+                </div>
+                <div class="ds-modal-service__buttons">
+                  <button class="ds-btn ds-btn--primary-blue ds-btn--lg">Leave this page</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="section__note">Per your note: this second modal has no dismiss X and only the single primary action — there's nothing left to do but leave, so no secondary/tertiary option is offered.</div>
+      </div>
+
+    </div><!-- /main-col -->
+
+    <!-- NOTES -->
+    <aside class="design-notes">
+      <div class="status-tag">Round 2 — grounded in live screenshots + Figma components</div>
+
+      <h3>Components Used</h3>
+      <ul>
+        <li><strong>Warning modal</strong> — Section B, external-send confirmation.</li>
+        <li><strong>ModalService (success)</strong> — Section E, both post-submission states, built to the exact Figma spec (70px icon, 24px header, 16px description, button row).</li>
+        <li><strong>BIStrainer email template</strong> — Section C, reused pattern (subject card, banner, body+button, standard footer) with new copy only.</li>
+        <li>Privacy policy checkbox pattern reused as-is from TKT-12798 — not redesigned here.</li>
+        <li>Form Builder field-settings panel (Section A) and the end-user form (Section D) are modeled directly on your live screenshots, not invented.</li>
+      </ul>
+
+      <h3>Decisions Confirmed</h3>
+      <ul>
+        <li><strong>D</strong> — name/date pre-filled and greyed out from the identity step; Title checkbox group fully locked; signature canvas is the only live field.</li>
+        <li><strong>E</strong> — Submit → success modal (Close / Download) → Download → second success modal (single primary "Leave this page" only, no dismiss).</li>
+        <li>Signature-only scope confirmed either way — external party never fills out non-signature fields.</li>
+      </ul>
+
+      <h3>Still Open</h3>
+      <ul>
+        <li><strong>Which signature route is actually in scope:</strong> Single Signature (Route 1, Section A), Multiple Signatures (Route 2), or both? Multiple Signatures already has a "each signer gets a PDF + signs off, can't return to initiator" flow that maps closely to what an external party needs — worth confirming with Alex/Erica whether this ticket should build on that existing mechanism rather than Single Signature.</li>
+        <li>Where the external party's email actually gets captured — proposed at config time in Section A's Options row — needs confirmation against how Multiple Signatures currently attaches recipients to each category.</li>
+        <li>Still waiting on an accessible copy of the discussion-recap recording that may hold additional UX detail beyond the written spec.</li>
+      </ul>
+
+      <h3>Next Step</h3>
+      <ul>
+        <li>Confirm the Single vs. Multiple Signature scope question above, then finalize Section A's config UI against whichever route is chosen.</li>
+      </ul>
+    </aside>
+
+  </div><!-- /canvas -->
+
+</body>
+</html>
