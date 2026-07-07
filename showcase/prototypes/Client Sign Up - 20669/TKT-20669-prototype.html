@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  INTERACTIVE PROTOTYPE — TEMPLATE
+  ----------------------------------------------------------------------------
+  Reusable chrome for a BIS "interactive prototype" doc, matching the Figma
+  Prototype Template (Internal Projects file, node 37:28). The chrome below
+  is NOT part of the simulated product — it's the frame reviewers see it in.
+  To adapt for another ticket:
+    1. Update .topbar (ticket #, project/feature name, date). Badge stays
+       "Prototype - v1" (bump the version number on real re-drafts).
+    2. Perspective control (.seg-control) — a segmented toggle for each
+       actor the prototype simulates (BIS template default: "Admin" / "User";
+       this ticket uses "Sales" / "Client"). If the prototype has only ONE
+       perspective, don't render a toggle — show a single static .badge-pill.
+    3. Flow tabs (#flowTabs) — the named screens/steps WITHIN the selected
+       perspective, rendered dynamically from the FLOWS map. Switching
+       perspective swaps the whole tab set. Each tab jumps to that screen
+       (a state preset); the active tab is also derived from live state so
+       in-screen actions keep it in sync. Ask the designer to enumerate
+       perspectives + their flow tabs before building (see the draft-wireframe
+       skill's prototype flow-map step).
+    NOTE: prototypes render FULL-WIDTH to mimic the real web viewport — no
+       centered max-width column (that's the proposal doc, not this).
+    4. .proto-card is the white stage — everything simulating the real
+       product (persp-head bars, .card panels, buttons, forms) renders
+       INSIDE it via #stage, untouched by this template.
+    5. .step-details is a footer panel INSIDE the same card, docked to the
+       bottom edge. Every render() must update #sdTitle + #sdList to explain
+       what's on screen and what to do next — this is what tells a
+       non-technical reviewer they're not lost.
+    6. APP-SHELL LAYOUT: body is a full-height flex column; the .topbar,
+       the nav row (perspective + flow tabs), and .step-details all stay
+       FIXED — only .proto-stage scrolls. So the header, tabs, and flow
+       notes are visible at any scroll position.
+    7. SCROLL RESET: render() resets .proto-stage scrollTop to 0 whenever the
+       SCREEN changes (perspective / tab / a status transition), tracked via
+       a viewKey. In-screen tweaks (toggling a module, editing a price) do
+       NOT reset scroll, so the reviewer keeps their place mid-screen.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TKT-20669 — Client Onboarding — Sales ↔ Client ↔ Email Prototype</title>
+  <style>
+    :root {
+      --surface-primary: #0078b3;
+      --surface-primary-lightest: #f2fcff;
+      --surface-success: #167b00;
+      --surface-success-lightest: #fafff2;
+      --surface-warning: #a1851f;
+      --surface-warning-lightest: #fffcf2;
+      --surface-error: #cc2222;
+      --surface-error-lightest: #fff2f2;
+      --surface-secondary-subtle: #f8f8f9;
+      --text-default: #191919;
+      --text-secondary: #666666;
+      --text-on-surface: #feffff;
+      --surface-default: #feffff;
+      --stroke-default: #b2b2b3;
+      --stroke-default-light: #e2e2e3;
+      --stroke-default-dark: #4d4c4c;
+      --bis-red: #b81f2d;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", system-ui, sans-serif; font-size: 14px; color: var(--text-default); background: var(--surface-secondary-subtle); line-height: 1.5; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    a { color: var(--surface-primary); text-decoration: none; }
+    input, select, textarea { font-family: inherit; font-size: 13px; padding: 8px 10px; border: 1px solid var(--stroke-default); border-radius: 4px; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--surface-primary); }
+    input[readonly] { background: #f4f6f8; color: #667; }
+    label { font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px; }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* ===== template chrome ===== */
+    .topbar { background: var(--surface-default); border-bottom: 1px solid var(--stroke-default-light); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 16px; flex-wrap: wrap; flex-shrink: 0; }
+    .topbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .t-ticket { font-size: 16px; font-weight: 600; color: var(--text-default); }
+    .t-project { font-size: 14px; color: var(--text-default); }
+    .t-date { font-size: 12px; color: var(--text-default); }
+    .badge-pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; box-shadow: 0 0 4px rgba(0,0,0,.15); white-space: nowrap; }
+    .badge-pill.primary { background: var(--surface-primary-lightest); color: var(--surface-primary); }
+    .badge-pill.success { background: var(--surface-success-lightest); color: var(--surface-success); }
+    .btn-reset { background: #fff; border: 1px solid var(--stroke-default-dark); border-radius: 4px; padding: 5px 12px; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+    .btn-reset:hover { background: #f7f7f7; }
+
+    .page { width: 100%; flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 10px 20px 14px; }
+    .navrow { display: flex; align-items: center; gap: 16px; margin-bottom: 6px; flex-wrap: wrap; flex-shrink: 0; }
+    .flow-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+    .flow-tab { padding: 5px 14px; font-size: 14px; font-weight: 600; color: var(--text-secondary); border-radius: 4px; border: 1px solid transparent; cursor: pointer; background: transparent; }
+    .flow-tab.active { background: var(--surface-default); border-color: var(--stroke-default-light); color: var(--surface-primary); }
+    .flow-badge { background: var(--surface-error); color: #fff; border-radius: 8px; padding: 0 5px; font-size: 10px; margin-left: 5px; }
+
+    .seg-control { display: inline-flex; border: 1px solid var(--stroke-default); border-radius: 80px; overflow: hidden; }
+    .seg-opt { background: rgba(254,255,255,.75); border: none; border-left: 1px solid var(--stroke-default); padding: 5px 14px; font-size: 13px; color: var(--text-default); position: relative; }
+    .seg-opt:first-child { border-left: none; }
+    .seg-opt.active { background: var(--surface-primary-lightest); color: var(--surface-primary); font-weight: 600; }
+    .seg-badge { background: var(--surface-error); color: #fff; border-radius: 8px; padding: 0 5px; font-size: 10px; margin-left: 5px; }
+
+    .proto-card { background: var(--surface-default); border: 1px solid var(--stroke-default); border-radius: 8px; display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+    .proto-stage { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 22px 24px; }
+    .step-details { background: var(--surface-secondary-subtle); border-top: 1px solid var(--stroke-default-light); padding: 12px 18px 14px; flex-shrink: 0; }
+    .sd-title { font-size: 14px; font-weight: 600; color: var(--text-default); margin-bottom: 6px; }
+    .sd-list { list-style: disc; padding-left: 18px; font-size: 12px; color: var(--text-default); line-height: 1.65; }
+    .sd-list li { margin-bottom: 2px; }
+
+    /* ===== simulated product UI (unchanged by the template restyle) ===== */
+    .persp-head { display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-radius: 8px 8px 0 0; color: #fff; }
+    .persp-head.sales { background: linear-gradient(135deg, #b81f2d, #8c1622); }
+    .persp-head.client { background: linear-gradient(135deg, #0078b3, #015b88); }
+    .persp-head .tag { background: rgba(255,255,255,.2); border-radius: 12px; padding: 2px 10px; font-size: 11px; font-weight: 700; letter-spacing: .4px; }
+    .persp-head h2 { font-size: 17px; font-weight: 600; }
+    .persp-head .meta { margin-left: auto; font-size: 12px; opacity: .93; text-align: right; }
+
+    .card { background: #fff; border: 1px solid #e2e6ea; border-radius: 0 0 8px 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .card.solo { border-radius: 8px; }
+    .body { padding: 20px 22px; }
+    .sec-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #556; margin: 4px 0 12px; }
+    .sec-title.mt { margin-top: 22px; padding-top: 16px; border-top: 1px solid #eef0f2; }
+
+    .btn { padding: 9px 18px; border: none; border-radius: 4px; font-weight: 600; font-size: 13px; }
+    .btn-primary { background: var(--surface-primary); color: #fff; }
+    .btn-primary:hover { background: #015b88; }
+    .btn-success { background: var(--surface-success); color: #fff; }
+    .btn-success:hover { background: #0e5300; }
+    .btn-red { background: var(--bis-red); color: #fff; }
+    .btn-red:hover { background: #8c1622; }
+    .btn-outline { background: #fff; color: var(--surface-primary); border: 1px solid var(--surface-primary); }
+    .btn-warning { background: var(--surface-warning); color: #fff; }
+    .btn-ghost { background: #fff; color: var(--text-secondary); border: 1px solid var(--stroke-default); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+    .status-chip { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; white-space: nowrap; }
+    .sc-grey { background: #eceff2; color: #556; }
+    .sc-blue { background: #eef7ff; color: #0078b3; }
+    .sc-red  { background: #fff2f2; color: #cc2222; }
+    .sc-green{ background: #fafff2; color: #167b00; }
+    .sc-navy { background: #f2f7ff; color: #35507a; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .form-grid input, .form-grid select { width: 100%; }
+    .req { color: var(--surface-error); }
+
+    /* ===== Companies list (entry point) ===== */
+    .bis-bar { background: var(--bis-red); color: #fff; padding: 10px 16px; border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; }
+    .bis-bar .fees { margin-left: auto; font-weight: 400; font-size: 12px; opacity: .92; }
+    .list-tabs { display: flex; gap: 0; background: #fff; border-left: 1px solid #e2e6ea; border-right: 1px solid #e2e6ea; padding: 10px 16px 0; align-items: center; }
+    .list-tabs .lt { padding: 8px 14px; font-size: 12.5px; color: #667; border-bottom: 3px solid transparent; cursor: pointer; }
+    .list-tabs .lt.active { color: var(--surface-primary); border-bottom-color: var(--surface-primary); font-weight: 700; }
+    .list-tabs .lt .n { background: var(--surface-warning); color: #fff; border-radius: 8px; padding: 0 6px; font-size: 10px; margin-left: 4px; }
+    .list-tabs .start { margin-left: auto; }
+    .ltable { width: 100%; border-collapse: collapse; font-size: 12.5px; background: #fff; border: 1px solid #e2e6ea; }
+    .ltable th { background: var(--surface-success); color: #fff; text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 600; }
+    .ltable td { padding: 10px 12px; border-bottom: 1px solid #f0f2f4; }
+    .ltable tr.click { cursor: pointer; }
+    .ltable tr.click:hover { background: #f0f7fc; }
+    .start-callout { background: var(--surface-primary-lightest); border: 1px solid #b6dcfa; border-radius: 6px; padding: 10px 14px; font-size: 12.5px; color: #0c5460; margin: 14px 0 0; display: flex; gap: 8px; }
+
+    /* ===== workspace tabs ===== */
+    .ws-tabs { display: flex; gap: 0; background: #fff; border-left: 1px solid #e2e6ea; border-right: 1px solid #e2e6ea; padding: 0 16px; }
+    .ws-tab { padding: 12px 16px; font-size: 13px; color: #667; border-bottom: 3px solid transparent; cursor: pointer; display: flex; align-items: center; gap: 7px; }
+    .ws-tab.active { color: var(--bis-red); border-bottom-color: var(--bis-red); font-weight: 700; }
+    .ws-tab .mini { font-size: 10px; padding: 1px 6px; border-radius: 8px; }
+
+    .mod-list { border: 1px solid #e6ebef; border-radius: 6px; overflow: hidden; }
+    .mod-row { display: grid; grid-template-columns: 44px 1.2fr 1fr 120px; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid #f0f2f4; font-size: 13px; }
+    .mod-row:last-child { border-bottom: none; }
+    .mod-row .m-name { font-weight: 600; }
+    .mod-row .m-std { color: #889; font-size: 11.5px; }
+    .toggle { width: 36px; height: 20px; background: #ccd3da; border-radius: 11px; position: relative; flex-shrink: 0; cursor: pointer; transition: background .15s; }
+    .toggle.on { background: var(--surface-success); }
+    .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: left .15s; }
+    .toggle.on::after { left: 18px; }
+    .price-in { width: 110px; text-align: right; padding: 6px 8px; }
+    .price-in.custom { border-color: var(--surface-warning); background: var(--surface-warning-lightest); }
+
+    .banner-line { display: flex; gap: 10px; align-items: flex-start; border-radius: 6px; padding: 11px 14px; font-size: 12.5px; margin-bottom: 14px; }
+    .banner-line .ico { flex-shrink: 0; font-size: 15px; line-height: 1.3; }
+    .bl-warn { background: var(--surface-warning-lightest); border: 1px solid #e8d98a; border-left: 4px solid var(--surface-warning); color: #6b5800; }
+    .bl-return { background: var(--surface-error-lightest); border: 1px solid #f0c2c2; border-left: 4px solid var(--surface-error); color: #7a1f1f; }
+    .bl-info { background: var(--surface-primary-lightest); border: 1px solid #b6dcfa; border-left: 4px solid var(--surface-primary); color: #0c5460; }
+    .bl-ok { background: var(--surface-success-lightest); border: 1px solid #bfe0b0; border-left: 4px solid var(--surface-success); color: #14520a; }
+
+    .summary { background: #f8fafb; border: 1px solid #e6ebef; border-radius: 6px; padding: 14px 16px; }
+    .summary .row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+    .summary .row.faint { color: #889; font-size: 11.5px; }
+    .summary .row.discount { color: var(--surface-success); }
+    .summary .row.total { border-top: 2px solid #222; margin-top: 6px; padding-top: 8px; font-weight: 700; font-size: 15px; }
+
+    .plan-grid { display: grid; grid-template-columns: 1fr 260px; gap: 18px; align-items: start; }
+    .cmod { display: flex; align-items: center; gap: 10px; border: 1px solid #e6ebef; border-radius: 6px; padding: 9px 12px; margin-bottom: 7px; font-size: 13px; }
+    .cmod.on { border-color: var(--surface-success); background: var(--surface-success-lightest); }
+    .cmod .m-name { font-weight: 600; }
+    .cmod .m-price { margin-left: auto; color: #667; font-size: 12px; }
+    .locked-note { font-size: 11px; color: #889; margin-top: 8px; }
+
+    .activity { list-style: none; font-size: 12.5px; }
+    .activity li { display: flex; gap: 10px; padding: 7px 0; border-bottom: 1px dashed #eef0f2; }
+    .activity li:last-child { border-bottom: none; }
+    .activity .a-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--surface-primary); margin-top: 4px; flex-shrink: 0; }
+    .activity .a-when { color: #99a; font-size: 11px; }
+
+    /* upload zone */
+    .upzone { border: 2px dashed #b6c2cc; border-radius: 8px; background: #fafcfe; padding: 26px; text-align: center; color: #778; }
+    .upzone .big { font-size: 30px; }
+    .upfile { display: flex; align-items: center; gap: 12px; border: 1px solid #e0e6ea; border-radius: 6px; padding: 10px 12px; margin-top: 10px; }
+    .upfile .ico { width: 34px; height: 42px; background: var(--surface-error); color: #fff; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+    .src-toggle { display: inline-flex; border: 1px solid var(--stroke-default); border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+    .src-toggle button { background: #fff; border: none; padding: 8px 16px; font-size: 12.5px; border-right: 1px solid #e2e6ea; }
+    .src-toggle button:last-child { border-right: none; }
+    .src-toggle button.active { background: var(--surface-primary); color: #fff; }
+
+    .tc-scroll { max-height: 260px; overflow: auto; border: 1px solid #e2e6ea; border-radius: 6px; padding: 16px 20px; background: #fff; font-size: 12.5px; line-height: 1.6; color: #333; }
+    .tc-scroll h4 { margin: 14px 0 4px; font-size: 13px; color: #35507a; }
+    .tc-scroll h4:first-child { margin-top: 0; }
+    .tc-eof { text-align: center; color: #aab; font-size: 11px; padding: 12px 0 2px; border-top: 1px dashed #dde; margin-top: 12px; }
+    .scroll-hint { font-size: 11px; color: var(--surface-warning); background: var(--surface-warning-lightest); border: 1px solid #e8d98a; border-radius: 3px; padding: 6px 10px; margin-top: 8px; display: inline-block; }
+    .sign-box { background: #f8fafb; border: 1px solid #e6ebef; border-radius: 6px; padding: 15px 16px; margin-top: 14px; }
+    .ack { display: flex; gap: 9px; align-items: flex-start; margin-bottom: 10px; font-size: 12.5px; }
+    .ack input { width: 18px; height: 18px; margin-top: 1px; }
+    .sign-input { font-family: "Brush Script MT", cursive; font-size: 22px; color: #35507a; width: 100%; max-width: 360px; }
+
+    .pay-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .pay-card { border: 2px solid #e2e6ea; border-radius: 8px; padding: 15px; text-align: center; cursor: pointer; transition: all .12s; }
+    .pay-card:hover { border-color: var(--surface-success); background: var(--surface-success-lightest); }
+    .pay-card.sel { border-color: var(--surface-success); background: var(--surface-success-lightest); box-shadow: 0 0 0 3px rgba(22,123,0,.12); }
+    .pay-card .ico { font-size: 24px; }
+    .pay-card .lbl { font-weight: 600; font-size: 13px; margin-top: 5px; }
+    .pay-card .sub { font-size: 11px; color: #889; margin-top: 2px; }
+
+    .done-check { width: 60px; height: 60px; border-radius: 50%; background: var(--surface-success); color: #fff; font-size: 28px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+    .waiting { text-align: center; padding: 36px 24px; color: #778; }
+    .waiting .big { font-size: 40px; }
+
+    /* client persistent-URL bar + checklist */
+    .urlbar { display: flex; align-items: center; gap: 8px; background: #eef1f4; border: 1px solid #dce2e8; border-radius: 6px; padding: 7px 12px; font-size: 12px; color: #556; margin-bottom: 14px; }
+    .urlbar .u { font-family: ui-monospace, Menlo, Consolas, monospace; color: #334; }
+    .urlbar .persist { margin-left: auto; font-size: 11px; color: #778; }
+    .checklist { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .cl-step { flex: 1; min-width: 150px; border: 1px solid #e2e6ea; border-radius: 6px; padding: 10px 12px; font-size: 12px; }
+    .cl-step .h { font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .cl-step .s { font-size: 11px; margin-top: 2px; }
+    .cl-step.done { border-color: #bfe0b0; background: var(--surface-success-lightest); }
+    .cl-step.active { border-color: var(--surface-primary); background: var(--surface-primary-lightest); }
+    .cl-step.locked { opacity: .6; }
+    .cl-dot { width: 16px; height: 16px; border-radius: 50%; background: #ccd3da; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; }
+    .cl-step.done .cl-dot { background: var(--surface-success); }
+    .cl-step.active .cl-dot { background: var(--surface-primary); }
+
+    /* emails */
+    .email-list { display: flex; flex-direction: column; gap: 12px; }
+    .email { border: 1px solid #e2e6ea; border-radius: 8px; overflow: hidden; }
+    .email .eh { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid #eef0f2; background: #fafcfe; }
+    .email .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--bis-red); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; }
+    .email .subj { font-weight: 600; font-size: 13px; }
+    .email .to { font-size: 11px; color: #889; }
+    .email .when { margin-left: auto; font-size: 11px; color: #99a; white-space: nowrap; }
+    .email .eb { padding: 14px; font-size: 13px; color: #333; }
+    .email .changes { background: #f8fafb; border: 1px solid #e6ebef; border-radius: 6px; padding: 10px 12px; margin: 10px 0; font-size: 12.5px; }
+    .email .changes b { color: #35507a; }
+    .email .changes ul { margin: 4px 0 0 18px; }
+    .email .cta { margin-top: 6px; }
+    .email .foot { border-top: 1px solid #eef0f2; margin-top: 12px; padding-top: 8px; font-size: 11px; color: #99a; }
+
+    .nav-row { display: flex; gap: 10px; align-items: center; margin-top: 20px; flex-wrap: wrap; }
+    .nav-row .sp { flex: 1; }
+    .fork { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .fork .opt { flex: 1; min-width: 240px; border: 1px solid #e6ebef; border-radius: 8px; padding: 16px; }
+    .fork .opt h4 { font-size: 13px; margin-bottom: 4px; }
+    .fork .opt p { font-size: 11.5px; color: #778; margin-bottom: 10px; }
+
+    @media (max-width: 720px) {
+      .form-grid, .plan-grid, .pay-choices { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="t-ticket">TKT-20669</span>
+      <span class="t-project">Client Onboarding</span>
+      <span class="badge-pill primary">Prototype - v1</span>
+      <span class="t-date">July 07, 2026 Generated</span>
+    </div>
+    <button class="btn-reset" onclick="resetAll()">↺ Reset Prototype</button>
+  </div>
+
+  <div class="page">
+    <div class="navrow">
+      <div class="seg-control" id="segControl">
+        <button class="seg-opt active" id="segSales" onclick="switchPersp('sales')">Sales</button>
+        <button class="seg-opt" id="segClient" onclick="switchPersp('client')">Client</button>
+      </div>
+      <div class="flow-tabs" id="flowTabs"></div>
+    </div>
+
+    <div class="proto-card">
+      <div class="proto-stage" id="stage"></div>
+      <div class="step-details">
+        <p class="sd-title" id="sdTitle"></p>
+        <ul class="sd-list" id="sdList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  var CATALOG = [
+    { id:'lms',  name:'LMS',      std:8.00, desc:'Courses, certifications & training records' },
+    { id:'frm',  name:'Forms',    std:5.00, desc:'Digital forms, inspections & audits' },
+    { id:'ast',  name:'Assets',   std:4.00, desc:'Asset & equipment tracking' },
+    { id:'trms', name:'TRMS',     std:3.00, desc:'Training & competency management' },
+    { id:'fld',  name:'Folder',   std:2.50, desc:'Document & file management' },
+    { id:'cal',  name:'Calendar', std:2.00, desc:'Scheduling & shared calendar' }
+  ];
+  var ONBOARDING_FEE = 1500;
+  var CLOCK = 9*60;
+
+  var st;
+  function fresh(){
+    return {
+      persp:'sales', salesScreen:'list', clientScreen:'page', tab:'plan',
+      company:'Acme Construction Ltd.', accountManager:'J. Chen', clientType:'Standard',
+      pricingModel:'Per user / month — Model A', users:25,
+      enabled:{lms:true,frm:true,ast:false,trms:false,fld:false,cal:false},
+      price:{lms:8,frm:5,ast:4,trms:3,fld:2.5,cal:2},
+      onboardingFee:ONBOARDING_FEE, feeStart:'2026-08-01',
+      approval:'ok',
+      proposal:{ status:'draft', version:1, clientComment:'', salesResponse:'' },  // draft|sent|returned|approved
+      details:{ legal:'Acme Construction Ltd.', name:'', email:'', phone:'', tax:'', addr:'', sig:'', tz:'Mountain (MST/MDT)' },
+      agreement:{ source:'system', file:null, status:'none', version:1, clientComment:'', salesNote:'', scrolled:false, ack:false, sign:'' }, // none|sent|returned|signed
+      payment:{ status:'none', method:null },   // none|paid
+      profileCreated:false,
+      clientUrl:'bissafety.app/onboarding/acme-3f9x2k',
+      emails:[], emailUnread:0,
+      log:[]
+    };
+  }
+  function stamp(){ CLOCK += Math.floor(3+Math.random()*8); var h=Math.floor(CLOCK/60),m=CLOCK%60; return (h%12||12)+':'+(m<10?'0':'')+m+' '+(h<12?'AM':'PM'); }
+  function addLog(who,text){ st.log.unshift({who:who,text:text,when:stamp()}); }
+  function money(n){ return '$'+Number(n).toFixed(2); }
+  function esc(s){ return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function discountRate(u){ if(u>=100)return .08; if(u>=50)return .04; return 0; }
+  function calc(){ var sub=CATALOG.reduce(function(s,m){return s+(st.enabled[m.id]?st.price[m.id]*st.users:0);},0); var rate=discountRate(st.users),disc=sub*rate; var count=CATALOG.filter(function(m){return st.enabled[m.id];}).length; return {sub:sub,rate:rate,disc:disc,total:sub-disc,count:count}; }
+  function anyCustom(){ return CATALOG.some(function(m){ return st.enabled[m.id] && Math.abs(st.price[m.id]-m.std)>.001; }); }
+  function refreshApproval(){ if(!anyCustom()) st.approval='ok'; else if(st.approval==='ok') st.approval='needed'; }
+
+  /* emails */
+  function pushEmail(subject, intro, changes){
+    st.emails.unshift({ subject:subject, intro:intro, changes:changes||[], when:stamp() });
+    st.emailUnread++;
+  }
+
+  /* ---------- perspective + flow-tab navigation ----------
+     Segmented control switches PERSPECTIVE (which actor). Flow tabs are the
+     named screens WITHIN that perspective, rendered from FLOWS. Clicking a
+     flow tab jumps to that screen via a state preset; the active tab is
+     derived back from live state so in-screen actions stay in sync. */
+  function switchPersp(p){ st.persp=p; render(); }
+  function goClient(){ st.persp='client'; st.clientScreen='page'; render(); }
+  function goSales(){ st.persp='sales'; render(); }
+  // shim so the big render functions' inline onclick="setView(...)" still work
+  function setView(v){ if(v==='client'){ goClient(); } else if(v==='sales'){ goSales(); } else if(v==='emails'){ st.persp='client'; st.clientScreen='email'; st.emailUnread=0; render(); } }
+  function setTab(t){ st.tab=t; render(); }
+
+  var FLOWS = {
+    sales:[
+      {id:'list',  label:'Company List'},
+      {id:'new',   label:'New Onboard'},
+      {id:'done',  label:'Completed Onboard'}
+    ],
+    client:[
+      {id:'email',     label:'Email'},
+      {id:'page',      label:'Client Onboarding Page'},
+      {id:'proposal',  label:'Proposal Sent'},
+      {id:'approved',  label:'Proposal Approved'},
+      {id:'agreement', label:'Agreement'},
+      {id:'payment',   label:'Payment'}
+    ]
+  };
+  function salesFlowId(){ if(st.salesScreen==='list') return 'list'; if(st.payment.status==='paid') return 'done'; return 'new'; }
+  function clientFlowId(){
+    if(st.clientScreen==='email') return 'email';
+    var p=st.proposal.status,a=st.agreement.status,pay=st.payment.status;
+    if(pay==='paid'||a==='signed') return 'payment';
+    if(a==='sent'||a==='returned') return 'agreement';
+    if(p==='approved') return 'approved';
+    if(p==='sent'||p==='returned') return 'proposal';
+    return 'page';
+  }
+  function activeFlowId(){ return st.persp==='sales'?salesFlowId():clientFlowId(); }
+  function renderFlowTabs(){
+    var list=FLOWS[st.persp], active=activeFlowId();
+    document.getElementById('flowTabs').innerHTML=list.map(function(f){
+      var badge=(f.id==='email'&&st.emailUnread>0)?'<span class="flow-badge">'+st.emailUnread+'</span>':'';
+      return '<button class="flow-tab '+(f.id===active?'active':'')+'" onclick="selectFlow(\''+f.id+'\')">'+f.label+badge+'</button>';
+    }).join('');
+  }
+  function selectFlow(id){ if(st.persp==='sales') applySalesFlow(id); else applyClientFlow(id); render(); }
+  function applySalesFlow(id){
+    if(id==='list'){ st.salesScreen='list'; }
+    else if(id==='new'){ st.salesScreen='workspace'; st.profileCreated=true; st.tab='plan'; st.proposal={status:'draft',version:1,clientComment:'',salesResponse:''}; st.agreement.status='none'; st.payment={status:'none',method:null}; st.approval='ok'; }
+    else if(id==='done'){ st.salesScreen='workspace'; st.profileCreated=true; st.tab='payment'; st.proposal.status='approved'; st.agreement.status='signed'; st.payment.status='paid'; }
+  }
+  function applyClientFlow(id){
+    st.clientScreen = (id==='email')?'email':'page';
+    if(id==='email'){ if(!st.emails.length) seedEmails('proposal'); st.emailUnread=0; return; }
+    if(id==='page'){ st.proposal.status='draft'; st.agreement.status='none'; st.payment.status='none'; }
+    else if(id==='proposal'){ st.proposal.status='sent'; st.agreement.status='none'; st.payment.status='none'; }
+    else if(id==='approved'){ st.proposal.status='approved'; st.agreement.status='none'; st.payment.status='none'; }
+    else if(id==='agreement'){ st.proposal.status='approved'; st.agreement.status='sent'; st.agreement.scrolled=false; st.agreement.ack=false; st.agreement.sign=''; st.payment.status='none'; }
+    else if(id==='payment'){ st.proposal.status='approved'; st.agreement.status='signed'; st.payment.status='none'; }
+    seedEmails(id);
+  }
+  // Rebuild the inbox to match the point in the flow the preset represents.
+  function seedEmails(id){
+    st.emails=[]; st.emailUnread=0;
+    var lvl=(id==='page')?0:((id==='proposal'||id==='approved')?1:2);
+    if(lvl>=1){ st.emails.push({subject:'Your BIS Safety proposal', intro:st.accountManager+' has prepared a proposal for '+st.details.legal+'.', changes:['Monthly total: '+money(calc().total),'One-time onboarding: '+money(st.onboardingFee)], when:'10:52 AM'}); }
+    if(lvl>=2){ st.emails.unshift({subject:'Your BIS Safety agreement is ready to sign', intro:st.accountManager+' has prepared your agreement (our standard terms).', changes:['Please review and e-sign to continue.'], when:'11:20 AM'}); }
+  }
+
+  /* Step details — heading + short bullets, docked at the bottom of the stage.
+     Every branch below mirrors what guideText() used to say in one sentence;
+     split into a title (which screen/tab) + 1-2 action bullets (what's going
+     on / what to do next). Keep bullets short — this is a footer, not a doc. */
+  function stepDetails(){
+    var p=st.proposal.status, a=st.agreement.status, pay=st.payment.status;
+    if(st.persp==='sales'){
+      if(st.salesScreen==='list') return { title:'Companies list', bullets:[
+        'You’re <b>Sales</b>. Click <b>+ Start Onboarding</b> to create a profile (not a live portal) and open the workspace.'
+      ]};
+      if(st.tab==='plan'){
+        if(p==='draft') return { title:'Plan &amp; Details tab', bullets:[
+          'Configure the proposal (edit a price to see the approval rule), then Send proposal.',
+          'Then check the Client and Emails views.'
+        ]};
+        if(p==='sent') return { title:'Plan &amp; Details tab', bullets:[
+          'Proposal V'+st.proposal.version+' is with the client.',
+          'Switch to <b>Client</b> to act as them.'
+        ]};
+        if(p==='returned') return { title:'Plan &amp; Details tab', bullets:[
+          'Client <b>returned the proposal</b> — read the note, adjust the price, and resend an updated version.'
+        ]};
+        return { title:'Plan &amp; Details tab', bullets:[
+          'Proposal approved ✓.',
+          'Prepare the <b>Agreement</b> tab next (you can actually do this at any time).'
+        ]};
+      }
+      if(st.tab==='agreement'){
+        if(a==='none') return { title:'Agreement tab', bullets:[
+          'Upload a custom contract or use the system template — you can do this any time, even before pricing is accepted.',
+          'Then <b>Send for signature</b>.'
+        ]};
+        if(a==='sent') return { title:'Agreement tab', bullets:[
+          'Agreement is with the client for signature.',
+          'Switch to <b>Client</b> to review/sign it.'
+        ]};
+        if(a==='returned') return { title:'Agreement tab', bullets:[
+          'Client <b>returned the agreement</b> with changes — revise/re-upload and resend.'
+        ]};
+        return { title:'Agreement tab', bullets:[ 'Agreement signed ✓.' ]};
+      }
+      if(st.tab==='payment'){
+        if(pay==='paid') return { title:'Payment tab', bullets:[
+          'Payment received ✓ — this ticket’s scope is complete.',
+          'It now <b>hands off to the CE team</b> for portal creation (downstream / out of scope).'
+        ]};
+        return { title:'Payment tab', bullets:[
+          'Watch here for the client’s payment.',
+          'It becomes available to them once the agreement is signed.'
+        ]};
+      }
+    }
+    if(st.persp==='client' && st.clientScreen!=='email'){
+      if(p==='draft') return { title:'Your onboarding page', bullets:[
+        'You’re the <b>Client</b>. Your page is empty until BIS sends something — switch to <b>Sales</b> and send the proposal.'
+      ]};
+      if(p==='sent') return { title:'Proposal review', bullets:[
+        'A proposal arrived (see <b>Emails</b>).',
+        'Review the price, add your details, then return it for review or continue to signature.'
+      ]};
+      if(p==='returned') return { title:'Proposal review', bullets:[
+        'You returned it to BIS. Switch to <b>Sales</b> for their updated response.'
+      ]};
+      if(p==='approved' && a==='none') return { title:'Waiting on BIS', bullets:[
+        'Proposal approved. <b>Waiting on BIS to prepare your agreement</b> — switch to Sales to send it.'
+      ]};
+      if(a==='sent') return { title:'Agreement review', bullets:[
+        'Your agreement is ready.',
+        'Review it, then <b>sign</b> or return it with changes.'
+      ]};
+      if(a==='returned') return { title:'Agreement review', bullets:[
+        'You returned the agreement to BIS. Switch to <b>Sales</b> for a revised version.'
+      ]};
+      if(a==='signed' && pay!=='paid') return { title:'Payment', bullets:[
+        'Agreement signed — last step is <b>payment</b>.'
+      ]};
+      if(pay==='paid') return { title:'All done', bullets:[
+        'Next you’d get a welcome email once CE builds your portal (downstream).'
+      ]};
+    }
+    if(st.persp==='client' && st.clientScreen==='email') return { title:'Inbox', bullets:[
+      'This is the client’s inbox. Every BIS update sends an email whose body says <b>what changed</b> and links to the one persistent page (<span style="font-family:monospace">'+st.clientUrl+'</span>).'
+    ]};
+    return { title:'', bullets:[] };
+  }
+
+  /* ---------- SALES ---------- */
+  function startOnboarding(){ st.profileCreated=true; st.salesScreen='workspace'; st.tab='plan'; addLog('Sales','Started onboarding — profile created for '+st.company+' (not a live portal)'); render(); }
+  function backToList(){ st.salesScreen='list'; render(); }
+  function salesEditPrice(id,v){ st.price[id]=Math.max(0,parseFloat(v)||0); if(st.approval==='approved')st.approval='ok'; refreshApproval(); render(); }
+  function salesToggle(id){ st.enabled[id]=!st.enabled[id]; refreshApproval(); render(); }
+  function salesSetUsers(v){ st.users=Math.max(1,parseInt(v)||1); render(); }
+  function approveAsAccounting(){ st.approval='approved'; addLog('Accounting','Custom pricing approved'); render(); }
+  function salesSendProposal(){
+    if(st.approval==='needed'){ alert('Custom pricing needs Accounting approval before sending.'); return; }
+    var first = st.proposal.status==='draft';
+    if(!first) st.proposal.version+=1;
+    st.proposal.status='sent'; st.proposal.clientComment='';
+    addLog('Sales','Proposal V'+st.proposal.version+' sent to client');
+    pushEmail('Your BIS Safety proposal'+(first?'':' (updated)'),
+      first ? st.accountManager+' has prepared a proposal for '+st.details.legal+'.'
+            : st.accountManager+' updated your proposal in response to your note.',
+      first ? ['Monthly total: '+money(calc().total), 'One-time onboarding: '+money(st.onboardingFee)]
+            : [(st.proposal.salesResponse?'Note from BIS: “'+st.proposal.salesResponse+'”':'Pricing updated'), 'New monthly total: '+money(calc().total)]);
+    setView('emails');   // land on the client's inbox showing the email that was just sent
+  }
+  function salesSetAgreementSource(src){ st.agreement.source=src; if(src==='system') st.agreement.file=null; render(); }
+  function salesUploadFile(){ st.agreement.file='Acme-MSA-custom-v'+st.agreement.version+'.pdf'; st.agreement.source='upload'; render(); }
+  function salesSendAgreement(){
+    var first = st.agreement.status==='none';
+    if(!first) st.agreement.version+=1;
+    st.agreement.status='sent'; st.agreement.clientComment=''; st.agreement.scrolled=false; st.agreement.ack=false; st.agreement.sign='';
+    addLog('Sales','Agreement V'+st.agreement.version+' sent for signature ('+(st.agreement.source==='upload'?'custom upload':'system template')+')');
+    pushEmail('Your BIS Safety agreement is ready to sign'+(first?'':' (revised)'),
+      st.accountManager+' has '+(first?'prepared':'revised')+' your agreement ('+(st.agreement.source==='upload'?'a custom contract':'our standard terms')+').',
+      first ? ['Please review and e-sign to continue.'] : [(st.agreement.salesNote?'What changed: “'+st.agreement.salesNote+'”':'Terms revised per your note.')]);
+    setView('emails');   // land on the client's inbox showing the agreement email
+  }
+
+  /* ---------- CLIENT ---------- */
+  function clientToggle(id){ st.enabled[id]=!st.enabled[id]; render(); }
+  function clientSetUsers(v){ st.users=Math.max(1,parseInt(v)||1); render(); }
+  function saveDetails(requireAll){
+    ['legal','name','email','phone','tax','addr','sig','tz'].forEach(function(k){ var el=document.getElementById('c-'+k); if(el) st.details[k]=el.value.trim(); });
+    if(requireAll){ var miss=['legal','name','email','tax','addr','sig'].filter(function(k){return !st.details[k];}); if(miss.length){ alert('Please complete your required details first.'); return false; } }
+    return true;
+  }
+  function clientReturnProposal(){
+    var c=(document.getElementById('cReturnComment')||{}).value||'';
+    if(!c.trim()){ alert('Add a quick note so Sales knows what to change.'); return; }
+    saveDetails(false); st.proposal.clientComment=c.trim(); st.proposal.status='returned';
+    addLog('Client','Returned proposal V'+st.proposal.version+' — “'+st.proposal.clientComment+'”');
+    st.persp='sales'; st.salesScreen='workspace'; st.tab='plan'; render();
+  }
+  function clientApproveProposal(){
+    if(!saveDetails(true)) return;
+    st.proposal.status='approved';
+    addLog('Client','Approved proposal V'+st.proposal.version);
+    render();
+  }
+  function agScroll(el){ if(!st.agreement.scrolled && el.scrollTop+el.clientHeight>=el.scrollHeight-24){ st.agreement.scrolled=true; render(); } }
+  function clientReturnAgreement(){
+    var c=(document.getElementById('agReturnComment')||{}).value||'';
+    if(!c.trim()){ alert('Add a note about what you’d like changed in the agreement.'); return; }
+    st.agreement.clientComment=c.trim(); st.agreement.status='returned';
+    addLog('Client','Returned agreement V'+st.agreement.version+' — “'+st.agreement.clientComment+'”');
+    st.persp='sales'; st.salesScreen='workspace'; st.tab='agreement'; render();
+  }
+  function clientSign(){ st.agreement.status='signed'; addLog('Client','Signed agreement V'+st.agreement.version); render(); }
+  function selPay(m){ st.payment.method=m; render(); }
+  function clientPay(){ st.payment.status='paid'; addLog('Client','Paid onboarding fee '+money(st.onboardingFee)+' ('+st.payment.method+')'); pushEmail('Payment received — welcome to BIS','We’ve received your payment. Your portal is being set up.',['Onboarding fee: '+money(st.onboardingFee)+' ✓','Next: our team builds your portal and emails your login.']); setView('emails'); }
+
+  function resetAll(){ var v=st?st.persp:'sales'; st=fresh(); st.persp=v; render(); }
+
+  /* ============================================================ RENDER */
+  function render(){
+    document.getElementById('segSales').classList.toggle('active', st.persp==='sales');
+    document.getElementById('segClient').classList.toggle('active', st.persp==='client');
+    renderFlowTabs();
+    var d=stepDetails();
+    document.getElementById('sdTitle').innerHTML=d.title;
+    document.getElementById('sdList').innerHTML=d.bullets.map(function(b){return '<li>'+b+'</li>';}).join('');
+    var html = st.persp==='client'
+      ? (st.clientScreen==='email' ? renderEmails() : renderClient())
+      : (st.salesScreen==='list' ? renderList() : renderWorkspace());
+    document.getElementById('stage').innerHTML=html;
+    // Reset the stage scroll to top whenever the SCREEN changes (perspective,
+    // tab, or a status transition that swaps the whole view) — but not on
+    // in-screen tweaks like toggling a module or editing a price.
+    var key=[st.persp,st.clientScreen,st.salesScreen,st.tab,st.proposal.status,st.agreement.status,st.payment.status].join('|');
+    if(key!==lastViewKey){ var ps=document.querySelector('.proto-stage'); if(ps) ps.scrollTop=0; lastViewKey=key; }
+    syncSign();
+  }
+  var lastViewKey='';
+
+  function priceSummary(){ var c=calc(); return '<div class="summary">'
+    +'<div class="row"><span>'+c.count+' module'+(c.count!==1?'s':'')+' × '+st.users+' users</span><span>'+money(c.sub)+'</span></div>'
+    +(c.rate>0?'<div class="row discount"><span>Volume discount ('+(c.rate*100).toFixed(0)+'%)</span><span>−'+money(c.disc)+'</span></div>':'')
+    +'<div class="row total"><span>Monthly total</span><span>'+money(c.total)+'</span></div>'
+    +'<div class="row faint"><span>One-time onboarding fee</span><span>'+money(st.onboardingFee)+'</span></div></div>'; }
+
+  function activity(){ if(!st.log.length) return ''; return '<div class="sec-title mt">Activity</div><ul class="activity">'+st.log.map(function(e){return '<li><span class="a-dot"></span><div><div><strong>'+e.who+'</strong> — '+esc(e.text)+'</div><div class="a-when">'+e.when+'</div></div></li>';}).join('')+'</ul>'; }
+
+  /* ---- Companies list ---- */
+  function renderList(){
+    var chip = proposalChipFor();
+    return '<div class="bis-bar">🏢 Companies <span class="fees">Monthly Fees: <strong>$748,380.00</strong> (onboarding profiles excluded)</span></div>'
+      +'<div class="list-tabs"><span class="lt">All</span><span class="lt">Active</span><span class="lt">Inactive</span><span class="lt active">Onboarding <span class="n">'+(st.profileCreated?3:2)+'</span></span>'
+      +'<span class="start"><button class="btn btn-success" onclick="startOnboarding()">+ Start Onboarding</button></span></div>'
+      +'<div class="card"><div class="body" style="padding-top:14px;">'
+      +'<table class="ltable"><thead><tr><th>Company</th><th>Stage</th><th>Owner</th><th>Est. Monthly</th><th>Action</th></tr></thead><tbody>'
+      + (st.profileCreated
+          ? '<tr class="click" onclick="st.salesScreen=\'workspace\';render()"><td><strong>'+st.company+'</strong><div style="font-size:10px;color:#889;">Proposal P-2026-0418</div></td><td>'+chip+'</td><td>'+st.accountManager+'</td><td>'+money(calc().total)+'</td><td><a onclick="event.stopPropagation();st.salesScreen=\'workspace\';render()">Open</a></td></tr>'
+          : '')
+      +'<tr class="click"><td><strong>Northline Fabrication</strong></td><td><span class="status-chip sc-navy">Contract Sent</span></td><td>A. Reyes</td><td>$860</td><td><a>Open</a></td></tr>'
+      +'<tr class="click"><td><strong>Summit Roofing Co.</strong></td><td><span class="status-chip sc-blue">Proposal Sent</span></td><td>J. Chen</td><td>$2,100</td><td><a>Open</a></td></tr>'
+      +'</tbody></table>'
+      +'<div class="start-callout"><span>▶</span><div><b>The flow starts here.</b> “+ Start Onboarding” creates a <b>profile</b>, not a live portal — it isn’t billed and doesn’t count toward Monthly Fees until it converts. Everything after happens inside the workspace.</div></div>'
+      +'</div></div>';
+  }
+  function proposalChipFor(){
+    var p=st.proposal.status,a=st.agreement.status,pay=st.payment.status;
+    if(pay==='paid') return '<span class="status-chip sc-green">Paid → CE</span>';
+    if(a==='signed') return '<span class="status-chip sc-blue">Awaiting Payment</span>';
+    if(a==='sent'||a==='returned') return '<span class="status-chip sc-navy">Contract</span>';
+    if(p==='approved') return '<span class="status-chip sc-green">Proposal Approved</span>';
+    if(p==='sent') return '<span class="status-chip sc-blue">Proposal Sent</span>';
+    if(p==='returned') return '<span class="status-chip sc-red">Returned</span>';
+    return '<span class="status-chip sc-grey">Draft</span>';
+  }
+
+  /* ---- Workspace ---- */
+  function renderWorkspace(){
+    var tabMini=function(t,label,chipHtml){ return '<div class="ws-tab '+(st.tab===t?'active':'')+'" onclick="setTab(\''+t+'\')">'+label+(chipHtml||'')+'</div>'; };
+    var head='<div class="persp-head sales"><span class="tag">SALES · BIS</span><h2>Onboarding Workspace — '+st.company+'</h2>'
+      +'<div class="meta"><a style="color:#fff;opacity:.9;" onclick="backToList()">‹ Companies list</a><br>'+proposalChipFor()+'</div></div>';
+    var tabs='<div class="ws-tabs">'
+      + tabMini('plan','Plan &amp; Details', st.proposal.status==='returned'?' <span class="mini sc-red">returned</span>':(st.proposal.status==='approved'?' <span class="mini sc-green">✓</span>':''))
+      + tabMini('agreement','Agreement', st.agreement.status==='returned'?' <span class="mini sc-red">returned</span>':(st.agreement.status==='signed'?' <span class="mini sc-green">signed</span>':''))
+      + tabMini('payment','Payment', st.payment.status==='paid'?' <span class="mini sc-green">paid</span>':'')
+      +'</div>';
+    var content = st.tab==='plan'?wsPlan():(st.tab==='agreement'?wsAgreement():wsPayment());
+    return head+tabs+'<div class="card"><div class="body">'+content+activity()+'</div></div>';
+  }
+
+  function wsPlan(){
+    var p=st.proposal;
+    var sent = p.status==='sent'||p.status==='approved';
+    var locked = sent; var dis = locked?'disabled':'';
+    var banner='';
+    if(p.status==='returned') banner='<div class="banner-line bl-return"><span class="ico">↩</span><div><strong>Client returned proposal V'+p.version+':</strong><br>“'+esc(p.clientComment)+'”<br>Adjust the price, then resend.</div></div>';
+    else if(st.approval==='needed') banner='<div class="banner-line bl-warn"><span class="ico">⚠</span><div><strong>Custom price entered</strong> — needs Accounting approval before sending. <button class="btn btn-warning btn-sm" onclick="approveAsAccounting()">Approve (as Accounting) ▸</button></div></div>';
+    else if(st.approval==='approved') banner='<div class="banner-line bl-ok"><span class="ico">✓</span><div>Custom pricing <strong>approved</strong> — ready to send.</div></div>';
+    else if(p.status==='approved') banner='<div class="banner-line bl-ok"><span class="ico">✓</span><div>Client approved this proposal. Prepare the <strong>Agreement</strong> tab next.</div></div>';
+    else if(sent) banner='<div class="banner-line bl-info"><span class="ico">⌛</span><div>Proposal V'+p.version+' is with the client.</div></div>';
+
+    var rows=CATALOG.map(function(m){ var on=st.enabled[m.id]; var cust=on&&Math.abs(st.price[m.id]-m.std)>.001;
+      return '<div class="mod-row"><div class="toggle '+(on?'on':'')+'" '+(locked?'':'onclick="salesToggle(\''+m.id+'\')"')+'></div><div><div class="m-name">'+m.name+'</div><div class="m-std">std '+money(m.std)+'</div></div><div style="color:#889;font-size:12px;">'+m.desc+'</div><input class="price-in '+(cust?'custom':'')+'" '+dis+' value="'+st.price[m.id].toFixed(2)+'" onchange="salesEditPrice(\''+m.id+'\',this.value)"></div>'; }).join('');
+
+    var actions;
+    if(p.status==='returned') actions='<div style="margin-bottom:10px;"><label>Response to client (optional)</label><input style="width:100%;" placeholder="e.g. Updated Forms to the rate we discussed" oninput="st.proposal.salesResponse=this.value"></div><button class="btn btn-red" onclick="salesSendProposal()">Send updated proposal (V'+(p.version+1)+') →</button>';
+    else if(p.status==='draft') actions='<button class="btn btn-primary" '+(st.approval==='needed'?'disabled':'')+' onclick="salesSendProposal()">Send proposal to client →</button>';
+    else actions='<button class="btn btn-ghost" onclick="setView(\'client\')">Switch to Client view →</button>';
+
+    return banner
+      +'<div class="sec-title">Proposal setup</div>'
+      +'<div class="form-grid"><div><label>Account Manager</label><input value="'+st.accountManager+'" '+dis+'></div><div><label>Client Type</label><select '+dis+'><option>Standard</option><option>Enterprise</option></select></div><div><label>Pricing Model <span style="color:#aab;">(in system)</span></label><select '+dis+'><option>Per user / month — Model A</option><option>Model B</option><option>Transactional</option></select></div><div><label>User Count</label><input type="number" value="'+st.users+'" '+dis+' onchange="salesSetUsers(this.value)"></div></div>'
+      +'<div style="margin:14px 0 8px;font-size:12px;color:#667;">Modules &amp; pricing — edit a price to make it custom (triggers approval):</div><div class="mod-list">'+rows+'</div>'
+      +'<div class="form-grid" style="margin-top:14px;"><div><label>Onboarding Fee</label><input value="'+money(st.onboardingFee)+'" '+dis+'></div><div><label>Fee Start Date</label><input value="'+st.feeStart+'" '+dis+'></div></div>'
+      +'<div style="margin-top:14px;">'+priceSummary()+'</div>'
+      +'<div class="sec-title mt">Client details <span style="font-weight:400;text-transform:none;color:#889;">— pre-fill what you know, or leave for the client</span></div>'
+      +'<div class="form-grid"><div class="full"><label>Legal Company Name</label><input value="'+esc(st.details.legal)+'" '+dis+'></div><div><label>Billing / Contract Contact</label><input placeholder="(client will complete)" '+dis+'></div><div><label>Authorized Signatory</label><input placeholder="(client will complete)" '+dis+'></div></div>'
+      +'<div class="nav-row">'+actions+'</div>';
+  }
+
+  function wsAgreement(){
+    var a=st.agreement;
+    var banner='';
+    if(a.status==='returned') banner='<div class="banner-line bl-return"><span class="ico">↩</span><div><strong>Client returned the agreement V'+a.version+':</strong><br>“'+esc(a.clientComment)+'”<br>Revise or re-upload, then resend.</div></div>';
+    else if(a.status==='signed') banner='<div class="banner-line bl-ok"><span class="ico">✓</span><div>Agreement <strong>signed</strong> by the client. Payment unlocks next.</div></div>';
+    else if(a.status==='sent') banner='<div class="banner-line bl-info"><span class="ico">⌛</span><div>Agreement V'+a.version+' is with the client for signature.</div></div>';
+    else banner='<div class="banner-line bl-info"><span class="ico">ℹ</span><div>You can prepare the agreement <strong>at any point</strong> — even before pricing is accepted. Use our system template or upload a custom contract.</div></div>';
+
+    var locked = a.status==='sent'||a.status==='signed';
+    var srcUI = '<div class="src-toggle"><button class="'+(a.source==='system'?'active':'')+'" '+(locked?'disabled':'')+' onclick="salesSetAgreementSource(\'system\')">System template</button><button class="'+(a.source==='upload'?'active':'')+'" '+(locked?'disabled':'')+' onclick="salesSetAgreementSource(\'upload\')">Upload custom contract</button></div>';
+    var body;
+    if(a.source==='system'){
+      body='<div class="banner-line bl-ok" style="margin-bottom:0;"><span class="ico">📄</span><div>System subscription agreement will be generated from the plan (modules, pricing, onboarding fee). No upload needed.</div></div>';
+    } else {
+      body = a.file
+        ? '<div class="upfile"><div class="ico">PDF</div><div style="flex:1;"><div style="font-weight:600;">'+a.file+'</div><div style="font-size:11px;color:#889;">Custom contract · uploaded</div></div>'+(locked?'':'<button class="btn btn-ghost btn-sm" onclick="st.agreement.file=null;render()">Remove</button>')+'</div>'
+        : '<div class="upzone"><div class="big">⬆</div><div>Drag a contract here, or</div><button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="salesUploadFile()">Choose file…</button></div>';
+    }
+    var canSend = a.source==='system' || a.file;
+    var actions;
+    if(a.status==='returned') actions='<div style="margin-bottom:10px;"><label>What changed (optional)</label><input style="width:100%;" placeholder="e.g. Adjusted liability clause per your note" oninput="st.agreement.salesNote=this.value"></div><button class="btn btn-red" '+(canSend?'':'disabled')+' onclick="salesSendAgreement()">Send revised agreement (V'+(a.version+1)+') →</button>';
+    else if(a.status==='none') actions='<button class="btn btn-primary" '+(canSend?'':'disabled')+' onclick="salesSendAgreement()">Send for signature →</button>';
+    else actions='<button class="btn btn-ghost" onclick="setView(\'client\')">Switch to Client view →</button>';
+
+    return banner+'<div class="sec-title">Agreement source</div>'+srcUI+body+'<div class="nav-row">'+actions+'</div>';
+  }
+
+  function wsPayment(){
+    var pay=st.payment, a=st.agreement, c=calc();
+    if(pay.status==='paid'){
+      return '<div class="banner-line bl-ok"><span class="ico">✓</span><div><strong>Payment received</strong> — '+money(st.onboardingFee)+' via '+pay.method+'.</div></div>'
+        +'<div class="summary" style="margin-bottom:14px;"><div class="row"><span>Onboarding fee (paid)</span><strong>'+money(st.onboardingFee)+'</strong></div><div class="row faint"><span>Monthly subscription (starts when live)</span><span>'+money(c.total)+' / mo</span></div></div>'
+        +'<div class="banner-line bl-info" style="margin-bottom:0;"><span class="ico">➡</span><div><strong>This ticket’s scope ends here.</strong> Payment received triggers the hand-off to the <strong>CE (Client Experience) team</strong>, who create the portal (manual today, automation planned) and push it live. The client’s first login shows the pricing-confirmation / welcome page. <em>All downstream of this ticket.</em></div></div>';
+    }
+    var reason = a.status==='signed' ? 'Invoice sent — awaiting the client’s payment.' : 'Payment becomes available to the client once the <strong>agreement is signed</strong>.';
+    return '<div class="banner-line bl-info"><span class="ico">💳</span><div>'+reason+'</div></div>'
+      +'<div class="summary"><div class="row"><span>One-time onboarding fee (due)</span><strong>'+money(st.onboardingFee)+'</strong></div><div class="row faint"><span>Monthly subscription</span><span>'+money(c.total)+' / mo</span></div></div>'
+      +'<div style="margin-top:12px;font-size:12px;color:#889;">Payment mechanism is still being confirmed with Accounting — the client-side methods shown are placeholders.</div>';
+  }
+
+  /* ---- CLIENT (persistent page) ---- */
+  function renderClient(){
+    var url='<div class="urlbar">🔒 <span class="u">'+st.clientUrl+'</span><span class="persist">This link stays the same — it updates as BIS makes changes.</span></div>';
+    var p=st.proposal.status,a=st.agreement.status,pay=st.payment.status;
+    if(p==='draft') return clientShell(url+'<div class="waiting"><div class="big">📭</div><p style="margin-top:8px;">Nothing here yet.</p><p style="font-size:12px;">Switch to <strong>Sales</strong> and send a proposal first.</p></div>');
+
+    // checklist
+    var s1 = p==='approved'?'done':(p==='returned'?'active':'active');
+    var s1s = p==='approved'?'Approved':(p==='returned'?'Returned for review':'Review &amp; respond');
+    var s2cls = a==='signed'?'done':(a==='sent'||a==='returned'?'active':(p==='approved'?'active':'locked'));
+    var s2s = a==='signed'?'Signed':(a==='sent'?'Ready to sign':(a==='returned'?'Returned for review':(p==='approved'?'BIS preparing…':'Not yet')));
+    var s3cls = pay==='paid'?'done':(a==='signed'?'active':'locked');
+    var s3s = pay==='paid'?'Paid':(a==='signed'?'Ready':'Locked');
+    var checklist='<div class="checklist">'
+      +'<div class="cl-step '+s1+'"><div class="h"><span class="cl-dot">'+(p==='approved'?'✓':'1')+'</span> Proposal</div><div class="s">'+s1s+'</div></div>'
+      +'<div class="cl-step '+s2cls+'"><div class="h"><span class="cl-dot">'+(a==='signed'?'✓':'2')+'</span> Agreement</div><div class="s">'+s2s+'</div></div>'
+      +'<div class="cl-step '+s3cls+'"><div class="h"><span class="cl-dot">'+(pay==='paid'?'✓':'3')+'</span> Payment</div><div class="s">'+s3s+'</div></div>'
+      +'</div>';
+
+    var inner;
+    if(p==='returned') inner='<div class="waiting"><div class="big">📨</div><p style="margin-top:8px;">You sent your proposal back to BIS.</p><p style="font-size:12px;">“'+esc(st.proposal.clientComment)+'”</p><p style="font-size:12px;margin-top:8px;">Switch to <strong>Sales</strong> for their updated response.</p></div>';
+    else if(p==='sent') inner=clientProposal();
+    else if(p==='approved' && a==='none') inner='<div class="waiting"><div class="big">⌛</div><p style="margin-top:8px;">Proposal approved — thank you!</p><p style="font-size:12px;">BIS is preparing your agreement. You’ll get an email when it’s ready to sign.</p></div>';
+    else if(a==='returned') inner='<div class="waiting"><div class="big">📨</div><p style="margin-top:8px;">You returned the agreement with changes.</p><p style="font-size:12px;">“'+esc(st.agreement.clientComment)+'”</p><p style="font-size:12px;margin-top:8px;">Switch to <strong>Sales</strong> for a revised version.</p></div>';
+    else if(a==='sent') inner=clientAgreement();
+    else if(a==='signed' && pay!=='paid') inner=clientPayment();
+    else if(pay==='paid') inner=clientDone();
+    return clientShell(url+checklist+inner);
+  }
+  function clientShell(inner){ return '<div class="persp-head client"><span class="tag">CLIENT</span><h2>Your BIS Safety onboarding</h2><div class="meta">'+st.company+'<br>From: '+st.accountManager+', BIS</div></div><div class="card"><div class="body">'+inner+'</div></div>'; }
+
+  function clientProposal(){
+    var resp=(st.proposal.version>1&&st.proposal.salesResponse)?'<div class="banner-line bl-ok"><span class="ico">✓</span><div><strong>BIS responded (V'+st.proposal.version+'):</strong> '+esc(st.proposal.salesResponse)+'</div></div>':'';
+    var mods=CATALOG.map(function(m){var on=st.enabled[m.id];return '<div class="cmod '+(on?'on':'')+'"><div class="toggle '+(on?'on':'')+'" onclick="clientToggle(\''+m.id+'\')"></div><span class="m-name">'+m.name+'</span><span class="m-price">'+money(st.price[m.id])+' / user</span></div>';}).join('');
+    return resp+'<div class="banner-line bl-info"><span class="ico">📧</span><div>'+st.accountManager+' sent you a proposal. Review the plan, add your details, then return it with a note or continue to signing.</div></div>'
+      +'<div class="sec-title">Your proposed plan</div><div class="plan-grid"><div><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><label style="margin:0;">Users</label><input type="number" style="width:90px;" value="'+st.users+'" onchange="clientSetUsers(this.value)"><span style="font-size:11px;color:#889;">tweak modules &amp; team size freely</span></div>'+mods+'<div class="locked-note">🔒 Per-module rates, pricing model &amp; discount are set by BIS — to change those, use “Save &amp; return for review”.</div></div>'+priceSummary()+'</div>'
+      +'<div class="sec-title mt">Your details</div><div class="form-grid">'+cf('legal','Legal Company Name',1,'full')+cf('name','Your Name',1)+cf('email','Work Email',1)+cf('phone','Phone',0)+cf('tax','Tax ID / GST #',1)+cf('addr','Billing Address',1,'full')+cf('sig','Authorized Signatory',1)+'<div><label>Time Zone</label><select id="c-tz"><option>Mountain (MST/MDT)</option><option>Pacific (PST/PDT)</option><option>Eastern (EST/EDT)</option></select></div></div>'
+      +'<div class="sec-title mt">When you’re ready</div><div class="fork"><div class="opt"><h4>💬 Save &amp; return for review</h4><p>Saves your details and sends the proposal back to BIS with a note — for a price change, a different module set, or any question.</p><input id="cReturnComment" style="width:100%;margin-bottom:8px;" placeholder="e.g. This wasn’t the per-user rate we discussed…"><button class="btn btn-outline" onclick="clientReturnProposal()">Save &amp; return for review</button></div><div class="opt"><h4>✓ Everything looks good</h4><p>Approve the plan as-is and continue to the agreement.</p><button class="btn btn-success" onclick="clientApproveProposal()">Approve &amp; continue →</button></div></div>';
+  }
+  function cf(id,label,req,full){ return '<div class="'+(full||'')+'"><label>'+label+(req?' <span class="req">*</span>':'')+'</label><input id="c-'+id+'" value="'+esc(st.details[id]||'')+'"></div>'; }
+
+  function clientAgreement(){
+    var a=st.agreement, c=calc();
+    var revised=(a.version>1&&a.salesNote)?'<div class="banner-line bl-ok"><span class="ico">✓</span><div><strong>BIS revised the agreement (V'+a.version+'):</strong> '+esc(a.salesNote)+'</div></div>':'';
+    var doc;
+    if(a.source==='upload' && a.file){
+      doc='<div class="upfile"><div class="ico">PDF</div><div style="flex:1;"><div style="font-weight:600;">'+a.file+'</div><div style="font-size:11px;color:#889;">Custom contract from BIS · <a>Download</a></div></div></div>'
+        +'<div style="font-size:12px;color:#889;margin-top:8px;">Review the attached document, then sign below.</div>';
+      // custom upload: no scroll gate, allow sign after ack+name
+      if(!a.scrolled){ st.agreement.scrolled=true; }
+    } else {
+      var rows=CATALOG.filter(function(m){return st.enabled[m.id];}).map(function(m){return '<tr><td>'+m.name+'</td><td style="text-align:right;">'+money(st.price[m.id])+'</td><td style="text-align:right;">'+st.users+'</td><td style="text-align:right;">'+money(st.price[m.id]*st.users)+'</td></tr>';}).join('');
+      var plan='<div style="background:#f8fafb;border:1px solid #e6ebef;border-radius:6px;padding:12px 14px;margin-bottom:8px;"><div style="font-weight:600;margin-bottom:6px;">Plan Summary — '+esc(st.details.legal)+'</div><table style="width:100%;border-collapse:collapse;font-size:12.5px;"><thead><tr><th style="text-align:left;color:#889;padding:4px 8px;">Module</th><th style="text-align:right;color:#889;padding:4px 8px;">$/user/mo</th><th style="text-align:right;color:#889;padding:4px 8px;">Users</th><th style="text-align:right;color:#889;padding:4px 8px;">Subtotal</th></tr></thead><tbody>'+rows+'</tbody></table><div style="display:flex;justify-content:space-between;padding:8px 8px 0;"><span>Monthly total</span><strong>'+money(c.total)+'</strong></div></div>';
+      var terms='<h4>1. Subscription &amp; Fees</h4><p>Customer subscribes to the modules above on a per-user, per-month basis. A one-time onboarding fee of '+money(st.onboardingFee)+' is due upon approval.</p><h4>2. Term</h4><p>Begins when the portal is provisioned; month-to-month unless otherwise agreed. 30 days’ notice to cancel.</p><h4>3. Billing</h4><p>Monthly fees invoiced in advance, payable within 30 days.</p><h4>4. Module Changes</h4><p>Self-serve add/remove from the Pricing Dashboard; removing a module with data requires a data purge.</p><h4>5. Acceptance</h4><p>Typing your full legal name below has the same effect as a handwritten signature.</p>';
+      doc='<div class="tc-scroll" onscroll="agScroll(this)">'+plan+terms+'<div class="tc-eof">— End of agreement —</div></div>'+(a.scrolled?'':'<span class="scroll-hint">▼ Scroll to the bottom to enable signing</span>');
+    }
+    var ready=a.scrolled;
+    return revised+'<div class="banner-line bl-info"><span class="ico">✍</span><div>Review your agreement. If something needs changing, return it to BIS — otherwise sign to continue.</div></div>'
+      +doc
+      +'<div class="sign-box"><div class="ack"><input type="checkbox" id="ackChk" '+(ready?'':'disabled')+' '+(a.ack?'checked':'')+' onchange="st.agreement.ack=this.checked;syncSign()"><label for="ackChk" style="margin:0;color:#333;">I have read and agree to these terms and I’m authorized to sign for my organization.</label></div><label>Type your full name to sign</label><input class="sign-input" id="signName" value="'+esc(a.sign)+'" oninput="st.agreement.sign=this.value;syncSign()" placeholder="Your full name"></div>'
+      +'<div class="fork" style="margin-top:14px;"><div class="opt"><h4>💬 Return for review</h4><p>Send the agreement back to BIS with requested changes.</p><input id="agReturnComment" style="width:100%;margin-bottom:8px;" placeholder="e.g. Please adjust the liability clause…"><button class="btn btn-outline" onclick="clientReturnAgreement()">Return for review</button></div><div class="opt"><h4>✓ Sign &amp; continue</h4><p>Approve the agreement and move to payment.</p><button class="btn btn-success" id="signBtn" onclick="clientSign()">✓ Sign &amp; continue →</button></div></div>';
+  }
+
+  function clientPayment(){
+    var c=calc();
+    return '<div class="banner-line bl-info"><span class="ico">💳</span><div>Last step — your first payment. <em>The actual method is still being confirmed with Accounting; these are placeholders.</em></div></div>'
+      +'<div class="summary" style="margin-bottom:14px;"><div class="row"><span>One-time onboarding fee (due today)</span><strong>'+money(st.onboardingFee)+'</strong></div><div class="row faint"><span>Monthly subscription (starts when live)</span><span>'+money(c.total)+' / mo</span></div></div>'
+      +'<div class="pay-choices">'+payCard('card','💳','Credit Card','instant')+payCard('eft','🏦','EFT / ACH','2–3 days')+payCard('wire','📄','Invoice / Wire','emailed')+'</div>'
+      +'<div class="nav-row"><span class="sp"></span><button class="btn btn-success" '+(st.payment.method?'':'disabled')+' onclick="clientPay()">Pay '+money(st.onboardingFee)+' &amp; finish →</button></div>';
+  }
+  function payCard(id,ico,lbl,sub){ return '<div class="pay-card '+(st.payment.method===id?'sel':'')+'" onclick="selPay(\''+id+'\')"><div class="ico">'+ico+'</div><div class="lbl">'+lbl+'</div><div class="sub">'+sub+'</div></div>'; }
+
+  function clientDone(){
+    var c=calc(); var mods=CATALOG.filter(function(m){return st.enabled[m.id];}).map(function(m){return m.name;}).join(', ');
+    return '<div class="waiting"><div class="done-check">✓</div><h2 style="font-size:20px;color:#191919;">You’re all set!</h2><p style="color:#667;max-width:480px;margin:8px auto 0;">Your sign-up is complete. BIS will email <strong>'+esc(st.details.email||'you')+'</strong> your welcome details once your portal is built.</p>'
+      +'<div class="summary" style="display:inline-block;text-align:left;margin-top:16px;min-width:320px;"><div class="row"><span>Company</span><strong>'+esc(st.details.legal)+'</strong></div><div class="row"><span>Modules</span><strong>'+mods+'</strong></div><div class="row"><span>Monthly</span><strong>'+money(c.total)+' / mo</strong></div><div class="row"><span>Onboarding fee</span><strong>'+money(st.onboardingFee)+' ✓</strong></div></div>'
+      +'<p style="font-size:11.5px;color:#99a;margin-top:14px;">Next (downstream / out of scope): CE builds your portal → first-login pricing confirmation → live.</p></div>';
+  }
+
+  /* ---- EMAILS ---- */
+  function renderEmails(){
+    if(!st.emails.length) return '<div class="card solo"><div class="body"><div class="waiting"><div class="big">📭</div><p style="margin-top:8px;">No emails yet.</p><p style="font-size:12px;">BIS notifications will appear here as the proposal / agreement move along.</p></div></div></div>';
+    return '<div class="email-list">'+st.emails.map(function(e){
+      return '<div class="email"><div class="eh"><div class="avatar">B</div><div><div class="subj">'+esc(e.subject)+'</div><div class="to">BIS Safety Software → '+esc(st.details.email||'you@'+(st.details.legal||'company').toLowerCase().replace(/[^a-z]/g,'')+'.com')+'</div></div><div class="when">'+e.when+'</div></div>'
+        +'<div class="eb"><p>Hi '+(esc(st.details.name)||'there')+',</p><p style="margin-top:6px;">'+esc(e.intro)+'</p>'
+        +(e.changes.length?'<div class="changes"><b>What’s in this update:</b><ul>'+e.changes.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div>':'')
+        +'<div class="cta"><button class="btn btn-primary btn-sm" onclick="setView(\'client\')">Review &amp; respond →</button> <span style="font-size:11px;color:#99a;">opens '+st.clientUrl+'</span></div>'
+        +'<div class="foot">This link is your single onboarding page — it always shows the latest. BIS Safety Software · Sherwood Park, AB</div></div></div>';
+    }).join('')+'</div>';
+  }
+
+  function syncSign(){ var b=document.getElementById('signBtn'); if(!b) return; b.disabled=!(st.agreement.scrolled && st.agreement.ack && (st.agreement.sign||'').trim().length>=2); }
+
+  st=fresh(); render();
+  </script>
+</body>
+</html>

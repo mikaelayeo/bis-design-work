@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  PROPOSAL / SOLUTION DOC — TEMPLATE
+  ----------------------------------------------------------------------------
+  Reusable structure for a BIS "proposal doc", matching the Figma Proposal
+  Template (Internal Projects file, node 37:3092) — same top-bar chrome as
+  the interactive prototype template, just a green "Proposal Document"
+  badge instead of blue "Prototype", and no Reset button. To adapt for
+  another ticket:
+    1. Update .topbar (ticket #, project/feature name, date). Badge stays
+       "Proposal Document - v1" (bump the version number on real re-drafts).
+    2. Update .sub (one-line scope description) and .meta badges (round /
+       prepared-for / date) + the prototype-link button if one exists.
+    3. Keep the legend to the tags you use (reused = already live, new = proposed).
+       Open questions do NOT live in this doc — they go in review comments.
+    4. Each flow step = one <section> with an id="sec-x" (x = a, b, c…):
+         .section__title  (letter + heading + reused/new tag)
+         .section__body   (a near-production mock of that screen/step)
+         .section__note   ("Confirmed: ..." — decisive, no open questions)
+    5. Table of contents (aside.toc) on the LEFT — one link per lettered
+       section (href="#sec-x"). Keep the TOC labels short (shorter than the
+       section headings). The .topbar and .toc are BOTH sticky, and a small
+       scroll-spy script highlights the current section as you scroll. When
+       you add/remove/reletter a section, update the matching TOC <a>.
+    6. Tags/badges use the same pill treatment (rounded-12px, subtle shadow)
+       as the top-bar badge — one badge component, reused everywhere instead
+       of a separate "tag" look.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TKT-20669 — New Client Intake / Setup Workflow — Proposal</title>
+  <style>
+    /* === BIStrainer UI Library design tokens === */
+    :root {
+      --surface-primary: #0078b3;
+      --surface-primary-lightest: #f2fcff;
+      --surface-success: #167b00;
+      --surface-success-lightest: #fafff2;
+      --surface-warning: #a1851f;
+      --surface-warning-lightest: #fffcf2;
+      --surface-error: #cc2222;
+      --surface-error-lightest: #fff2f2;
+      --surface-secondary-subtle: #f8f8f9;
+      --text-default: #191919;
+      --text-secondary: #666666;
+      --text-on-surface: #feffff;
+      --surface-default: #feffff;
+      --stroke-default: #b2b2b3;
+      --stroke-default-light: #e2e2e3;
+      --stroke-default-dark: #4d4c4c;
+      --bis-red: #b81f2d;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif; font-size: 14px; background: var(--surface-secondary-subtle); color: var(--text-default);
+      line-height: 1.5;
+    }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 58px; }
+
+    /* --- template chrome (matches the prototype template's top bar) --- */
+    .topbar { background: var(--surface-default); border-bottom: 1px solid var(--stroke-default-light); display: flex; align-items: center; gap: 10px; padding: 6px 16px; flex-wrap: wrap; position: sticky; top: 0; z-index: 10; }
+    .t-ticket { font-size: 16px; font-weight: 600; color: var(--text-default); }
+    .t-project { font-size: 14px; color: var(--text-default); }
+    .t-date { font-size: 12px; color: var(--text-default); }
+    .badge-pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; box-shadow: 0 0 4px rgba(0,0,0,.15); white-space: nowrap; }
+    .badge-pill.primary { background: var(--surface-primary-lightest); color: var(--surface-primary); }
+    .badge-pill.success { background: var(--surface-success-lightest); color: var(--surface-success); }
+
+    .page { max-width: 1280px; margin: 0 auto; padding: 20px 24px 60px; display: flex; gap: 28px; align-items: flex-start; }
+    .content { flex: 1; min-width: 0; max-width: 940px; }
+
+    /* --- table of contents (left rail) --- */
+    .toc { width: 218px; flex-shrink: 0; position: sticky; top: 58px; }
+    .toc-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-secondary); padding: 0 10px 8px; }
+    .toc a { display: block; font-size: 12.5px; color: #556; padding: 6px 10px; border-left: 2px solid transparent; border-radius: 0 4px 4px 0; text-decoration: none; line-height: 1.35; }
+    .toc a:hover { background: var(--surface-secondary-subtle); color: var(--text-default); }
+    .toc a.active { color: var(--surface-primary); border-left-color: var(--surface-primary); background: var(--surface-primary-lightest); font-weight: 600; }
+    .toc a .l { display: inline-block; width: 15px; color: #99a; font-weight: 700; }
+    .toc a.active .l { color: var(--surface-primary); }
+
+    @media (max-width: 860px) { .page { flex-direction: column; } .toc { position: static; width: 100%; display: flex; flex-wrap: wrap; gap: 2px; } .toc-head { width: 100%; } }
+
+    /* --- doc chrome --- */
+    .page-header { margin-bottom: 18px; }
+    .page-header .sub { font-size: 13.5px; color: #444; }
+    .page-header .meta { font-size: 12px; color: #666; margin-top: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .badge { display: inline-block; font-size: 11.5px; font-weight: 500; background: var(--surface-secondary-subtle); border: 1px solid var(--stroke-default-light); color: #556; border-radius: 4px; padding: 4px 9px; }
+    .proto-link { margin-left: auto; }
+    .proto-link a { display: inline-flex; align-items: center; gap: 6px; background: var(--surface-primary); color: #fff; font-weight: 600; font-size: 12.5px; padding: 7px 14px; border-radius: 4px; }
+
+    .legend { display: flex; gap: 18px; flex-wrap: wrap; background: var(--surface-default); border: 1px solid var(--stroke-default-light); border-radius: 6px; padding: 10px 14px; margin: 22px 0; font-size: 12px; color: #444; }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .dot.reused { background: var(--surface-success); }
+    .dot.new { background: var(--surface-primary); }
+
+    .section { background: var(--surface-default); border: 1px solid var(--stroke-default-light); border-radius: 6px; overflow: hidden; margin-bottom: 20px; }
+    .section__title { background: var(--surface-secondary-subtle); border-bottom: 1px solid var(--stroke-default-light); padding: 10px 16px; font-size: 13.5px; font-weight: 700; color: var(--text-default); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .section__title .sp { flex: 1; }
+    .tag { display: inline-flex; align-items: center; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; border-radius: 12px; padding: 2px 9px; white-space: nowrap; box-shadow: 0 0 4px rgba(0,0,0,.15); }
+    .tag.reused { background: var(--surface-success-lightest); color: var(--surface-success); }
+    .tag.new { background: var(--surface-primary-lightest); color: var(--surface-primary); }
+    .section__body { padding: 16px; }
+    .section__note { font-size: 12px; color: #555; padding: 11px 16px; background: var(--surface-secondary-subtle); border-top: 1px dashed var(--stroke-default-light); }
+    .section__note b { color: #333; }
+    .lede { font-size: 12.5px; color: #555; margin-bottom: 14px; }
+    .sub-h { font-size: 12px; font-weight: 700; color: #556; margin: 16px 0 8px; text-transform: uppercase; letter-spacing: .03em; }
+
+    /* --- shared control styles (static mocks) --- */
+    .ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 14px; border-radius: 4px; border: none; font-family: "Segoe UI", system-ui, sans-serif; font-size: 13px; font-weight: 600; }
+    .ds-btn--primary { background: var(--surface-primary); color: #fff; }
+    .ds-btn--success { background: var(--surface-success); color: #fff; }
+    .ds-btn--red { background: var(--bis-red); color: #fff; }
+    .ds-btn--outline { background: #fff; color: var(--surface-primary); border: 1px solid var(--surface-primary); }
+    .ds-btn--ghost { background: #fff; color: var(--text-secondary); border: 1px solid var(--stroke-default); }
+    .ds-btn--warning { background: var(--surface-warning); color: #fff; }
+    .ds-btn--sm { padding: 4px 10px; font-size: 12px; }
+
+    .status-chip { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; white-space: nowrap; }
+    .sc-grey { background: #eceff2; color: #556; } .sc-blue { background: #eef7ff; color: #0078b3; }
+    .sc-red { background: #fff2f2; color: #cc2222; } .sc-green { background: #fafff2; color: #167b00; }
+    .sc-navy { background: #f2f7ff; color: #35507a; }
+    .sc-amber { background: var(--surface-warning-lightest); color: var(--surface-warning); }
+
+    .fieldrow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+    .fieldrow .full { grid-column: 1 / -1; }
+    .field label { display: block; font-size: 11px; color: #667; margin-bottom: 3px; }
+    .field input, .field select { width: 100%; border: 1px solid var(--stroke-default); border-radius: 4px; padding: 7px 9px; font-size: 13px; background: #fff; font-family: inherit; }
+
+    .banner-line { display: flex; gap: 10px; align-items: flex-start; border-radius: 6px; padding: 11px 14px; font-size: 12.5px; margin: 12px 0; }
+    .banner-line .ico { flex-shrink: 0; font-size: 15px; line-height: 1.3; }
+    .bl-warn { background: var(--surface-warning-lightest); border: 1px solid #e8d98a; border-left: 4px solid var(--surface-warning); color: #6b5800; }
+    .bl-return { background: var(--surface-error-lightest); border: 1px solid #f0c2c2; border-left: 4px solid var(--surface-error); color: #7a1f1f; }
+    .bl-info { background: var(--surface-primary-lightest); border: 1px solid #b6dcfa; border-left: 4px solid var(--surface-primary); color: #0c5460; }
+    .bl-ok { background: var(--surface-success-lightest); border: 1px solid #bfe0b0; border-left: 4px solid var(--surface-success); color: #14520a; }
+
+    /* flow diagram */
+    .flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .flow-col { display: flex; flex-direction: column; gap: 6px; }
+    .flow-box { border: 1.5px solid var(--surface-primary); border-radius: 6px; background: var(--surface-primary-lightest); padding: 9px 11px; font-size: 11.5px; font-weight: 600; color: #14384f; text-align: center; min-width: 130px; }
+    .flow-box small { display: block; font-weight: 400; color: #778; font-size: 10.5px; margin-top: 2px; }
+    .flow-box.hub { min-width: 168px; }
+    .flow-box.end { border-color: var(--surface-success); background: var(--surface-success-lightest); color: #14520a; }
+    .flow-box.oos { border: 1.5px dashed var(--stroke-default); background: #f6f6f6; color: #999; }
+    .flow-arrow { color: #99a; font-size: 16px; }
+
+    /* companies list mock */
+    .bis-bar { background: var(--bis-red); color: #fff; padding: 9px 14px; border-radius: 6px 6px 0 0; display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 600; }
+    .bis-bar .fees { margin-left: auto; font-weight: 400; font-size: 11.5px; opacity: .92; }
+    .list-tabs { display: flex; background: #fff; border-left: 1px solid #e2e6ea; border-right: 1px solid #e2e6ea; padding: 8px 12px 0; align-items: center; }
+    .list-tabs .lt { padding: 7px 12px; font-size: 12px; color: #667; border-bottom: 3px solid transparent; }
+    .list-tabs .lt.active { color: var(--surface-primary); border-bottom-color: var(--surface-primary); font-weight: 700; }
+    .list-tabs .lt .n { background: var(--surface-warning); color: #fff; border-radius: 8px; padding: 0 6px; font-size: 10px; margin-left: 4px; }
+    .list-tabs .start { margin-left: auto; }
+    .ltable { width: 100%; border-collapse: collapse; font-size: 12px; background: #fff; border: 1px solid #e2e6ea; }
+    .ltable th { background: var(--surface-success); color: #fff; text-align: left; padding: 7px 12px; font-size: 10.5px; font-weight: 600; }
+    .ltable td { padding: 9px 12px; border-bottom: 1px solid #f0f2f4; }
+    .callout { background: var(--surface-primary-lightest); border: 1px solid #b6dcfa; border-radius: 6px; padding: 10px 14px; font-size: 12.5px; color: #0c5460; margin-top: 12px; display: flex; gap: 8px; }
+
+    /* workspace tabs */
+    .ws-tabs { display: flex; background: #fff; border: 1px solid #e2e6ea; border-bottom: none; border-radius: 6px 6px 0 0; padding: 0 12px; }
+    .ws-tab { padding: 10px 14px; font-size: 12.5px; color: #667; border-bottom: 3px solid transparent; display: flex; align-items: center; gap: 6px; }
+    .ws-tab.active { color: var(--bis-red); border-bottom-color: var(--bis-red); font-weight: 700; }
+    .ws-tab .mini { font-size: 9px; padding: 1px 6px; border-radius: 8px; }
+    .ws-panel { border: 1px solid #e2e6ea; border-top: none; border-radius: 0 0 6px 6px; padding: 14px; background: #fff; }
+
+    /* module rows */
+    .mod-list { border: 1px solid #e6ebef; border-radius: 6px; overflow: hidden; }
+    .mod-row { display: grid; grid-template-columns: 40px 1.1fr 1fr 100px; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid #f0f2f4; font-size: 12.5px; }
+    .mod-row:last-child { border-bottom: none; }
+    .mod-row .m-name { font-weight: 600; }
+    .mod-row .m-std { color: #889; font-size: 11px; }
+    .toggle { width: 34px; height: 19px; background: #ccd3da; border-radius: 11px; position: relative; flex-shrink: 0; }
+    .toggle.on { background: var(--surface-success); }
+    .toggle::after { content: ''; position: absolute; width: 15px; height: 15px; background: #fff; border-radius: 50%; top: 2px; left: 2px; }
+    .toggle.on::after { left: 17px; }
+    .price-in { width: 96px; text-align: right; border: 1px solid var(--stroke-default); border-radius: 4px; padding: 5px 8px; font-size: 12.5px; }
+    .price-in.custom { border-color: var(--surface-warning); background: var(--surface-warning-lightest); }
+
+    .summary { background: #f8fafb; border: 1px solid #e6ebef; border-radius: 6px; padding: 12px 14px; }
+    .summary .row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12.5px; }
+    .summary .row.faint { color: #889; font-size: 11.5px; }
+    .summary .row.discount { color: var(--surface-success); }
+    .summary .row.total { border-top: 2px solid #222; margin-top: 5px; padding-top: 7px; font-weight: 700; font-size: 14px; }
+
+    /* email + url */
+    .urlbar { display: flex; align-items: center; gap: 8px; background: #eef1f4; border: 1px solid #dce2e8; border-radius: 6px; padding: 7px 12px; font-size: 12px; color: #556; }
+    .urlbar .u { font-family: ui-monospace, Menlo, Consolas, monospace; color: #334; }
+    .urlbar .persist { margin-left: auto; font-size: 11px; color: #778; }
+    .email { border: 1px solid #e2e6ea; border-radius: 8px; overflow: hidden; }
+    .email .eh { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #eef0f2; background: #fafcfe; }
+    .email .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--bis-red); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex-shrink: 0; }
+    .email .subj { font-weight: 600; font-size: 13px; } .email .to { font-size: 11px; color: #889; }
+    .email .when { margin-left: auto; font-size: 11px; color: #99a; }
+    .email .eb { padding: 13px; font-size: 12.5px; color: #333; }
+    .email .changes { background: #f8fafb; border: 1px solid #e6ebef; border-radius: 6px; padding: 9px 12px; margin: 9px 0; }
+    .email .changes b { color: #35507a; } .email .changes ul { margin: 4px 0 0 18px; }
+
+    /* client plan review */
+    .plan-grid { display: grid; grid-template-columns: 1fr 230px; gap: 16px; align-items: start; }
+    .cmod { display: flex; align-items: center; gap: 10px; border: 1px solid #e6ebef; border-radius: 6px; padding: 8px 12px; margin-bottom: 6px; font-size: 12.5px; }
+    .cmod.on { border-color: var(--surface-success); background: var(--surface-success-lightest); }
+    .cmod .m-name { font-weight: 600; } .cmod .m-price { margin-left: auto; color: #667; font-size: 12px; }
+    .locked-note { font-size: 11px; color: #889; margin-top: 8px; }
+    .fork { display: flex; gap: 12px; flex-wrap: wrap; }
+    .fork .opt { flex: 1; min-width: 230px; border: 1px solid #e6ebef; border-radius: 8px; padding: 14px; }
+    .fork .opt h4 { font-size: 12.5px; margin-bottom: 4px; } .fork .opt p { font-size: 11.5px; color: #778; margin-bottom: 10px; }
+
+    /* checklist */
+    .checklist { display: flex; gap: 8px; flex-wrap: wrap; }
+    .cl-step { flex: 1; min-width: 140px; border: 1px solid #e2e6ea; border-radius: 6px; padding: 9px 12px; font-size: 12px; }
+    .cl-step.done { border-color: #bfe0b0; background: var(--surface-success-lightest); }
+    .cl-step.active { border-color: var(--surface-primary); background: var(--surface-primary-lightest); }
+    .cl-step .h { font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .cl-step .s { font-size: 11px; margin-top: 2px; color: #667; }
+    .cl-dot { width: 16px; height: 16px; border-radius: 50%; background: #ccd3da; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; }
+    .cl-step.done .cl-dot { background: var(--surface-success); } .cl-step.active .cl-dot { background: var(--surface-primary); }
+
+    /* activity */
+    .activity { list-style: none; font-size: 12px; border: 1px solid #eef0f2; border-radius: 6px; padding: 10px 12px; background: #fafcfe; }
+    .activity li { display: flex; gap: 10px; padding: 5px 0; border-bottom: 1px dashed #eef0f2; }
+    .activity li:last-child { border-bottom: none; }
+    .activity .a-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--surface-primary); margin-top: 4px; flex-shrink: 0; }
+    .activity .a-when { color: #99a; font-size: 11px; }
+
+    /* agreement + payment */
+    .src-toggle { display: inline-flex; border: 1px solid var(--stroke-default); border-radius: 6px; overflow: hidden; margin-bottom: 10px; }
+    .src-toggle span { background: #fff; padding: 7px 14px; font-size: 12px; border-right: 1px solid #e2e6ea; }
+    .src-toggle span:last-child { border-right: none; }
+    .src-toggle span.active { background: var(--surface-primary); color: #fff; }
+    .upfile { display: flex; align-items: center; gap: 12px; border: 1px solid #e0e6ea; border-radius: 6px; padding: 10px 12px; }
+    .upfile .ico { width: 32px; height: 40px; background: var(--surface-error); color: #fff; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+    .sign-input { font-family: "Brush Script MT", cursive; font-size: 20px; color: #35507a; border: 1px solid var(--stroke-default); border-radius: 4px; padding: 6px 10px; width: 260px; }
+    .pay-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .pay-card { border: 2px solid #e2e6ea; border-radius: 8px; padding: 12px; text-align: center; font-size: 12px; }
+    .pay-card.sel { border-color: var(--surface-success); background: var(--surface-success-lightest); }
+    .pay-card .ico { font-size: 22px; } .pay-card .lbl { font-weight: 600; margin-top: 4px; } .pay-card .sub { font-size: 10.5px; color: #889; }
+
+    @media (max-width: 720px) { .fieldrow, .plan-grid, .pay-choices { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <span class="t-ticket">TKT-20669</span>
+    <span class="t-project">New Client Intake / Setup Workflow</span>
+    <span class="badge-pill success">Proposal Document - v1</span>
+    <span class="t-date">July 07, 2026 Generated</span>
+  </div>
+
+  <div class="page">
+
+  <!-- ========================= TABLE OF CONTENTS ========================= -->
+  <aside class="toc" id="toc">
+    <div class="toc-head">On this page</div>
+    <a href="#sec-a"><span class="l">A</span>The Flow at a Glance</a>
+    <a href="#sec-b"><span class="l">B</span>Entry Point — Onboarding Tab</a>
+    <a href="#sec-c"><span class="l">C</span>Sales — Plan &amp; Details</a>
+    <a href="#sec-d"><span class="l">D</span>Client Receives It</a>
+    <a href="#sec-e"><span class="l">E</span>Proposal Review Loop</a>
+    <a href="#sec-f"><span class="l">F</span>Agreement</a>
+    <a href="#sec-g"><span class="l">G</span>Payment &amp; Hand-Off</a>
+  </aside>
+
+  <main class="content">
+
+  <!-- ========================= HEADER ========================= -->
+  <div class="page-header">
+    <div class="sub">Ticket TKT-20669 — bring the full client sign-up process (proposal → payment) into the Companies module, with a sales-configured setup the client reviews, approves, and signs — with a real back-and-forth review loop at each step.</div>
+    <div class="meta">
+      <span class="badge">Round 1 — solution direction, grounded in the meeting + the interactive prototype</span>
+      <span class="badge">Prepared for: team review</span>
+      <span style="color:#888;">2026-07-07</span>
+      <span class="proto-link"><a href="TKT-20669-prototype.html" target="_blank" rel="noopener">▶ Try the interactive prototype</a></span>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot reused"></span> Already live / exists today</span>
+    <span><span class="dot new"></span> New — being proposed</span>
+  </div>
+
+  <!-- ========================= A · OVERVIEW ========================= -->
+  <div class="section" id="sec-a">
+    <div class="section__title">A. The Flow at a Glance <span class="sp"></span><span class="tag new">New workflow</span></div>
+    <div class="section__body">
+      <p class="lede">Today, everything from proposal to first payment happens outside BIS. This brings it into the Companies module. Sales configures a <b>setup</b> and sends it; the client reviews it on a persistent page and <b>approves, signs, and pays</b> — with a review loop whenever something needs changing. The ticket ends at payment; portal creation is a downstream hand-off.</p>
+      <div class="flow">
+        <div class="flow-box">Sales configures<small>proposal · details · agreement</small></div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-box hub">Client reviews &amp; responds<small>approve / sign · or return for review</small></div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-box end">✓ Payment received<small>= end of this ticket</small></div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-box oos">Portal creation<small>CE team · downstream</small></div>
+      </div>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> scope is proposal → payment only. Once payment lands, it hands off to the CE (Client Experience) team who create the portal (manual today, automation planned) and push it live — all downstream of this ticket.</div>
+  </div>
+
+  <!-- ========================= B · ENTRY POINT ========================= -->
+  <div class="section" id="sec-b">
+    <div class="section__title">B. Entry Point — the Companies "Onboarding" Tab <span class="sp"></span><span class="tag reused">Reused list</span><span class="tag new">New tab</span></div>
+    <div class="section__body">
+      <p class="lede">No new nav. The existing Companies list gains an <b>Onboarding</b> tab showing clients mid-setup. <b>+ Start Onboarding</b> is where the flow begins — it creates a <b>profile</b>, not a live portal.</p>
+      <div class="bis-bar">🏢 Companies <span class="fees">Monthly Fees: $748,380.00 (onboarding profiles excluded)</span></div>
+      <div class="list-tabs">
+        <span class="lt">All</span><span class="lt">Active</span><span class="lt">Inactive</span>
+        <span class="lt active">Onboarding <span class="n">4</span></span>
+        <span class="start"><button class="ds-btn ds-btn--success ds-btn--sm">+ Start Onboarding</button></span>
+      </div>
+      <table class="ltable">
+        <thead><tr><th>Company</th><th>Stage</th><th>Owner</th><th>Est. Monthly</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Acme Construction Ltd.</strong></td><td><span class="status-chip sc-blue">Proposal Sent</span></td><td>J. Chen</td><td>$325.00</td><td><button class="ds-btn ds-btn--success ds-btn--sm">Edit</button></td></tr>
+          <tr><td><strong>Northline Fabrication</strong></td><td><span class="status-chip sc-navy">Agreement Sent</span></td><td>A. Reyes</td><td>$860.00</td><td><button class="ds-btn ds-btn--success ds-btn--sm">Edit</button></td></tr>
+          <tr><td><strong>Summit Roofing Co.</strong></td><td><span class="status-chip sc-red">Returned</span></td><td>J. Chen</td><td>$2,100.00</td><td><button class="ds-btn ds-btn--success ds-btn--sm">Edit</button></td></tr>
+          <tr><td><strong>Delta Mechanical</strong></td><td><span class="status-chip sc-amber">Awaiting Payment</span></td><td>A. Reyes</td><td>$1,480.00</td><td><button class="ds-btn ds-btn--success ds-btn--sm">Edit</button></td></tr>
+        </tbody>
+      </table>
+
+      <div class="sub-h">Stages a profile moves through</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <span class="status-chip sc-grey">Draft</span>
+        <span class="status-chip sc-blue">Proposal Sent</span>
+        <span class="status-chip sc-red">Returned</span>
+        <span class="status-chip sc-green">Proposal Approved</span>
+        <span class="status-chip sc-navy">Agreement Sent</span>
+        <span class="status-chip sc-amber">Awaiting Payment</span>
+        <span class="status-chip sc-green">Paid → CE</span>
+        <span class="status-chip sc-grey">Closed — didn't proceed</span>
+      </div>
+
+      <div class="callout"><span>▶</span><div><b>The flow starts here.</b> A profile isn't billed and doesn't count toward Monthly Fees until it converts. If the client never proceeds, it's marked <b>"Closed — didn't proceed."</b></div></div>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> pending clients live in the same Companies list under this tab; the stage chip (Draft · Proposal Sent · Returned · Proposal Approved · Agreement Sent · Awaiting Payment · Paid · Closed) updates live so sales can see where every client is at a glance, and "Edit" opens that client's onboarding workspace.</div>
+  </div>
+
+  <!-- ========================= C · SALES: PLAN & DETAILS ========================= -->
+  <div class="section" id="sec-c">
+    <div class="section__title">C. Sales — Plan &amp; Details (Configure &amp; Send) <span class="sp"></span><span class="tag new">New</span></div>
+    <div class="section__body">
+      <p class="lede">Inside the workspace, sales sets what they know — account manager, client type, pricing model, modules and pricing. Editing a price off standard flags it as <b>custom pricing that needs Accounting approval</b> before it can be sent. Details can be pre-filled here or left for the client.</p>
+      <div class="ws-tabs">
+        <div class="ws-tab active">Plan &amp; Details</div>
+        <div class="ws-tab">Agreement</div>
+        <div class="ws-tab">Payment</div>
+      </div>
+      <div class="ws-panel">
+        <div class="fieldrow">
+          <div class="field"><label>Account Manager</label><input value="J. Chen"></div>
+          <div class="field"><label>Client Type</label><select><option>Standard</option></select></div>
+          <div class="field"><label>Pricing Model <span style="color:#aab;">(in system)</span></label><select><option>Per user / month — Model A</option></select></div>
+          <div class="field"><label>User Count</label><input value="25"></div>
+        </div>
+        <div class="sub-h">Modules &amp; pricing</div>
+        <div class="mod-list">
+          <div class="mod-row"><span class="toggle on"></span><div><div class="m-name">LMS</div><div class="m-std">std $8.00</div></div><span style="color:#889;">Courses &amp; training records</span><input class="price-in" value="8.00"></div>
+          <div class="mod-row"><span class="toggle on"></span><div><div class="m-name">Forms</div><div class="m-std">std $5.00</div></div><span style="color:#889;">Digital forms &amp; inspections</span><input class="price-in custom" value="4.25"></div>
+          <div class="mod-row"><span class="toggle"></span><div><div class="m-name">Assets</div><div class="m-std">std $4.00</div></div><span style="color:#889;">Asset tracking</span><input class="price-in" value="4.00"></div>
+        </div>
+        <div class="banner-line bl-warn"><span class="ico">⚠</span><div><b>Custom price entered</b> (Forms $5.00 → $4.25) — this proposal needs Accounting approval before it can be sent. <button class="ds-btn ds-btn--warning ds-btn--sm" style="margin-left:4px;">Approve (as Accounting) ▸</button></div></div>
+        <div style="margin-top:12px;">
+          <button class="ds-btn ds-btn--primary">Send proposal to client →</button>
+        </div>
+      </div>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> custom pricing → mandatory Accounting approval; standard pricing sends freely. Sales can pre-fill everything or leave later steps blank — once a step is configured, it unlocks for the client automatically, so a simple client can go end-to-end without waiting on a person.</div>
+  </div>
+
+  <!-- ========================= D · CLIENT ACCESS (URL + EMAIL) ========================= -->
+  <div class="section" id="sec-d">
+    <div class="section__title">D. How the Client Receives It — Persistent Page + Email <span class="sp"></span><span class="tag new">New</span></div>
+    <div class="section__body">
+      <p class="lede">Sending emails the client a notification. "Review &amp; respond" opens <b>one persistent page</b> on bissafety.app — the same link every time — that always reflects the latest state as sales makes changes. Each meaningful update sends a fresh email whose body says <b>what changed</b>.</p>
+      <div class="email">
+        <div class="eh"><div class="avatar">B</div><div><div class="subj">Your BIS Safety proposal</div><div class="to">BIS Safety Software → dana@acmeconstruction.com</div></div><div class="when">10:52 AM</div></div>
+        <div class="eb">
+          <p>Hi Dana,</p>
+          <p style="margin-top:6px;">J. Chen has prepared a proposal for Acme Construction Ltd.</p>
+          <div class="changes"><b>What's in this update:</b><ul><li>Monthly total: $325.00</li><li>One-time onboarding: $1,500.00</li></ul></div>
+          <button class="ds-btn ds-btn--primary ds-btn--sm">Review &amp; respond →</button>
+          <span style="font-size:11px;color:#99a;margin-left:8px;">opens bissafety.app/onboarding/acme-3f9x2k</span>
+        </div>
+      </div>
+      <div style="margin-top:12px;"></div>
+      <div class="urlbar">🔒 <span class="u">bissafety.app/onboarding/acme-3f9x2k</span><span class="persist">This link stays the same — it updates as BIS makes changes.</span></div>
+    </div>
+    <div class="section__note"><b>Proposed:</b> a tokenized, persistent URL (not a flow that "lives in the email") so the client can save it and return across sessions — matching that this often isn't done in one sitting. Emails are notifications that link back to it and summarize what changed.</div>
+  </div>
+
+  <!-- ========================= E · REVIEW & BACK-AND-FORTH ========================= -->
+  <div class="section" id="sec-e">
+    <div class="section__title">E. Proposal Review &amp; the Back-and-Forth Loop <span class="sp"></span><span class="tag new">New — the core interaction</span></div>
+    <div class="section__body">
+      <p class="lede">On their page, the client reviews the plan, can tweak modules / team size, and adds their details. Then they fork: <b>approve and continue</b>, or <b>save &amp; return for review</b> with a note. Returning flips the company's status to <b>Returned</b> and notifies sales, who revise the price and resend a new version.</p>
+
+      <div class="checklist" style="margin-bottom:14px;">
+        <div class="cl-step active"><div class="h"><span class="cl-dot">1</span> Proposal</div><div class="s">Review &amp; respond</div></div>
+        <div class="cl-step"><div class="h"><span class="cl-dot">2</span> Agreement</div><div class="s">Not yet</div></div>
+        <div class="cl-step"><div class="h"><span class="cl-dot">3</span> Payment</div><div class="s">Locked</div></div>
+      </div>
+
+      <div class="plan-grid">
+        <div>
+          <div class="cmod on"><span class="toggle on"></span><span class="m-name">LMS</span><span class="m-price">$8.00 / user</span></div>
+          <div class="cmod on"><span class="toggle on"></span><span class="m-name">Forms</span><span class="m-price">$4.25 / user</span></div>
+          <div class="cmod"><span class="toggle"></span><span class="m-name">Assets</span><span class="m-price">$4.00 / user</span></div>
+          <div class="locked-note">🔒 Per-module rates, pricing model &amp; discount are set by BIS — to change those, use "Save &amp; return for review".</div>
+        </div>
+        <div class="summary">
+          <div class="row"><span>2 modules × 25 users</span><span>$325.00</span></div>
+          <div class="row total"><span>Monthly total</span><span>$325.00</span></div>
+          <div class="row faint"><span>One-time onboarding</span><span>$1,500.00</span></div>
+        </div>
+      </div>
+
+      <div class="sub-h">The fork</div>
+      <div class="fork">
+        <div class="opt"><h4>💬 Save &amp; return for review</h4><p>Saves details and bounces the proposal back to BIS with a note (e.g. "this wasn't the rate we discussed"). Sales revises and resends.</p><button class="ds-btn ds-btn--outline ds-btn--sm">Save &amp; return for review</button></div>
+        <div class="opt"><h4>✓ Everything looks good</h4><p>Approve the plan as-is and continue to the agreement.</p><button class="ds-btn ds-btn--success ds-btn--sm">Approve &amp; continue →</button></div>
+      </div>
+
+      <div class="banner-line bl-return" style="margin-top:16px;"><span class="ico">↩</span><div><b>Sales side — the client returned it:</b> "This wasn't the per-user rate we discussed." The company shows <span class="status-chip sc-red">Returned</span>; sales adjusts the price and sends an updated <b>V2</b>, and the client sees a banner explaining what changed.</div></div>
+
+      <div class="sub-h">Activity / notes</div>
+      <ul class="activity">
+        <li><span class="a-dot"></span><div><div><strong>Sales</strong> — Updated proposal V2 sent — "Adjusted Forms to $4.75"</div><div class="a-when">11:04 AM</div></div></li>
+        <li><span class="a-dot"></span><div><div><strong>Client</strong> — Returned V1 for review — "too expensive"</div><div class="a-when">10:58 AM</div></div></li>
+        <li><span class="a-dot"></span><div><div><strong>Sales</strong> — Proposal V1 sent to client</div><div class="a-when">10:52 AM</div></div></li>
+      </ul>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> the client can adjust user count / modules and leave notes, but not edit price, pricing model, or discount directly — those changes go through the return-for-review loop. Every proposal version (V1, V2, V3…) is kept on the profile. A running activity/notes log shows each step.</div>
+  </div>
+
+  <!-- ========================= F · AGREEMENT ========================= -->
+  <div class="section" id="sec-f">
+    <div class="section__title">F. Agreement — Upload or System, Same Review Loop <span class="sp"></span><span class="tag new">New</span></div>
+    <div class="section__body">
+      <p class="lede">Sales can prepare the agreement <b>at any point</b> — even before pricing is accepted — using the system-generated contract or by uploading a custom one, then <b>Send for signature</b>. The client reviews it on the same persistent page and either signs or returns it with changes, exactly like the proposal.</p>
+
+      <div class="sub-h">Sales — Agreement tab</div>
+      <div class="src-toggle"><span>System template</span><span class="active">Upload custom contract</span></div>
+      <div class="upfile"><div class="ico">PDF</div><div style="flex:1;"><div style="font-weight:600;">Acme-MSA-custom-v1.pdf</div><div style="font-size:11px;color:#889;">Custom contract · uploaded</div></div><button class="ds-btn ds-btn--primary ds-btn--sm">Send for signature →</button></div>
+
+      <div class="sub-h">Client — review &amp; sign (or return)</div>
+      <div class="banner-line bl-info" style="margin-top:0;"><span class="ico">✍</span><div>The client scrolls the agreement, then either returns it for review or signs.</div></div>
+      <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+        <input class="sign-input" value="Dana Whitfield" readonly>
+        <button class="ds-btn ds-btn--success ds-btn--sm">✓ Sign &amp; continue →</button>
+        <button class="ds-btn ds-btn--outline ds-btn--sm">Return for review</button>
+      </div>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> the agreement supports both a system-generated contract and a custom uploaded one, preparable at any time, and carries the same return-for-review loop (contract terms often go back and forth). <b>Note:</b> whether a pre-configured agreement can auto-release to the client vs. always require an explicit "Send for signature" is a detail to confirm with the team.</div>
+  </div>
+
+  <!-- ========================= G · PAYMENT & HAND-OFF ========================= -->
+  <div class="section" id="sec-g">
+    <div class="section__title">G. Payment &amp; Hand-Off to CE <span class="sp"></span><span class="tag new">New</span><span class="tag reused">Downstream</span></div>
+    <div class="section__body">
+      <p class="lede">Once the agreement is signed, payment unlocks for the client. Sales watches the <b>Payment</b> tab move from awaiting → paid. Payment received is the trigger that hands the client off to CE for portal creation — and the client's page tells them what happens next.</p>
+
+      <div class="sub-h">Client — payment</div>
+      <div class="summary" style="margin-bottom:12px;"><div class="row"><span>One-time onboarding fee (due today)</span><strong>$1,500.00</strong></div><div class="row faint"><span>Monthly subscription (starts when live)</span><span>$325.00 / mo</span></div></div>
+      <div class="pay-choices">
+        <div class="pay-card sel"><div class="ico">💳</div><div class="lbl">Credit Card</div><div class="sub">instant</div></div>
+        <div class="pay-card"><div class="ico">🏦</div><div class="lbl">EFT / ACH</div><div class="sub">2–3 days</div></div>
+        <div class="pay-card"><div class="ico">📄</div><div class="lbl">Invoice / Wire</div><div class="sub">emailed</div></div>
+      </div>
+
+      <div class="banner-line bl-ok" style="margin-top:14px;"><span class="ico">✓</span><div><b>Sales side:</b> the Payment tab shows <span class="status-chip sc-green">Paid</span>.</div></div>
+      <div class="banner-line bl-info" style="margin-bottom:0;"><span class="ico">➡</span><div><b>This ticket's scope ends here.</b> Payment received hands the client off to the <b>CE (Client Experience) team</b> for portal creation (manual today, automation planned) → push live → first-login pricing-confirmation / welcome page. The client's page shows these as upcoming steps.</div></div>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> scope stops at payment; portal creation is downstream. <b>Note:</b> the exact payment mechanism (how the fee is actually collected) is still to be confirmed with Accounting — the methods shown are placeholders.</div>
+  </div>
+
+  </main>
+  </div>
+
+  <script>
+    // Table of contents: click-to-scroll (with a sticky-header offset) + a
+    // scroll-spy that highlights the section currently in view.
+    (function(){
+      var HEADER = 54; // sticky topbar height — keep the target clear of it
+      var links = [].slice.call(document.querySelectorAll('.toc a'));
+      var sections = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+
+      links.forEach(function(a){
+        a.addEventListener('click', function(e){
+          e.preventDefault();
+          var t = document.querySelector(a.getAttribute('href'));
+          if (!t) return;
+          var y = t.getBoundingClientRect().top + window.pageYOffset - HEADER;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+          if (history.replaceState) history.replaceState(null, '', a.getAttribute('href'));
+        });
+      });
+
+      function onScroll(){
+        var y = window.pageYOffset + HEADER + 40, idx = 0;
+        for (var i = 0; i < sections.length; i++){
+          if (sections[i] && sections[i].getBoundingClientRect().top + window.pageYOffset <= y) idx = i;
+        }
+        links.forEach(function(a, i){ a.classList.toggle('active', i === idx); });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+
+</body>
+</html>
