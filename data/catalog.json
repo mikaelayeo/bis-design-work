@@ -140,6 +140,15 @@
       "kind": "item",
       "audience": "showcase",
       "category": "wireframes",
+      "title": "New Client Intake / Setup Workflow",
+      "date": "2026-07-07",
+      "path": "showcase/wireframes/TKT-20669.html",
+      "ticket": "TKT-20669"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "wireframes",
       "title": "Online courses",
       "date": "2026-06-15",
       "path": "showcase/wireframes/TKT-20792-online-courses.html",
@@ -171,15 +180,6 @@
       "date": "2026-06-15",
       "path": "showcase/wireframes/TKT-14038.html",
       "ticket": "TKT-14038"
-    },
-    {
-      "kind": "item",
-      "audience": "showcase",
-      "category": "wireframes",
-      "title": "New Client Intake / Setup Workflow",
-      "date": "2026-07-07",
-      "path": "showcase/wireframes/TKT-20669.html",
-      "ticket": "TKT-20669"
     },
     {
       "kind": "item",
