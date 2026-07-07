@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  INTERACTIVE PROTOTYPE — BLANK CHROME SKELETON
+  ----------------------------------------------------------------------------
+  Copy this to start a NEW prototype. It gives you the reusable chrome +
+  framework with NO ticket-specific logic. For a complete, filled reference
+  of what a finished one looks like, see prototype-example.html (a copy of
+  the TKT-20669 client-onboarding prototype).
+
+  The chrome matches the Figma Prototype Template (Internal Projects file,
+  node 37:28). It is NOT part of the simulated product — it's the frame
+  reviewers see the product in.
+
+  TO ADAPT:
+    1. .topbar — set ticket #, project/feature name, date. Badge stays
+       "Prototype - v1" (bump the version on real re-drafts).
+    2. Perspectives — rename the keys in FLOWS + the segmented-control
+       buttons. BIS default is "Admin" / "User"; a ticket may use its own
+       actors (e.g. Sales / Client). If the prototype has only ONE
+       perspective, delete the .seg-control and show a static .badge-pill.
+    3. Flow tabs — list the named screens/steps under each perspective in
+       the FLOWS map. Switching perspective swaps the whole tab set. Ask the
+       designer to enumerate these up front (the draft-wireframe skill has a
+       flow-map question step for exactly this).
+    4. renderScreen() — build the real UI for each screen from BIStrainer
+       tokens / the ds-* base components (copy those from the proposal-doc
+       template or prototype-example). One case per flow-tab id.
+    5. stepDetails() — for every screen, a short heading + 1-2 bullets that
+       say what's on screen and what to do next. This is the footer panel
+       that keeps a non-technical reviewer from getting lost. Keep it current
+       in every render().
+
+  LAYOUT RULES (keep these — they're what makes it feel like the real web app):
+    • FULL-WIDTH: body is a full-height flex column; the prototype fills the
+      viewport width (no centered max-width column — that's the proposal doc).
+    • FIXED CHROME: .topbar, the nav row (perspective + flow tabs), and
+      .step-details stay put; only .proto-stage scrolls.
+    • SCROLL RESET: render() resets .proto-stage scrollTop to 0 whenever the
+      SCREEN changes (perspective / flow tab), tracked via lastViewKey. In a
+      real build with a state machine, also reset on status transitions but
+      NOT on in-screen tweaks (toggling a control, editing a field) so the
+      reviewer keeps their place mid-screen — see prototype-example.html.
+    • DERIVED ACTIVE TAB: this skeleton tracks the active tab explicitly
+      (st.flow). In a real build, derive the active tab from live state so
+      in-screen actions advance the highlighted tab automatically — again,
+      see prototype-example.html (salesFlowId / clientFlowId).
+  ============================================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TKT-XXXXX — [Feature] — Prototype</title>
+  <style>
+    :root {
+      --surface-primary: #0078b3;
+      --surface-primary-lightest: #f2fcff;
+      --surface-success: #167b00;
+      --surface-success-lightest: #fafff2;
+      --surface-warning: #a1851f;
+      --surface-warning-lightest: #fffcf2;
+      --surface-error: #cc2222;
+      --surface-error-lightest: #fff2f2;
+      --surface-secondary-subtle: #f8f8f9;
+      --text-default: #191919;
+      --text-secondary: #666666;
+      --text-on-surface: #feffff;
+      --surface-default: #feffff;
+      --stroke-default: #b2b2b3;
+      --stroke-default-light: #e2e2e3;
+      --stroke-default-dark: #4d4c4c;
+      --bis-red: #b81f2d;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", system-ui, sans-serif; font-size: 14px; color: var(--text-default); background: var(--surface-secondary-subtle); line-height: 1.5; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    a { color: var(--surface-primary); text-decoration: none; }
+    input, select, textarea { font-family: inherit; font-size: 13px; padding: 8px 10px; border: 1px solid var(--stroke-default); border-radius: 4px; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--surface-primary); }
+    label { font-size: 12px; color: var(--text-secondary); display: block; margin-bottom: 4px; }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* ===== template chrome ===== */
+    .topbar { background: var(--surface-default); border-bottom: 1px solid var(--stroke-default-light); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 16px; flex-wrap: wrap; flex-shrink: 0; }
+    .topbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .t-ticket { font-size: 16px; font-weight: 600; color: var(--text-default); }
+    .t-project { font-size: 14px; color: var(--text-default); }
+    .t-date { font-size: 12px; color: var(--text-default); }
+    .badge-pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; box-shadow: 0 0 4px rgba(0,0,0,.15); white-space: nowrap; }
+    .badge-pill.primary { background: var(--surface-primary-lightest); color: var(--surface-primary); }
+    .badge-pill.success { background: var(--surface-success-lightest); color: var(--surface-success); }
+    .btn-reset { background: #fff; border: 1px solid var(--stroke-default-dark); border-radius: 4px; padding: 5px 12px; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+    .btn-reset:hover { background: #f7f7f7; }
+
+    .page { width: 100%; flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 10px 20px 14px; }
+    .navrow { display: flex; align-items: center; gap: 16px; margin-bottom: 6px; flex-wrap: wrap; flex-shrink: 0; }
+
+    .seg-control { display: inline-flex; border: 1px solid var(--stroke-default); border-radius: 80px; overflow: hidden; }
+    .seg-opt { background: rgba(254,255,255,.75); border: none; border-left: 1px solid var(--stroke-default); padding: 5px 14px; font-size: 13px; color: var(--text-default); }
+    .seg-opt:first-child { border-left: none; }
+    .seg-opt.active { background: var(--surface-primary-lightest); color: var(--surface-primary); font-weight: 600; }
+
+    .flow-tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+    .flow-tab { padding: 5px 14px; font-size: 14px; font-weight: 600; color: var(--text-secondary); border-radius: 4px; border: 1px solid transparent; cursor: pointer; background: transparent; }
+    .flow-tab.active { background: var(--surface-default); border-color: var(--stroke-default-light); color: var(--surface-primary); }
+    .flow-badge { background: var(--surface-error); color: #fff; border-radius: 8px; padding: 0 5px; font-size: 10px; margin-left: 5px; }
+
+    .proto-card { background: var(--surface-default); border: 1px solid var(--stroke-default); border-radius: 8px; display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+    .proto-stage { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 22px 24px; }
+    .step-details { background: var(--surface-secondary-subtle); border-top: 1px solid var(--stroke-default-light); padding: 12px 18px 14px; flex-shrink: 0; }
+    .sd-title { font-size: 14px; font-weight: 600; color: var(--text-default); margin-bottom: 6px; }
+    .sd-list { list-style: disc; padding-left: 18px; font-size: 12px; color: var(--text-default); line-height: 1.65; }
+    .sd-list li { margin-bottom: 2px; }
+
+    /* ===== placeholder — replace with your real screen UI ===== */
+    .placeholder { border: 2px dashed var(--stroke-default-light); border-radius: 8px; padding: 40px 24px; text-align: center; color: var(--text-secondary); background: var(--surface-secondary-subtle); }
+    .placeholder .ph-title { font-size: 15px; font-weight: 700; color: var(--text-default); margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="t-ticket">TKT-XXXXX</span>
+      <span class="t-project">[Feature name]</span>
+      <span class="badge-pill primary">Prototype - v1</span>
+      <span class="t-date">[Month DD, YYYY] Generated</span>
+    </div>
+    <button class="btn-reset" onclick="resetAll()">↺ Reset Prototype</button>
+  </div>
+
+  <div class="page">
+    <div class="navrow">
+      <!-- Perspective control FIRST, then the flow tabs. Rename to your actors
+           (default Admin / User). Delete this block for a single-perspective
+           prototype and show a static .badge-pill instead. -->
+      <div class="seg-control" id="segControl">
+        <button class="seg-opt active" id="segA" onclick="switchPersp('admin')">Admin</button>
+        <button class="seg-opt" id="segB" onclick="switchPersp('user')">User</button>
+      </div>
+      <div class="flow-tabs" id="flowTabs"></div>
+    </div>
+
+    <div class="proto-card">
+      <div class="proto-stage" id="stage"></div>
+      <div class="step-details">
+        <p class="sd-title" id="sdTitle"></p>
+        <ul class="sd-list" id="sdList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  /* ---- FLOWS: perspectives → their named screens (fill these in) ---- */
+  var FLOWS = {
+    admin: [
+      { id:'a1', label:'Screen 1' },
+      { id:'a2', label:'Screen 2' }
+    ],
+    user: [
+      { id:'u1', label:'Screen 1' },
+      { id:'u2', label:'Screen 2' }
+    ]
+  };
+
+  var st = { persp:'admin', flow:'a1' };
+
+  function switchPersp(p){ st.persp=p; st.flow=FLOWS[p][0].id; render(); }
+  function selectFlow(id){ st.flow=id; render(); }
+  function resetAll(){ st={ persp:'admin', flow:'a1' }; render(); }
+
+  function renderFlowTabs(){
+    var list=FLOWS[st.persp];
+    document.getElementById('flowTabs').innerHTML=list.map(function(f){
+      return '<button class="flow-tab '+(f.id===st.flow?'active':'')+'" onclick="selectFlow(\''+f.id+'\')">'+f.label+'</button>';
+    }).join('');
+  }
+
+  function currentFlow(){ return FLOWS[st.persp].filter(function(f){return f.id===st.flow;})[0] || {}; }
+
+  /* ---- renderScreen(): build the real UI per flow-tab id.
+     Return HTML built from BIStrainer tokens / ds-* base components. ---- */
+  function renderScreen(){
+    var f=currentFlow();
+    return '<div class="placeholder"><div class="ph-title">'+st.persp+' &middot; '+(f.label||'')+'</div>'
+      +'<p>Build this screen here — replace .placeholder with the real UI for this step.</p></div>';
+  }
+
+  /* ---- stepDetails(): heading + bullets for the footer panel ---- */
+  function stepDetails(){
+    var f=currentFlow();
+    return { title:(f.label||''), bullets:[
+      'What this screen shows.',
+      'What the reviewer should do next.'
+    ]};
+  }
+
+  var lastViewKey='';
+  function render(){
+    document.getElementById('segA').classList.toggle('active', st.persp==='admin');
+    document.getElementById('segB').classList.toggle('active', st.persp==='user');
+    renderFlowTabs();
+    var d=stepDetails();
+    document.getElementById('sdTitle').innerHTML=d.title;
+    document.getElementById('sdList').innerHTML=d.bullets.map(function(b){return '<li>'+b+'</li>';}).join('');
+    document.getElementById('stage').innerHTML=renderScreen();
+    // reset stage scroll to top when the screen changes
+    var key=st.persp+'|'+st.flow;
+    if(key!==lastViewKey){ var ps=document.querySelector('.proto-stage'); if(ps) ps.scrollTop=0; lastViewKey=key; }
+  }
+
+  render();
+  </script>
+</body>
+</html>
