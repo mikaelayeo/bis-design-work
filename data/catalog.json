@@ -219,19 +219,19 @@
       "id": "Client Sign Up - 20669",
       "title": "Client Sign Up — 20669",
       "date": "2026-07-07",
-      "ticket": "TKT-20669",
       "children": [
-        {
-          "title": "Proposal doc",
-          "path": "showcase/prototypes/Client%20Sign%20Up%20-%2020669/TKT-20669.html",
-          "date": "2026-07-07"
-        },
         {
           "title": "Interactive prototype",
           "path": "showcase/prototypes/Client%20Sign%20Up%20-%2020669/TKT-20669-prototype.html",
           "date": "2026-07-07"
+        },
+        {
+          "title": "Proposal doc",
+          "path": "showcase/prototypes/Client%20Sign%20Up%20-%2020669/TKT-20669.html",
+          "date": "2026-07-07"
         }
-      ]
+      ],
+      "ticket": "TKT-20669"
     },
     {
       "kind": "folder",
