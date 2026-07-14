@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microlearning — Prototype (Admin + End User)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<!--
+  BIS Microlearning (TKT-8716) · Admin + End User — connected front-end prototype (one file, perspective switch)
+  Admin: Setup toggle · Dashboard · Topic Content (Add/Edit/Deactivate/Reactivate/Purge/Bulk) · Topic Settings (General/Languages/Permissions/Deactivate)
+  End User: 01 Topic Home · 02 Topic Page + viewers · 04 Misc (notifications, kick-out, home entry)
+  Content types committed: Link · PDF · Video (URL+MP4) · SCORM. Permissions: By User + By Company Role. Multi-language. Mock data.
+  Spec: Microlearning MD Files/*.md · Repo target (bistrainerdev): v1/views/microlearning/.
+-->
+<style>
+  /* ===== BIS design tokens (from Figma variables, file FcuknQmnPO3mOmlSAnIcmy) ===== */
+  :root{
+    --bis-red:#a80c12;              /* Global Header bar */
+    --blue:#0078b3;--blue-link:#0078b3;  /* color/surface/primary · color/text/primary */
+    --prim-lighter:#c9effa;--prim-lightest:#f2fcff;--icon-primary:#009acb;--stroke-primary:#009acb;
+    --text:#191919;--muted:#666666;               /* text/default · text/secondary */
+    --border:#b2b2b3;--border-lt:#e2e2e3;         /* stroke/default */
+    --surface2:#f2f2f2;                            /* surface/secondary-lightest */
+    --green-fg:#167b00;--green-bg:#ddf1ba;--green-lightest:#fafff2;--icon-success:#399300;
+    --blue-bg:#f2fcff;--blue-fg:#0078b3;           /* in-progress uses primary tints */
+    --gold-bg:#fcefc1;--gold-fg:#9a6a00;           /* warning-lighter */
+    --grey-bg:#f2f2f2;--grey-fg:#666666;--red-bg:#fdecee;--red-fg:#a80c12;
+    --charcoal:#19191b;--icon-red:#e5484d;         /* surface/default-inverse */
+    --r-base:4px;--r-med:8px;--r-round:80px;       /* border radius scale */
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI","Open Sans",Arial,sans-serif;color:var(--text);font-size:15px;background:#f4f5f7}
+  a{color:var(--blue-link);text-decoration:none;cursor:pointer}a:hover{text-decoration:underline}
+  button{font-family:inherit}
+  input,select,textarea{font-family:inherit;font-size:13px}
+
+  /* ---- prototype bar (not part of the product) ---- */
+  .protobar{position:sticky;top:0;z-index:60;background:#1d1f24;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:8px 16px;flex-wrap:wrap}
+  .pb-left{display:flex;align-items:center;gap:10px;font-size:13px}
+  .pb-badge{background:#e7f3fb;color:#0069a8;font-size:11px;font-weight:700;padding:2px 9px;border-radius:10px}
+  .pb-note{color:#a9adb6;font-size:12px}
+  .seg{display:inline-flex;border:1px solid #3a3d45;border-radius:80px;overflow:hidden}
+  .seg button{background:#26282e;border:0;color:#cfd2d8;padding:6px 20px;font-size:13px;font-weight:600;cursor:pointer;border-left:1px solid #3a3d45}
+  .seg button:first-child{border-left:0}
+  .seg button.active{background:#e8f1fb;color:#0069a8}
+  .pb-reset{background:transparent;border:1px solid #4a4d55;color:#cfd2d8;border-radius:4px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer}
+  .pb-reset:hover{background:#2a2c32}
+
+  .surface{background:#fff;min-height:calc(100vh - 40px)}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--bis-red);font-size:20px}
+  .brand span{color:#333;font-weight:600;font-size:11px;line-height:1.1;border-left:1px solid #ccc;padding-left:8px}
+  .topbar-right{display:flex;align-items:center;gap:16px;color:var(--muted)}
+  .search-user{border:1px solid var(--border);border-radius:4px;padding:6px 10px;color:#999;font-size:13px;min-width:150px;display:flex;justify-content:space-between}
+  .nav{display:flex;gap:22px;padding:10px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+  .nav a{color:#333}.nav a.active{color:#111;font-weight:700;border-bottom:2px solid var(--bis-red);padding-bottom:2px}
+
+  .module-head{background:var(--bis-red);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;gap:12px;flex-wrap:wrap}
+  .module-head h1{margin:0;font-size:24px;font-weight:600;line-height:32px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .module-head .right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .status-chip{font-size:14px;font-weight:600;padding:4px 8px;border-radius:4px}
+  .head-search{border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.12);color:#fff;border-radius:4px;padding:6px 10px;font-size:13px}
+  .head-search::placeholder{color:#f0d7db}
+  .co-drop{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:4px;padding:5px 10px;font-size:13px}
+  .btn-back{background:transparent;border:1px solid rgba(255,255,255,.8);color:#fff;padding:5px 14px;border-radius:4px;cursor:pointer;font-size:13px}
+  .btn-back:hover{background:rgba(255,255,255,.12)}
+  .btn-add{background:#fff;color:var(--bis-red);border:0;border-radius:4px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+  .demo{position:relative}
+  .demo>button{background:#fff;color:var(--bis-red);border:0;border-radius:4px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer}
+  .demo-menu{position:absolute;right:0;top:36px;background:#fff;color:#333;border:1px solid var(--border);border-radius:6px;box-shadow:0 6px 22px rgba(0,0,0,.18);min-width:230px;z-index:40;overflow:hidden}
+  .demo-menu button{display:block;width:100%;text-align:left;border:0;background:#fff;padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0f0f0}
+  .demo-menu button:hover{background:#f6f9fc}
+
+  .toolbar{display:flex;align-items:center;gap:14px;padding:14px 20px;flex-wrap:wrap}
+  .pills{display:inline-flex;border:1px solid var(--border);border-radius:var(--r-base);overflow:hidden}
+  .pills button{border:0;background:#fff;padding:6px 14px;cursor:pointer;font-size:15px;color:var(--text);border-left:1px solid var(--border)}
+  .pills button:first-child{border-left:0}
+  .pills button.active{background:var(--prim-lighter);color:var(--blue);font-weight:600}
+  .searchbox{position:relative;flex:0 0 240px}
+  .searchbox input{width:100%;border:1px solid var(--border);border-radius:4px;padding:8px 30px 8px 10px;font-size:13px}
+  .searchbox .ico{position:absolute;right:10px;top:9px;color:#999}
+  .view-toggle{display:inline-flex;border:1px solid var(--border);border-radius:var(--r-round);overflow:hidden}
+  .view-toggle button{border:0;background:#fff;padding:7px 13px;cursor:pointer;color:var(--muted)}
+  .view-toggle button.active{background:var(--prim-lighter);color:var(--blue)}
+  .wrap{padding:0 20px 40px}
+
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+  .card{border:1px solid var(--border);border-radius:8px;overflow:hidden;cursor:pointer;background:#fff;transition:box-shadow .15s,transform .15s;display:flex;flex-direction:column;position:relative}
+  .card:hover{box-shadow:0 4px 14px rgba(0,0,0,.12);transform:translateY(-2px)}
+  .card.noclick{cursor:default}.card.noclick:hover{box-shadow:none;transform:none}
+  .card .thumb{height:132px;position:relative;background-size:cover}
+  .badge-updated{position:absolute;top:10px;right:10px;background:var(--green-bg);color:var(--green-fg);font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;display:flex;align-items:center;gap:5px}
+  .dot{position:absolute;top:10px;right:10px;width:13px;height:13px;border-radius:50%;box-shadow:0 0 0 3px #fff}
+  .dot.a{background:#2fae4e}.dot.d{background:#b9bcc2}.dot.x{background:#e5484d}
+  .card .body{padding:12px 12px 4px}
+  .card .name{color:var(--blue);font-weight:600;font-size:16px;line-height:26px}
+  .card .sub{color:var(--muted);font-size:14px;margin-top:3px}
+  .card .acts{color:var(--muted);font-size:16px;margin:10px 0 12px}
+  .acts-row{display:flex;align-items:center;justify-content:space-between;padding:0 12px 12px;color:var(--muted);font-size:16px}
+  .acts-row b{color:var(--text);font-weight:600}
+  .acts-row .ic{display:flex;gap:16px}.acts-row .ic i{cursor:pointer;color:var(--muted)}.acts-row .ic i:hover{color:var(--blue)}
+  .prov-foot{background:var(--surface2);padding:8px 12px;font-size:14px;font-weight:600;color:var(--muted)}
+  .card .icons{display:flex;gap:14px;padding:8px 14px;border-top:1px solid var(--border-lt);color:#777;margin-top:auto}
+  .card .icons i{cursor:pointer}.card .icons i:hover{color:var(--blue)}
+  .status{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;font-size:13px;font-weight:600;margin-top:auto}
+  .status .lbl{display:flex;align-items:center;gap:7px}.status .chev{opacity:.6}
+  .st-completed{background:var(--green-bg);color:var(--green-fg)}
+  .st-inprogress{background:var(--blue-bg);color:var(--blue-fg)}
+  .st-new{background:var(--gold-bg);color:var(--gold-fg)}
+  .cbx{position:absolute;top:10px;left:10px;width:18px;height:18px;z-index:3;cursor:pointer}
+
+  table.list{width:100%;border-collapse:collapse}
+  table.list th{text-align:left;font-size:12px;font-weight:700;padding:8px 10px;border-bottom:1px solid var(--border)}
+  table.list td{padding:10px;border-bottom:1px solid var(--border);vertical-align:middle}
+  table.list tr.clk{cursor:pointer}table.list tr.clk:hover td{background:#f7fbff}
+  .list-topic{display:flex;align-items:center;gap:12px}
+  .list-thumb{width:46px;height:34px;border-radius:4px;background-size:cover;flex:0 0 auto}
+  .pill{display:inline-block;padding:3px 12px;border-radius:12px;font-size:12px;font-weight:600}
+  .list-updated{background:var(--green-bg);color:var(--green-fg);font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px}
+  .ic-btn{color:#777;cursor:pointer;padding:0 5px}.ic-btn:hover{color:var(--blue)}
+
+  .loadmore{display:flex;justify-content:center;margin:22px 0}
+  .loadmore button{border:1px solid var(--border);background:#fff;border-radius:4px;padding:8px 22px;cursor:pointer}
+  .loadmore button:hover{background:#f5f5f5}
+  .empty{text-align:center;color:var(--muted);padding:64px 20px}
+  .empty .ico{font-size:44px;color:#c7c7c7}.empty h2{color:var(--blue);margin:14px 0 6px;font-size:19px}
+  .empty p{max-width:440px;margin:0 auto 16px}
+
+  .desc{border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin:16px 0}
+  .desc-head{display:flex;justify-content:space-between;align-items:center;font-weight:700;cursor:pointer}
+  .desc-body{color:#333;margin-top:8px;line-height:1.5}
+  .desc-body.collapsed{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .showmore{color:var(--blue-link);font-weight:600;margin-top:4px;display:inline-block}
+  .acts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(max-width:760px){.acts-grid{grid-template-columns:1fr}}
+  .acard{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#fff;position:relative}
+  .acard.clk{cursor:pointer}.acard.clk:hover{box-shadow:0 3px 12px rgba(0,0,0,.10)}
+  .acard .athumb{width:130px;flex:0 0 130px;background-size:cover;min-height:96px}
+  .acard .abody{flex:1;padding:0;display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0}
+  .acard .aname{color:var(--blue);font-weight:600;font-size:16px;line-height:26px;padding:12px 12px 0}
+  .acard .ameta{color:var(--muted);font-size:14px;padding:0 12px 12px}
+  .type-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);color:var(--muted);border-radius:var(--r-base);padding:4px 6px;font-size:14px;font-weight:600;width:fit-content}
+  .acard .type-chip{margin:0 12px}
+  .acard .astatus{padding:8px 12px;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .astatus.done{background:var(--green-lightest);color:var(--green-fg)}
+  .astatus.todo{background:var(--prim-lightest);color:var(--blue)}
+  .acard .aicons{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:0 12px;color:#888;border-left:1px solid #f0f0f0}
+  .acard .aicons i{cursor:pointer}.acard .aicons i:hover{color:var(--blue)}
+  .acard .aicons i.del:hover{color:var(--icon-red)}
+
+  /* ---- setup ---- */
+  .setup-wrap{max-width:820px;margin:0 auto;padding:26px 20px 60px}
+  .setup-wrap h2{font-size:18px;margin:0 0 4px}
+  .setup-wrap .crumb{color:var(--muted);font-size:12px;margin-bottom:18px}
+  .mod-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;background:#fff}
+  .mod-row.hl{border-color:var(--bis-red);box-shadow:0 0 0 2px rgba(166,25,46,.08)}
+  .mod-row .mn{font-weight:600;display:flex;align-items:center;gap:10px}
+  .mod-row .md{color:var(--muted);font-size:12px}
+  .sw{position:relative;width:46px;height:26px;flex:0 0 auto;cursor:pointer}
+  .sw input{display:none}
+  .sw .tr{position:absolute;inset:0;background:#c7ccd3;border-radius:20px;transition:.15s}
+  .sw .kb{position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+  .sw input:checked+.tr{background:#2fae4e}
+  .sw input:checked+.tr+.kb{transform:translateX(20px)}
+  .setup-note{background:var(--green-bg);color:var(--green-fg);border-radius:8px;padding:12px 14px;margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .setup-note button{background:var(--green-fg);color:#fff;border:0;border-radius:4px;padding:7px 14px;font-weight:600;cursor:pointer}
+
+  /* ---- settings page ---- */
+  .set-page{max-width:900px;margin:0 auto;padding:22px 20px 60px}
+  .panel{border:1px solid var(--border);border-radius:8px;margin-bottom:18px;overflow:hidden}
+  .panel-h{background:#f7f8fa;padding:12px 16px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+  .panel-b{padding:16px}
+  .fld{margin-bottom:14px}
+  .fld label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600}
+  .fld input[type=text],.fld textarea,.fld select{width:100%;border:1px solid var(--border);border-radius:4px;padding:9px 11px}
+  .fld textarea{min-height:74px;resize:vertical}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .lchip{background:#eef2f6;border:1px solid #dfe5ec;border-radius:14px;padding:4px 12px;font-size:12px;font-weight:600;color:#42566b;display:inline-flex;gap:7px;align-items:center}
+  .lchip .x{cursor:pointer;color:#8a97a6}.lchip .x:hover{color:var(--icon-red)}
+  .btn-lt{background:#fff;border:1px solid var(--blue);color:var(--blue);border-radius:4px;padding:7px 14px;font-weight:600;cursor:pointer;font-size:13px}
+  .btn-lt:hover{background:#f2f9ff}
+  .perm-row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px}
+  .perm-row .pt{display:flex;align-items:center;gap:10px}
+  .perm-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px;background:#eef2f6;color:#42566b}
+  .note-add{display:flex;gap:10px;margin-bottom:14px}
+  .note-add input{flex:1;border:1px solid var(--border);border-radius:var(--r-base);padding:9px 11px}
+  .note-row{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--border-lt)}
+  .note-row:last-child{border-bottom:0}
+  .note-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);margin-top:7px;flex:0 0 auto}
+  .note-txt{font-size:15px;color:var(--text)}
+  .note-meta{font-size:12px;color:var(--muted);margin-top:2px}
+
+  /* ---- bulk bar ---- */
+  .bulkbar{position:sticky;bottom:0;background:#2b2f36;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;margin:0 -20px;border-radius:8px 8px 0 0}
+  .bulkbar .ba{display:flex;gap:10px}
+  .bulkbar button{border:0;border-radius:4px;padding:8px 16px;font-weight:600;cursor:pointer}
+  .b-cancel{background:#4a4f57;color:#fff}.b-deact{background:#e5484d;color:#fff}.b-react{background:#2fae4e;color:#fff}.b-purge{background:#b3243a;color:#fff}
+
+  /* ---- viewer (Figma 1160:116458) ---- */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:70;padding:24px}
+  .overlay.dark{background:#000;padding:0}
+  .viewer{background:#000;overflow:hidden;width:100%;height:100%;display:flex;flex-direction:column}
+  .viewer-head{background:var(--charcoal);color:#fff;display:flex;align-items:center;gap:12px;padding:14px 22px;flex:0 0 auto}
+  .viewer-head .vt{color:var(--icon-red);font-size:18px}
+  .viewer-head .vname{font-weight:700;font-size:16px;margin-right:auto}
+  .viewer-head .vbadge{background:var(--surface2);color:#63636d;border-radius:var(--r-base);padding:4px 6px;font-size:14px;font-weight:600}
+  .viewer-head .vx{cursor:pointer;font-size:18px;background:none;border:0;color:#fff;padding:4px}
+  .viewer-body{flex:1;overflow:auto;background:#000;display:flex;flex-direction:column}
+  .player{flex:1;background:#0a0a0a;display:flex;align-items:center;justify-content:center;position:relative;color:#fff;min-height:340px}
+  .play-center{width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,.92);color:#111;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;padding-left:4px}
+  .scrub{position:absolute;left:14px;right:14px;bottom:46px;height:4px;background:rgba(255,255,255,.35);border-radius:2px}
+  .scrub-fill{position:absolute;left:0;top:0;bottom:0;width:18%;background:#f00;border-radius:2px}
+  .scrub-dot{position:absolute;left:18%;top:-4px;width:12px;height:12px;border-radius:50%;background:#f00;transform:translateX(-50%)}
+  .pbar{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#eee;display:flex;align-items:center;gap:18px;padding:10px 16px;font-size:13px}
+  .pbar .pl,.pbar .pr{display:flex;align-items:center;gap:18px}
+  .pbar .pr{margin-left:auto}
+  .pbar i{cursor:pointer;opacity:.92}
+  .iframe-mock{flex:1;background:#f3f3f3;display:flex;flex-direction:column;overflow:auto;min-height:340px}
+  .browser-chrome{background:#e9ecef;border-bottom:1px solid #d5d9dd;padding:8px 12px;font-size:12px;color:#666;display:flex;gap:10px;align-items:center}
+  .addr{flex:1;background:#fff;border-radius:12px;padding:4px 12px;color:#444}
+  .doc-page{background:#fff;border:1px solid #ddd;max-width:640px;margin:16px auto;padding:34px;min-height:280px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+  /* ---- modals ---- */
+  .modal{background:#fff;border-radius:10px;width:min(520px,100%);max-height:88vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+  .modal.sm{width:min(440px,100%)}
+  .modal-h{display:flex;align-items:center;gap:9px;padding:16px 20px;border-bottom:1px solid var(--border);font-weight:700;font-size:16px}
+  .modal-h .mx{margin-left:auto;cursor:pointer;color:#999;background:none;border:0;font-size:16px}
+  .modal-b{padding:18px 20px}
+  .modal-f{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--border)}
+  .btn{border:1px solid var(--border);background:#fff;padding:8px 18px;border-radius:5px;cursor:pointer;font-size:13px;font-weight:600}
+  .btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .btn.danger{background:#e5484d;color:#fff;border-color:#e5484d}
+  .btn.green{background:var(--green-fg);color:#fff;border-color:var(--green-fg)}
+  .cc{font-size:11px;color:#999;text-align:right;margin-top:3px}
+  .toggle-line{display:flex;align-items:flex-start;gap:10px;background:#f7f8fa;border-radius:6px;padding:12px;margin-top:6px}
+  .toggle-line .tx{font-size:12px;color:#555}
+  .succ{text-align:center;padding:8px 4px 4px}
+  .succ .ck{width:64px;height:64px;border-radius:50%;background:var(--green-bg);color:var(--green-fg);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2b2f36;color:#fff;padding:11px 20px;border-radius:8px;z-index:80;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+  .modal h3{margin:0 0 12px}
+
+  /* ---- notifications / home entry (end user 04) ---- */
+  .notif-wrap{display:grid;grid-template-columns:1fr 360px;gap:24px;padding:20px}
+  @media(max-width:900px){.notif-wrap{grid-template-columns:1fr}}
+  .email{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .email .subj{padding:12px 16px;border-bottom:1px solid var(--border);font-weight:700}
+  .email .ebody{padding:16px}
+  .email .acard-mini{display:flex;gap:12px;border:1px solid var(--border);border-radius:8px;padding:10px;margin:14px 0}
+  .email .acard-mini .m-thumb{width:120px;height:70px;border-radius:4px;background-size:cover;flex:0 0 auto}
+  .launch{background:var(--blue);color:#fff;border:0;border-radius:5px;padding:9px 18px;font-weight:700;cursor:pointer}
+  .phone{border:10px solid #222;border-radius:28px;overflow:hidden;background:#f5f6f8;height:520px;display:flex;flex-direction:column}
+  .phone .p-head{background:#fff;padding:12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #eee;font-weight:700}
+  .sms{background:#eef0f3;margin:14px;border-radius:12px;padding:12px;font-size:13px;line-height:1.5}
+  .section-label{padding:14px 20px 0;color:var(--muted);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .assigned{margin:16px 20px;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+  .assigned .ahead{background:#3f2a56;color:#fff;padding:10px 14px;font-weight:700}
+  .assigned table{width:100%;border-collapse:collapse}
+  .assigned th{background:#f3f3f3;text-align:left;font-size:12px;padding:8px 12px;border-bottom:1px solid var(--border)}
+  .assigned td{padding:10px 12px;border-bottom:1px solid #eee}
+  .ml-row{background:#eef6fb}
+  .open-btn{background:var(--blue);color:#fff;border:0;border-radius:4px;padding:6px 16px;cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+<div class="protobar">
+  <div class="pb-left"><b>TKT-8716 · Microlearning</b> <span class="pb-badge">Prototype v1</span> <span class="pb-note" id="pbNote"></span></div>
+  <div class="seg">
+    <button id="segAdmin" onclick="switchPersp('admin')">Admin</button>
+    <button id="segUser" onclick="switchPersp('user')">End User</button>
+  </div>
+  <button class="pb-reset" onclick="resetAll()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+</div>
+<div class="surface"><div id="app"></div></div>
+
+<script>
+/* ================= shared ================= */
+const HUES=[205,25,145,45,265,15,195,95,320,170];
+function grad(h){return `linear-gradient(135deg,hsl(${h},55%,55%),hsl(${(h+40)%360},60%,42%))`}
+const ICON={Video:'fa-film',Link:'fa-link',PDF:'fa-file-pdf',SCORM:'fa-gamepad',Document:'fa-file-lines',Activity:'fa-gamepad'};
+function tico(t){return `<i class="fa-solid ${ICON[t]||'fa-file'}"></i>`}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+/* ================= END USER data ================= */
+const TYPES=["Video","Link","Document","Activity"];
+const RAW=[
+  {name:"Daily Pre-Trip",done:1,total:5,updated:false},
+  {name:"Defensive Driving",done:5,total:5,updated:false},
+  {name:"Fall Protection",done:1,total:5,updated:true},
+  {name:"Ground Disturbance",done:1,total:5,updated:false},
+  {name:"Propane Handling & Exchange",done:0,total:5,updated:false},
+  {name:"Rigging",done:10,total:10,updated:false},
+  {name:"Skid Steer Loader",done:0,total:5,updated:false},
+  {name:"Transportation of Dangerous Goods",done:1,total:5,updated:false},
+].sort((a,b)=>a.name.localeCompare(b.name));
+const TOPICS=RAW.map((t,i)=>{
+  const hue=HUES[i%HUES.length];
+  const acts=Array.from({length:t.total},(_,k)=>({
+    id:`${i}-${k}`,name:`Microlearning Activity ${["One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten"][k]||k+1}`,
+    type:TYPES[k%TYPES.length],hue:(hue+k*18)%360,completed:k<t.done
+  }));
+  return {id:i,name:t.name,total:t.total,updated:t.updated,hue,thumb:grad(hue),acts,
+    desc:`This microlearning topic on ${t.name} delivers bite-sized, engaging activities — short videos, documents, links and interactive activities — designed to be completed over time so learners build and retain the key safety knowledge. Work through each activity at your own pace; your progress is tracked automatically and your completion is recorded on your training profile.`};
+});
+const doneOf=t=>t.acts.filter(a=>a.completed).length;
+
+/* ================= ADMIN data ================= */
+let aSeq=200;
+function mkItems(hue,defs){return defs.map((d,k)=>({id:++aSeq,name:d[0],type:d[1],active:d[2]!==false,hue:(hue+k*22)%360,ts:d[3]||"Jul 08, 2026"}))}
+let AT=[
+  {id:1,name:"Defensive Driving",status:"Active",hue:205,langs:["English","Français"],perms:[{t:"role",v:"All Drivers"}],
+    desc:"Short lessons on safe following distance, hazard perception and defensive habits behind the wheel.",
+    items:mkItems(205,[["Defensive Driving Introduction","Video"],["Following Distance (2-second rule)","PDF"],["Hazard Perception — interactive","SCORM"],["Provincial Rules of the Road","Link"]])},
+  {id:2,name:"Fall Protection",status:"Active",hue:145,langs:["English"],perms:[{t:"user",v:"Mikaela Yeo"}],
+    desc:"Working-at-heights fundamentals: harness inspection, anchor points and rescue planning.",
+    items:mkItems(145,[["Harness Inspection","Video"],["Anchor Points Explained","PDF"],["WAH Refresher — interactive","SCORM"]])},
+  {id:3,name:"Ground Disturbance",status:"Draft",hue:45,langs:["English"],perms:[],
+    desc:"Locating buried utilities and safe excavation practices before you break ground.",
+    items:mkItems(45,[["Call Before You Dig","Link"],["Utility Locating Basics","PDF"]])},
+  {id:4,name:"Rigging",status:"Deactivated",hue:265,langs:["English"],perms:[],deactBy:"Mikaela Yeo",deactDate:"Jun 30, 2026",
+    desc:"Sling angles, load charts and safe lifting for riggers and signalpersons.",
+    items:mkItems(265,[["Sling Angles","PDF",false],["Load Chart Reading","Video",false]])},
+];
+const AST={Active:{cls:"a",dot:"a",label:"Active",pill:"st-completed"},Draft:{cls:"d",dot:"d",label:"Draft",pill:"st-inprogress"},Deactivated:{cls:"x",dot:"x",label:"Deactivated",pill:"st-completed"}};
+function draftPill(s){return s==="Active"?"background:var(--green-bg);color:var(--green-fg)":s==="Draft"?"background:var(--grey-bg);color:var(--grey-fg)":"background:var(--red-bg);color:var(--red-fg)"}
+const ATOPIC=id=>AT.find(t=>t.id===id);
+/* audit trail (Notes) */
+AT.forEach(t=>{ if(!t.notes){ t.notes=[{ts:"Jul 08, 2026",by:"Mikaela Yeo",txt:"Topic created."}]; if(t.status==='Deactivated'&&t.deactDate) t.notes.unshift({ts:t.deactDate,by:t.deactBy||"Mikaela Yeo",txt:"Topic deactivated."}); } });
+function logNote(t,txt){ if(t&&t.notes) t.notes.unshift({ts:"Jul 14, 2026",by:"Mikaela Yeo",txt}); }
+
+/* ================= state ================= */
+const DEF=()=>({
+  persp:"user",
+  /* user */ view:"topicHome",topicId:null,filter:"all",q:"",gridList:"grid",viewer:null,demoOpen:false,kickout:false,descExpanded:false,
+  /* admin */ mlEnabled:true,aView:"dashboard",aTopic:null,aFilter:"Active",aq:"",aGrid:"grid",aContentTab:"Active",aDesc:false,sel:[],modal:null,toast:null
+});
+let S=DEF();
+const app=document.getElementById('app');
+function go(patch){Object.assign(S,patch);render();}
+function switchPersp(p){S.persp=p;S.modal=null;S.viewer=null;S.kickout=false;render();}
+function resetAll(){const p=S.persp;S=DEF();S.persp=p;render();}
+let toastTimer=null;
+function toast(msg){S.toast=msg;render();clearTimeout(toastTimer);toastTimer=setTimeout(()=>{S.toast=null;render();},2200);}
+
+/* status of end-user topic */
+function statusOf(t){const d=doneOf(t);
+  if(d>=t.total)return{key:"completed",label:"Completed",cls:"st-completed"};
+  if(d===0)return{key:"new",label:"New",cls:"st-new"};
+  return{key:"inprogress",label:"In Progress",cls:"st-inprogress"};}
+const SICON={completed:'<i class="fa-solid fa-circle-check"></i>',inprogress:'<i class="fa-solid fa-clock"></i>',new:'<i class="fa-solid fa-star"></i>'};
+
+/* ================= chrome ================= */
+function chrome(active,inner){return `
+  <div class="topbar">
+    <div class="brand"><i class="fa-solid fa-shield-halved"></i> BIS <span>IN-HOUSE<br>CANADA</span></div>
+    <div class="topbar-right"><span class="search-user">Search User <i class="fa-solid fa-magnifying-glass"></i></span><i class="fa-regular fa-circle-question"></i><span>Log Out <i class="fa-solid fa-angle-right"></i></span></div>
+  </div>
+  <nav class="nav">
+    <a class="${active==='home'?'active':''}">Home</a><a>Profile</a><a>Store</a><a>Users</a><a>Reporting</a><a>Calendar</a><a>Assets</a><a>Folders</a>
+    <a class="${active==='ml'?'active':''}">Microlearning</a><a>QR</a><a class="${active==='admin'?'active':''}">Admin</a>
+  </nav>${inner}`;}
+
+/* =====================================================================
+   ADMIN
+   ===================================================================== */
+function renderAdmin(){
+  if(S.aView==="setup")return renderSetup();
+  if(!S.mlEnabled)return renderSetup();
+  if(S.aView==="dashboard")return renderDash();
+  if(S.aView==="content")return renderContent();
+  if(S.aView==="settings")return renderSettings();
+  return renderDash();
+}
+
+/* ---- Setup ---- */
+function renderSetup(){
+  const modules=[["Training Matrix","Assign required training by position",true],["Microlearning","Bite-sized training topics",S.mlEnabled],["Forms","Digital forms & inspections",true],["Assets","Equipment & asset tracking",true]];
+  return chrome('admin',`
+    <div class="module-head"><h1><i class="fa-solid fa-gear"></i> Setup — System Modules</h1></div>
+    <div class="setup-wrap">
+      <div class="crumb">Admin › Setup › System Modules</div>
+      ${modules.map(m=>`
+        <div class="mod-row ${m[0]==='Microlearning'?'hl':''}">
+          <div><div class="mn">${m[0]==='Microlearning'?'<i class="fa-solid fa-graduation-cap" style="color:var(--bis-red)"></i>':''}${m[0]}</div><div class="md">${m[1]}</div></div>
+          ${m[0]==='Microlearning'
+            ? `<label class="sw"><input type="checkbox" ${S.mlEnabled?'checked':''} onchange="toggleML(this.checked)"><span class="tr"></span><span class="kb"></span></label>`
+            : `<label class="sw"><input type="checkbox" ${m[2]?'checked':''} disabled><span class="tr"></span><span class="kb"></span></label>`}
+        </div>`).join('')}
+      ${S.mlEnabled?`<div class="setup-note"><span><i class="fa-solid fa-circle-check"></i> Microlearning is ON — the module tile and the end-user tab are now visible.</span><button onclick="go({aView:'dashboard'})">Open Microlearning →</button></div>`
+        :`<div class="setup-note" style="background:#f2f3f5;color:#555"><span>Microlearning is OFF — turn it on to expose the module and the learner tab.</span></div>`}
+    </div>`);
+}
+function toggleML(v){S.mlEnabled=v;render();}
+
+/* ---- Dashboard ---- */
+function aVisibleTopics(){return AT.filter(t=>t.status===S.aFilter && (!S.aq||t.name.toLowerCase().includes(S.aq.toLowerCase())))}
+function renderDash(){
+  const items=aVisibleTopics();
+  let body;
+  if(AT.filter(t=>t.status===S.aFilter).length===0){
+    body=`<div class="empty"><div class="ico"><i class="fa-solid fa-graduation-cap"></i></div><h2>Welcome to your Microlearning module!</h2><p>Create and deliver bite-sized, engaging training to your users. Click (+) Add Topic to get started.</p><button class="btn primary" onclick="openAddTopic()"><i class="fa-solid fa-plus"></i> Add Topic</button></div>`;
+  } else if(items.length===0){
+    body=`<div class="empty"><div class="ico"><i class="fa-regular fa-circle-question"></i></div><div style="margin-top:10px">No topics found.</div></div>`;
+  } else if(S.aGrid==="grid"){
+    body=`<div class="grid">${items.map(t=>{const s=AST[t.status];return `
+      <div class="card" onclick="openContent(${t.id})">
+        <div class="thumb" style="background:${grad(t.hue)}"><span class="dot ${s.dot}" title="${s.label}"></span></div>
+        <div class="name" style="padding:12px 12px 0;flex:1">${esc(t.name)}</div>
+        <div class="acts-row" onclick="event.stopPropagation()">
+          <span>Activities: <b>${t.items.length}</b></span>
+          <span class="ic"><i class="fa-solid fa-pen" title="Edit topic" onclick="openContent(${t.id})"></i><i class="fa-solid fa-gear" title="Topic settings" onclick="openSettings(${t.id})"></i></span>
+        </div>
+        <div class="prov-foot">Clean Environment LTD.</div>
+      </div>`;}).join('')}</div>`;
+  } else {
+    body=`<table class="list"><thead><tr><th>Topic</th><th>Training Provider</th><th style="width:90px">Activities</th><th style="width:60px">Edit</th><th style="width:70px">Settings</th></tr></thead><tbody>
+      ${items.map(t=>`<tr class="clk" onclick="openContent(${t.id})"><td><div class="list-topic"><span class="list-thumb" style="background:${grad(t.hue)}"></span><span style="font-weight:700">${esc(t.name)}</span></div></td>
+      <td style="color:var(--muted)">Clean Environment</td><td style="color:var(--muted)">${t.items.length}</td>
+      <td onclick="event.stopPropagation();openContent(${t.id})"><span class="ic-btn"><i class="fa-solid fa-pen"></i></span></td>
+      <td onclick="event.stopPropagation();openSettings(${t.id})"><span class="ic-btn"><i class="fa-solid fa-gear"></i></span></td></tr>`).join('')}
+      </tbody></table>`;
+  }
+  return chrome('admin',`
+    <div class="module-head">
+      <h1><i class="fa-solid fa-graduation-cap"></i> Microlearning</h1>
+      <div class="right"><select class="co-drop"><option>Clean Environment</option><option>All Companies</option></select><button class="btn-back" onclick="go({aView:'setup'})">Back</button></div>
+    </div>
+    <div class="toolbar">
+      <div class="pills">
+        ${["Active","Draft","Deactivated"].map(f=>`<button class="${S.aFilter===f?'active':''}" onclick="go({aFilter:'${f}',sel:[]})">${f}</button>`).join('')}
+      </div>
+      <div class="searchbox"><input id="aSearch" placeholder="Search" value="${esc(S.aq)}" oninput="go({aq:this.value})"><span class="ico"><i class="fa-solid fa-magnifying-glass"></i></span></div>
+      <button class="btn primary" style="margin-left:auto" onclick="openAddTopic()"><i class="fa-solid fa-plus"></i> Add Topic</button>
+      <div class="view-toggle">
+        <button class="${S.aGrid==='grid'?'active':''}" onclick="go({aGrid:'grid'})"><i class="fa-solid fa-table-cells-large"></i></button>
+        <button class="${S.aGrid==='list'?'active':''}" onclick="go({aGrid:'list'})"><i class="fa-solid fa-list"></i></button>
+      </div>
+    </div>
+    <div class="wrap">${body}</div>`);
+}
+
+/* ---- Topic Content ---- */
+function renderContent(){
+  const t=ATOPIC(S.aTopic);if(!t)return renderDash();
+  const s=AST[t.status];
+  const onActive=S.aContentTab==="Active";
+  const items=t.items.filter(a=>a.active===onActive && (!S.aq||a.name.toLowerCase().includes(S.aq.toLowerCase()))).sort((a,b)=>a.name.localeCompare(b.name));
+  let body;
+  if(items.length===0){
+    body=onActive
+      ? `<div class="empty"><div class="ico"><i class="fa-solid fa-graduation-cap"></i></div><p style="margin-top:12px">You have not created any content yet. Please click (+) Add Content to create content.</p><button class="btn primary" onclick="openAddContent()"><i class="fa-solid fa-plus"></i> Add Content</button></div>`
+      : `<div class="empty"><div class="ico"><i class="fa-regular fa-circle-question"></i></div><div style="margin-top:10px">No deactivated content.</div></div>`;
+  } else {
+    body=`<div class="acts-grid">${items.map(a=>`
+      <div class="acard">
+        <input type="checkbox" class="cbx" ${S.sel.includes(a.id)?'checked':''} onclick="toggleSel(${a.id})" title="Select">
+        <div class="athumb" style="background:${grad(a.hue)}"></div>
+        <div class="abody" ${onActive?`style="cursor:pointer" onclick="openEditContent(${a.id})"`:''}>
+          <div class="aname">${esc(a.name)}</div>
+          <span class="type-chip">${tico(a.type)} ${a.type}</span>
+          <div class="ameta">Last Updated: ${a.ts}</div>
+        </div>
+        <div class="aicons">
+          ${onActive?`<i class="fa-solid fa-pen" title="Edit" onclick="openEditContent(${a.id})"></i>
+            <i class="fa-solid fa-eye" title="Preview" onclick="previewContent(${a.id})"></i>
+            <i class="fa-solid fa-xmark del" title="Deactivate" onclick="confirmDeact([${a.id}])"></i>`
+          :`<i class="fa-solid fa-rotate-left" title="Reactivate" onclick="doReactivate([${a.id}])"></i>
+            <i class="fa-solid fa-trash del" title="Purge" onclick="confirmPurge([${a.id}])"></i>`}
+        </div>
+      </div>`).join('')}</div>`;
+  }
+  const bulk=S.sel.length?`<div class="bulkbar"><span><b>${S.sel.length}</b> item${S.sel.length>1?'s':''} selected</span>
+    <div class="ba"><button class="b-cancel" onclick="go({sel:[]})">Cancel</button>
+    ${onActive?`<button class="b-deact" onclick="confirmDeact(S.sel.slice())">Deactivate</button>`
+      :`<button class="b-react" onclick="doReactivate(S.sel.slice())">Reactivate</button><button class="b-purge" onclick="confirmPurge(S.sel.slice())">Purge</button>`}</div></div>`:'';
+  return chrome('admin',`
+    <div class="module-head">
+      <h1>Microlearning | ${esc(t.name)} <span class="status-chip" style="${draftPill(t.status)}">${s.label}</span></h1>
+      <div class="right"><input id="aSearchH" class="head-search" placeholder="Search" value="${esc(S.aq)}" oninput="go({aq:this.value})"><button class="btn-back" onclick="go({aView:'dashboard',aq:'',sel:[]})">Back</button></div>
+    </div>
+    <div class="toolbar">
+      <div class="pills">
+        ${["Active","Deactivated"].map(f=>`<button class="${S.aContentTab===f?'active':''}" onclick="go({aContentTab:'${f}',sel:[]})">${f}</button>`).join('')}
+      </div>
+      <div class="searchbox"><input id="aSearch" placeholder="Search content" value="${esc(S.aq)}" oninput="go({aq:this.value})"><span class="ico"><i class="fa-solid fa-magnifying-glass"></i></span></div>
+      ${onActive?`<button class="btn primary" style="margin-left:auto" onclick="openAddContent()"><i class="fa-solid fa-plus"></i> Add Content</button>`:'<span style="margin-left:auto"></span>'}
+      <button class="btn" onclick="openSettings(${t.id})"><i class="fa-solid fa-gear"></i> Settings</button>
+    </div>
+    <div class="wrap">
+      <div class="desc">
+        <div class="desc-head" onclick="go({aDesc:!S.aDesc})"><span>Description</span><i class="fa-solid fa-chevron-${S.aDesc?'up':'down'}"></i></div>
+        <div class="desc-body ${S.aDesc?'':'collapsed'}">${esc(t.desc)}</div>
+        ${S.aDesc?'':'<span class="showmore" onclick="go({aDesc:true})">Show more</span>'}
+      </div>
+      ${body}${bulk}
+    </div>`);
+}
+
+/* ---- Topic Settings ---- */
+function renderSettings(){
+  const t=ATOPIC(S.aTopic);if(!t)return renderDash();
+  return chrome('admin',`
+    <div class="module-head">
+      <h1>Microlearning | ${esc(t.name)} <span style="font-size:12px;opacity:.85">Settings</span></h1>
+      <div class="right">
+        <select class="co-drop" onchange="setStatus(${t.id},this.value)"><option ${t.status==='Active'?'selected':''}>Active</option><option ${t.status==='Draft'?'selected':''}>Draft</option></select>
+        <button class="btn-back" style="border-color:#fff" onclick="confirmDeactTopic(${t.id})">Deactivate Topic</button>
+        <button class="btn-back" onclick="go({aView:'content'})">Back</button>
+      </div>
+    </div>
+    <div class="set-page">
+      <div class="panel"><div class="panel-h">General</div><div class="panel-b">
+        <div class="fld"><label>Title</label><input id="s_title" type="text" value="${esc(t.name)}" maxlength="150" oninput="t_rename(${t.id},this.value)"><div class="cc">${t.name.length}/150</div></div>
+        <div class="fld"><label>Image</label><div style="display:flex;gap:12px;align-items:center"><span class="list-thumb" style="width:88px;height:52px;background:${grad(t.hue)}"></span><button class="btn-lt">Select File</button><span style="color:#999;font-size:12px">JPG/PNG &lt; 4 MB · rec 100×60</span></div></div>
+        <div class="fld"><label>Languages</label><div class="chips">${t.langs.map(l=>`<span class="lchip">${l}${l==='English'?'':` <span class="x" onclick="delLang(${t.id},'${l}')">✕</span>`}</span>`).join('')}<button class="btn-lt" onclick="openManageLang(${t.id})">Manage languages</button></div></div>
+        <div class="fld"><label>Description</label><textarea id="s_desc" maxlength="500" oninput="t_desc(${t.id},this.value)">${esc(t.desc)}</textarea><div class="cc">${t.desc.length}/500</div></div>
+      </div></div>
+      <div class="panel"><div class="panel-h">Permissions <button class="btn-lt" onclick="openAddPerm(${t.id})"><i class="fa-solid fa-plus"></i> Add Permission</button></div><div class="panel-b">
+        ${t.perms.length?t.perms.map((p,i)=>`<div class="perm-row"><div class="pt"><span class="perm-tag">${p.t==='user'?'By User':'By Company Role'}</span> ${esc(p.v)}</div><i class="fa-solid fa-xmark ic-btn" onclick="delPerm(${t.id},${i})"></i></div>`).join('')
+          :`<div style="color:#999">No permissions yet — add By User or By Company Role to grant learners access.</div>`}
+        <div style="color:#999;font-size:12px;margin-top:8px"><i class="fa-solid fa-circle-info"></i> By Location is out of scope; By User + By Company Role cover the flow.</div>
+      </div></div>
+      <div class="panel"><div class="panel-h">Notes / audit trail</div><div class="panel-b">
+        <div class="note-add"><input id="noteInput" type="text" placeholder="Add a note…" onkeydown="if(event.key==='Enter')addNote(${t.id})"><button class="btn primary" onclick="addNote(${t.id})">Add note</button></div>
+        ${t.notes.map(n=>`<div class="note-row"><div class="note-dot"></div><div><div class="note-txt">${esc(n.txt)}</div><div class="note-meta">${esc(n.by)} · ${n.ts}</div></div></div>`).join('')}
+      </div></div>
+    </div>`);
+}
+
+/* ================= ADMIN actions ================= */
+window.openContent=id=>go({aView:"content",aTopic:id,aq:"",aContentTab:"Active",sel:[],aDesc:false});
+window.openSettings=id=>go({aView:"settings",aTopic:id});
+window.setStatus=(id,v)=>{const t=ATOPIC(id);t.status=v;logNote(t,`Status changed to ${v}.`);toast(`Topic set to ${v}`);};
+window.addNote=id=>{const el=document.getElementById('noteInput');const v=(el&&el.value||'').trim();if(!v)return;logNote(ATOPIC(id),v);render();toast("Note added");};
+window.t_rename=(id,v)=>{ATOPIC(id).name=v;render();};
+window.t_desc=(id,v)=>{ATOPIC(id).desc=v;render();};
+
+/* create topic */
+function openAddTopic(){S.modal={kind:"addTopic",title:"",desc:"",lang:"English"};render();}
+window.openAddTopic=openAddTopic;
+function submitAddTopic(){
+  const m=S.modal;if(!m.title.trim()){m.err=true;render();return;}
+  const id=Math.max(...AT.map(t=>t.id))+1;const hue=HUES[(id*3)%HUES.length];
+  AT.unshift({id,name:m.title.trim(),status:"Active",hue,langs:["English"],perms:[],desc:m.desc||"New microlearning topic.",items:[],notes:[{ts:"Jul 14, 2026",by:"Mikaela Yeo",txt:"Topic created."}]});
+  S.modal=null;S.aFilter="Active";go({aView:"content",aTopic:id,aContentTab:"Active",aq:"",sel:[],aDesc:false});toast("Topic created");
+}
+window.submitAddTopic=submitAddTopic;
+
+/* add content */
+function openAddContent(){S.modal={kind:"addContent",title:"",type:"",src:"",lang:"English"};render();}
+window.openAddContent=openAddContent;
+function submitAddContent(){
+  const m=S.modal,t=ATOPIC(S.aTopic);
+  if(!m.title.trim()||!m.type){m.err=true;render();return;}
+  t.items.push({id:++aSeq,name:m.title.trim(),type:m.type,active:true,hue:HUES[(aSeq*2)%HUES.length],ts:"Jul 13, 2026"});
+  logNote(t,`Content added: “${m.title.trim()}” (${m.type}).`);
+  S.modal={kind:"success",msg:"New Content Created Successfully!",body:`A new content item was added to ${t.name}. Any user with access to this topic can view it.`};
+  render();
+}
+window.submitAddContent=submitAddContent;
+
+/* edit content */
+function openEditContent(id){const t=ATOPIC(S.aTopic);const a=t.items.find(x=>x.id===id);S.modal={kind:"editContent",id,title:a.name,type:a.type,again:false};render();}
+window.openEditContent=openEditContent;
+function submitEditContent(){
+  const m=S.modal,t=ATOPIC(S.aTopic),a=t.items.find(x=>x.id===m.id);
+  a.name=m.title.trim()||a.name;a.type=m.type;a.ts="Jul 13, 2026";
+  S.modal={kind:"success",msg:"Content Updated",body:m.again?"Content updated. Users who already completed it must complete it again — their latest completion record is kept.":"Content updated. Existing completions are preserved."};
+  render();
+}
+window.submitEditContent=submitEditContent;
+window.previewContent=id=>{const t=ATOPIC(S.aTopic);const a=t.items.find(x=>x.id===id);S.modal={kind:"preview",name:a.name,type:a.type,hue:a.hue,topic:t.name};render();};
+
+/* deactivate / reactivate / purge */
+window.confirmDeact=ids=>{S.modal={kind:"deact",ids};render();};
+window.doDeact=()=>{const t=ATOPIC(S.aTopic);const n=S.modal.ids.length;S.modal.ids.forEach(id=>{const a=t.items.find(x=>x.id===id);if(a){a.active=false;a.deactDate="Jul 13, 2026";a.deactBy="Mikaela Yeo";}});logNote(t,`Deactivated ${n} content item${n>1?'s':''}.`);S.modal=null;S.sel=[];render();toast("Content deactivated");};
+window.doReactivate=ids=>{const t=ATOPIC(S.aTopic);ids.forEach(id=>{const a=t.items.find(x=>x.id===id);if(a)a.active=true;});logNote(t,`Reactivated ${ids.length} content item${ids.length>1?'s':''}.`);S.sel=[];render();toast("Content reactivated");};
+window.confirmPurge=ids=>{S.modal={kind:"purge",ids,code:""};render();};
+window.doPurge=()=>{const t=ATOPIC(S.aTopic);const n=S.modal.ids.length;t.items=t.items.filter(a=>!S.modal.ids.includes(a.id));logNote(t,`Purged ${n} content item${n>1?'s':''} (permanent).`);S.modal=null;S.sel=[];render();toast("Content purged permanently");};
+window.confirmDeactTopic=id=>{S.modal={kind:"deactTopic",id};render();};
+window.doDeactTopic=()=>{const t=ATOPIC(S.modal.id);t.status="Deactivated";t.deactBy="Mikaela Yeo";t.deactDate="Jul 13, 2026";logNote(t,"Topic deactivated.");S.modal=null;go({aView:"dashboard",aFilter:"Deactivated"});toast("Topic deactivated");};
+
+/* languages + permissions */
+window.openManageLang=id=>{S.modal={kind:"manageLang",id,add:"French"};render();};
+window.addLang=()=>{const t=ATOPIC(S.modal.id);if(!t.langs.includes(S.modal.add))t.langs.push(S.modal.add);render();};
+window.delLang=(id,l)=>{const t=ATOPIC(id);t.langs=t.langs.filter(x=>x!==l);render();};
+window.openAddPerm=id=>{S.modal={kind:"addPerm",id,t:"user",v:""};render();};
+window.addPerm=()=>{const m=S.modal;if(!m.v.trim()){m.err=true;render();return;}ATOPIC(m.id).perms.push({t:m.t,v:m.v.trim()});logNote(ATOPIC(m.id),`Permission added: ${m.t==='user'?'By User':'By Company Role'} — ${m.v.trim()}.`);S.modal=null;render();toast("Permission added");};
+window.delPerm=(id,i)=>{ATOPIC(id).perms.splice(i,1);render();};
+window.toggleSel=id=>{S.sel.includes(id)?S.sel=S.sel.filter(x=>x!==id):S.sel.push(id);render();};
+
+/* ================= ADMIN modals ================= */
+function adminModal(){
+  const m=S.modal;if(!m)return'';
+  let inner='';
+  if(m.kind==="addTopic"){
+    inner=modalShell('<i class="fa-solid fa-plus"></i> Add Microlearning Topic',`
+      ${fldText('Title','title',m.title,150,m.err&&!m.title.trim()?'Please enter a title.':'')}
+      ${fldLang(m.lang)}
+      <div class="fld"><label>Image</label><button class="btn-lt">Select File</button> <span style="color:#999;font-size:12px">No image → default image used.</span></div>
+      ${fldArea('Description','desc',m.desc,500)}`,
+      `<button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="submitAddTopic()">Add</button>`);
+  } else if(m.kind==="addContent"){
+    inner=modalShell('<i class="fa-solid fa-plus"></i> New Content',`
+      ${fldText('Title','title',m.title,50,m.err&&!m.title.trim()?'Please enter a title.':'')}
+      <div class="fld"><label>Image</label><button class="btn-lt">Select File</button> <span style="color:#999;font-size:12px">JPG/PNG &lt; 4 MB · default if none.</span></div>
+      <div class="fld"><label>Type *</label><select onchange="mSet('type',this.value)"><option value="">Select Type</option>
+        ${["Link","PDF","Video","SCORM"].map(x=>`<option ${m.type===x?'selected':''}>${x}</option>`).join('')}</select>${m.err&&!m.type?'<div style="color:#c0392b;font-size:12px;margin-top:4px">Please choose a type.</div>':''}</div>
+      ${m.type?typeField(m.type):''}
+      ${fldLang(m.lang)}`,
+      `<button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="submitAddContent()">Add</button>`);
+  } else if(m.kind==="editContent"){
+    inner=modalShell('<i class="fa-solid fa-pen"></i> Edit Content',`
+      ${fldText('Title','title',m.title,50,'')}
+      <div class="fld"><label>Type *</label><select onchange="mSet('type',this.value)">${["Link","PDF","Video","SCORM"].map(x=>`<option ${m.type===x?'selected':''}>${x}</option>`).join('')}</select></div>
+      ${typeField(m.type)}
+      <div class="toggle-line"><label class="sw"><input type="checkbox" ${m.again?'checked':''} onchange="mSet('again',this.checked)"><span class="tr"></span><span class="kb"></span></label>
+        <div class="tx"><b>Complete Again</b><br>Users who already completed this content must complete it again. Their latest completion record is kept.</div></div>`,
+      `<button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="submitEditContent()">Save</button>`);
+  } else if(m.kind==="deact"){
+    inner=modalShell('<i class="fa-solid fa-ban" style="color:#e5484d"></i> Deactivate Content',
+      `<p>If you deactivate ${m.ids.length>1?'these content items':'this content'}, users can no longer access ${m.ids.length>1?'them':'it'}.</p>${idList(m.ids)}<p style="margin-top:10px">Are you sure you want to deactivate?</p>`,
+      `<button class="btn" onclick="closeModal()">Cancel</button><button class="btn danger" onclick="doDeact()">Deactivate</button>`);
+  } else if(m.kind==="purge"){
+    inner=modalShell('<i class="fa-solid fa-trash" style="color:#b3243a"></i> Purge Content',
+      `<p>Purging ${m.ids.length>1?'these content items':'this content'} will remove <b>all historical records of completion</b>. This is permanent.</p>${idList(m.ids)}
+       <div class="fld" style="margin-top:12px"><label>Purge Code</label><input id="m_code" type="text" placeholder="Enter purge code" value="${esc(m.code)}" oninput="mSet('code',this.value)"></div>`,
+      `<button class="btn" onclick="closeModal()">Cancel</button><button class="btn danger" ${m.code?'':'disabled style="opacity:.5;cursor:not-allowed"'} onclick="doPurge()">Purge</button>`);
+  } else if(m.kind==="deactTopic"){
+    const t=ATOPIC(m.id);
+    inner=modalShell('<i class="fa-solid fa-ban" style="color:#e5484d"></i> Deactivate '+esc(t.name),
+      `<p>If you deactivate this microlearning topic, it will no longer be available to users in your portal. Are you sure?</p>`,
+      `<button class="btn" onclick="closeModal()">Cancel</button><button class="btn danger" onclick="doDeactTopic()">Deactivate</button>`);
+  } else if(m.kind==="manageLang"){
+    const t=ATOPIC(m.id);const opts=["French","Spanish","Portuguese","Russian"].filter(l=>!t.langs.includes(l));
+    inner=modalShell('<i class="fa-solid fa-language"></i> Manage Languages',
+      `${t.langs.map(l=>`<div class="perm-row"><div class="pt"><span class="perm-tag">${l}</span>${l==='English'?' <span style="color:#999;font-size:12px">portal default</span>':' <span style="color:#999;font-size:12px">Title / Description · auto-translate</span>'}</div>${l==='English'?'':`<i class="fa-solid fa-xmark ic-btn" onclick="delLang(${m.id},'${l}')"></i>`}</div>`).join('')}
+       ${opts.length?`<div style="display:flex;gap:10px;margin-top:12px"><select onchange="mSet('add',this.value)">${opts.map(o=>`<option ${m.add===o?'selected':''}>${o}</option>`).join('')}</select><button class="btn-lt" onclick="addLang()"><i class="fa-solid fa-plus"></i> Add language</button></div>`:'<div style="color:#999;margin-top:10px">All available languages added.</div>'}`,
+      `<button class="btn primary" onclick="closeModal()">Done</button>`);
+  } else if(m.kind==="addPerm"){
+    inner=modalShell('<i class="fa-solid fa-user-plus"></i> Add Permission',
+      `<div class="fld"><label>Permission type</label><select onchange="mSet('t',this.value)"><option value="user" ${m.t==='user'?'selected':''}>By User</option><option value="role" ${m.t==='role'?'selected':''}>By Company Role</option></select></div>
+       ${fldText(m.t==='user'?'User':'Company Role','v',m.v,60,m.err&&!m.v.trim()?'Enter a value.':'')}
+       <div style="color:#999;font-size:12px"><i class="fa-solid fa-circle-info"></i> By Location is out of scope.</div>`,
+      `<button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="addPerm()">Add</button>`);
+  } else if(m.kind==="success"){
+    inner=`<div class="modal sm"><div class="modal-b"><div class="succ"><div class="ck"><i class="fa-solid fa-check"></i></div><h3>${m.msg}</h3><p style="color:#555">${m.body}</p></div></div><div class="modal-f"><button class="btn primary" onclick="closeModal()">Close</button></div></div>`;
+    return `<div class="overlay" onclick="if(event.target===this)closeModal()">${inner}</div>`;
+  } else if(m.kind==="preview"){
+    return previewOverlay(m);
+  }
+  return `<div class="overlay" onclick="if(event.target===this)closeModal()">${inner}</div>`;
+}
+function modalShell(title,body,footer,sm){return `<div class="modal ${sm?'sm':''}"><div class="modal-h">${title}<button class="mx" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-b">${body}</div><div class="modal-f">${footer}</div></div>`;}
+function fldText(label,key,val,max,err){return `<div class="fld"><label>${label} *</label><input id="m_${key}" type="text" maxlength="${max}" value="${esc(val)}" oninput="mSet('${key}',this.value)"><div class="cc">${(val||'').length}/${max}</div>${err?`<div style="color:#c0392b;font-size:12px">${err}</div>`:''}</div>`;}
+function fldArea(label,key,val,max){return `<div class="fld"><label>${label}</label><textarea id="m_${key}" maxlength="${max}" oninput="mSet('${key}',this.value)">${esc(val)}</textarea><div class="cc">${(val||'').length}/${max}</div></div>`;}
+function fldLang(cur){return `<div class="fld"><label>Language</label><div class="chips"><span class="lchip">English · default</span><span style="color:#999;font-size:12px">+ add languages (French, Spanish…) with auto-translate</span></div></div>`;}
+function typeField(type){
+  if(type==="Link")return `<div class="fld"><label>URL</label><input type="text" placeholder="https://www.safety.com" oninput="mSet('src',this.value)"></div>`;
+  if(type==="Video")return `<div class="fld"><label>Video source</label><input type="text" placeholder="YouTube / Vimeo URL — or upload MP4" oninput="mSet('src',this.value)"><div style="color:#999;font-size:12px;margin-top:4px">URL embed or uploaded MP4 (both in scope).</div></div>`;
+  if(type==="PDF")return `<div class="fld"><label>PDF file</label><button class="btn-lt">Upload a PDF</button></div>`;
+  if(type==="SCORM")return `<div class="fld"><label>SCORM package</label><button class="btn-lt">Upload SCORM (.zip)</button><div style="color:#999;font-size:12px;margin-top:4px">Completion reported by the SCORM runtime.</div></div>`;
+  return '';
+}
+function idList(ids){const t=ATOPIC(S.aTopic);return `<ul style="margin:8px 0 0 18px;color:#444">${ids.map(id=>{const a=t.items.find(x=>x.id===id);return a?`<li>${esc(a.name)}</li>`:''}).join('')}</ul>`;}
+window.mSet=(k,v)=>{S.modal[k]=v;render();};
+window.closeModal=()=>{S.modal=null;render();};
+
+/* preview reuses the learner viewer */
+function previewOverlay(m){
+  const head=`<div class="viewer-head"><span class="vt">${tico(m.type)}</span><span class="vname">${esc(m.name)}</span><span class="vbadge">Preview · ${esc(m.topic)}</span><button class="vx" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div>`;
+  let body;
+  if(m.type==="Video"||m.type==="SCORM"){
+    body=`<div class="player"><div class="play-center"><i class="fa-solid fa-play"></i></div><div class="scrub"><div class="scrub-fill"></div><div class="scrub-dot"></div></div>
+      <div class="pbar"><div class="pl"><i class="fa-solid fa-play"></i><i class="fa-solid fa-volume-high"></i><span>0:10 / ${m.type==='Video'?'6:17':'0:12'}</span></div><div class="pr"><i class="fa-solid fa-expand"></i></div></div></div>`;
+  } else {
+    body=`<div class="iframe-mock"><div class="browser-chrome"><i class="fa-regular fa-window-maximize"></i><span>iframe · ${m.type} viewer</span><span class="addr">preview — completion NOT recorded</span></div>
+      <div class="doc-page"><h2 style="text-align:center">${esc(m.name)}</h2><div style="height:150px;background:${grad(m.hue)};border-radius:6px;margin-top:14px"></div></div></div>`;
+  }
+  return `<div class="overlay dark"><div class="viewer">${head}<div class="viewer-body">${body}</div></div></div>`;
+}
+
+/* =====================================================================
+   END USER  (from the original End User prototype)
+   ===================================================================== */
+function demoMenu(){return `
+  <div class="demo">
+    <button onclick="go({demoOpen:!S.demoOpen})">Demo states <i class="fa-solid fa-caret-down"></i></button>
+    ${S.demoOpen?`<div class="demo-menu">
+      <button onclick="go({view:'homeEntry',demoOpen:false})">04.c — Home entry (Training)</button>
+      <button onclick="go({view:'notifications',demoOpen:false})">04.b — Notifications (email + SMS)</button>
+      <button onclick="go({kickout:true,demoOpen:false})">04.a — Kick-out modal</button>
+    </div>`:''}
+  </div>`;}
+
+function renderHome(){
+  const items=TOPICS.filter(t=>{
+    const s=statusOf(t).key;
+    if(S.filter==="inprogress"&&!(s==="inprogress"||s==="new"))return false;
+    if(S.filter==="complete"&&s!=="completed")return false;
+    if(S.q&&!t.name.toLowerCase().includes(S.q.toLowerCase()))return false;
+    return true;});
+  let body;
+  if(items.length===0){body=`<div class="empty"><div class="ico"><i class="fa-regular fa-circle-question"></i></div><div style="margin-top:10px">No topics found.</div></div>`;}
+  else if(S.gridList==="grid"){
+    body=`<div class="grid">${items.map(t=>{const s=statusOf(t);return `
+      <div class="card" onclick="openTopic(${t.id})">
+        <div class="thumb" style="background:${t.thumb}">${t.updated?'<span class="badge-updated"><i class="fa-solid fa-circle" style="font-size:7px"></i> Updated</span>':''}</div>
+        <div class="body"><div class="name">${t.name}</div><div class="acts">Activities: ${doneOf(t)}/${t.total}</div></div>
+        <div class="status ${s.cls}"><span class="lbl">${SICON[s.key]} ${s.label}</span><span class="chev"><i class="fa-solid fa-angle-right"></i></span></div>
+      </div>`;}).join('')}</div>`;
+  } else {
+    body=`<table class="list"><thead><tr><th>Topic</th><th style="width:160px">Status</th><th style="width:110px">Activities</th><th style="width:30px"></th></tr></thead><tbody>
+      ${items.map(t=>{const s=statusOf(t);const ps=s.key==="completed"?"background:var(--green-bg);color:var(--green-fg)":s.key==="new"?"background:var(--gold-bg);color:var(--gold-fg)":"background:var(--blue-bg);color:var(--blue-fg)";return `
+      <tr class="clk" onclick="openTopic(${t.id})"><td><div class="list-topic"><span class="list-thumb" style="background:${t.thumb}"></span><span class="name" style="font-weight:700">${t.name}</span>${t.updated?'<span class="list-updated"><i class="fa-solid fa-circle" style="font-size:7px"></i> Updated</span>':''}</div></td>
+      <td><span class="pill" style="${ps}">${s.label}</span></td><td style="color:var(--muted)">${doneOf(t)}/${t.total}</td><td style="color:#bbb;text-align:right"><i class="fa-solid fa-angle-right"></i></td></tr>`;}).join('')}
+      </tbody></table>`;
+  }
+  return chrome('ml',`
+    <div class="module-head"><h1>Microlearning</h1><div class="right">${demoMenu()}<button class="btn-back">Back</button></div></div>
+    <div class="toolbar">
+      <div class="pills">
+        <button class="${S.filter==='all'?'active':''}" onclick="go({filter:'all'})">All</button>
+        <button class="${S.filter==='inprogress'?'active':''}" onclick="go({filter:'inprogress'})">In Progress</button>
+        <button class="${S.filter==='complete'?'active':''}" onclick="go({filter:'complete'})">Complete</button>
+      </div>
+      <div class="searchbox"><input id="uSearch" placeholder="Search" value="${S.q}" oninput="go({q:this.value})"><span class="ico"><i class="fa-solid fa-magnifying-glass"></i></span></div>
+      <div class="view-toggle" style="margin-left:auto">
+        <button class="${S.gridList==='grid'?'active':''}" onclick="go({gridList:'grid'})" title="Grid"><i class="fa-solid fa-table-cells-large"></i></button>
+        <button class="${S.gridList==='list'?'active':''}" onclick="go({gridList:'list'})" title="List"><i class="fa-solid fa-list"></i></button>
+      </div>
+    </div>
+    <div class="wrap">${body}${items.length?'<div class="loadmore"><button>Load More</button></div>':''}</div>`);
+}
+
+function renderTopic(){
+  const t=TOPICS[S.topicId];const s=statusOf(t);
+  const chip=s.key==="completed"?"background:var(--green-bg);color:var(--green-fg)":s.key==="new"?"background:var(--gold-bg);color:var(--gold-fg)":"background:var(--blue-bg);color:var(--blue-fg)";
+  const acts=t.acts.filter(a=>!S.q||a.name.toLowerCase().includes(S.q.toLowerCase()));
+  return chrome('ml',`
+    <div class="module-head">
+      <h1>Microlearning | ${t.name} <span class="status-chip" style="${chip}">${s.label}</span></h1>
+      <div class="right"><input id="uSearch" class="head-search" placeholder="Search" value="${S.q}" oninput="go({q:this.value})">${demoMenu()}<button class="btn-back" onclick="go({view:'topicHome',q:'',descExpanded:false})">Back</button></div>
+    </div>
+    <div class="wrap">
+      <div class="desc">
+        <div class="desc-head" onclick="go({descExpanded:!S.descExpanded})"><span>Description</span><i class="fa-solid fa-chevron-${S.descExpanded?'up':'down'}"></i></div>
+        <div class="desc-body ${S.descExpanded?'':'collapsed'}">${t.desc}</div>
+        ${S.descExpanded?'':'<span class="showmore" onclick="go({descExpanded:true})">Show more</span>'}
+      </div>
+      ${acts.length?`<div class="acts-grid">${acts.map(a=>`
+        <div class="acard clk" onclick="openViewer('${a.id}')">
+          <div class="athumb" style="background:${grad(a.hue)}"></div>
+          <div class="abody"><div class="aname">${a.name}</div><span class="type-chip">${tico(a.type)} ${a.type}</span>
+            <div class="astatus ${a.completed?'done':'todo'}"><span>${a.completed?'<i class="fa-solid fa-circle-check"></i> Completed':'<i class="fa-solid fa-play"></i> Start'}</span><i class="fa-solid fa-chevron-right" style="font-size:13px"></i></div></div>
+        </div>`).join('')}</div>`:`<div class="empty"><div class="ico"><i class="fa-regular fa-circle-question"></i></div><div style="margin-top:10px">No activities found.</div></div>`}
+    </div>`);
+}
+
+function viewerOverlay(){
+  if(!S.viewer)return'';
+  const [ti]=S.viewer.split('-');const t=TOPICS[+ti];const a=t.acts.find(x=>x.id===S.viewer);
+  const head=`<div class="viewer-head"><span class="vt">${tico(a.type)}</span><span class="vname">${a.name}</span><span class="vbadge">${t.name}</span><button class="vx" onclick="closeViewer()"><i class="fa-solid fa-xmark"></i></button></div>`;
+  let body;
+  if(a.type==="Video"||a.type==="Activity"){
+    body=`<div class="player">
+      <div class="play-center"><i class="fa-solid fa-play"></i></div>
+      <div class="scrub"><div class="scrub-fill"></div><div class="scrub-dot"></div></div>
+      <div class="pbar">
+        <div class="pl"><i class="fa-solid fa-play"></i><i class="fa-solid fa-volume-high"></i><span>0:10 / ${a.type==='Video'?'6:17':'0:12'}</span></div>
+        <div class="pr"><i class="fa-solid fa-closed-captioning"></i><i class="fa-solid fa-gear"></i><i class="fa-solid fa-tv"></i><i class="fa-solid fa-expand"></i></div>
+      </div></div>`;
+  } else if(a.type==="Document"){
+    body=`<div class="iframe-mock"><div class="browser-chrome"><i class="fa-regular fa-window-maximize"></i><span>iframe · document viewer</span><span class="addr">microlearning/activity/${a.id}.pdf</span></div>
+      <div class="doc-page"><h2 style="text-align:center;letter-spacing:1px">${t.name.toUpperCase()}</h2><p style="color:#777">Course materials — page 1 of 84</p><div style="height:120px;background:${grad(a.hue)};border-radius:4px;margin-top:16px"></div></div></div>`;
+  } else {
+    body=`<div class="iframe-mock"><div class="browser-chrome"><i class="fa-regular fa-window-maximize"></i><span>iframe · web link</span><span class="addr">https://www.example.com/${t.name.toLowerCase().replace(/[^a-z]+/g,'-')}</span></div>
+      <div class="doc-page"><h2 style="color:var(--blue-fg)">What is ${t.name}? Techniques &amp; Tips</h2><p style="color:#777">Learn the essentials and how these tips keep you safe.</p><div style="height:150px;background:${grad(a.hue)};border-radius:6px;margin-top:14px"></div></div></div>`;
+  }
+  return `<div class="overlay dark"><div class="viewer">${head}<div class="viewer-body">${body}</div></div></div>`;
+}
+
+function renderNotifications(){
+  return chrome('ml',`
+    <div class="module-head"><h1>Microlearning — Notifications (reference)</h1><div class="right">${demoMenu()}<button class="btn-back" onclick="go({view:'topicHome'})">Back</button></div></div>
+    <div class="section-label">04.b — Event notification: Email + SMS</div>
+    <div class="notif-wrap">
+      <div class="email">
+        <div class="subj">New Defensive Driving Activity</div>
+        <div class="ebody"><p><b>BIS Safety Software</b> <i class="fa-solid fa-arrow-right-long" style="color:#aaa"></i> Mikaela Yeo</p><p>Hi Mika,</p><p>You have a new activity available for <b>Defensive Driving</b>. Please click <b>Launch Activity</b> to complete your activity.</p>
+          <div class="acard-mini"><div class="m-thumb" style="background:${grad(205)}"></div><div><div style="color:var(--blue-link);font-weight:700">Defensive Driving Introduction</div><span class="type-chip"><i class="fa-solid fa-film"></i> Video</span></div></div>
+          <button class="launch">Launch Activity</button>
+          <p style="margin-top:16px">Thank you!<br>BIS In-House</p>
+          <p style="color:#999;font-size:12px;border-top:1px solid var(--border);padding-top:10px">You received this email because you use BIS Safety Software. Support: 1-866-416-1660 · help@bissafety.app</p>
+        </div>
+      </div>
+      <div class="phone"><div class="p-head"><i class="fa-solid fa-angle-left"></i> Microlearning <i class="fa-solid fa-angle-down" style="color:#aaa"></i></div>
+        <div class="sms">You have a new activity for the Defensive Driving microlearning topic – Defensive Driving Introduction. Check it out here: <a>Launch Activity</a></div>
+      </div>
+    </div>`);
+}
+
+function renderHomeEntry(){
+  return chrome('home',`
+    <div class="module-head"><h1>Home — Training (reference)</h1><div class="right">${demoMenu()}<button class="btn-back" onclick="go({view:'topicHome'})">Back</button></div></div>
+    <div class="section-label">04.c — Microlearning section on the portal home (assigned / in progress / completed)</div>
+    <div class="assigned">
+      <div class="ahead">Microlearning</div>
+      <table>
+        <thead><tr><th>Topic</th><th>Status</th><th>Progress</th><th></th></tr></thead>
+        <tbody>
+          <tr class="ml-row"><td style="color:var(--blue-link);font-weight:700"><i class="fa-solid fa-graduation-cap"></i> Fall Protection</td><td><span class="pill" style="background:var(--gold-bg);color:var(--gold-fg)">Assigned · New</span></td><td>0/5</td><td style="text-align:right"><button class="open-btn" onclick="switchPersp('user')">Open</button></td></tr>
+          <tr class="ml-row"><td style="color:var(--blue-link);font-weight:700"><i class="fa-solid fa-graduation-cap"></i> Daily Pre-Trip</td><td><span class="pill" style="background:var(--blue-bg);color:var(--blue-fg)">In Progress</span></td><td>1/5</td><td style="text-align:right"><button class="open-btn" onclick="switchPersp('user')">Resume</button></td></tr>
+          <tr class="ml-row"><td style="color:var(--blue-link);font-weight:700"><i class="fa-solid fa-graduation-cap"></i> Defensive Driving</td><td><span class="pill" style="background:var(--green-bg);color:var(--green-fg)">Completed</span></td><td>5/5</td><td style="text-align:right"><button class="open-btn" style="background:#1e7e34" onclick="switchPersp('user')">Review</button></td></tr>
+        </tbody>
+      </table>
+    </div>`);
+}
+
+function kickoutModal(){
+  if(!S.kickout)return'';
+  return `<div class="overlay" onclick="if(event.target===this)go({kickout:false})"><div class="modal sm"><div class="modal-b">
+    <h3><i class="fa-solid fa-triangle-exclamation" style="color:var(--gold-fg)"></i> Cannot be found</h3>
+    <p>Sorry! The microlearning topic or the activity is no longer available.</p>
+    <p style="color:#999;font-size:12px">Draft topics instead show: "Sorry! This microlearning activity is temporarily unavailable. Please check back again later."</p>
+    </div><div class="modal-f"><button class="btn primary" onclick="go({kickout:false})">Close</button></div></div></div>`;
+}
+
+/* end-user actions */
+window.openTopic=id=>go({view:"topicPage",topicId:id,q:"",descExpanded:false});
+window.openViewer=id=>{const [ti]=id.split('-');const a=TOPICS[+ti].acts.find(x=>x.id===id);a.completed=true;go({viewer:id});};
+window.closeViewer=()=>go({viewer:null});
+
+function renderUser(){
+  if(S.view==="topicHome")return renderHome();
+  if(S.view==="topicPage")return renderTopic();
+  if(S.view==="notifications")return renderNotifications();
+  if(S.view==="homeEntry")return renderHomeEntry();
+  return renderHome();
+}
+
+/* ================= root render ================= */
+function render(){
+  document.getElementById('segAdmin').classList.toggle('active',S.persp==='admin');
+  document.getElementById('segUser').classList.toggle('active',S.persp==='user');
+  const notes={admin:'Setup → Dashboard → Topic Content → Settings · create, add content, edit, deactivate, purge, permissions',user:'Topic Home → Topic → open content (completion tracked) · Demo states for notifications / home / kick-out'};
+  document.getElementById('pbNote').textContent=notes[S.persp];
+  let main,over='';
+  if(S.persp==='admin'){main=renderAdmin();over=adminModal();}
+  else{main=renderUser();over=viewerOverlay()+kickoutModal();}
+  const ae=document.activeElement,aid=ae&&ae.id,ss=ae&&ae.selectionStart,se=ae&&ae.selectionEnd;
+  app.innerHTML=main+over+(S.toast?`<div class="toast">${esc(S.toast)}</div>`:'');
+  if(aid){const el=document.getElementById(aid);if(el){el.focus();if(ss!=null){try{el.setSelectionRange(ss,se);}catch(e){}}}}
+  document.body.style.overflow=(S.viewer||S.kickout||S.modal)?'hidden':'';
+}
+render();
+</script>
+</body>
+</html>

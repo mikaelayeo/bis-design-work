@@ -361,6 +361,26 @@
       ]
     },
     {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "prototypes",
+      "id": "microlearning-8716",
+      "title": "Microlearning (TKT-8716)",
+      "date": "2026-07-14",
+      "children": [
+        {
+          "title": "Mobile — SafeTapp",
+          "path": "showcase/prototypes/microlearning-8716/TKT-8716-mobile-safetapp.html",
+          "date": "2026-07-14"
+        },
+        {
+          "title": "Web — Admin & End User",
+          "path": "showcase/prototypes/microlearning-8716/TKT-8716-web-admin-and-end-user.html",
+          "date": "2026-07-14"
+        }
+      ]
+    },
+    {
       "kind": "item",
       "audience": "showcase",
       "category": "prototypes",

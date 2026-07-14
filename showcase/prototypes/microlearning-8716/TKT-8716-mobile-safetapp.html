@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microlearning — Mobile Prototype (SafeTapp)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<!--
+  BIS Microlearning (TKT-8716) · Mobile (SafeTapp) — connected prototype, framed in a phone.
+  Screens: 03.1 Training (Microlearning tab) · 03.2 Topic Page + activity open · 03.3 unavailable Snackbar.
+  Figma nodes: section 1160:119006 · M-Header #443b5a (966:51107) · BisTab · Mobile-List Card-Topics-v2 · Mobile-List Card-Activities.
+  Tokens from Figma variables: primary #0078b3 · status bars amber #e8b203 / cyan #26b1dc / green #6bac00. Segoe UI 16. Mock data.
+-->
+<style>
+  :root{
+    --plum:#443b5a;            /* SafeTapp M-Header */
+    --blue:#0078b3;--text:#191919;--muted:#666666;--border:#e2e2e3;--surface2:#f2f2f2;
+    --bar-new:#26b1dc;--bar-prog:#e8b203;--bar-done:#6bac00;
+    --badge-new-bg:#f2f7ff;--badge-new-fg:#0078b3;
+    --badge-prog-bg:#fffcf2;--badge-prog-fg:#a1851f;
+    --badge-done-bg:#fafff2;--badge-done-fg:#167b00;
+    --r:4px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI","Open Sans",Arial,sans-serif;color:var(--text);font-size:15px;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    padding:28px 16px 40px;background:radial-gradient(circle at 50% -10%,#eef1f6,#dbe0e8)}
+  button{font-family:inherit;cursor:pointer}
+
+  .cap{font-size:13px;color:#5a6472;text-align:center}
+  .cap b{color:#2b2f36}
+  .ctrls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .ctrls button{background:#fff;border:1px solid #cdd3db;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#3b4250}
+  .ctrls button:hover{background:#f4f6f9}
+
+  /* phone frame */
+  .phone{width:390px;height:812px;background:#0c0c10;border-radius:46px;padding:11px;box-shadow:0 34px 80px rgba(20,25,40,.4),inset 0 0 2px #444;transition:width .5s cubic-bezier(.6,0,.2,1),height .5s cubic-bezier(.6,0,.2,1)}
+  .phone.landscape{width:812px;height:404px}   /* real landscape reflow — UI lays out wide */
+  .rotate-btn{cursor:pointer;display:inline-flex;align-items:center;color:#fff}
+  /* landscape viewer: notch/status/tabbar hidden behind the full-screen player, header on top, video wider */
+  .phone.landscape .notch{width:26px;height:120px;top:50%;left:auto;right:0;transform:translateY(-50%);border-radius:18px 0 0 18px}
+  .screen{position:relative;width:100%;height:100%;background:#f4f5f7;border-radius:36px;overflow:hidden;display:flex;flex-direction:column}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:26px;background:#0c0c10;border-radius:0 0 18px 18px;z-index:30}
+
+  /* status bar */
+  .statusbar{height:44px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 26px 0 24px;font-size:14px;font-weight:600;z-index:20}
+  .statusbar.light{color:#fff}.statusbar.dark{color:#191919}
+  .statusbar .r{display:flex;gap:7px;align-items:center;font-size:13px}
+
+  /* app bars */
+  .appbar{background:var(--plum);color:#fff;flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:6px 16px 12px}
+  .appbar .t{font-size:18px;font-weight:700;flex:1}
+  .appbar i{font-size:17px}
+  .mhead{background:var(--plum);color:#fff;flex:0 0 auto;display:flex;align-items:center;gap:14px;padding:8px 16px 12px}
+  .mhead .back{font-size:17px}
+  .mhead .t{flex:1;font-size:18px;font-weight:700;line-height:24px}
+  .mhead .srch{font-size:17px}
+
+  /* tabs */
+  .tabs{display:flex;background:#fff;border-bottom:1px solid var(--border);flex:0 0 auto}
+  .tab{flex:1;text-align:center;padding:8px 6px 0;font-size:15px;font-weight:600;color:#63636d}
+  .tab .u{height:4px;margin-top:6px;border-radius:80px 80px 0 0;background:transparent}
+  .tab.active{color:#19191b}.tab.active .u{background:var(--blue);width:50px;margin:6px auto 0}
+
+  /* scroll body */
+  .body{flex:1;overflow-y:auto;padding:14px 16px 90px;-webkit-overflow-scrolling:touch}
+  .body::-webkit-scrollbar{display:none}
+
+  /* topic list card */
+  .tcard{display:flex;background:#fff;border-radius:var(--r);box-shadow:0 0 3px rgba(0,0,0,.25);overflow:hidden;margin-bottom:14px}
+  .tcard:active{transform:scale(.99)}
+  .bar{width:7px;flex:0 0 auto}
+  .bar.new{background:var(--bar-new)}.bar.prog{background:var(--bar-prog)}.bar.done{background:var(--bar-done)}
+  .tc-body{flex:1;padding:8px 12px;min-width:0}
+  .tc-top{display:flex;gap:12px}
+  .tphoto{width:100px;height:80px;border-radius:var(--r);flex:0 0 auto;background-size:cover}
+  .tc-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+  .badge{align-self:flex-start;border-radius:12px;padding:3px 8px;font-size:13px;font-weight:600}
+  .badge.new{background:var(--badge-new-bg);color:var(--badge-new-fg)}
+  .badge.prog{background:var(--badge-prog-bg);color:var(--badge-prog-fg)}
+  .badge.done{background:var(--badge-done-bg);color:var(--badge-done-fg)}
+  .tc-name{font-size:16px;font-weight:600;line-height:22px;color:var(--text)}
+  .tc-sub{font-size:12px;color:var(--muted)}.tc-sub b{font-weight:600}
+  .tc-upd{display:flex;align-items:center;gap:6px;border-top:1px solid var(--border);margin-top:8px;padding-top:6px;font-size:12px;color:var(--muted)}
+  .tc-upd i{color:var(--blue)}
+
+  /* description banner */
+  .desc{background:#fff;border-radius:var(--r);box-shadow:0 0 3px rgba(0,0,0,.18);padding:12px;margin-bottom:14px}
+  .desc-h{display:flex;align-items:center;justify-content:space-between;font-size:16px;cursor:pointer}
+  .desc-b{font-size:14px;color:var(--text);line-height:20px;margin-top:8px}
+  .desc-b.clip{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .more{color:var(--blue);font-weight:600;font-size:14px}
+
+  /* activity card */
+  .acard{display:flex;background:#fff;border-radius:var(--r);box-shadow:0 0 3px rgba(0,0,0,.22);overflow:hidden;margin-bottom:12px}
+  .acard:active{transform:scale(.99)}
+  .ac-body{flex:1;padding:10px 12px;min-width:0;display:flex;flex-direction:column;gap:8px}
+  .chip{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;background:var(--surface2);color:var(--muted);border-radius:var(--r);padding:4px 8px;font-size:13px;font-weight:600}
+  .ac-name{font-size:16px;font-weight:600;color:var(--text);line-height:22px}
+  .ac-status{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600}
+  .ac-status.todo{color:var(--badge-new-fg)}.ac-status.done{color:var(--badge-done-fg)}
+
+  /* bottom tab bar */
+  .tabbar{position:absolute;bottom:0;left:0;right:0;height:72px;background:#fff;border-top:1px solid var(--border);display:flex;padding-bottom:10px;z-index:20}
+  .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#8b909a;font-size:10px;font-weight:600}
+  .tabbar a i{font-size:18px}
+  .tabbar a.on{color:var(--plum)}
+
+  /* snackbar */
+  .snack{position:absolute;left:16px;right:16px;bottom:88px;background:#2b2f36;color:#fff;border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:40;animation:rise .2s ease}
+  @keyframes rise{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .snack i.w{color:#f0c419;font-size:16px;margin-top:1px}
+  .snack .sx{margin-left:auto;color:#aab;cursor:pointer}
+
+  /* content viewer overlay (dark) */
+  .viewer{position:absolute;inset:0;background:#000;z-index:50;display:flex;flex-direction:column}
+  .v-head{background:#19191b;color:#fff;display:flex;align-items:center;gap:10px;padding:14px 16px}
+  .v-head .vn{flex:1;font-size:17px;font-weight:700}
+  .v-head .vb{background:var(--surface2);color:#63636d;border-radius:var(--r);padding:3px 7px;font-size:12px;font-weight:600}
+  .v-stage{flex:1;display:flex;align-items:center;justify-content:center;color:#fff;position:relative}
+  .v-play{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.92);color:#111;display:flex;align-items:center;justify-content:center;font-size:22px;padding-left:4px}
+  .v-doc{position:absolute;inset:0;background:#f3f3f3;display:flex;flex-direction:column}
+  .v-chrome{background:#e9ecef;padding:8px 12px;font-size:11px;color:#666;display:flex;gap:8px;align-items:center}
+  .v-page{background:#fff;margin:14px;border-radius:6px;flex:1;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+  .toast{position:absolute;bottom:96px;left:50%;transform:translateX(-50%);background:#2b2f36;color:#fff;padding:9px 16px;border-radius:20px;font-size:13px;z-index:45;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+</style>
+</head>
+<body>
+<div class="cap"><b>SafeTapp · Microlearning</b> (TKT-8716) — mobile prototype. Tap a topic → open an activity to complete it.</div>
+<div class="ctrls">
+  <button onclick="reset()"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+  <button onclick="showSnack()"><i class="fa-solid fa-triangle-exclamation"></i> Unavailable topic (snackbar)</button>
+</div>
+
+<div class="phone"><div class="screen" id="screen"></div></div>
+
+<script>
+const HUES={0:205,1:145,2:45,3:265};
+function grad(h){return `linear-gradient(135deg,hsl(${h},55%,55%),hsl(${(h+40)%360},60%,42%))`}
+const ATYPES=["Video","Link","Document","Activity"];
+const ICON={Video:'fa-film',Link:'fa-link',Document:'fa-file-lines',Activity:'fa-gamepad'};
+/* Font Awesome "mobile-rotate" (Pro) — inline SVG so it renders on the free CDN */
+const MROT=`<svg viewBox="0 0 512 512" width="18" height="18" fill="none" stroke="currentColor" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+<g transform="rotate(-42 256 256)"><rect x="206" y="132" width="100" height="248" rx="22"/><line x1="240" y1="352" x2="272" y2="352"/></g>
+<path d="M132 296 a150 150 0 0 0 66 98"/><path d="M104 298 l30 -4 l2 30"/>
+<path d="M380 216 a150 150 0 0 0 -66 -98"/><path d="M408 214 l-30 4 l-2 -30"/></svg>`;
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+const MK=(name,total,done,hue,updated)=>({name,total,hue,updated,
+  desc:`This micro-learning module on ${name} provides bite-sized activities — short videos, documents, links and interactive activities — designed to be completed over time so you build and retain the key safety knowledge. Work through each at your own pace; your progress is tracked automatically.`,
+  acts:Array.from({length:total},(_,k)=>({id:k,name:`Microlearning Activity ${["One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten"][k]||k+1}`,type:ATYPES[k%4],hue:(hue+k*20)%360,done:k<done}))});
+let TOPICS=[
+  MK("Defensive Driving",10,2,205,true),
+  MK("Fall Protection",10,0,145,false),
+  MK("Ground Disturbance",10,3,45,false),
+  MK("Rigging",10,10,265,false),
+];
+const doneOf=t=>t.acts.filter(a=>a.done).length;
+function statusOf(t){const d=doneOf(t);return d>=t.total?{k:'done',label:'Completed'}:d===0?{k:'new',label:'New'}:{k:'prog',label:'In Progress'};}
+
+let S={screen:'training',topicId:null,descOpen:false,snack:false,viewer:null,landscape:false,toast:null};
+const el=document.getElementById('screen');
+function go(p){Object.assign(S,p);render();}
+function reset(){S={screen:'training',topicId:null,descOpen:false,snack:false,viewer:null,landscape:false,toast:null};render();}
+let tt;function toast(m){S.toast=m;render();clearTimeout(tt);tt=setTimeout(()=>{S.toast=null;render();},1600);}
+function showSnack(){S.screen='training';S.snack=true;render();}
+
+/* status bar */
+function statusbar(light){return `<div class="statusbar ${light?'light':'dark'}"><span>9:41</span><span class="r"><i class="fa-solid fa-signal"></i> <i class="fa-solid fa-wifi"></i> <i class="fa-solid fa-battery-full"></i></span></div>`;}
+function tabbar(){return `<div class="tabbar">
+  <a class="on"><i class="fa-solid fa-house"></i>Home</a>
+  <a><i class="fa-solid fa-file-lines"></i>Forms</a>
+  <a><i class="fa-solid fa-folder"></i>Folders</a>
+  <a><i class="fa-solid fa-helmet-safety"></i>Equipment</a>
+  <a><i class="fa-solid fa-ellipsis"></i>More</a>
+</div>`;}
+
+/* 03.1 Training */
+function renderTraining(){
+  const cards=TOPICS.map((t,i)=>{const s=statusOf(t);return `
+    <div class="tcard" onclick="openTopic(${i})">
+      <div class="bar ${s.k}"></div>
+      <div class="tc-body">
+        <div class="tc-top">
+          <div class="tphoto" style="background:${grad(t.hue)}"></div>
+          <div class="tc-main">
+            <span class="badge ${s.k}">${s.label}</span>
+            <div class="tc-name">${esc(t.name)}</div>
+            <div class="tc-sub"><b>Activities:</b> ${doneOf(t)}/${t.total}</div>
+          </div>
+        </div>
+        ${t.updated?`<div class="tc-upd"><i class="fa-solid fa-circle-info"></i> Updated</div>`:''}
+      </div>
+    </div>`;}).join('');
+  return `${statusbar(true)}
+    <div class="appbar"><i class="fa-solid fa-bars"></i><span class="t">Training</span><i class="fa-regular fa-bell"></i></div>
+    <div class="tabs">
+      <div class="tab"><div>Course</div><div class="u"></div></div>
+      <div class="tab"><div>Training Record</div><div class="u"></div></div>
+      <div class="tab active"><div>Microlearning</div><div class="u"></div></div>
+    </div>
+    <div class="body">${cards}</div>
+    ${S.snack?snackbar():''}
+    ${tabbar()}`;
+}
+
+/* 03.2 Topic Page */
+function renderTopic(){
+  const t=TOPICS[S.topicId];
+  const cards=t.acts.map(a=>`
+    <div class="acard" onclick="openAct(${a.id})">
+      <div class="bar ${a.done?'done':'new'}"></div>
+      <div class="tphoto" style="width:84px;height:auto;border-radius:0;background:${grad(a.hue)}"></div>
+      <div class="ac-body">
+        <div class="ac-name">${esc(a.name)}</div>
+        <span class="chip"><i class="fa-solid ${ICON[a.type]}"></i> ${a.type}</span>
+        <div class="ac-status ${a.done?'done':'todo'}">${a.done?'<i class="fa-solid fa-circle-check"></i> Completed':'<i class="fa-solid fa-circle-dot"></i> Incomplete'}</div>
+      </div>
+    </div>`).join('');
+  return `${statusbar(true)}
+    <div class="mhead"><i class="fa-solid fa-chevron-left back" onclick="go({screen:'training',descOpen:false})"></i><span class="t">${esc(t.name)}</span><i class="fa-solid fa-magnifying-glass srch"></i></div>
+    <div class="body">
+      <div class="desc">
+        <div class="desc-h" onclick="go({descOpen:!S.descOpen})"><span>Description</span><i class="fa-solid fa-chevron-${S.descOpen?'up':'down'}"></i></div>
+        <div class="desc-b ${S.descOpen?'':'clip'}">${esc(t.desc)}</div>
+        ${S.descOpen?'':'<span class="more" onclick="go({descOpen:true})">Show More</span>'}
+      </div>
+      ${cards}
+    </div>
+    ${S.viewer!=null?viewer(t):''}
+    ${S.toast?`<div class="toast">${esc(S.toast)}</div>`:''}
+    ${tabbar()}`;
+}
+
+/* content viewer (opening completes) */
+function viewer(t){
+  const a=t.acts.find(x=>x.id===S.viewer);
+  const canRotate=a.type!=='Document';   // PDF stays portrait (has its own document viewer)
+  const rotateBtn=canRotate?`<span class="rotate-btn" title="${S.landscape?'Back to portrait':'Rotate to landscape'}" onclick="toggleLandscape()">${MROT}</span>`:'';
+  const head=`<div class="v-head"><i class="fa-solid ${ICON[a.type]}" style="color:#e5484d"></i><span class="vn">${esc(a.name)}</span><span class="vb">${esc(t.name)}</span>${rotateBtn}<i class="fa-solid fa-xmark" onclick="closeAct()"></i></div>`;
+  let stage;
+  if(a.type==='Video'||a.type==='Activity'){
+    stage=`<div class="v-stage"><div class="v-play"><i class="fa-solid fa-play"></i></div></div>`;
+  } else {
+    stage=`<div class="v-stage"><div class="v-doc"><div class="v-chrome"><i class="fa-regular fa-window-maximize"></i> ${a.type} · in-app viewer</div><div class="v-page"><h3 style="text-align:center">${esc(a.name)}</h3><div style="height:120px;border-radius:6px;margin-top:14px;background:${grad(a.hue)}"></div></div></div></div>`;
+  }
+  return `<div class="viewer">${head}${stage}</div>`;
+}
+
+function snackbar(){return `<div class="snack"><i class="fa-solid fa-triangle-exclamation w"></i><div>Sorry! The microlearning topic or the content item is no longer available.</div><i class="fa-solid fa-xmark sx" onclick="go({snack:false})"></i></div>`;}
+
+window.openTopic=i=>go({screen:'topic',topicId:i,descOpen:false});
+window.openAct=id=>{const t=TOPICS[S.topicId];const a=t.acts.find(x=>x.id===id);const was=a.done;a.done=true;const land=(a.type==='Video'||a.type==='Activity');go({viewer:id,landscape:land});if(!was)setTimeout(()=>toast(`Completed · ${doneOf(t)}/${t.total}`),260);};
+window.closeAct=()=>go({viewer:null,landscape:false});
+window.toggleLandscape=()=>go({landscape:!S.landscape});
+window.go=go;window.reset=reset;window.showSnack=showSnack;
+
+function render(){
+  el.innerHTML=`<div class="notch"></div>`+(S.screen==='training'?renderTraining():renderTopic());
+  document.querySelector('.phone').classList.toggle('landscape',S.landscape);
+}
+render();
+</script>
+</body>
+</html>
