@@ -493,6 +493,46 @@ body.page-store {
 /* ---------- Concept banner ---------- */
 .concept-banner { background: #fff7e0; color: #7a5c00; font-size: 12px; text-align: center; padding: 6px 16px; font-style: italic; }
 
+/* ---------- Prototype-only nav ----------
+   A review aid so you can hop between the four pages. NOT part of the design:
+   the real product has a one-way door from marketing into the software, with
+   no route back. Styled deliberately unlike the product chrome so nobody
+   mistakes it for a component. */
+.proto-nav {
+  background: #2b2f36;
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 7px 14px;
+}
+.proto-nav__label {
+  font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+  color: rgba(255, 255, 255, .55);
+  margin-right: 4px;
+}
+.proto-nav__grp { color: rgba(255, 255, 255, .55); font-weight: 600; margin-left: 6px; }
+.proto-nav a {
+  color: #cfe8f5;
+  border: 1px solid rgba(255, 255, 255, .25);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.proto-nav a:hover { background: rgba(255, 255, 255, .12); color: #ffffff; }
+.proto-nav a.is-current { background: var(--surface-primary); border-color: var(--surface-primary); color: #ffffff; }
+.proto-nav .sep { color: rgba(255, 255, 255, .3); margin: 0 2px; }
+
+@media (max-width: 560px) {
+  .proto-nav { font-size: 11px; gap: 4px; padding: 6px 10px; }
+  .proto-nav__label { width: 100%; text-align: center; margin: 0 0 2px; }
+}
+
 /* ============================================================
    Product page components
    ============================================================ */

@@ -418,7 +418,7 @@
           <tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
           <tr><td class="qid">B-40</td><td>Inspect the product page breadcrumb</td><td>Exactly two crumbs: a home icon and the course name. <b>No group-page crumb.</b></td></tr>
           <tr><td class="qid">B-41</td><td>Click the home crumb</td><td>Opens the software course list, not the marketing catalogue.</td></tr>
-          <tr><td class="qid">B-42</td><td>Audit every link on the software pages</td><td><b>Zero</b> links to any marketing page. This is a regression check.</td></tr>
+          <tr><td class="qid">B-42</td><td>Audit every link on the software pages</td><td><b>Zero</b> links to any marketing page. This is a regression check. <b>Exclude the prototype nav bar</b> (<code>.proto-nav</code>) — it is a review aid only and does not ship.</td></tr>
           <tr><td class="qid">B-43</td><td>Click Explore all course in Recommended</td><td>Stays in the software course list.</td></tr>
           <tr><td class="qid">B-44</td><td>From marketing, click a course on the group page</td><td>Crosses into the software product page.</td></tr>
         </table>
@@ -505,6 +505,7 @@
           <li><b>Photography.</b> Unsplash placeholders throughout.</li>
           <li><b>Trust mark.</b> Cropped from the full BIS lockup, as the isolated shield was not exported.</li>
           <li><b>Course list styling.</b> Deliberately reproduces the current production store, so it will not match the redesigned pages.</li>
+          <li><b>Prototype nav bar.</b> The dark bar at the top of every page is a <b>review aid only and does not ship</b>. It deliberately crosses the one-way door so reviewers can move between the four pages freely. Styled unlike any product component so it is not mistaken for one.</li>
         </ul>
       </section>
 
