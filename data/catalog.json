@@ -318,6 +318,41 @@
       "kind": "folder",
       "audience": "showcase",
       "category": "prototypes",
+      "id": "ecommerce-product-page",
+      "title": "eCommerce Product Page Redesign",
+      "date": "2026-07-20",
+      "children": [
+        {
+          "title": "1 · Marketing store",
+          "path": "showcase/prototypes/ecommerce-product-page/store.html",
+          "date": "2026-07-20"
+        },
+        {
+          "title": "2 · Marketing group page",
+          "path": "showcase/prototypes/ecommerce-product-page/defensive-driving.html",
+          "date": "2026-07-20"
+        },
+        {
+          "title": "3 · Product page (software)",
+          "path": "showcase/prototypes/ecommerce-product-page/defensive-driving-101.html",
+          "date": "2026-07-20"
+        },
+        {
+          "title": "4 · Software course list",
+          "path": "showcase/prototypes/ecommerce-product-page/course-list.html",
+          "date": "2026-07-20"
+        },
+        {
+          "title": "PRD · New design spec",
+          "path": "showcase/prototypes/ecommerce-product-page/Product-Page-PRD.html",
+          "date": "2026-07-20"
+        }
+      ]
+    },
+    {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "prototypes",
       "id": "tkt-17127-external-signer",
       "title": "External signer support",
       "date": "2026-07-16",
