@@ -355,17 +355,17 @@
       "category": "prototypes",
       "id": "tkt-17127-external-signer",
       "title": "External signer support",
-      "date": "2026-07-16",
+      "date": "2026-07-20",
       "children": [
         {
           "title": "Design proposal",
           "path": "showcase/prototypes/tkt-17127-external-signer/TKT-17127-design-proposal.html",
-          "date": "2026-07-16"
+          "date": "2026-07-20"
         },
         {
           "title": "Interactive prototype",
           "path": "showcase/prototypes/tkt-17127-external-signer/TKT-17127-prototype.html",
-          "date": "2026-07-16"
+          "date": "2026-07-20"
         }
       ],
       "ticket": "TKT-17127"

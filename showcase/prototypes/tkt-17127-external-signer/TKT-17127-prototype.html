@@ -23,6 +23,7 @@
       --stroke-default-light: #e2e2e3;
       --stroke-default-dark: #4d4c4c;
       --bis-red: #b81f2d;
+      --success-bright: #22a06b;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "Segoe UI", system-ui, sans-serif; font-size: 14px; color: var(--text-default); background: var(--surface-secondary-subtle); line-height: 1.5; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
@@ -57,7 +58,7 @@
     .flow-tab.active { background: var(--surface-default); border-color: var(--stroke-default-light); color: var(--surface-primary); }
     .flow-badge { background: var(--surface-error); color: #fff; border-radius: 8px; padding: 0 5px; font-size: 10px; margin-left: 5px; }
 
-    .proto-card { background: var(--surface-default); border: 1px solid var(--stroke-default); border-radius: 8px; display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+    .proto-card { background: var(--surface-default); border: 1px solid var(--stroke-default); border-radius: 8px; display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; position: relative; }
     .proto-stage { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 22px 24px; }
     .step-details { background: var(--surface-secondary-subtle); border-top: 1px solid var(--stroke-default-light); padding: 12px 18px 14px; flex-shrink: 0; }
     .sd-title { font-size: 14px; font-weight: 600; color: var(--text-default); margin-bottom: 6px; }
@@ -137,41 +138,85 @@
     .email .efoot p { margin-bottom: 2px; }
     .email .efoot .link { color: var(--surface-primary); font-weight: 600; }
 
-    /* identity card */
-    .secure-topbar { background: var(--surface-primary); color: #fff; padding: 10px 16px; font-size: 13px; font-weight: 600; }
-    .secure-bg { background: #eef1f4; padding: 26px 18px; display: flex; justify-content: center; }
-    .bis-section { background: #fff; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.12); overflow: hidden; width: 400px; max-width: 100%; }
-    .bis-section__accent { height: 4px; background: var(--surface-primary); }
-    .bis-section__body { padding: 22px 20px; }
-    .bis-section__title { font-size: 14.5px; font-weight: 700; margin-bottom: 3px; }
-    .bis-section__sub { font-size: 11.5px; color: #667; margin-bottom: 16px; }
-    .secure-note { font-size: 10.5px; color: #889; text-align: center; margin-top: 9px; }
+    /* ===== EXTERNAL SIGNER — WEB CHROME ===== */
+    .ext-frame { border: 1px solid var(--stroke-default-light); border-radius: 6px; overflow: hidden; background: #fff; }
+    .client-bar { background: #fff; padding: 10px 16px; display: flex; align-items: center; border-bottom: 1px solid #f0f0f0; }
+    .client-logo { display: flex; align-items: center; gap: 7px; }
+    .client-logo .leaf { width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid #4aa63c; display: flex; align-items: center; justify-content: center; color: #4aa63c; font-size: 13px; }
+    .client-logo .nm { line-height: 1; }
+    .client-logo .nm b { font-size: 15px; letter-spacing: -.3px; color: #111; display: block; }
+    .client-logo .nm small { font-size: 8.5px; letter-spacing: 1.6px; color: #444; }
+    .ext-bar { background: var(--surface-primary); color: #fff; padding: 11px 16px; display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 600; }
+    .ext-bar .back { margin-left: auto; border: 1px solid #fff; background: transparent; color: #fff; border-radius: 4px; padding: 3px 11px; font-size: 12.5px; font-weight: 600; }
+    .ext-stage { background: #fff; padding: 26px 18px 34px; display: flex; justify-content: center; }
 
-    /* Signature Required page */
-    .sr-frame { border: 1px solid var(--stroke-default-light); border-radius: 6px; overflow: hidden; background: #f4f4f4; max-width: 860px; }
-    .sr-greybar { height: 14px; background: #6f6f6f; }
-    .sr-greenbar { background: #5cb416; color: #fff; padding: 8px 14px; font-size: 13.5px; font-weight: 600; }
-    .sr-intro { background: #fff; padding: 11px 14px; font-size: 12px; color: #333; }
-    .sr-table { width: 100%; border-collapse: collapse; font-size: 12.5px; background: #fff; }
-    .sr-table th { text-align: left; padding: 7px 14px; font-size: 12px; font-weight: 700; color: #333; border-bottom: 1px solid #e6e6e6; }
-    .sr-table td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; }
-    .sr-tick { color: var(--surface-success); font-weight: 700; }
-    .sr-pdf { display: inline-flex; align-items: center; gap: 6px; color: var(--surface-error); font-weight: 600; font-size: 12px; cursor: pointer; }
-    .sr-panel { background: #fff; margin: 10px; border: 1px solid #e6e6e6; padding: 16px; }
-    .sr-panel h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
-    .sr-important { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #333; margin-bottom: 8px; }
-    .sr-signlabel { font-size: 12px; color: #333; margin-bottom: 6px; }
-    .sr-blackbar { background: #000; color: #fff; font-style: italic; font-size: 11px; text-align: center; padding: 9px 12px; }
-    .sr-canvas { border: 1px solid #ddd; border-top: none; background: #fff; min-height: 128px; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 26px; cursor: pointer; }
-    .sr-canvas.signed { font-family: "Brush Script MT", cursive; font-size: 34px; color: #35507a; cursor: default; }
-    .sr-tools { display: flex; align-items: flex-start; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-    .sr-tools .note { font-size: 10.5px; color: #667; font-style: italic; }
-    .sr-tools .actions { margin-left: auto; display: flex; gap: 6px; }
-    .btn-choose { background: #5bc0de; color: #fff; border: none; border-radius: 3px; padding: 6px 11px; font-size: 12px; font-weight: 600; }
-    .btn-clear { background: #d9534f; color: #fff; border: none; border-radius: 3px; padding: 6px 11px; font-size: 12px; font-weight: 600; }
-    .btn-save { background: #5cb85c; color: #fff; border: none; border-radius: 3px; padding: 6px 11px; font-size: 12px; font-weight: 600; }
-    .btn-save:disabled { opacity: .45; cursor: not-allowed; }
-    .sr-err { color: var(--surface-error); font-size: 11px; text-align: right; margin-top: 5px; }
+    .ext-card { background: #fff; border: 1px solid #eceff1; border-radius: 3px; box-shadow: 0 1px 5px rgba(0,0,0,.10); overflow: hidden; width: 100%; }
+    .ext-card.narrow { max-width: 420px; }
+    .ext-card.wide { max-width: 660px; }
+    .ext-card__accent { height: 4px; background: var(--surface-primary); }
+    .ext-card__body { padding: 22px 20px; }
+    .ext-h { font-size: 17px; font-weight: 700; color: #111; }
+    .ext-sub { font-size: 12.5px; color: #333; margin: 6px 0 16px; }
+    .ext-label { font-size: 12px; font-weight: 600; color: #111; margin-bottom: 4px; display: block; }
+    .ext-input { width: 100%; border: 1px solid #b9c2c8; border-radius: 2px; padding: 8px 9px; font-size: 12.5px; font-family: inherit; background: #fff; }
+    .ext-check { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #111; margin: 14px 0; cursor: pointer; }
+    .ext-check.off { color: #a9b2b8; cursor: not-allowed; }
+    .ext-check input { width: 15px; height: 15px; }
+    .ext-btn-full { width: 100%; border: none; border-radius: 3px; background: var(--surface-primary); color: #fff; font-size: 13.5px; font-weight: 600; padding: 9px; font-family: inherit; }
+    .ext-btn-full:disabled { background: #9dcbe2; cursor: not-allowed; }
+    .ext-info { display: flex; align-items: center; gap: 9px; background: #f2fafd; border-radius: 3px; padding: 9px 11px; font-size: 12px; color: #333; margin-top: 12px; }
+    .ext-info .i { width: 15px; height: 15px; border-radius: 50%; background: var(--surface-primary); color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; }
+    .ext-intro { font-size: 12.5px; color: #111; margin-bottom: 13px; }
+
+    .doc-row { display: flex; align-items: center; gap: 10px; border: 1px solid #d7dde1; border-radius: 3px; padding: 11px 12px; }
+    .doc-row .nm { flex: 1; font-size: 14px; font-weight: 600; color: #111; }
+    .doc-row .state-i { width: 16px; height: 16px; border-radius: 50%; border: 1.4px solid #8d979d; color: #8d979d; font-size: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; }
+    .doc-row .state-i.done { border-color: var(--surface-success); color: var(--surface-success); }
+    .doc-row .view { border-radius: 3px; padding: 5px 13px; font-size: 12.5px; font-weight: 600; border: 1px solid var(--surface-primary); background: var(--surface-primary); color: #fff; }
+    .doc-row .view.seen { background: #fff; color: #111; border-color: #b9c2c8; }
+
+    .sig-head { display: flex; align-items: baseline; justify-content: space-between; margin: 16px 0 5px; }
+    .sig-head .lb { font-size: 12.5px; font-weight: 600; color: #111; }
+    .sig-head .lb .req { color: var(--surface-error); }
+    .sig-head .clear { font-size: 12.5px; color: var(--surface-primary); font-weight: 600; cursor: pointer; }
+    .sig-head.off .lb { color: #a9b2b8; } .sig-head.off .lb .req { color: #d8a3a3; }
+    .sig-head.off .clear { color: #c3d3dc; cursor: default; }
+
+    .sig-canvas { border: 1px solid #d7dde1; border-radius: 3px; background: #fdfeff; height: 118px; position: relative; }
+    .sig-canvas .guide { position: absolute; left: 12%; right: 12%; bottom: 26px; border-top: 1.5px dashed #d3dbe0; }
+    .sig-canvas.on { background: #eef8fc; cursor: crosshair; }
+    .sig-canvas.on .guide { border-color: #b9ccd6; }
+    .sig-canvas .ink { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: "Brush Script MT", cursive; font-size: 38px; color: #111; }
+    .sig-canvas .tap { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11.5px; color: #7ba7bd; }
+    .sig-tools { display: flex; align-items: center; gap: 9px; margin-top: 9px; font-size: 11.5px; color: #8d979d; }
+    .sig-tools.on { color: #333; }
+    .sig-tools .upload { border: 1px solid #cdd5da; background: #fff; border-radius: 3px; padding: 4px 11px; font-size: 12px; color: #a9b2b8; }
+    .sig-tools.on .upload { color: #111; border-color: #9aa4ab; }
+    .sig-submit { display: flex; justify-content: flex-end; margin-top: 16px; }
+    .sig-submit button { border: none; border-radius: 3px; padding: 7px 18px; font-size: 13px; font-weight: 600; color: #fff; background: #9dcbe2; cursor: not-allowed; }
+    .sig-submit button.on { background: var(--surface-primary); cursor: pointer; }
+
+    /* success */
+    .succ-card { background: #fff; border: 1px solid #eceff1; border-radius: 5px; box-shadow: 0 1px 5px rgba(0,0,0,.10); padding: 28px 26px; max-width: 430px; text-align: center; }
+    .succ-ring { width: 62px; height: 62px; border-radius: 50%; border: 2.5px solid var(--success-bright); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .succ-h { font-size: 20px; font-weight: 600; color: #111; margin-bottom: 8px; }
+    .succ-b { font-size: 12.5px; color: #222; line-height: 1.6; }
+
+    /* PDF overlay */
+    .pdf-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; z-index: 40; padding: 18px; }
+    .pdf-win { background: #eceff1; border-radius: 6px; width: 640px; max-width: 100%; max-height: 100%; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 18px rgba(0,0,0,.3); }
+    .pdf-bar { background: var(--surface-primary); color: #fff; display: flex; align-items: center; gap: 10px; padding: 9px 13px; font-size: 13px; font-weight: 600; }
+    .pdf-bar .sp { flex: 1; }
+    .pdf-bar button { background: #fff; color: var(--surface-primary); border: none; border-radius: 3px; padding: 4px 11px; font-size: 12px; font-weight: 600; }
+    .pdf-bar .x { background: transparent; color: #fff; border: 1px solid #fff; }
+    .pdf-body { flex: 1; overflow-y: auto; padding: 16px; }
+    .pdf-page { background: #fff; border-radius: 3px; padding: 18px; box-shadow: 0 1px 5px rgba(0,0,0,.15); }
+    .pdf-page .t { font-size: 17px; font-weight: 700; color: #111; }
+    .pdf-page .s { font-size: 11px; color: #8a6d9e; margin-bottom: 10px; }
+    .pdf-page .hr { border-top: 2px solid #333; margin-bottom: 12px; }
+    .pdf-page .lbl { font-size: 12.5px; font-weight: 700; margin-bottom: 4px; }
+    .pdf-page .opt { font-size: 12px; color: #333; margin-bottom: 3px; }
+    .pdf-page .sigbox { border: 1px solid #e2e6e9; border-radius: 3px; height: 62px; margin-top: 8px; background: #fbfdfe; }
 
     /* modal */
     .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; z-index: 50; }
@@ -190,8 +235,8 @@
     <div class="topbar-left">
       <span class="t-ticket">TKT-17127</span>
       <span class="t-project">External Signer Support for Forms</span>
-      <span class="badge-pill primary">Prototype - v2</span>
-      <span class="t-date">July 16, 2026 Generated</span>
+      <span class="badge-pill primary">Prototype - v3</span>
+      <span class="t-date">July 20, 2026 Generated</span>
     </div>
     <button class="btn-reset" onclick="resetAll()">↺ Reset Prototype</button>
   </div>
@@ -207,6 +252,7 @@
 
     <div class="proto-card">
       <div class="proto-stage" id="stage"></div>
+      <div id="pdfRoot"></div>
       <div class="step-details">
         <p class="sd-title" id="sdTitle"></p>
         <ul class="sd-list" id="sdList"></ul>
@@ -227,29 +273,35 @@ var FLOWS = {
   signer: [
     { id:'email',    label:'Email' },
     { id:'identity', label:'Identity' },
-    { id:'sign',     label:'Signature Required' }
+    { id:'sign',     label:'Review & Sign' },
+    { id:'submitted',label:'Submitted' }
   ]
 };
 
 var FORM_NAME = 'Mika - Multi Signature';
-var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+var DOC_NAME  = "Mika's Multi Signature Form";
+var SENDER    = 'Miku Hatsune';
+var TODAY     = '20-Jul-2026';
+var EMAIL_RE  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function initialState(){
   return {
     persp: 'admin',
     adminScreen: 'setup',
     signerScreen: 'email',
-    category: 'external',       // signature category chosen in setup
+    category: 'external',
     choices: [true,false,false],
     extEmail: '',
     confirmOpen: false,
     sent: false,
     identity: { first:'', last:'', privacy:false, email:'' },
     identityDone: false,
+    // review & sign gate
+    viewed: false,
+    pdfOpen: false,
     reviewed: false,
     inked: false,
-    signed: false,
-    saveTried: false
+    submitted: false
   };
 }
 var st = initialState();
@@ -257,15 +309,14 @@ var st = initialState();
 function switchPersp(p){ st.persp = p; render(); }
 function selectFlow(id){ if(st.persp==='admin') st.adminScreen = id; else st.signerScreen = id; render(); }
 function resetAll(){ st = initialState(); render(); }
-
 function activeFlowId(){ return st.persp==='admin' ? st.adminScreen : st.signerScreen; }
 
 function renderFlowTabs(){
   var list = FLOWS[st.persp], active = activeFlowId();
   document.getElementById('flowTabs').innerHTML = list.map(function(f){
     var badge = '';
-    if(f.id==='sign' && st.sent && !st.signed) badge = '<span class="flow-badge">1</span>';
-    if(f.id==='done' && st.signed) badge = '<span class="flow-badge" style="background:var(--surface-success)">✓</span>';
+    if(f.id==='sign' && st.sent && !st.submitted) badge = '<span class="flow-badge">1</span>';
+    if(f.id==='done' && st.submitted) badge = '<span class="flow-badge" style="background:var(--surface-success)">✓</span>';
     return '<button class="flow-tab '+(f.id===active?'active':'')+'" onclick="selectFlow(\''+f.id+'\')">'+f.label+badge+'</button>';
   }).join('');
 }
@@ -276,7 +327,7 @@ function toggleChoice(i){ st.choices[i] = !st.choices[i]; render(); }
 function setExtEmail(v){ st.extEmail = v; renderInline(); }
 function gotoFill(){ st.adminScreen = 'fill'; render(); }
 
-function trySubmit(){
+function trySubmitForm(){
   if(st.category==='external' && !EMAIL_RE.test(st.extEmail.trim())) return;
   st.confirmOpen = true; render();
 }
@@ -291,21 +342,27 @@ function identityValid(){
 }
 function continueIdentity(){ if(!identityValid()) return; st.identityDone = true; st.signerScreen='sign'; render(); }
 function openEmailLink(){ st.signerScreen = 'identity'; render(); }
+function backToIdentity(){ st.signerScreen = 'identity'; render(); }
 
-function toggleReviewed(){ st.reviewed = !st.reviewed; render(); }
-function inkSignature(){ if(st.signed) return; st.inked = true; render(); }
-function clearSignature(){ st.inked = false; render(); }
-function trySave(){
-  st.saveTried = true;
-  if(!st.reviewed || !st.inked) { render(); return; }
-  st.signed = true; render();
-}
+/* the gate */
+function openPdf(){ st.pdfOpen = true; render(); }
+function closePdf(){ st.pdfOpen = false; st.viewed = true; render(); }
+function toggleReviewed(){ if(!st.viewed) return; st.reviewed = !st.reviewed; if(!st.reviewed) st.inked = false; render(); }
+function inkSignature(){ if(!st.reviewed || st.inked) return; st.inked = true; render(); }
+function clearSignature(){ if(!st.reviewed) return; st.inked = false; render(); }
+function submitSignature(){ if(!(st.viewed && st.reviewed && st.inked)) return; st.submitted = true; st.signerScreen='submitted'; render(); }
 
 function signerFullName(){ return (st.identity.first.trim()+' '+st.identity.last.trim()).trim() || 'Jane Doe'; }
+function firstName(){ return st.identity.first.trim() || 'Jane'; }
 
-/* ================= screens ================= */
+/* ================= helpers ================= */
 function esc(s){ return String(s).replace(/"/g,'&quot;'); }
-
+function clientBar(){
+  return '<div class="client-bar"><div class="client-logo">'
+    + '<span class="leaf">🌿</span>'
+    + '<span class="nm"><b>CLEAN</b><small>ENVIRONMENT</small></span>'
+    + '</div></div>';
+}
 function emailValidityMarkup(){
   var v = st.extEmail.trim();
   if(!v) return { cls:'', msg:'' };
@@ -313,6 +370,7 @@ function emailValidityMarkup(){
   return { cls:'err', msg:'<div class="msg err">⚠ Enter a valid email address</div>' };
 }
 
+/* ================= ADMIN screens ================= */
 function screenSetup(){
   var isExt = st.category==='external';
   return ''
@@ -363,7 +421,7 @@ function screenFill(){
       + '<div id="emailMsg">'+v.msg+'</div></div></div>';
   } else {
     sigArea = '<div class="eu-sig-block"><div class="eu-sig-canvas">✍</div><div class="eu-sig-side">'
-      + '<input value="Miku Hatsune" disabled><input value="16-Jul-2026" disabled>'
+      + '<input value="Miku Hatsune" disabled><input value="'+TODAY+'" disabled>'
       + '</div></div>';
   }
 
@@ -389,7 +447,7 @@ function screenFill(){
        + '<span class="meta">Form ID: 6970811</span>'
        + '<span class="right">'
          + '<button class="ds-btn ds-btn--ghost ds-btn--sm">Save Progress</button>'
-         + '<button class="ds-btn ds-btn--success ds-btn--sm" onclick="trySubmit()" '+((canSubmit && !st.sent)?'':'disabled')+'>'+(st.sent?'Submitted':'Submit ▸')+'</button>'
+         + '<button class="ds-btn ds-btn--success ds-btn--sm" onclick="trySubmitForm()" '+((canSubmit && !st.sent)?'':'disabled')+'>'+(st.sent?'Submitted':'Submit ▸')+'</button>'
        + '</span>'
      + '</div>'
    + '</div>'
@@ -397,7 +455,7 @@ function screenFill(){
 }
 
 function screenDone(){
-  if(!st.signed){
+  if(!st.submitted){
     return '<div class="empty"><div class="e-title">Not signed yet</div>'
       + '<p>'+(st.sent
           ? 'The request has been emailed, but the external party hasn\'t signed. Switch to the <b>External Signer</b> perspective to complete it.'
@@ -420,7 +478,7 @@ function screenDone(){
            + '<div class="eu-sig-canvas signed">'+signerFullName()+'</div>'
            + '<div class="eu-sig-side">'
              + '<input value="'+esc(signerFullName())+'" disabled>'
-             + '<input value="16-Jul-2026" disabled>'
+             + '<input value="'+TODAY+'" disabled>'
              + '<div style="font-size:10.5px; color:#667; font-style:italic;">External party · '+esc(st.identity.email||'jane.doe@gmail.com')+'</div>'
            + '</div>'
          + '</div>'
@@ -435,6 +493,7 @@ function screenDone(){
    + '<div class="banner-line bl-ok"><span class="ico">✓</span><div>Stored like any other signature, so it appears in the record, the PDF, and reporting with no special handling. <b>No BIS account was created.</b></div></div>';
 }
 
+/* ================= SIGNER screens ================= */
 function screenEmail(){
   if(!st.sent){
     return '<div class="empty"><div class="e-title">Nothing sent yet</div>'
@@ -446,7 +505,7 @@ function screenEmail(){
      + '<div class="eh"><div class="avatar">B</div>'
        + '<div><div class="subj">You\'ve been asked to sign: '+FORM_NAME+'</div>'
        + '<div class="to">BIS Safety Software → '+esc(st.extEmail)+'</div></div>'
-       + '<div class="when">Thu 7/16/2026 12:05 PM</div></div>'
+       + '<div class="when">Mon 7/20/2026 12:05 PM</div></div>'
      + '<div class="eb">'
        + '<p>Miku Hatsune has completed the <b>'+FORM_NAME+'</b> form and is requesting your signature. This does not require you to create a BIS account.</p>'
        + '<div style="margin-top:12px;"><button class="ds-btn ds-btn--primary ds-btn--sm" onclick="openEmailLink()">Review &amp; Sign</button></div>'
@@ -464,76 +523,90 @@ function screenEmail(){
 function screenIdentity(){
   if(!st.sent) return '<div class="empty"><div class="e-title">Nothing sent yet</div><p>Send the form from the <b>Admin</b> perspective first.</p></div>';
   var i = st.identity;
-  var ev = i.email.trim() ? (EMAIL_RE.test(i.email.trim()) ? 'ok' : 'err') : '';
   return ''
-   + '<p class="lede">A formality to record <b>who signed</b> — not authentication. The link is open, and this email does <b>not</b> have to match the one we sent it to.</p>'
-   + '<div class="eu-frame" style="max-width:760px;">'
-     + '<div class="secure-topbar">🔒 Secure Sign-In</div>'
-     + '<div class="secure-bg"><div class="bis-section"><div class="bis-section__accent"></div>'
-       + '<div class="bis-section__body">'
-         + '<div class="bis-section__title">Confirm who you are</div>'
-         + '<div class="bis-section__sub">'+FORM_NAME+' — before you can sign, we need a few details.</div>'
-         + '<div class="fieldrow">'
-           + '<div class="field"><label>First name</label><input value="'+esc(i.first)+'" placeholder="Jane" oninput="setIdField(\'first\', this.value)"></div>'
-           + '<div class="field"><label>Last name</label><input value="'+esc(i.last)+'" placeholder="Doe" oninput="setIdField(\'last\', this.value)"></div>'
-           + '<div class="field full"><label>Email</label><input class="'+ev+'" value="'+esc(i.email)+'" placeholder="jane.doe@gmail.com" oninput="setIdField(\'email\', this.value)"></div>'
+   + '<p class="lede">Opens on the <b>client\'s</b> branded page. A formality to record who signed — not authentication. This email does <b>not</b> have to match the one we sent it to.</p>'
+   + '<div class="ext-frame">'
+     + clientBar()
+     + '<div class="ext-bar">🔒 Identity Confirmation</div>'
+     + '<div class="ext-stage">'
+       + '<div class="ext-card narrow"><div class="ext-card__accent"></div><div class="ext-card__body">'
+         + '<div class="ext-h">Confirm who you are</div>'
+         + '<div class="ext-sub">Before you can sign this form, we need a few details.</div>'
+         + '<div class="fieldrow" style="gap:10px 12px;">'
+           + '<div><span class="ext-label">First name</span><input class="ext-input" value="'+esc(i.first)+'" placeholder="Jane" oninput="setIdField(\'first\', this.value)"></div>'
+           + '<div><span class="ext-label">Last name</span><input class="ext-input" value="'+esc(i.last)+'" placeholder="Doe" oninput="setIdField(\'last\', this.value)"></div>'
+           + '<div class="full"><span class="ext-label">Email</span><input class="ext-input" value="'+esc(i.email)+'" placeholder="jane.doe@gmail.com" oninput="setIdField(\'email\', this.value)"></div>'
          + '</div>'
-         + '<div class="eu-check" style="margin-top:12px;"><input type="checkbox" '+(i.privacy?'checked':'')+' onchange="togglePrivacy()"><span style="font-size:12px;">I have read and accept the privacy policy</span></div>'
-         + '<button class="ds-btn ds-btn--primary" style="width:100%; margin-top:12px;" onclick="continueIdentity()" '+(identityValid()?'':'disabled')+'>Continue</button>'
-         + '<div class="secure-note">🔒 We don\'t create a BIS account for you</div>'
-       + '</div>'
-     + '</div></div>'
+         + '<label class="ext-check"><input type="checkbox" '+(i.privacy?'checked':'')+' onchange="togglePrivacy()"><span>I have read and accept the <a href="#" onclick="return false;">privacy policy</a></span></label>'
+         + '<button class="ext-btn-full" onclick="continueIdentity()" '+(identityValid()?'':'disabled')+'>Continue</button>'
+         + '<div class="ext-info"><span class="i">i</span><span>We don\'t create a BIS account for you</span></div>'
+       + '</div></div>'
+     + '</div>'
    + '</div>'
-   + '<div class="banner-line bl-info"><span class="ico">ℹ</span><div>We invited <b>'+esc(st.extEmail)+'</b> — but whatever they type here is what gets logged. No matching, no lockout.</div></div>';
+   + '<div class="banner-line bl-info"><span class="ico">ℹ</span><div>We invited <b>'+esc(st.extEmail)+'</b> — but whatever is typed here is what gets logged. No matching, no lockout.</div></div>';
 }
 
 function screenSign(){
   if(!st.sent) return '<div class="empty"><div class="e-title">Nothing sent yet</div><p>Send the form from the <b>Admin</b> perspective first.</p></div>';
   if(!st.identityDone) return '<div class="empty"><div class="e-title">Confirm your identity first</div><p>Open the <b>Email</b> tab and click <b>Review &amp; Sign</b>, then fill in the <b>Identity</b> step.</p></div>';
 
-  if(st.signed){
-    return '<div class="banner-line bl-ok" style="margin-top:0;"><span class="ico">✓</span><div><b>Signed — the form is now complete.</b> Switch to <b>Admin → Completed Form</b> to see the signature land in the form record.</div></div>'
-      + '<div class="sr-frame"><div class="sr-greybar"></div><div class="sr-greenbar">Signature Required</div>'
-      + '<div class="sr-intro">The following form(s)/document(s) need your signature before they can be marked as complete.</div>'
-      + '<table class="sr-table"><thead><tr><th style="width:34px;"></th><th>Title</th><th>Documents</th></tr></thead>'
-      + '<tbody><tr><td class="sr-tick">✓</td><td>'+FORM_NAME+' (MHatsune)</td><td><span class="sr-pdf">📕 PDF</span></td></tr></tbody></table>'
-      + '<div class="sr-panel"><h4>Important:</h4>'
-      + '<div class="sr-important"><input type="checkbox" checked disabled><span>I have reviewed the attached form and approved it.</span></div>'
-      + '<div class="sr-signlabel">Sign below</div>'
-      + '<div class="sr-canvas signed" style="border-top:1px solid #ddd;">'+signerFullName()+'</div>'
-      + '<div class="sr-tools"><div class="note" style="margin-top:6px;">Signed '+esc(signerFullName())+' · 16-Jul-2026</div></div>'
-      + '</div></div>';
-  }
+  var canCheck = st.viewed;
+  var canSign  = st.reviewed;
+  var canSubmit= st.viewed && st.reviewed && st.inked;
 
-  var canSave = st.reviewed && st.inked;
-  var err = '';
-  if(st.saveTried && !st.reviewed) err = '<div class="sr-err">Please accept the terms and conditions.</div>';
-  else if(st.saveTried && !st.inked) err = '<div class="sr-err">Please add your signature.</div>';
+  var canvasInner = '<span class="guide"></span>';
+  if(st.inked) canvasInner += '<span class="ink">'+signerFullName()+'</span>';
+  else if(canSign) canvasInner += '<span class="tap">Click to sign</span>';
 
   return ''
-   + '<p class="lede">The <b>existing</b> logged-out signature page — reused as-is. The form is reviewed as the attached <b>PDF</b>; the redundant green "Signature" action button has been removed, since the signer is already here to do exactly one thing.</p>'
-   + '<div class="sr-frame">'
-     + '<div class="sr-greybar"></div>'
-     + '<div class="sr-greenbar">Signature Required</div>'
-     + '<div class="sr-intro">The following form(s)/document(s) need your signature before they can be marked as complete.</div>'
-     + '<table class="sr-table"><thead><tr><th style="width:34px;"></th><th>Title</th><th>Documents</th></tr></thead>'
-     + '<tbody><tr><td class="sr-tick">✓</td><td>'+FORM_NAME+' (MHatsune)</td><td><span class="sr-pdf">📕 PDF</span></td></tr></tbody></table>'
-     + '<div class="sr-panel">'
-       + '<h4>Important:</h4>'
-       + '<div class="sr-important"><input type="checkbox" '+(st.reviewed?'checked':'')+' onchange="toggleReviewed()"><span>I have reviewed the attached form and approved it.</span></div>'
-       + '<div class="sr-signlabel">Sign below</div>'
-       + '<div class="sr-blackbar">Drag and drop an image of your signature below, upload one using the Browse button, or click the pen icon to capture your signature.</div>'
-       + '<div class="sr-canvas'+(st.inked?' signed':'')+'" onclick="inkSignature()">'+(st.inked?signerFullName():'✍')+'</div>'
-       + '<div class="sr-tools">'
-         + '<div><button class="btn-choose">Choose File 📁</button>'
-         + '<div class="note" style="margin-top:5px;">Images must JPG or PNG files and less than 4 MB.</div></div>'
-         + '<div class="actions"><button class="btn-clear" onclick="clearSignature()">Clear ✕</button>'
-         + '<button class="btn-save" onclick="trySave()">Save 💾</button></div>'
-       + '</div>'
-       + err
+   + '<p class="lede">Each step unlocks the next: <b>view the PDF → the checkbox enables → tick it → the signature enables → sign → Submit turns on</b>. <b>Back</b> returns to Identity to fix a name or email.</p>'
+   + '<div class="ext-frame">'
+     + clientBar()
+     + '<div class="ext-bar">✍ Signature Required <button class="back" onclick="backToIdentity()">Back</button></div>'
+     + '<div class="ext-stage">'
+       + '<div class="ext-card wide"><div class="ext-card__accent"></div><div class="ext-card__body">'
+         + '<div class="ext-intro">The following form needs your signature before it can be marked as complete.</div>'
+         + '<div class="doc-row">'
+           + '<span class="nm">'+DOC_NAME+'</span>'
+           + '<span class="state-i'+(st.viewed?' done':'')+'">'+(st.viewed?'✓':'!')+'</span>'
+           + '<button class="view'+(st.viewed?' seen':'')+'" onclick="openPdf()">View</button>'
+         + '</div>'
+         + '<label class="ext-check'+(canCheck?'':' off')+'" onclick="toggleReviewed()">'
+           + '<input type="checkbox" '+(st.reviewed?'checked':'')+' '+(canCheck?'':'disabled')+' onclick="event.preventDefault()">'
+           + '<span>I have reviewed the attached form and approved it.</span></label>'
+         + '<div class="sig-head'+(canSign?'':' off')+'"><span class="lb">Signature<span class="req">*</span></span>'
+           + '<span class="clear" onclick="clearSignature()">Clear</span></div>'
+         + '<div class="sig-canvas'+(canSign?' on':'')+'" onclick="inkSignature()">'+canvasInner+'</div>'
+         + '<div class="sig-tools'+(canSign?' on':'')+'"><span>Images must JPG or PNG files and less than 4 MB.</span><span class="upload">Upload</span></div>'
+         + '<div class="sig-submit"><button class="'+(canSubmit?'on':'')+'" onclick="submitSignature()">Submit</button></div>'
+       + '</div></div>'
      + '</div>'
    + '</div>'
-   + (!st.inked ? '<div class="banner-line bl-info"><span class="ico">👆</span><div>Click the signature box to sign.</div></div>' : '');
+   + (!st.viewed
+      ? '<div class="banner-line bl-info"><span class="ico">👆</span><div>Everything below the document is locked. Click <b>View</b> to open the PDF first.</div></div>'
+      : (!st.reviewed
+        ? '<div class="banner-line bl-ok"><span class="ico">✓</span><div>PDF opened — the icon turned green and the checkbox is now live. Tick it to unlock the signature.</div></div>'
+        : (!st.inked
+          ? '<div class="banner-line bl-ok"><span class="ico">✓</span><div>Signature unlocked. Click the signature box to sign.</div></div>'
+          : '<div class="banner-line bl-ok"><span class="ico">✓</span><div>Ready — <b>Submit</b> is live.</div></div>')));
+}
+
+function screenSubmitted(){
+  if(!st.submitted) return '<div class="empty"><div class="e-title">Not submitted yet</div><p>Finish the <b>Review &amp; Sign</b> step first.</p></div>';
+  return ''
+   + '<p class="lede">The confirmation names the form and the person it went back to, and says plainly that nothing more is needed.</p>'
+   + '<div class="ext-frame">'
+     + clientBar()
+     + '<div class="ext-bar">✍ Signature Required</div>'
+     + '<div class="ext-stage" style="padding:34px 18px 44px;">'
+       + '<div class="succ-card">'
+         + '<div class="succ-ring"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#22a06b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 L10 17.5 L19 7"/></svg></div>'
+         + '<div class="succ-h">Signature submitted</div>'
+         + '<div class="succ-b">Thanks, '+esc(firstName())+'. Your signature has been added to <b>'+FORM_NAME+'</b> and sent back to '+SENDER+'.<br>Nothing else is needed from you. You can close this tab.</div>'
+       + '</div>'
+     + '</div>'
+   + '</div>'
+   + '<div class="banner-line bl-info"><span class="ico">ℹ</span><div>The <b>Back</b> button is gone — once submitted there\'s nothing to go back to. Switch to <b>Admin → Completed Form</b> to see the signature land in the record.</div></div>';
 }
 
 function renderScreen(){
@@ -542,9 +615,35 @@ function renderScreen(){
     if(st.adminScreen==='fill')  return screenFill();
     return screenDone();
   }
-  if(st.signerScreen==='email')    return screenEmail();
-  if(st.signerScreen==='identity') return screenIdentity();
-  return screenSign();
+  if(st.signerScreen==='email')     return screenEmail();
+  if(st.signerScreen==='identity')  return screenIdentity();
+  if(st.signerScreen==='sign')      return screenSign();
+  return screenSubmitted();
+}
+
+/* ================= PDF overlay ================= */
+function renderPdf(){
+  var root = document.getElementById('pdfRoot');
+  if(!st.pdfOpen){ root.innerHTML=''; return; }
+  root.innerHTML = ''
+   + '<div class="pdf-overlay">'
+     + '<div class="pdf-win">'
+       + '<div class="pdf-bar"><span>📕 '+DOC_NAME+'</span><span class="sp"></span>'
+         + '<button>⤓ Download</button>'
+         + '<button class="x" onclick="closePdf()">Close</button></div>'
+       + '<div class="pdf-body"><div class="pdf-page">'
+         + '<div class="t">'+FORM_NAME+'</div><div class="s">Form/assessment description</div><div class="hr"></div>'
+         + '<div class="lbl">Title*</div>'
+         + '<div class="opt">'+(st.choices[0]?'☑':'☐')+' First Choice</div>'
+         + '<div class="opt">'+(st.choices[1]?'☑':'☐')+' Second Choice</div>'
+         + '<div class="opt">'+(st.choices[2]?'☑':'☐')+' Third Choice</div>'
+         + '<div class="lbl" style="margin-top:12px;">Multi</div>'
+         + '<div style="font-size:11px;color:#667;">Awaiting external signature</div>'
+         + '<div class="sigbox"></div>'
+         + '<div style="font-size:11px;color:#889;margin-top:10px;">Submitted by Miku Hatsune · '+TODAY+' · Form ID 6970811</div>'
+       + '</div></div>'
+     + '</div>'
+   + '</div>';
 }
 
 /* ================= step details ================= */
@@ -552,7 +651,7 @@ function stepDetails(){
   if(st.persp==='admin'){
     if(st.adminScreen==='setup') return { title:'Form Setup — mark the signature as external', bullets:[
       'The only build change here: one new <b>External Party</b> item in the existing Signature Categories dropdown.',
-      'Try switching the dropdown to an internal category to see the difference. Then click <b>Save &amp; continue</b>.'
+      'Try switching the dropdown to an internal category to see the difference, then click <b>Save &amp; continue</b>.'
     ]};
     if(st.adminScreen==='fill') return { title: st.sent ? 'Sent — the form did not wait' : 'Fill Out & Send — nominate the signer', bullets: st.sent ? [
       'The form submitted immediately; the external signature is collected afterwards and can\'t block it.',
@@ -561,7 +660,7 @@ function stepDetails(){
       'The email is entered <b>per submission</b>, not in the template — so one form can go to a different contractor each time.',
       'Type an invalid address to see the format check, then a valid one and hit <b>Submit</b>.'
     ]};
-    return { title: st.signed ? 'Completed Form — the signature landed' : 'Completed Form — not signed yet', bullets: st.signed ? [
+    return { title: st.submitted ? 'Completed Form — the signature landed' : 'Completed Form — not signed yet', bullets: st.submitted ? [
       'The external signature is written into the form record using the existing signature block.',
       'Name, date, and the email they entered are stored for audit. No BIS account was created.'
     ] : [
@@ -573,16 +672,17 @@ function stepDetails(){
     'Reuses the standard BIS notification email — new copy only.',
     'Click <b>Review &amp; Sign</b> to open the link (no login, no account).'
   ]};
-  if(st.signerScreen==='identity') return { title:'Identity — a formality, not a gate', bullets:[
+  if(st.signerScreen==='identity') return { title:'Identity Confirmation — a formality, not a gate', bullets:[
     'Captures who signed for the record. The link is open — this email does <b>not</b> have to match the invited one.',
-    'Fill in all three fields + the privacy box to enable <b>Continue</b>.'
+    'Fill all three fields + the privacy box to enable <b>Continue</b>.'
   ]};
-  return { title: st.signed ? 'Signed' : 'Signature Required — the page BIS already ships', bullets: st.signed ? [
-    'The signature is saved and the form is complete.',
-    'Switch to <b>Admin → Completed Form</b> to see it in the record.'
-  ] : [
-    'Review happens via the attached <b>PDF</b> — no in-browser view of the live form is built.',
-    'Tick the approval box and click the signature area, then <b>Save</b>.'
+  if(st.signerScreen==='sign') return { title:'Review & Sign — each step unlocks the next', bullets:[
+    'Order is enforced: <b>View the PDF → checkbox → signature → Submit</b>. Nothing can be skipped.',
+    st.viewed ? 'Use <b>Back</b> any time to return to Identity and correct a name or email.' : 'Click <b>View</b> to open the PDF — everything below is locked until you do.'
+  ]};
+  return { title:'Signature submitted', bullets:[
+    'Names the form and the sender, and confirms nothing further is required.',
+    'Switch to <b>Admin → Completed Form</b> to see the signature in the record.'
   ]};
 }
 
@@ -606,7 +706,6 @@ function renderModal(){
 }
 
 /* ================= render ================= */
-// in-screen typing: update only the validity hint so focus/caret survive
 function renderInline(){
   var box = document.getElementById('emailMsg');
   if(box){
@@ -615,10 +714,9 @@ function renderInline(){
     var inp = box.parentElement.querySelector('input');
     if(inp){ inp.classList.remove('ok','err'); if(v.cls) inp.classList.add(v.cls); }
   }
-  // keep buttons/footer honest while typing
   var sb = document.querySelector('.eu-bottombar .ds-btn--success');
   if(sb && !st.sent) sb.disabled = !(st.category!=='external' || EMAIL_RE.test(st.extEmail.trim()));
-  var cb = document.querySelector('.bis-section .ds-btn--primary');
+  var cb = document.querySelector('.ext-btn-full');
   if(cb) cb.disabled = !identityValid();
 }
 
@@ -631,9 +729,9 @@ function render(){
   document.getElementById('sdTitle').innerHTML = d.title;
   document.getElementById('sdList').innerHTML = d.bullets.map(function(b){ return '<li>'+b+'</li>'; }).join('');
   document.getElementById('stage').innerHTML = renderScreen();
+  renderPdf();
   renderModal();
-  // reset stage scroll only when the SCREEN changes, not on in-screen tweaks
-  var key = st.persp+'|'+activeFlowId()+'|'+(st.sent?'s':'')+(st.signed?'d':'');
+  var key = st.persp+'|'+activeFlowId()+'|'+(st.sent?'s':'')+(st.submitted?'d':'');
   if(key !== lastViewKey){ var ps = document.querySelector('.proto-stage'); if(ps) ps.scrollTop = 0; lastViewKey = key; }
 }
 
