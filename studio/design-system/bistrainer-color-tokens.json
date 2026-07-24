@@ -1,0 +1,131 @@
+{
+  "_meta": {
+    "source": "https://www.figma.com/design/sYqKFiF1879GNNITzqd8qC/BIStrainer_UI-Library-Guide?node-id=5492-2768",
+    "fileKey": "sYqKFiF1879GNNITzqd8qC",
+    "nodeId": "5492:2768",
+    "collections": ["global", "semantic"],
+    "pulledOn": "2026-07-24",
+    "revision": "3 — Dark mode token fixes + documentation frame now sets explicit Dark mode on all 114 swatches",
+    "confidence": {
+      "colour (primitives)": "Live — pulled directly from Figma variables, unchanged since 2026-07-23.",
+      "color.light": "Live — pulled directly from Figma variables, unchanged since 2026-07-23.",
+      "color.dark": "The Figma documentation frame still only exposes one resolved mode at a time to external tools, so Dark values here are not independently re-pulled live. As of this revision design has explicitly set Dark mode on all 114 semantic swatches (previously some silently defaulted to their Light value) and hand-confirmed the specific remaps listed in _changes below. Everything not listed in _changes is carried forward unchanged from the prior verified table. `surface/overlay` remains a known stale value — see _open_items."
+    },
+    "_changes_2026-07-24": {
+      "text": ["secondary-light (dark): grays/300 → grays/600", "disabled (dark): grays/300 → grays/600"],
+      "stroke": ["default (dark): grays/300 → grays/600"],
+      "icon": ["default-alt (dark): grays/000 → grays/900", "default-light (dark): grays/300 → grays/600"],
+      "surface": [
+        "disabled-dark (dark): grays/300 → grays/600",
+        "notice-light (dark): reverted to orange/300 (same as Light) — intentionally constant for accessible light surfaces, per design",
+        "warning-light (dark): reverted to yellow/300 (same as Light) — intentionally constant for accessible light surfaces, per design",
+        "error-darker / error-darkest / notice-dark / notice-darkest / warning-darkest (dark): hex unchanged from prior revision — these were flagged _derived last round and are now explicitly design-confirmed"
+      ]
+    },
+    "_open_items": [
+      "surface/overlay is still showing #19191B40, one gray-revision behind the current grays/900 (#19191A). Design describes the intent as a constant 'Black @ 25%' scrim, but the literal hex hasn't been refreshed — flagged back to design, not yet resolved."
+    ]
+  },
+  "colour": {
+    "grays": {"000":"#FEFEFE","025":"#FBFBFB","050":"#F8F8F8","100":"#F2F2F2","150":"#DFDFE2","200":"#C9C9CE","300":"#AFAFB5","400":"#96969D","500":"#7C7C82","600":"#636368","700":"#4C4C4F","800":"#333333","900":"#19191A"},
+    "red":    {"000":"#FFF2F2","025":"#FEE3E3","050":"#FDD4D4","100":"#FBB7B7","150":"#F99A9A","200":"#F77E7E","300":"#E95B5B","400":"#DA3D3D","500":"#CC2222","600":"#A43232","700":"#7C3838","800":"#553232","900":"#2D1212"},
+    "orange": {"000":"#FFFAF2","025":"#FFF3E1","050":"#FFECCF","100":"#FFDEAB","150":"#FFD086","200":"#FFC162","300":"#F6A62F","400":"#EA8D00","500":"#C37900","600":"#9C6300","700":"#754C00","800":"#4E3400","900":"#271B00"},
+    "yellow": {"000":"#FFFCF2","025":"#FDF5D9","050":"#FCEFC1","100":"#F9E291","150":"#F5D561","200":"#F2C934","300":"#E8B203","400":"#C29C14","500":"#A1851F","600":"#816D24","700":"#615424","800":"#41391E","900":"#201D12"},
+    "green":  {"000":"#FAFFF2","025":"#EBF8D6","050":"#DDF1BA","100":"#C2E387","150":"#ABD559","200":"#97C730","300":"#6BAC00","400":"#399300","500":"#167B00","600":"#016200","700":"#00410B","800":"#00310E","900":"#00190A"},
+    "blue":   {"000":"#F8FEFF","025":"#F0F9FE","050":"#C9EFFA","100":"#A1E2F6","150":"#7BD7F1","200":"#56CBEC","300":"#26B1DC","400":"#009ACB","500":"#0078B3","600":"#095F8C","700":"#0D476D","800":"#0E324E","900":"#0C1E2F"},
+    "indigo": {"000":"#F2F7FF","025":"#E5EDFB","050":"#D9E4F8","100":"#C1D2F0","150":"#AAC1E9","200":"#94B1E2","300":"#7092CE","400":"#5378BB","500":"#3D63A7","600":"#2F4F87","700":"#233C67","800":"#182947","900":"#0E1728"},
+    "violet": {"000":"#FBF2FF","025":"#F5E7FB","050":"#EEDCF7","100":"#E1C8EE","150":"#D5B4E6","200":"#CAA1DE","300":"#B181C9","400":"#9B66B5","500":"#815099","600":"#693E7E","700":"#512F62","800":"#3A2147","900":"#23142B"}
+  },
+  "color": {
+    "light": {
+      "text": {
+        "default":"#19191A","default-on-surface":"#FEFEFE","on-surface-light":"#19191A",
+        "primary":"#0078B3","primary-on-surface":"#F0F9FE","primary-alt":"#3D63A7",
+        "primary-alt-on-surface":"#E5EDFB","primary-alt-on-surface-deep":"#AAC1E9",
+        "secondary":"#636368","secondary-light":"#AFAFB5","secondary-on-surface":"#FBFBFB",
+        "success":"#167B00","success-on-surface":"#EBF8D6","error":"#CC2222","error-on-surface":"#FEE3E3",
+        "notice":"#9C6300","notice-on-surface":"#FFF3E1","warning":"#816D24","warning-on-surface":"#FDF5D9",
+        "disabled":"#AFAFB5"
+      },
+      "surface": {
+        "default":"#FEFEFE","default-inverse":"#19191A","background":"#F8F8F8",
+        "disabled":"#F2F2F2","disabled-dark":"#AFAFB5",
+        "primary":"#0078B3","primary-light":"#26B1DC","primary-lighter":"#F0F9FE","primary-lightest":"#F8FEFF",
+        "primary-dark":"#095F8C","primary-darker":"#0D476D","primary-darkest":"#0E324E",
+        "primary-alt":"#3D63A7","primary-alt-light":"#94B1E2","primary-alt-lighter":"#E5EDFB","primary-alt-lightest":"#F2F7FF",
+        "primary-alt-dark":"#2F4F87","primary-alt-darker":"#233C67","primary-alt-darkest":"#182947",
+        "secondary":"#636368","secondary-light":"#96969D","secondary-lighter":"#DFDFE2","secondary-lightest":"#F2F2F2","secondary-subtle":"#F8F8F8",
+        "success":"#167B00","success-light":"#6BAC00","success-lighter":"#EBF8D6","success-lightest":"#FAFFF2",
+        "success-dark":"#016200","success-darker":"#00410B","success-darkest":"#00310E",
+        "error":"#CC2222","error-light":"#E95B5B","error-lighter":"#FEE3E3","error-lightest":"#FFF2F2",
+        "error-dark":"#A43232","error-darker":"#7C3838","error-darkest":"#553232",
+        "notice":"#C37900","notice-light":"#F6A62F","notice-lighter":"#FFF3E1","notice-lightest":"#FFFAF2",
+        "notice-dark":"#9C6300","notice-darker":"#754C00","notice-darkest":"#4E3400",
+        "warning":"#A1851F","warning-light":"#E8B203","warning-lighter":"#FDF5D9","warning-lightest":"#FFFCF2",
+        "warning-dark":"#816D24","warning-darker":"#615424","warning-darkest":"#41391E",
+        "overlay":"#19191B40"
+      },
+      "stroke": {
+        "default":"#AFAFB5","default-light":"#DFDFE2","default-lighter":"#F8F8F8","default-dark":"#4C4C4F",
+        "primary":"#009ACB","primary-light":"#7BD7F1","primary-lighter":"#C9EFFA",
+        "primary-alt":"#5378BB","primary-alt-light":"#AAC1E9","primary-alt-lighter":"#D9E4F8",
+        "success":"#399300","success-light":"#C2E387","success-lighter":"#DDF1BA",
+        "error":"#CC2222","error-light":"#F99A9A","error-lighter":"#FDD4D4",
+        "notice":"#C37900","notice-light":"#FFD086","notice-lighter":"#FFECCF",
+        "warning":"#A1851F","warning-light":"#F9E291","warning-lighter":"#FCEFC1"
+      },
+      "icon": {
+        "default":"#4C4C4F","default-light":"#AFAFB5","default-inverse":"#FEFEFE80","default-alt":"#FEFEFE","on-surface-light":"#333333",
+        "primary":"#009ACB","primary-inverse":"#7BD7F1","primary-alt":"#5378BB","primary-alt-inverse":"#AAC1E9",
+        "secondary":"#636368","secondary-inverse":"#C9C9CE",
+        "success":"#167B00","success-inverse":"#C2E387","error":"#CC2222","error-inverse":"#F77E7E",
+        "notice":"#C37900","notice-inverse":"#FFC162","warning":"#C29C14","warning-inverse":"#F5D561"
+      }
+    },
+    "dark": {
+      "text": {
+        "default":"#FEFEFE","default-on-surface":"#19191A","on-surface-light":"#19191A",
+        "primary":"#7BD7F1","primary-on-surface":"#0E324E","primary-alt":"#AAC1E9",
+        "primary-alt-on-surface":"#182947","primary-alt-on-surface-deep":"#3D63A7",
+        "secondary":"#F2F2F2","secondary-light":"#636368","secondary-on-surface":"#333333",
+        "success":"#ABD559","success-on-surface":"#00310E","error":"#F99A9A","error-on-surface":"#553232",
+        "notice":"#FFDEAB","notice-on-surface":"#4E3400","warning":"#F9E291","warning-on-surface":"#41391E",
+        "disabled":"#636368"
+      },
+      "surface": {
+        "default":"#333333","default-inverse":"#FEFEFE","background":"#19191A",
+        "disabled":"#636368","disabled-dark":"#636368",
+        "primary":"#7BD7F1","primary-light":"#009ACB","primary-lighter":"#0E324E","primary-lightest":"#0C1E2F",
+        "primary-dark":"#A1E2F6","primary-darker":"#C9EFFA","primary-darkest":"#F0F9FE",
+        "primary-alt":"#AAC1E9","primary-alt-light":"#5378BB","primary-alt-lighter":"#182947","primary-alt-lightest":"#0E1728",
+        "primary-alt-dark":"#C1D2F0","primary-alt-darker":"#D9E4F8","primary-alt-darkest":"#E5EDFB",
+        "secondary":"#F2F2F2","secondary-light":"#C9C9CE","secondary-lighter":"#7C7C82","secondary-lightest":"#636368","secondary-subtle":"#4C4C4F",
+        "success":"#ABD559","success-light":"#399300","success-lighter":"#00310E","success-lightest":"#00190A",
+        "success-dark":"#C2E387","success-darker":"#DDF1BA","success-darkest":"#EBF8D6",
+        "error":"#F99A9A","error-light":"#DA3D3D","error-lighter":"#553232","error-lightest":"#2D1212",
+        "error-dark":"#FBB7B7","error-darker":"#FDD4D4","error-darkest":"#FEE3E3",
+        "notice":"#FFD086","notice-light":"#F6A62F","notice-lighter":"#4E3400","notice-lightest":"#271B00",
+        "notice-dark":"#FFDEAB","notice-darker":"#FFECCF","notice-darkest":"#FFF3E1",
+        "warning":"#F5D561","warning-light":"#E8B203","warning-lighter":"#41391E","warning-lightest":"#201D12",
+        "warning-dark":"#F9E291","warning-darker":"#FCEFC1","warning-darkest":"#FDF5D9",
+        "overlay":"#19191B40"
+      },
+      "stroke": {
+        "default":"#636368","default-light":"#7C7C82","default-lighter":"#4C4C4F","default-dark":"#F8F8F8",
+        "primary":"#56CBEC","primary-light":"#0078B3","primary-lighter":"#0D476D",
+        "primary-alt":"#94B1E2","primary-alt-light":"#3D63A7","primary-alt-lighter":"#233C67",
+        "success":"#97C730","success-light":"#016200","success-lighter":"#00410B",
+        "error":"#F99A9A","error-light":"#CC2222","error-lighter":"#7C3838",
+        "notice":"#FFD086","notice-light":"#C37900","notice-lighter":"#754C00",
+        "warning":"#F5D561","warning-light":"#816D24","warning-lighter":"#615424"
+      },
+      "icon": {
+        "default":"#F8F8F8","default-light":"#636368","default-inverse":"#333333","default-alt":"#19191A","on-surface-light":"#333333",
+        "primary":"#56CBEC","primary-inverse":"#0078B3","primary-alt":"#94B1E2","primary-alt-inverse":"#3D63A7",
+        "secondary":"#F2F2F2","secondary-inverse":"#96969D",
+        "success":"#ABD559","success-inverse":"#016200","error":"#F99A9A","error-inverse":"#DA3D3D",
+        "notice":"#FFD086","notice-inverse":"#EA8D00","warning":"#F2C934","warning-inverse":"#A1851F"
+      }
+    }
+  }
+}

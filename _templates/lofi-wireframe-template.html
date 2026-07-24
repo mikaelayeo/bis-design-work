@@ -1,0 +1,388 @@
+<!--
+  LO-FI WIREFRAME TEMPLATE  ·  BIS design-generator golden skeleton
+  ================================================================
+  The deliberately un-tokened, greyscale, DEVICE-FRAMED wireframe type.
+  Use when the designer wants to see a feature IN CONTEXT (inside a phone
+  and/or browser shell) at low fidelity — before any brand colour, before
+  the tokened Proposal Doc. Greys are placeholders, NOT final visual design.
+
+  HOW TO FILL THIS IN
+  1. .topbar — set TKT number, feature name, date. Badge stays "Wireframe - v1"
+     and neutral grey (this type never uses brand tokens — that's the point).
+  2. Masthead (header.head) — eyebrow (product · feature · "wireframe"), an h1
+     thesis line, a one-paragraph lede, and the .legend chips that name the
+     states this wireframe encodes (swap the two example chips).
+  3. .board — one <section class="panel"> per platform you're showing
+     (Mobile, Web, or both). Delete a panel if the ticket is single-platform.
+        • MOBILE  → one or more .phone frames (see .frames). Frame 1 is usually
+          the entry point / in-context view; frame 2 the opened/detail view.
+        • WEB     → a .browser frame. Overlay panels (side panel, modal) sit
+          inside .web-body over a hatched .scrim so the untouched page reads.
+  4. .notes under each panel — the "→" annotation list. This is where design
+     decisions and rationale live (the equivalent of the Proposal Doc's notes).
+  5. Keep ONE bit of state colour only (--action red) to mark "needs attention"
+     vs the quiet outline treatment. Everything else stays greyscale.
+
+  Placeholder blocks: .line / .dot / .fill are grey rectangles standing in for
+  real content — size them inline (style="width:..") to sketch a layout fast.
+-->
+<title>[Feature] — Lo-Fi Wireframe</title>
+<style>
+  :root {
+    /* neutrals biased slightly cool — wireframe paper. Light mode only:
+       BIS products have no dark theme, so no prefers-color-scheme block. */
+    --paper: #f7f8fa;
+    --card: #ffffff;
+    --line: #d4d8de;
+    --line-strong: #aeb4bd;
+    --ink: #2b2f36;
+    --ink-soft: #6b7280;
+    --ink-faint: #9aa1ab;
+    --fill: #eceef1;      /* placeholder block fill */
+    --fill-2: #e2e5e9;
+    --action: #d64545;    /* the ONLY state colour: needs attention */
+    --action-soft: #fbe9e9;
+    --update-line: #9aa1ab;
+    --accent: #3d6ae0;    /* structural accent for annotations / entry points */
+    --radius: 10px;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+
+  /* ---- template header (shared .topbar chrome) ---- */
+  .topbar {
+    background: var(--card); border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 8px 20px; flex-wrap: wrap; position: sticky; top: 0; z-index: 20;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .t-ticket { font-size: 16px; font-weight: 600; color: var(--ink); }
+  .t-project { font-size: 14px; color: var(--ink); }
+  .t-date { font-size: 12px; color: var(--ink-soft); }
+  .badge-pill {
+    display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 12px;
+    font-size: 12px; font-weight: 600; box-shadow: 0 0 4px rgba(0,0,0,.15); white-space: nowrap;
+  }
+  /* neutral pill — the lo-fi wireframe type stays greyscale, no brand tokens */
+  .badge-pill.wire { background: var(--fill); color: var(--ink-soft); border: 1px solid var(--line-strong); }
+
+  .wrap { background: var(--paper); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; padding: 40px 24px 72px; min-height: 100vh; }
+  .container { max-width: 1180px; margin: 0 auto; }
+
+  /* ---- masthead ---- */
+  header.head { margin-bottom: 8px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 10px; }
+  h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.1; margin: 0 0 12px; letter-spacing: -0.02em; text-wrap: balance; font-weight: 650; }
+  .lede { max-width: 62ch; color: var(--ink-soft); font-size: 15px; line-height: 1.6; margin: 0; }
+
+  /* legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 22px 0 4px; }
+  .legend .item { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--ink-soft); }
+  .swatch-badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; font-family: var(--mono); }
+  .b-action { background: var(--action); color: #fff; }
+  .b-update { background: transparent; color: var(--ink-soft); border: 1.5px solid var(--update-line); }
+
+  /* section grid */
+  .board { display: grid; grid-template-columns: 1fr; gap: 40px; margin-top: 40px; }
+  @media (min-width: 920px) { .board { grid-template-columns: 1fr 1fr; gap: 44px 48px; } }
+
+  .panel { min-width: 0; }
+  .panel > h2 { font-size: 13px; font-family: var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); margin: 0 0 4px; font-weight: 600; }
+  .panel > .sub { font-size: 13px; color: var(--ink-soft); margin: 0 0 20px; line-height: 1.5; }
+
+  .frames { display: flex; gap: 26px; flex-wrap: wrap; align-items: flex-start; }
+  .frame-tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 10px 2px; }
+
+  /* ---------- MOBILE PHONE FRAME ---------- */
+  .phone { width: 250px; border: 2px solid var(--ink); border-radius: 26px; background: var(--card); padding: 8px; box-shadow: 0 12px 34px rgba(0,0,0,0.10); }
+  .phone .notch { width: 70px; height: 5px; border-radius: 5px; background: var(--line-strong); margin: 2px auto 8px; }
+  .screen { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: var(--paper); }
+  .statusbar { display: flex; justify-content: space-between; align-items: center; padding: 7px 12px; font-size: 10px; color: var(--ink-soft); font-family: var(--mono); }
+  .appbar { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-bottom: 1px solid var(--line); background: var(--card); }
+  .appbar .brand { display: flex; align-items: center; gap: 7px; }
+  .dot { width: 16px; height: 16px; border-radius: 5px; background: var(--fill-2); }
+  .line { height: 8px; border-radius: 4px; background: var(--fill); }
+  .icon-btn { position: relative; width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 7px; background: var(--card); display: inline-flex; align-items: center; justify-content: center; }
+  .icon-btn svg { width: 15px; height: 15px; stroke: var(--ink-soft); }
+  .badge-count { position: absolute; top: -6px; right: -6px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--action); color: #fff; font-size: 9.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; font-family: var(--mono); border: 1.5px solid var(--card); }
+  .screen-body { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+
+  /* an in-context highlighted widget / entry point */
+  .widget { border: 1.5px solid var(--accent); border-radius: 12px; background: var(--card); padding: 11px 12px; position: relative; }
+  .widget[data-tag]::after { content: attr(data-tag); position: absolute; top: -9px; left: 12px; background: var(--accent); color: #fff; font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 6px; border-radius: 5px; }
+  .widget-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .widget-head .t { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 650; color: var(--ink); }
+  .mini-badge { min-width: 17px; height: 17px; padding: 0 5px; border-radius: 9px; background: var(--action); color: #fff; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; font-family: var(--mono); }
+  .view-all { font-size: 10.5px; color: var(--accent); font-weight: 600; }
+  .row { display: flex; gap: 9px; align-items: flex-start; padding: 7px 0; }
+  .row + .row { border-top: 1px solid var(--line); }
+  .r-ico { width: 22px; height: 22px; border-radius: 6px; background: var(--action-soft); flex: none; display: flex; align-items: center; justify-content: center; }
+  .r-ico svg { width: 13px; height: 13px; stroke: var(--action); }
+  .r-ico.quiet { background: var(--fill); }
+  .r-ico.quiet svg { stroke: var(--ink-soft); }
+  .r-text { flex: 1; min-width: 0; }
+  .r-title { font-size: 11px; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 3px; }
+  .r-meta { font-size: 9.5px; color: var(--ink-faint); font-family: var(--mono); }
+  .r-cta { font-size: 9.5px; font-weight: 700; color: #fff; background: var(--ink); border-radius: 5px; padding: 3px 8px; align-self: center; flex: none; }
+
+  /* generic placeholder card */
+  .ph-card { border: 1px solid var(--line); border-radius: 10px; background: var(--card); padding: 11px; }
+  .ph-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .ph-row { display: flex; align-items: center; gap: 9px; padding: 6px 0; }
+  .ph-row + .ph-row { border-top: 1px solid var(--line); }
+
+  /* bottom tab bar */
+  .tabbar { display: flex; justify-content: space-around; padding: 8px 4px 10px; border-top: 1px solid var(--line); background: var(--card); }
+  .tabbar .ti { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .tabbar .ti .l { width: 22px; height: 4px; border-radius: 3px; background: var(--fill-2); }
+  .tabbar .ti .c { width: 14px; height: 14px; border-radius: 4px; background: var(--fill-2); }
+  .tabbar .ti.active .c { background: var(--ink); }
+
+  /* in-view TABS (segmented) */
+  .tabs { display: flex; gap: 4px; padding: 10px 12px 0; background: var(--card); }
+  .tab { flex: 1; text-align: center; font-size: 11px; font-weight: 650; padding: 8px 4px 9px; color: var(--ink-soft); border-bottom: 2px solid transparent; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .tab.active { color: var(--ink); border-bottom-color: var(--action); }
+  .tab .cnt { min-width: 15px; height: 15px; padding: 0 4px; border-radius: 8px; font-size: 9px; font-weight: 700; font-family: var(--mono); display: inline-flex; align-items: center; justify-content: center; }
+  .tab .cnt.action { background: var(--action); color: #fff; }
+  .tab .cnt.quiet { background: transparent; color: var(--ink-soft); border: 1.5px solid var(--update-line); }
+  .group-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); padding: 4px 2px 2px; }
+  .modal-title { font-size: 13px; font-weight: 700; padding: 11px 12px 2px; display: flex; justify-content: space-between; align-items: center; }
+  .close-x { width: 20px; height: 20px; border: 1px solid var(--line); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); font-size: 12px; }
+
+  /* ---------- WEB / DESKTOP FRAME ---------- */
+  .browser { width: 100%; border: 1.5px solid var(--ink); border-radius: 12px; overflow: hidden; background: var(--card); box-shadow: 0 12px 34px rgba(0,0,0,0.10); }
+  .chrome { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--fill); border-bottom: 1px solid var(--line); }
+  .chrome .tl { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); }
+  .chrome .url { flex: 1; margin-left: 10px; height: 16px; border-radius: 8px; background: var(--card); border: 1px solid var(--line); }
+  .web-topbar { display: flex; align-items: center; justify-content: space-between; padding: 11px 16px; border-bottom: 1px solid var(--line); background: var(--card); }
+  .web-nav { display: flex; gap: 16px; align-items: center; }
+  .web-nav .n { height: 8px; width: 42px; border-radius: 4px; background: var(--fill); }
+  .web-nav .n.sm { width: 30px; }
+  .web-actions { display: flex; gap: 12px; align-items: center; }
+  .web-body { position: relative; display: flex; min-height: 360px; background: var(--paper); }
+
+  /* left overlay side panel (Notion-style) */
+  .side-panel { width: 300px; flex: none; border-right: 1px solid var(--line); background: var(--card); display: flex; flex-direction: column; box-shadow: 4px 0 20px rgba(0,0,0,0.05); }
+  .sp-head { padding: 14px 16px 0; display: flex; align-items: center; justify-content: space-between; }
+  .sp-head .ttl { font-size: 15px; font-weight: 700; }
+  .sp-tabs { display: flex; gap: 6px; padding: 12px 16px 0; }
+  .sp-tab { font-size: 12px; font-weight: 650; padding: 7px 2px 10px; color: var(--ink-soft); border-bottom: 2px solid transparent; display: flex; align-items: center; gap: 7px; }
+  .sp-tab.active { color: var(--ink); border-bottom-color: var(--action); }
+  .sp-tab + .sp-tab { margin-left: 18px; }
+  .sp-cnt { min-width: 16px; height: 16px; padding: 0 5px; border-radius: 8px; font-size: 10px; font-weight: 700; font-family: var(--mono); display: inline-flex; align-items: center; justify-content: center; }
+  .sp-cnt.action { background: var(--action); color: #fff; }
+  .sp-cnt.quiet { color: var(--ink-soft); border: 1.5px solid var(--update-line); }
+  .sp-list { padding: 6px 10px 14px; overflow: hidden; border-top: 1px solid var(--line); margin-top: -1px; }
+  .sp-row { display: flex; gap: 11px; align-items: flex-start; padding: 11px 8px; border-radius: 8px; }
+  .sp-row + .sp-row { border-top: 1px solid var(--line); }
+  .sp-ico { width: 30px; height: 30px; border-radius: 8px; background: var(--action-soft); flex: none; display: flex; align-items: center; justify-content: center; }
+  .sp-ico svg { width: 16px; height: 16px; stroke: var(--action); }
+  .sp-ico.quiet { background: var(--fill); }
+  .sp-ico.quiet svg { stroke: var(--ink-soft); }
+  .sp-tx { flex: 1; min-width: 0; }
+  .sp-tt { font-size: 12.5px; font-weight: 600; line-height: 1.35; margin-bottom: 4px; color: var(--ink); }
+  .sp-mt { font-size: 10.5px; color: var(--ink-faint); font-family: var(--mono); }
+  .sp-btn { font-size: 11px; font-weight: 700; color: #fff; background: var(--ink); border-radius: 6px; padding: 5px 11px; flex: none; align-self: center; }
+  .scrim { flex: 1; background: repeating-linear-gradient(135deg, transparent 0 11px, rgba(120,130,145,0.05) 11px 12px); }
+  .scrim-note { margin: 20px; padding: 12px 14px; border: 1px dashed var(--line-strong); border-radius: 8px; font-size: 12px; color: var(--ink-faint); max-width: 260px; line-height: 1.5; }
+  .bell { position: relative; width: 30px; height: 30px; border: 1.5px solid var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .bell svg { width: 16px; height: 16px; stroke: var(--accent); }
+  .bell .badge-count { top: -7px; right: -7px; }
+  .bell-label { font-family: var(--mono); font-size: 8.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); position: absolute; top: 34px; right: 0; white-space: nowrap; }
+
+  /* annotation callouts under each panel */
+  .notes { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 16px; }
+  .notes ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .notes li { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; padding-left: 18px; position: relative; }
+  .notes li::before { content: "→"; position: absolute; left: 0; color: var(--accent); font-family: var(--mono); }
+  .notes b { color: var(--ink); font-weight: 650; }
+
+  .footer-note { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-faint); line-height: 1.6; font-family: var(--mono); }
+</style>
+
+<!-- ================= TEMPLATE HEADER ================= -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="t-ticket">TKT-XXXXX</span>
+    <span class="t-project">[Feature name]</span>
+    <span class="badge-pill wire">Wireframe - v1</span>
+    <span class="t-date">[Month DD, YYYY] Generated</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="container">
+
+    <!-- ================= MASTHEAD ================= -->
+    <header class="head">
+      <p class="eyebrow">[Product] · [Feature] · Discovery wireframe</p>
+      <h1>[One-line thesis — the single idea this wireframe argues]</h1>
+      <p class="lede">[One paragraph: what the feature does and the key structural decision, in the user's words. Greys are placeholders, not final visual design.]</p>
+
+      <!-- Swap these chips for the states THIS wireframe encodes. Keep it to the
+           few distinctions that actually matter; delete the legend if there are none. -->
+      <div class="legend">
+        <span class="item"><span class="swatch-badge b-action">3</span> [Primary state — needs attention]</span>
+        <span class="item"><span class="swatch-badge b-update">5</span> [Quiet state — good to know]</span>
+      </div>
+    </header>
+
+    <!-- ================= DEVICE BOARD ================= -->
+    <div class="board">
+
+      <!-- ---------- MOBILE PANEL (delete if web-only) ---------- -->
+      <section class="panel">
+        <h2>Mobile</h2>
+        <p class="sub">[One line on the mobile approach / entry point.]</p>
+
+        <div class="frames">
+          <!-- Frame 1 · in-context / entry point -->
+          <div>
+            <p class="frame-tag">1 · [Screen name]</p>
+            <div class="phone">
+              <div class="notch"></div>
+              <div class="screen">
+                <div class="statusbar"><span>10:30</span><span>▓ ▓ ▓ 87</span></div>
+                <div class="appbar">
+                  <div class="brand"><span class="dot"></span><span class="line" style="width:78px"></span></div>
+                  <div class="icon-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+                    <span class="badge-count">3</span>
+                  </div>
+                </div>
+                <div class="screen-body">
+                  <div class="widget" data-tag="entry point">
+                    <div class="widget-head">
+                      <span class="t">[Widget title] <span class="mini-badge">3</span></span>
+                      <span class="view-all">View all ›</span>
+                    </div>
+                    <div class="row">
+                      <span class="r-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></span>
+                      <span class="r-text"><span class="r-title">[Primary item]</span><span class="r-meta">[meta · time]</span></span>
+                      <span class="r-cta">[CTA]</span>
+                    </div>
+                    <div class="row">
+                      <span class="r-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></span>
+                      <span class="r-text"><span class="r-title">[Grouped item — collapse repeats]</span><span class="r-meta">[meta · time]</span></span>
+                      <span class="r-cta">[CTA]</span>
+                    </div>
+                  </div>
+                  <!-- dimmed placeholder card = the rest of the page, untouched -->
+                  <div class="ph-card">
+                    <div class="ph-head"><span class="line" style="width:60px"></span><span class="line" style="width:34px;background:var(--fill-2)"></span></div>
+                    <div class="ph-row"><span class="dot"></span><span class="line" style="flex:1;max-width:90px"></span></div>
+                    <div class="ph-row"><span class="dot"></span><span class="line" style="flex:1;max-width:110px"></span></div>
+                  </div>
+                </div>
+                <div class="tabbar">
+                  <span class="ti active"><span class="c"></span><span class="l"></span></span>
+                  <span class="ti"><span class="c"></span><span class="l"></span></span>
+                  <span class="ti"><span class="c"></span><span class="l"></span></span>
+                  <span class="ti"><span class="c"></span><span class="l"></span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Frame 2 · opened / detail view -->
+          <div>
+            <p class="frame-tag">2 · [Detail screen]</p>
+            <div class="phone">
+              <div class="notch"></div>
+              <div class="screen">
+                <div class="statusbar"><span>10:30</span><span>▓ ▓ ▓ 87</span></div>
+                <div class="modal-title"><span>[Title]</span><span class="close-x">✕</span></div>
+                <div class="tabs">
+                  <span class="tab active">[Tab A] <span class="cnt action">3</span></span>
+                  <span class="tab">[Tab B] <span class="cnt quiet">5</span></span>
+                </div>
+                <div class="screen-body" style="gap:8px;padding-top:12px">
+                  <span class="group-label">[Group label]</span>
+                  <div class="row" style="padding-top:2px">
+                    <span class="r-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></span>
+                    <span class="r-text"><span class="r-title">[Item]</span><span class="r-meta">[meta · time]</span></span>
+                    <span class="r-cta">[CTA]</span>
+                  </div>
+                  <div class="row">
+                    <span class="r-ico quiet"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></span>
+                    <span class="r-text"><span class="r-title">[Quiet item]</span><span class="r-meta">[meta · time]</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notes">
+          <ul>
+            <li><b>[Decision]</b> — [why].</li>
+            <li><b>[Decision]</b> — [why].</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ---------- WEB PANEL (delete if mobile-only) ---------- -->
+      <section class="panel">
+        <h2>Web</h2>
+        <p class="sub">[One line on the web approach — e.g. overlay, no page redesign.]</p>
+
+        <p class="frame-tag">Desktop — [pattern]</p>
+        <div class="browser">
+          <div class="chrome"><span class="tl"></span><span class="tl"></span><span class="tl"></span><span class="url"></span></div>
+          <div class="web-topbar">
+            <div class="web-nav">
+              <span class="dot" style="border-radius:6px"></span>
+              <span class="n"></span><span class="n sm"></span><span class="n"></span><span class="n sm"></span><span class="n"></span>
+            </div>
+            <div class="web-actions">
+              <span class="bell">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+                <span class="badge-count">3</span>
+                <span class="bell-label">↑ [entry point]</span>
+              </span>
+              <span class="dot" style="border-radius:50%"></span>
+            </div>
+          </div>
+          <div class="web-body">
+            <div class="side-panel">
+              <div class="sp-head"><span class="ttl">[Panel title]</span><span class="close-x">✕</span></div>
+              <div class="sp-tabs">
+                <span class="sp-tab active">[Tab A] <span class="sp-cnt action">3</span></span>
+                <span class="sp-tab">[Tab B] <span class="sp-cnt quiet">5</span></span>
+              </div>
+              <div class="sp-list">
+                <div class="group-label" style="padding:8px 8px 4px">[Group label]</div>
+                <div class="sp-row">
+                  <span class="sp-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></span>
+                  <span class="sp-tx"><span class="sp-tt">[Item]</span><span class="sp-mt">[meta · time]</span></span>
+                  <span class="sp-btn">[CTA]</span>
+                </div>
+                <div class="sp-row">
+                  <span class="sp-ico quiet"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg></span>
+                  <span class="sp-tx"><span class="sp-tt">[Quiet item]</span><span class="sp-mt">[meta · time]</span></span>
+                </div>
+              </div>
+            </div>
+            <div class="scrim">
+              <div class="scrim-note">[What sits underneath, and why it's untouched — the overlay pattern keeps the existing page intact for phase 1.]</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notes">
+          <ul>
+            <li><b>[Decision]</b> — [why].</li>
+            <li><b>[Scope boundary]</b> — [what's deliberately out].</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <p class="footer-note">
+      Wireframe only — greys are placeholders, not final visual design. Next: [next step, e.g. pressure-test the model, then draft the ticket].
+    </p>
+  </div>
+</div>
