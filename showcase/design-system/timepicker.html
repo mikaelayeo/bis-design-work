@@ -64,7 +64,11 @@
       padding:8px 12px;height:38px;cursor:pointer;
       font-size:14px;color:var(--color-text-default);
     }
-    .tp-field .chevron{color:var(--color-secondary);font-size:11px;}
+    /* Trailing icon — CLOCK (confirmed 2026-07-24, was previously documented as
+       a dropdown chevron). Mirrors DatePicker's calendar icon; overridable via
+       the `trailing` prop. */
+    .tp-field .tp-icon{color:var(--color-secondary);width:16px;height:16px;display:inline-flex;flex-shrink:0;}
+    .tp-field .tp-icon svg{width:100%;height:100%;}
     .tp-menu{
       margin-top:6px;
       background:var(--color-surface-default);
@@ -101,6 +105,14 @@
     .tag-required{background:rgba(194,34,34,.15);color:#ff7272;}
     .tag-optional{background:rgba(0,154,203,.15);color:var(--doc-accent-alt);}
     .tag-default{background:rgba(255,255,255,.07);color:var(--doc-text-muted);}
+    /* Marks everything changed in the 2026-07-24 spec pass */
+    .badge-new{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:rgba(40,167,69,.18);color:#4ade80;vertical-align:middle;margin-left:8px;white-space:nowrap;}
+    .changelog{background:var(--doc-surface);border:1px solid var(--doc-border);border-left:3px solid #28a745;border-radius:8px;padding:18px 22px;margin-bottom:40px;}
+    .changelog h3{font-size:14px;font-weight:700;margin-bottom:10px;color:#4ade80;}
+    .changelog ul{list-style:none;padding:0;}
+    .changelog li{font-size:13px;color:var(--doc-text-muted);padding:4px 0;padding-left:16px;position:relative;line-height:1.6;}
+    .changelog li::before{content:'→';position:absolute;left:0;color:#4ade80;}
+    .changelog code{font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;}
 
     .a11y-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
     .a11y-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:16px 18px;border-left:3px solid var(--doc-accent);}
@@ -198,10 +210,18 @@
 
 <main class="main-content">
 
+  <div class="changelog">
+    <h3>Updated 07/24 — what changed</h3>
+    <ul>
+      <li><strong>Trailing icon is a clock, not a chevron.</strong> This page previously said "chevron" throughout (anatomy copy, both state previews, token usage) while the Figma props sheet said clock — dev flagged the conflict on <a href="https://github.com/BISTrainingSolutions/bisComponents/pull/118" target="_blank" rel="noopener" style="color:var(--doc-accent-alt);">PR #118</a>. Resolved in favour of the <strong>clock</strong>, so it pairs with DatePicker's calendar icon. The build already ships this — no code change needed.</li>
+      <li><strong>New <code>trailing</code> prop documented</strong> so the override path is explicit rather than implied.</li>
+    </ul>
+  </div>
+
   <section id="playground" class="section">
     <div class="section-eyebrow">Interactive</div>
     <h2 class="section-heading">Playground</h2>
-    <p class="section-desc">TimePicker has two states. <strong>Closed</strong> is an Input Field with a chevron — the trigger that opens the picker. <strong>Open</strong> shows the field plus a scrollable menu of time slots beneath it.</p>
+    <p class="section-desc">TimePicker has two states. <strong>Closed</strong> is an Input Field with a trailing <strong>clock icon</strong> <span class="badge-new">Updated 07/24</span> — the trigger that opens the picker. <strong>Open</strong> shows the field plus a scrollable menu of time slots beneath it.</p>
     <div class="preview-container">
       <div class="preview-header">
         <div class="preview-tabs">
@@ -222,7 +242,7 @@
     <p class="section-desc">TimePicker doesn't introduce new UI primitives — it composes the existing Input Field (as the dropdown trigger) and Dropdown List Item (as each menu row).</p>
     <div class="info-grid">
       <div class="info-card"><div class="info-num">1</div><div class="info-title">Label</div><p class="info-desc">Above the field. Customize via the Input Field's <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">label text</code> property. Default: "Time".</p></div>
-      <div class="info-card"><div class="info-num">2</div><div class="info-title">Field (Input Field)</div><p class="info-desc">An <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">Input Field</code> instance with <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">dropdown=true</code>. Shows current value or placeholder ("00:00 AM"). Chevron indicates dropdown.</p></div>
+      <div class="info-card"><div class="info-num">2</div><div class="info-title">Field (Input Field) <span class="badge-new">Updated 07/24</span></div><p class="info-desc">An <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">Input Field</code> instance with <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">dropdown=true</code>. Shows current value or placeholder ("00:00 AM"). The trailing icon is a <strong>clock</strong>, not a dropdown chevron — it pairs with DatePicker's calendar icon so the two pickers read as a matched set. Override via the <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">trailing</code> prop.</p></div>
       <div class="info-card"><div class="info-num">3</div><div class="info-title">Menu (open only)</div><p class="info-desc">A floating panel directly under the field. White surface, light border, soft shadow. ~6 visible slots before scroll.</p></div>
       <div class="info-card"><div class="info-num">4</div><div class="info-title">Slot (Dropdown List Item)</div><p class="info-desc">Each row is a <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">Dropdown List Item</code> instance — three states: inactive, hover, selected.</p></div>
       <div class="info-card"><div class="info-num">5</div><div class="info-title">Selected indicator</div><p class="info-desc">When a slot is the current value: blue text, light-blue background, trailing checkmark. Comes for free from the <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">selected</code> variant.</p></div>
@@ -239,7 +259,7 @@
         <div class="state-preview" style="align-items:center;">
           <div class="tp">
             <div class="tp-label">Time</div>
-            <div class="tp-field"><span style="color:#999;">00:00 AM</span><span class="chevron">&#x25BE;</span></div>
+            <div class="tp-field"><span style="color:#999;">00:00 AM</span><span class="tp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span></div>
           </div>
         </div>
         <div class="state-info">
@@ -251,7 +271,7 @@
         <div class="state-preview">
           <div class="tp">
             <div class="tp-label">Time</div>
-            <div class="tp-field"><span style="color:#999;">00:00 AM</span><span class="chevron">&#x25BE;</span></div>
+            <div class="tp-field"><span style="color:#999;">00:00 AM</span><span class="tp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span></div>
             <div class="tp-menu">
               <div class="tp-slot">6:30 AM<span class="check">&#x2713;</span></div>
               <div class="tp-slot">6:45 AM<span class="check">&#x2713;</span></div>
@@ -342,7 +362,7 @@
           <tr><td><span class="token-mono">color/surface/primary-lightest</span></td><td><span class="color-swatch" style="background:#f2fcff;border-color:#ccc;"></span><span class="value-mono">#f2fcff</span></td><td>Selected slot background</td></tr>
           <tr><td><span class="token-mono">color/text/default</span></td><td><span class="color-swatch" style="background:#191919;"></span><span class="value-mono">#191919</span></td><td>Field value, default slot text</td></tr>
           <tr><td><span class="token-mono">color/text/primary</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">#0078b3</span></td><td>Selected slot text + checkmark</td></tr>
-          <tr><td><span class="token-mono">color/text/secondary</span></td><td><span class="color-swatch" style="background:#666;"></span><span class="value-mono">#666666</span></td><td>Placeholder, chevron</td></tr>
+          <tr><td><span class="token-mono">color/text/secondary</span></td><td><span class="color-swatch" style="background:#666;"></span><span class="value-mono">#666666</span></td><td>Placeholder, trailing clock icon <span class="badge-new">Updated 07/24</span></td></tr>
           <tr><td><span class="token-mono">color/stroke/default</span></td><td><span class="color-swatch" style="background:#b2b2b3;"></span><span class="value-mono">#b2b2b3</span></td><td>Field border</td></tr>
           <tr><td><span class="token-mono">color/stroke/default-light</span></td><td><span class="color-swatch" style="background:#e2e2e3;"></span><span class="value-mono">#e2e2e3</span></td><td>Menu border</td></tr>
           <tr><td><span class="token-mono">border-radius/base</span></td><td><span class="value-mono">4px</span></td><td>Field + menu corners</td></tr>
@@ -416,6 +436,7 @@
           <tr><td><span class="token-mono">size</span></td><td><span class="value-mono">"small" | "Default" | "large"</span></td><td><span class="tag-pill tag-default">"Default"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Pass-through to Input Field</td></tr>
           <tr><td><span class="token-mono">state</span></td><td><span class="value-mono">"default" | "active" | "error" | "disabled" | "read-only"</span></td><td><span class="tag-pill tag-default">"default"</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Pass-through to Input Field</td></tr>
           <tr><td><span class="token-mono">required</span></td><td><span class="value-mono">boolean</span></td><td><span class="tag-pill tag-default">false</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Marks the field required</td></tr>
+          <tr><td><span class="token-mono">trailing</span> <span class="badge-new">New 07/24</span></td><td><span class="value-mono">ReactNode</span></td><td><span class="tag-pill tag-default">clock icon</span></td><td><span class="tag-pill tag-optional">optional</span></td><td>Trailing adornment. Defaults to a <strong>clock</strong> icon (matching DatePicker's calendar); pass a chevron or any node to override.</td></tr>
         </tbody>
       </table>
     </div>
@@ -500,7 +521,8 @@
     Reuses Input Field + Dropdown List Item<br>
     Default interval: 15 min<br>
     Slot height 32 — bump to 44 on touch<br>
-    Two states: closed (default), open
+    Two states: closed (default), open<br>
+    Trailing icon = clock (not chevron)
   </div>
 </aside>
 </div>
@@ -517,7 +539,7 @@ function render() {
   const sel = document.getElementById('sTime').value;
   let html = '<div class="tp"><div class="tp-label">Time</div>';
   const fieldText = sel ? sel : '<span style="color:#999;">00:00 AM</span>';
-  html += '<div class="tp-field">'+fieldText+'<span class="chevron">&#x25BE;</span></div>';
+  html += '<div class="tp-field">'+fieldText+'<span class="tp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span></div>';
   if (state === 'open') {
     html += '<div class="tp-menu">';
     for (const s of SLOTS) {

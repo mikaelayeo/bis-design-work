@@ -101,6 +101,7 @@
       font-size:13px;color:var(--color-text-default);cursor:pointer;border-radius:2px;
     }
     .datepicker .grid .day:hover{background:var(--color-primary-lightest);}
+    .datepicker .grid .day.selected-single{background:var(--color-primary);color:#fff;border-radius:16px;}
     .datepicker .grid .day.selected-left{background:var(--color-primary);color:#fff;border-radius:16px 0 0 16px;}
     .datepicker .grid .day.selected-middle{background:var(--color-primary);color:#fff;border-radius:0;}
     .datepicker .grid .day.selected-right{background:var(--color-primary);color:#fff;border-radius:0 16px 16px 0;}
@@ -108,6 +109,7 @@
 
     /* DAY component — standalone preview */
     .day-cell{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;font-family:'Inter','Segoe UI',sans-serif;font-size:13px;color:var(--color-text-default);background:var(--color-surface-default);}
+    .day-cell.selected-single{background:var(--color-primary);color:#fff;border-radius:16px;}
     .day-cell.selected-left{background:var(--color-primary);color:#fff;border-radius:16px 0 0 16px;}
     .day-cell.selected-middle{background:var(--color-primary);color:#fff;}
     .day-cell.selected-right{background:var(--color-primary);color:#fff;border-radius:0 16px 16px 0;}
@@ -131,6 +133,15 @@
     .tag-required{background:rgba(194,34,34,.15);color:#ff7272;}
     .tag-optional{background:rgba(0,154,203,.15);color:var(--doc-accent-alt);}
     .tag-default{background:rgba(255,255,255,.07);color:var(--doc-text-muted);}
+    .tag-proposed{background:rgba(184,136,10,.15);color:#e0a72f;}
+    /* Marks everything changed in the 2026-07-24 spec pass */
+    .badge-new{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:rgba(40,167,69,.18);color:#4ade80;vertical-align:middle;margin-left:8px;white-space:nowrap;}
+    .changelog{background:var(--doc-surface);border:1px solid var(--doc-border);border-left:3px solid #28a745;border-radius:8px;padding:18px 22px;margin-bottom:40px;}
+    .changelog h3{font-size:14px;font-weight:700;margin-bottom:10px;color:#4ade80;}
+    .changelog ul{list-style:none;padding:0;}
+    .changelog li{font-size:13px;color:var(--doc-text-muted);padding:4px 0;padding-left:16px;position:relative;line-height:1.6;}
+    .changelog li::before{content:'→';position:absolute;left:0;color:#4ade80;}
+    .changelog code{font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;}
 
     .a11y-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
     .a11y-card{background:var(--doc-surface);border:1px solid var(--doc-border);border-radius:8px;padding:16px 18px;border-left:3px solid var(--doc-accent);}
@@ -169,6 +180,97 @@
     .usage-box.do li::before{background:#28a745;}
     .usage-box.dont li::before{background:#c22222;}
 
+    /* === RESPONSIVE (proposed mobile) PREVIEW === */
+    /* Fluid: no fixed cell widths, columns are 1fr so the grid spreads to the
+       container. Matches native mobile date pickers (Material / Google Calendar). */
+    .datepicker.mobile-stack{
+      display:flex;flex-direction:column;width:100%;
+      border-radius:12px;
+    }
+    .datepicker.mobile-stack .range-select-row{
+      padding:12px 16px;border-bottom:1px solid var(--color-stroke-default-light);
+    }
+    .datepicker.mobile-stack .range-select{
+      width:100%;padding:10px 12px;font-size:14px;font-family:inherit;
+      color:var(--color-text-default);background:var(--color-surface-default);
+      border:1px solid var(--color-stroke-default);border-radius:4px;
+      cursor:pointer;appearance:none;
+      background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230078b3' stroke-width='2'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+      background-repeat:no-repeat;background-position:right 10px center;background-size:16px;
+      padding-right:34px;
+    }
+    .datepicker.mobile-stack .m-cal{padding:8px 12px 16px;}
+    .datepicker.mobile-stack .m-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px 4px;
+    }
+    .datepicker.mobile-stack .m-header .m-month{font-size:16px;font-weight:600;color:var(--color-text-default);}
+    .datepicker.mobile-stack .m-header .m-arrow{
+      color:var(--color-primary);font-size:20px;line-height:1;cursor:pointer;
+      width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+      border-radius:50%;
+    }
+    .datepicker.mobile-stack .m-header .m-arrow:hover{background:var(--color-primary-lightest);}
+    .datepicker.mobile-stack .m-grid{display:grid;grid-template-columns:repeat(7,1fr);}
+    .datepicker.mobile-stack .m-grid .m-dayname{
+      display:flex;align-items:center;justify-content:center;
+      height:36px;font-size:12px;font-weight:600;color:var(--color-secondary);
+    }
+    /* Fluid width (1fr) + fixed 44px row height. The 44px height is what makes
+       the selected treatment identical to web: the pill caps and the single-day
+       circle are both 44px diameter, same as desktop's cell-filling 32px pill
+       just scaled up to a compliant touch target. */
+    .datepicker.mobile-stack .m-grid .m-day{
+      position:relative;height:44px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:15px;color:var(--color-text-default);cursor:pointer;
+    }
+    .datepicker.mobile-stack .m-grid .m-day span{
+      width:44px;height:44px;
+      display:flex;align-items:center;justify-content:center;border-radius:50%;
+    }
+    .datepicker.mobile-stack .m-grid .m-day:hover span{background:var(--color-primary-lightest);}
+
+    /* Range = ONE continuous solid primary pill, matching web's
+       selected-left / selected-middle / selected-right exactly. The fill sits on
+       the cell (full fluid width) so segments butt together with no gaps; the
+       caps get a 22px radius = half the 44px height, so they read as semicircles
+       of the same diameter as the single-day circle. */
+    .datepicker.mobile-stack .m-grid .m-day.in-range,
+    .datepicker.mobile-stack .m-grid .m-day.range-start,
+    .datepicker.mobile-stack .m-grid .m-day.range-end{
+      background:var(--color-primary);
+    }
+    .datepicker.mobile-stack .m-grid .m-day.range-start{border-radius:22px 0 0 22px;}
+    .datepicker.mobile-stack .m-grid .m-day.range-end{border-radius:0 22px 22px 0;}
+    .datepicker.mobile-stack .m-grid .m-day.in-range{border-radius:0;}
+    .datepicker.mobile-stack .m-grid .m-day.in-range span,
+    .datepicker.mobile-stack .m-grid .m-day.range-start span,
+    .datepicker.mobile-stack .m-grid .m-day.range-end span{
+      color:#fff;background:transparent;
+    }
+    /* Lone selected day: 44px solid circle on the cell's inner span, so it stays
+       a true circle rather than stretching to the fluid cell width. Mirrors the
+       web `selected-single` state added 2026-07-24. */
+    .datepicker.mobile-stack .m-grid .m-day.sel-single span{
+      background:var(--color-primary);color:#fff;
+    }
+    .datepicker.mobile-stack .m-grid .m-day.empty{visibility:hidden;}
+    .datepicker.mobile-stack .last-row{
+      display:flex;align-items:center;gap:10px;padding:14px 16px;
+      border-top:1px solid var(--color-stroke-default-light);
+    }
+    .datepicker.mobile-stack .last-row .last-label{font-weight:600;font-size:14px;color:var(--color-text-default);}
+    .datepicker.mobile-stack .last-row .l-input{
+      width:64px;padding:8px 10px;font-size:14px;font-family:inherit;text-align:center;
+      border:1px solid var(--color-stroke-default);border-radius:4px;color:var(--color-text-default);
+    }
+    .datepicker.mobile-stack .last-row .l-unit{
+      flex:1;padding:8px 10px;font-size:14px;font-family:inherit;
+      border:1px solid var(--color-stroke-default);border-radius:4px;color:var(--color-text-default);
+      background:var(--color-surface-default);
+    }
+
     .props-panel{background:var(--doc-surface);border-left:1px solid var(--doc-border);padding:32px 24px;position:sticky;top:0;height:100vh;overflow-y:auto;}
     .props-title{font-size:15px;font-weight:600;margin-bottom:24px;display:flex;align-items:center;gap:8px;}
     .props-title::before{content:'';width:8px;height:8px;background:var(--doc-accent);border-radius:2px;}
@@ -197,12 +299,13 @@
       <button class="nav-link active" onclick="nav(this,'playground')">Interactive Playground</button>
       <button class="nav-link" onclick="nav(this,'anatomy')">Anatomy</button>
       <button class="nav-link" onclick="nav(this,'variants')">Variants</button>
-      <button class="nav-link" onclick="nav(this,'day')">DatePicker Day</button>
+      <button class="nav-link" onclick="nav(this,'day')">DatePicker Day <span class="badge-new">07/24</span></button>
       <button class="nav-link" onclick="nav(this,'usage')">When to Use</button>
     </div>
     <div class="nav-section">
       <div class="nav-title">Specifications</div>
       <button class="nav-link" onclick="nav(this,'measurements')">Measurements</button>
+      <button class="nav-link" onclick="nav(this,'responsive')">Responsive <span class="badge-new">New 07/24</span></button>
       <button class="nav-link" onclick="nav(this,'tokens')">Design Tokens</button>
       <button class="nav-link" onclick="nav(this,'typography')">Typography</button>
     </div>
@@ -216,6 +319,15 @@
 </aside>
 
 <main class="main-content">
+
+  <div class="changelog">
+    <h3>Updated 07/24 — what changed</h3>
+    <ul>
+      <li><strong>New <code>selected-single</code> day state.</strong> A lone selected day is now a fully-rounded circle instead of reusing the flat <code>selected-middle</code> range treatment — so "one date picked" reads differently from "a day inside a range." Answers point 6 of dev's divergence note on <a href="https://github.com/BISTrainingSolutions/bisComponents/pull/117" target="_blank" rel="noopener" style="color:var(--doc-accent-alt);">PR #117</a>. See <em>DatePicker Day</em>.</li>
+      <li><strong>New Responsive Behavior section</strong> defining the mobile treatment for the Robust variant — answers point 9 (the ~29px overflow at 375px). Quick-picks collapse to a dropdown with a <em>Custom…</em> option; the calendar grid goes fluid at a 44px row height. <strong>Marked "Proposed"</strong> — the dropdown/Custom gate is new behaviour that doesn't exist in the current build.</li>
+      <li><strong>Documented how "Last N" actually behaves today</strong> (read from <code>QuickPickPanel.tsx</code>), including that it resets blank whenever the panel reopens — which raises an open question for dev. See the end of <em>Responsive Behavior</em>.</li>
+    </ul>
+  </div>
 
   <section id="playground" class="section">
     <div class="section-eyebrow">Interactive</div>
@@ -284,14 +396,18 @@
 
   <section id="day" class="section">
     <div class="section-eyebrow">Sub-Component</div>
-    <h2 class="section-heading">DatePicker Day</h2>
-    <p class="section-desc">Each cell in the date grid is an instance of <code style="font-family:'IBM Plex Mono',monospace;font-size:13px;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;">DatePicker Day</code>. Five states cover unselected, selected as part of a range (with edge rounding), and empty placeholders.</p>
+    <h2 class="section-heading">DatePicker Day <span class="badge-new">Updated 07/24</span></h2>
+    <p class="section-desc">Each cell in the date grid is an instance of <code style="font-family:'IBM Plex Mono',monospace;font-size:13px;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:3px;">DatePicker Day</code>. Six states cover unselected, a standalone selected day (fully rounded), selected as part of a range (with edge rounding), and empty placeholders.</p>
 
     <div class="preview-container">
       <div class="preview-canvas" style="background:#f0f4f8;gap:24px;padding:36px;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
           <div class="day-cell">15</div>
           <span style="font-size:10px;color:#666;font-family:'IBM Plex Mono',monospace;">Default</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div class="day-cell selected-single">15</div>
+          <span style="font-size:10px;color:#0078b3;font-weight:700;font-family:'IBM Plex Mono',monospace;">selected-single ★</span>
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
           <div class="day-cell selected-left">15</div>
@@ -312,13 +428,14 @@
       </div>
     </div>
 
-    <p class="section-desc" style="margin-top:24px;">A range like "Sep 8 → Sep 12" renders as: Sep 8 = <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">selected-left</code>, Sep 9–11 = <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">selected-middle</code>, Sep 12 = <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">selected-right</code>. Single-day selection uses <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">selected-middle</code>.</p>
+    <p class="section-desc" style="margin-top:24px;">A range like "Sep 8 → Sep 12" renders as: Sep 8 = <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">selected-left</code>, Sep 9–11 = <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">selected-middle</code>, Sep 12 = <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">selected-right</code>. A standalone single-day selection (not part of a range) uses <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">selected-single</code> — fully rounded, distinct from the flat <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">selected-middle</code> range state. <em>Updated 2026-07-24 — previously single-day selection reused selected-middle; changed so a lone picked day reads visually distinct from a mid-range day.</em></p>
 
     <div class="preview-container">
       <table class="spec-table">
         <thead><tr><th>State</th><th>Size</th><th>Background</th><th>Text</th><th>Border radius</th></tr></thead>
         <tbody>
           <tr><td><strong>Default</strong></td><td><span class="value-mono">32 × 32</span></td><td><span class="color-swatch" style="background:#feffff;border-color:#ccc;"></span><span class="value-mono">surface/default</span></td><td><span class="value-mono">text/default</span></td><td><span class="value-mono">border-radius/small (2)</span></td></tr>
+          <tr><td><strong>selected-single</strong> <span class="badge-new">New 07/24</span></td><td><span class="value-mono">32 × 32</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">surface/primary</span></td><td><span class="value-mono">text/default-on surface</span></td><td><span class="value-mono">16 (full)</span></td></tr>
           <tr><td><strong>selected-left</strong></td><td><span class="value-mono">32 × 32</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">surface/primary</span></td><td><span class="value-mono">text/default-on surface</span></td><td><span class="value-mono">16 / 0 / 0 / 16</span></td></tr>
           <tr><td><strong>selected-middle</strong></td><td><span class="value-mono">32 × 32</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">surface/primary</span></td><td><span class="value-mono">text/default-on surface</span></td><td><span class="value-mono">0</span></td></tr>
           <tr><td><strong>selected-right</strong></td><td><span class="value-mono">32 × 32</span></td><td><span class="color-swatch" style="background:#0078b3;"></span><span class="value-mono">surface/primary</span></td><td><span class="value-mono">text/default-on surface</span></td><td><span class="value-mono">0 / 16 / 16 / 0</span></td></tr>
@@ -374,6 +491,70 @@
         </tbody>
       </table>
     </div>
+  </section>
+
+  <section id="responsive" class="section">
+    <div class="section-eyebrow">Specifications</div>
+    <h2 class="section-heading">Responsive Behavior <span class="badge-new">New 07/24</span> <span class="tag-pill tag-proposed" style="margin-left:4px;vertical-align:middle;">Proposed — pending confirmation</span></h2>
+    <p class="section-desc">The Robust variant's fixed 425px container (150px quick-pick sidebar + 275px calendar pane) overflows narrow viewports — on a 375px screen it clips ~29px past the edge. The fix isn't just reflowing the sidebar: the <strong>calendar grid itself needs to go fluid</strong>. Two changes proposed for &lt; 600px: (1) collapse the quick-picks into a single full-width <strong>dropdown</strong>, with a <strong>Custom…</strong> option that reveals the "Last N" row at the bottom of the card; (2) replace the fixed 32×32 day cells with <strong>7 × <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;">1fr</code> columns at a 44px row height</strong>, so the grid spreads to fill the container and stays fluid at any width — matching how native mobile pickers (Material, Google Calendar) lay out. <strong>Selected-state colours and shapes are unchanged from web</strong> — same primary fill, same continuous-pill range language, just scaled up. Simple variant keeps the same fluid grid treatment; it just has no sidebar to collapse.</p>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:20px;margin-bottom:32px;">
+      <div class="state-card">
+        <div class="state-preview" id="desktopRobustPreview" style="padding:16px;"></div>
+        <div class="state-info">
+          <div class="state-name">&ge; 600px — current (unchanged)</div>
+          <div class="state-desc">Quick-picks stay as a 150px side column, fixed 425×273 container, 32×32 day cells. No change from the existing Robust spec.</div>
+        </div>
+      </div>
+      <div class="state-card">
+        <div class="state-preview" style="padding:24px;background:#e8edf2;display:block;">
+          <div id="mobileRobustPreview" style="max-width:400px;margin:0 auto;"></div>
+          <p style="text-align:center;font-size:11px;color:#667;margin-top:12px;font-family:'IBM Plex Mono',monospace;">↑ resize the window — the grid reflows, it isn't a fixed box</p>
+        </div>
+        <div class="state-info">
+          <div class="state-name">&lt; 600px — proposed (interactive: pick "Custom…" in the dropdown)</div>
+          <div class="state-desc">Quick-picks collapse into a single full-width <strong>dropdown</strong>; choosing <strong>Custom…</strong> reveals the "Last N" row at the bottom of the card. The calendar goes <strong>fluid</strong> — 7 × <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">1fr</code> columns with a fixed 44px row height, so days spread evenly to the container width instead of sitting in a 32px grid. <strong>Selected styling is identical to web</strong>: same <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;">surface/primary</code> fill, ranges render as one continuous solid pill with semicircular caps, and a lone day is a solid circle — just scaled from 32px to 44px so it also clears the touch-target minimum.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-container">
+      <table class="spec-table">
+        <thead><tr><th>Breakpoint</th><th>Layout</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><span class="value-mono">&ge; 600px</span></td><td>Sidebar column (150px) + calendar pane, fixed 425×273 container</td><td>Existing spec, unchanged</td></tr>
+          <tr><td><span class="value-mono">&lt; 600px</span></td><td>Quick-picks as a single full-width dropdown; "Custom…" reveals the "Last N" row below the calendar</td><td><strong>Proposed</strong> — one control instead of 8 stacked buttons</td></tr>
+          <tr><td><span class="value-mono">Day cells</span></td><td><span class="value-mono">1fr</span> columns × 44px row height</td><td><strong>Proposed</strong> — fluid instead of fixed 32×32; resolves the ~29px overflow at 375px</td></tr>
+          <tr><td><span class="value-mono">Selected states</span></td><td>Unchanged from web — <span class="value-mono">surface/primary</span> fill, continuous pill for ranges, circle for a lone day</td><td>Same tokens and same visual language; only the diameter scales (32 → 44)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="a11y-grid" style="margin-top:24px;">
+      <div class="a11y-card success">
+        <div class="a11y-label">Touch targets — now compliant</div>
+        <p class="a11y-text">44px day cells clear the 44×44 minimum that the fixed 32×32 desktop cell fails. This removes the "wrap in a 44×44 hit-area" workaround on mobile — the mobile layout satisfies it natively, and the selected circle grows with it so the visual and the hit area finally agree.</p>
+      </div>
+      <div class="a11y-card warning">
+        <div class="a11y-label">Dropdown needs a label</div>
+        <p class="a11y-text">Replacing the quick-pick button group with a <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">select</code> means the existing <code style="font-family:monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">role="group" aria-label="Quick date ranges"</code> no longer applies — the select needs its own accessible label, and choosing an option should still announce the resulting range via the live region.</p>
+      </div>
+    </div>
+
+    <p class="section-desc" style="margin-top:24px;"><strong>⚠️ How "Last N" behaves in the current build (read from PR #117's <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:3px;">QuickPickPanel.tsx</code>) — the "Custom…" proposal above is a deliberate change from this:</strong></p>
+    <div class="preview-container" style="margin-bottom:20px;">
+      <table class="spec-table">
+        <thead><tr><th>Question</th><th>What the code actually does today</th></tr></thead>
+        <tbody>
+          <tr><td>Is there a "Custom" option that reveals the field?</td><td><strong>No.</strong> The "Last N" row renders permanently alongside the quick-pick buttons whenever range mode is on — nothing gates it. <em>The proposal above introduces this gate for mobile.</em></td></tr>
+          <tr><td>When does "Last N" apply?</td><td><strong>Live, on every keystroke.</strong> Once a number and unit are both set, each edit re-applies the range immediately and keeps the panel open (<span class="value-mono">keepOpen: true</span>) so you can keep adjusting.</td></tr>
+          <tr><td>What if I pick "Today", then change the counter to 8?</td><td>Clicking a quick-pick <strong>applies and closes</strong> the panel (no <span class="value-mono">keepOpen</span>). The counter's value/unit are local state that reset blank on remount — so reopening gives you empty fields. <strong>You can't chain "Today" into "Last 8 days" across a close/reopen; within one open session, whichever control you touched last wins.</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="section-desc">That reset-on-reopen behaviour is worth a decision of its own: should the counter remember its last value, and should picking a preset pre-fill it? Flagging for dev on #20416 rather than assuming.</p>
+
+    <p class="section-desc" style="margin-top:20px;">This is a suggested direction, not yet built — flag anything you'd change here before it goes back to dev on #20416.</p>
   </section>
 
   <section id="tokens" class="section">
@@ -581,7 +762,7 @@ function buildCalendar(month, year, sel) {
   for (let i = 0; i < firstDay; i++) html += '<div class="day"></div>';
   for (let d = 1; d <= lastDate; d++) {
     let cls = 'day';
-    if (sel.kind === 'single' && d === sel.start) cls += ' selected-middle';
+    if (sel.kind === 'single' && d === sel.start) cls += ' selected-single';
     if (sel.kind === 'range') {
       if (d === sel.start) cls += ' selected-left';
       else if (d === sel.end) cls += ' selected-right';
@@ -624,8 +805,78 @@ function renderStatic() {
   document.getElementById('simplePreview').innerHTML = simple;
 }
 
+function renderResponsivePreview() {
+  const cal = buildCalendar(8, 2024, {kind:'range',start:8,end:12});
+
+  document.getElementById('desktopRobustPreview').innerHTML =
+    '<div class="datepicker">'+buildSidebar()+'<div class="calendar-pane">'+cal+'</div></div>';
+
+  renderMobilePreview();
+}
+
+// Fluid mobile calendar: 1fr columns + aspect-ratio cells, so the grid
+// spreads to whatever width it's given instead of a fixed 32px box.
+function buildMobileCalendar(month, year, sel) {
+  const firstDay = new Date(year, month, 1).getDay();
+  const lastDate = new Date(year, month + 1, 0).getDate();
+  const MONTHS = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+
+  let html = '<div class="m-cal">';
+  html += '<div class="m-header"><span class="m-arrow">&#x2039;</span>'+
+          '<span class="m-month">'+MONTHS[month]+' '+year+'</span>'+
+          '<span class="m-arrow">&#x203A;</span></div>';
+  html += '<div class="m-grid">';
+  for (const d of ['S','M','T','W','T','F','S']) html += '<div class="m-dayname">'+d+'</div>';
+  for (let i = 0; i < firstDay; i++) html += '<div class="m-day empty"><span></span></div>';
+  for (let d = 1; d <= lastDate; d++) {
+    let cls = 'm-day';
+    if (sel.kind === 'single' && d === sel.start) cls += ' sel-single';
+    if (sel.kind === 'range') {
+      if (d === sel.start) cls += ' range-start';
+      else if (d === sel.end) cls += ' range-end';
+      else if (d > sel.start && d < sel.end) cls += ' in-range';
+    }
+    html += '<div class="'+cls+'"><span>'+d+'</span></div>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+// Quick-picks become a dropdown; "Custom" reveals the Last N row beneath.
+let mobileCustomOpen = false;
+
+function renderMobilePreview() {
+  const selectRow =
+    '<div class="range-select-row">'+
+      '<select class="range-select" id="mRangeSelect" onchange="onMobileRangeChange(this)">'+
+        '<option value="">Select a range…</option>'+
+        QUICK_PICKS.map(p => '<option'+(p==='This Week'?' selected':'')+'>'+p+'</option>').join('')+
+        '<option value="custom"'+(mobileCustomOpen?' selected':'')+'>Custom…</option>'+
+      '</select>'+
+    '</div>';
+
+  const cal = buildMobileCalendar(8, 2024, {kind:'range',start:8,end:12});
+
+  const lastRow = mobileCustomOpen
+    ? '<div class="last-row"><span class="last-label">Last</span>'+
+      '<input class="l-input" value="7"/>'+
+      '<select class="l-unit"><option>days</option><option>weeks</option>'+
+      '<option>months</option><option>quarters</option><option>years</option></select></div>'
+    : '';
+
+  document.getElementById('mobileRobustPreview').innerHTML =
+    '<div class="datepicker mobile-stack">'+selectRow+cal+lastRow+'</div>';
+}
+
+function onMobileRangeChange(el) {
+  mobileCustomOpen = (el.value === 'custom');
+  renderMobilePreview();
+}
+
 renderPlayground();
 renderStatic();
+renderResponsivePreview();
 </script>
 </body>
 </html>
