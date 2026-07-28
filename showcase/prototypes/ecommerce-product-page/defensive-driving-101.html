@@ -22,6 +22,16 @@
     <a href="course-list.html">Course list</a>
   </nav>
 
+  <!-- Prototype-only layout toggle. Option B removes the bulk pricing table and
+       moves the course image beside the description. Not a shipping control. -->
+  <div class="layout-toggle">
+    <span>Prototype option:</span>
+    <span class="layout-toggle__seg" id="layoutToggle">
+      <button type="button" data-opt="a" class="is-active">A · with bulk pricing</button>
+      <button type="button" data-opt="b">B · no bulk pricing</button>
+    </span>
+  </div>
+
   <!-- ===== BIS header (Figma 1001:12874) ===== -->
   <header class="bis-header">
     <div class="bis-header__logobar">
@@ -520,6 +530,23 @@
         });
       });
     });
+
+    // ---- Prototype layout toggle: Option A (default) / Option B ----
+    (function () {
+      var seg = document.getElementById('layoutToggle');
+      if (!seg) return;
+      function set(opt) {
+        document.body.classList.toggle('opt-b', opt === 'b');
+        seg.querySelectorAll('button').forEach(function (b) { b.classList.toggle('is-active', b.dataset.opt === opt); });
+        try { localStorage.setItem('ecomm-layout', opt); } catch (e) {}
+      }
+      seg.querySelectorAll('button').forEach(function (b) {
+        b.addEventListener('click', function () { set(b.dataset.opt); });
+      });
+      var saved = 'a';
+      try { saved = localStorage.getItem('ecomm-layout') || 'a'; } catch (e) {}
+      set(saved);
+    })();
 
     // ---- Course preview video lightbox ----
     (function () {

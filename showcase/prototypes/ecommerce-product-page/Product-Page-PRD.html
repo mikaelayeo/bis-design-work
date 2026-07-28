@@ -171,6 +171,8 @@
         <h2>Prototype</h2>
         <p>The prototype is fully interactive. On the product page: switch tabs, toggle <b>Myself / For team</b> to reveal the assignment banner, click the course thumbnail to open the video, and scroll to watch the sticky mini card fade in. <b>Drag the window narrower than 1024px</b> to see the purchase card hand over to the mobile buy bar. On the group page, the filters genuinely filter.</p>
 
+        <div class="callout"><b>Two layout options on the product page.</b> A toggle at the top switches between <b>Option A</b> (default, with the bulk pricing table) and <b>Option B</b> (bulk table removed, course image moved up beside the description). Both are live so reviewers can compare. Figma: <code>1231:4376</code> (web), <code>1231:3772</code> (mobile).</div>
+
         <a class="proto-cta" href="defensive-driving-101.html" target="_blank">
           <span class="proto-cta__ico"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
           <span>
@@ -506,6 +508,7 @@
           <li><b>Trust mark.</b> Cropped from the full BIS lockup, as the isolated shield was not exported.</li>
           <li><b>Course list styling.</b> Deliberately reproduces the current production store, so it will not match the redesigned pages.</li>
           <li><b>Prototype nav bar.</b> The dark bar at the top of every page is a <b>review aid only and does not ship</b>. It deliberately crosses the one-way door so reviewers can move between the four pages freely. Styled unlike any product component so it is not mistaken for one.</li>
+          <li><b>Layout A / B toggle.</b> The product page carries a <b>review-only toggle</b> between Option A (with bulk pricing table) and Option B (no bulk table, image beside the description). A shipping build uses one, not a switcher.</li>
         </ul>
       </section>
 

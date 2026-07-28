@@ -493,6 +493,51 @@ body.page-store {
 /* ---------- Concept banner ---------- */
 .concept-banner { background: #fff7e0; color: #7a5c00; font-size: 12px; text-align: center; padding: 6px 16px; font-style: italic; }
 
+/* ---------- Prototype-only layout toggle (Option A / Option B) ----------
+   Review aid. Option B removes the bulk pricing table and moves the course
+   image up beside the description. Original (Option A) is the default. */
+.layout-toggle {
+  display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
+  background: #eef4f7;
+  border-bottom: 1px solid var(--stroke-default-light);
+  padding: 6px 14px;
+  font-size: 12px; color: var(--text-secondary);
+}
+.layout-toggle__seg { display: inline-flex; background: #fff; border: 1px solid var(--stroke-default); border-radius: 20px; overflow: hidden; }
+.layout-toggle__seg button { border: none; background: transparent; padding: 3px 14px; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.layout-toggle__seg button.is-active { background: var(--surface-primary); color: #fff; }
+
+/* Option B — no bulk table; image sits beside the description (Figma 1231:4376) */
+.opt-b .product__left {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  grid-template-areas:
+    "crumb  crumb"
+    "title  title"
+    "desc   image"
+    "rating image";
+  column-gap: 40px;
+  row-gap: 16px;
+  align-items: start;
+}
+.opt-b .product__left > .breadcrumb { grid-area: crumb; }
+.opt-b .product__left > .product__title { grid-area: title; }
+.opt-b .product__left > .product__desc { grid-area: desc; }
+.opt-b .product__left > .rating { grid-area: rating; }
+.opt-b .bulk-row { display: contents; }             /* lift image + table into the grid */
+.opt-b .course-image { grid-area: image; width: 100%; height: auto; aspect-ratio: 3 / 2; align-self: center; }
+.opt-b .pricing-table { display: none; }            /* the removed bulk info */
+
+@media (max-width: 640px) {
+  /* mobile B: desc -> image -> rating stacked (Figma 1231:3772) */
+  .opt-b .product__left {
+    grid-template-columns: 1fr;
+    grid-template-areas: "crumb" "title" "desc" "image" "rating";
+    row-gap: 12px;
+  }
+  .opt-b .course-image { width: 100%; max-width: 260px; aspect-ratio: 16 / 10; }
+}
+
 /* ---------- Prototype-only nav ----------
    A review aid so you can hop between the four pages. NOT part of the design:
    the real product has a one-way door from marketing into the software, with
