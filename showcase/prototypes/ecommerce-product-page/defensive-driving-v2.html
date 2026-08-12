@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Defensive Driving Courses — BIS Safety</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div class="concept-banner">Concept for review. Sample courses, prices and ratings. Photos are placeholders from Unsplash.</div>
+
+  <!-- Prototype-only nav. NOT part of the design — the real product has a
+       one-way door from marketing into the software, with no route back. -->
+  <nav class="proto-nav" aria-label="Prototype navigation">
+    <span class="proto-nav__label">Prototype nav · not part of the design</span>
+    <span class="proto-nav__grp">Marketing</span>
+    <a href="store-v2.html">Store</a>
+    <a class="is-current" href="defensive-driving-v2.html">Group page</a>
+    <span class="sep">&rarr;</span>
+    <span class="proto-nav__grp">Software</span>
+    <a href="defensive-driving-101-v2.html">Product page</a>
+    <a href="course-list-v2.html">Course list</a>
+  </nav>
+
+  <!-- ===== Marketing site header (bissafety.ca) =====
+       This page lives on the MARKETING site, so it uses the bissafety.ca header,
+       not the in-software BIS header. -->
+  <header class="mkt-header">
+    <div class="mkt-header__utility">
+      <div class="mkt-header__row">
+        <div class="mkt-util-left">
+          <span>&#9742; (866) 416 1660</span>
+          <a href="#">Contact Us</a>
+        </div>
+        <div class="mkt-util-right">
+          <a class="mkt-social" href="#" aria-label="Facebook">f</a>
+          <a class="mkt-social" href="#" aria-label="LinkedIn">in</a>
+          <a class="mkt-social" href="#" aria-label="YouTube">&#9654;</a>
+          <span class="mkt-lang">&#127760; English <i style="font-style:normal;font-size:9px;color:#999">&#9662;</i></span>
+          <a class="mkt-btn" href="#">Login</a>
+        </div>
+      </div>
+    </div>
+    <div class="mkt-header__main">
+      <div class="mkt-header__row">
+        <button class="mkt-burger" aria-label="Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <a href="store-v2.html" aria-label="BIS Safety Software home"><img class="mkt-logo" src="logo.png" alt="BIS Safety Software"></a>
+        <nav class="mkt-nav">
+          <a href="#">Software <i>&#9662;</i></a>
+          <a class="is-active" href="store-v2.html">Courses <i>&#9662;</i></a>
+          <a href="#">Partnerships <i>&#9662;</i></a>
+          <a href="#">Spotlights <i>&#9662;</i></a>
+          <a href="#">About <i>&#9662;</i></a>
+        </nav>
+        <a class="mkt-btn mkt-btn--lg" href="#">Book Demo</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero-bg">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb" style="padding-top:24px">
+        <a href="store-v2.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </a>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        <a href="store-v2.html">Courses</a>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        <span class="current">Defensive Driving</span>
+      </nav>
+
+      <div class="group-hero">
+        <div>
+          <span class="tag">Driving</span>
+          <h1 class="group-hero__title">Defensive Driving Courses</h1>
+          <p class="group-hero__lead">Several courses cover defensive driving. Find the one that fits your vehicle, the conditions you face, or the standard you must meet.</p>
+          <div class="stats">
+            <div class="stat">
+              <span class="stat__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+              <span><span class="stat__num">1,200+</span><br><span class="stat__label">organizations trust us</span></span>
+            </div>
+            <div class="stat">
+              <span class="stat__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></span>
+              <span><span class="stat__num">40,000+</span><br><span class="stat__label">drivers trained</span></span>
+            </div>
+            <div class="stat">
+              <span class="stat__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span>
+              <span><span class="stat__num">Recognized</span><br><span class="stat__label">certificate of completion</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="group-hero__img">
+          <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=900&q=80&auto=format" alt="Driver on the road at sunset" onerror="this.style.display='none'">
+        </div>
+      </div>
+
+      <p class="prose" style="padding-bottom:40px">Defensive driving is the practice of anticipating hazards, controlling speed and space, and making decisions that prevent collisions before they happen, regardless of what other road users do. It matters for everyone behind the wheel on company time, from commercial and fleet drivers to service technicians and everyday operators running errands in a light vehicle. Strong defensive driving habits cut collision rates, reduce vehicle and insurance costs, and keep your people and the public safe on every trip.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Find your course -->
+    <section class="section" style="margin-top:40px">
+      <div class="section-head"><h2>Find your course</h2></div>
+      <div class="filter-panel filter-sticky">
+        <div class="filter-row">
+          <h4>What do you drive, or your role?</h4>
+          <div class="chips" data-group="role">
+            <button class="chip" data-filter="general">General</button>
+            <button class="chip" data-filter="cmv">CMV</button>
+            <button class="chip" data-filter="light">Light &amp; Medium</button>
+            <button class="chip" data-filter="large">Large</button>
+          </div>
+        </div>
+        <div class="filter-cols">
+          <div class="filter-row">
+            <h4>Conditions <span>optional</span></h4>
+            <div class="chips" data-group="condition">
+              <button class="chip" data-filter="winter">Winter &amp; Skid</button>
+              <button class="chip" data-filter="adverse">Adverse</button>
+            </div>
+          </div>
+          <div class="filter-row">
+            <h4>Standard <span>optional</span></h4>
+            <div class="chips" data-group="standard">
+              <button class="chip" data-filter="osha">OSHA</button>
+            </div>
+          </div>
+        </div>
+        <div class="filter-summary">
+          <span id="filterCount">Showing all 9 courses</span>
+          <button class="filter-clear" id="filterClear" hidden>Clear all filters</button>
+        </div>
+      </div>
+
+      <p class="no-results" id="noResults" hidden>No courses match those filters. Try removing one.</p>
+    </section>
+
+    <!-- By vehicle or role
+         Trimmed to 4 per the "max 3-4 courses per competency" rule from the
+         July review. Dropped: "Small Vehicles" (overlaps General / Light &
+         Medium) and "Driving Defensively for CDL & Large Vehicles" (near
+         duplicate of "Large Vehicles" - exactly the confusing overlap raised). -->
+    <section class="section" data-filterable>
+      <div class="section-head"><h2>By your vehicle or role</h2><span class="hint">Pick what you drive</span></div>
+      <div class="grid grid--4">
+        <a class="card" href="defensive-driving-101-v2.html" data-tags="general">
+          <div class="card__media"><span class="badge badge--primary">Most popular</span><img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500&q=80&auto=format" alt="" onerror="this.style.display='none'"></div>
+          <div class="card__body">
+            <div class="card__title">Defensive Driving</div>
+            <div class="card__desc">Core hazard perception and collision avoidance for any vehicle.</div>
+            <div class="card__meta rating"><svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="score">4.7</span><span class="muted">(531 reviews)</span><span class="card__dur">70 min</span></div>
+            <div class="card__footer"><span class="card__price">$49.99</span><span class="card__cta">View course →</span></div>
+          </div>
+        </a>
+        <a class="card" href="defensive-driving-101-v2.html" data-tags="cmv">
+          <div class="card__media"><img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=500&q=80&auto=format" alt="" onerror="this.style.display='none'"></div>
+          <div class="card__body">
+            <div class="card__title">Defensive Driving for CMV Drivers</div>
+            <div class="card__desc">Defensive techniques tailored to commercial motor vehicles.</div>
+            <div class="card__meta rating"><svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="score">4.6</span><span class="muted">(418 reviews)</span><span class="card__dur">90 min</span></div>
+            <div class="card__footer"><span class="card__price">$69.99</span><span class="card__cta">View course →</span></div>
+          </div>
+        </a>
+        <a class="card" href="defensive-driving-101-v2.html" data-tags="light">
+          <div class="card__media"><img src="https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=500&q=80&auto=format" alt="" onerror="this.style.display='none'"></div>
+          <div class="card__body">
+            <div class="card__title">Defensive Driving – Light &amp; Medium Duty</div>
+            <div class="card__desc">For pickups, vans and light trucks in daily service work.</div>
+            <div class="card__meta rating"><svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="score">4.5</span><span class="muted">(287 reviews)</span><span class="card__dur">75 min</span></div>
+            <div class="card__footer"><span class="card__price">$54.99</span><span class="card__cta">View course →</span></div>
+          </div>
+        </a>
+        <a class="card" href="defensive-driving-101-v2.html" data-tags="large">
+          <div class="card__media"><img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=500&q=80&auto=format" alt="" onerror="this.style.display='none'"></div>
+          <div class="card__body">
+            <div class="card__title">Defensive Driving – Large Vehicles</div>
+            <div class="card__desc">Space, braking and blind-spot management for big rigs.</div>
+            <div class="card__meta rating"><svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="score">4.6</span><span class="muted">(203 reviews)</span><span class="card__dur">85 min</span></div>
+            <div class="card__footer"><span class="card__price">$74.99</span><span class="card__cta">View course →</span></div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- By conditions -->
+    <section class="section" data-filterable>
+      <div class="section-head"><h2>By conditions</h2><span class="hint">Match the weather and road</span></div>
+      <div class="grid grid--4">
+        <a class="card" href="defensive-driving-101-v2.html" data-tags="general winter">
+          <div class="card__media"><span class="badge badge--soft">Seasonal</span><img src="https://images.unsplash.com/photo-1483721310020-03333e577078?w=500&q=80&auto=format" alt="" onerror="this.style.display='none'"></div>
+          <div class="card__body">
+            <div class="card__title">Extreme Winter Driving with Skid Control</div>
+            <div class="card__desc">Ice, snow and skid recovery for severe winter conditions.</div>
+            <div class="card__meta rating"><svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="score">4.8</span><span class="muted">(264 reviews)</span></div>
+            <div class="card__footer"><span class="card__price">$64.99</span><span class="card__cta">View course →</span></div>
+          </div>
+        </a>
+        <a class="card" href="defensive-driving-101-v2.html" data-tags="general adverse">
+          <div class="card__media"><img src="https://images.unsplash.com/photo-1428592953211-077101b2021b?w=500&q=80&auto=format" alt="" onerror="this.style.display='none'"></div>
+          <div class="card__body">
+            <div class="card__title">Handling Adverse Conditions</div>
+            <div class="card__desc">Rain, fog, glare and low-visibility driving strategies.</div>
+            <div class="card__meta rating"><svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="score">4.5</span><span class="muted">(198 reviews)</span></div>
+            <div class="card__footer"><span class="card__price">$54.99</span><span class="card__cta">View course →</span></div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- By standard -->
+    <section class="section" data-filterable>
+      <div class="section-head"><h2>By standard</h2><span class="hint">Meet a specific regulation</span></div>
+      <div class="grid grid--4">
+        <a class="card" href="defensive-driving-101-v2.html" data-tags="general osha">
+          <div class="card__media"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=500&q=80&auto=format" alt="" onerror="this.style.display='none'"></div>
+          <div class="card__body">
+            <div class="card__title">Defensive Driving (OSHA)</div>
+            <div class="card__desc">Aligned to OSHA expectations for US workplace driving.</div>
+            <div class="card__meta rating"><svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="score">4.6</span><span class="muted">(231 reviews)</span></div>
+            <div class="card__footer"><span class="card__price">$59.99</span><span class="card__cta">View course →</span></div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Bundles -->
+    <section class="section" data-filterable>
+      <div class="section-head"><h2>Bundles</h2><span class="hint">Save with a package</span></div>
+      <div class="grid grid--4">
+        <a class="card" href="defensive-driving-101-v2.html" data-tags="cmv">
+          <div class="card__media"><span class="badge badge--soft">Bundle</span><img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=500&q=80&auto=format" alt="" onerror="this.style.display='none'"></div>
+          <div class="card__body">
+            <div class="card__title">CMV Driver Training Bundle</div>
+            <div class="card__desc">Defensive driving plus core CMV compliance courses.</div>
+            <div class="card__meta rating"><svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="score">4.7</span><span class="muted">(156 reviews)</span></div>
+            <div class="card__footer"><span class="card__price">$149.99</span><span class="card__cta">View bundle →</span></div>
+          </div>
+        </a>
+        <a class="card" href="defensive-driving-101-v2.html" data-tags="cmv">
+          <div class="card__media"><span class="badge badge--success">Best value</span><img src="https://images.unsplash.com/photo-1600661653561-629509216228?w=500&q=80&auto=format" alt="" onerror="this.style.display='none'"></div>
+          <div class="card__body">
+            <div class="card__title">CMV Driver Training Program Bundle</div>
+            <div class="card__desc">The complete CMV driver program, onboarding to renewal.</div>
+            <div class="card__meta rating"><svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="score">4.8</span><span class="muted">(121 reviews)</span></div>
+            <div class="card__footer"><span class="card__price">$229.99</span><span class="card__cta">View bundle →</span></div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Related topics -->
+    <section class="section">
+      <div class="section-head"><h2>Related topics</h2><span class="hint">Distinct topics, not part of defensive driving</span></div>
+      <div class="related-grid">
+        <a class="related-tile" href="store-v2.html"><strong>Winter Driving</strong><span class="muted">Cold-weather road skills</span><span class="arrow">→</span></a>
+        <a class="related-tile" href="store-v2.html"><strong>Fleet &amp; Driver Safety</strong><span class="muted">Manage a safe fleet</span><span class="arrow">→</span></a>
+        <a class="related-tile" href="store-v2.html"><strong>Hours of Service</strong><span class="muted">Drive-time compliance</span><span class="arrow">→</span></a>
+        <a class="related-tile" href="store-v2.html"><strong>TDG</strong><span class="muted">Dangerous goods transport</span><span class="arrow">→</span></a>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section">
+      <div class="section-head"><h2>About defensive driving training</h2></div>
+      <div class="faq">
+        <details open><summary>What is defensive driving?</summary><p>A set of skills for anticipating hazards and avoiding collisions before they happen — controlling speed, space and attention regardless of what other road users do.</p></details>
+        <details><summary>Who needs defensive driving training?</summary><p>Anyone driving on company time: commercial and fleet drivers, service technicians, and everyday operators in light vehicles. Many insurers and OHS programs expect current certification.</p></details>
+        <details><summary>How to choose the right course</summary><p>Start with your vehicle or role, then narrow by conditions (winter, adverse weather) or a required standard (e.g. OSHA). Each course lists what it covers and where its certificate is valid.</p></details>
+        <details><summary>Course availability, pricing and certificates</summary><p>All courses are 100% online, self-paced, and include a certificate of completion. Volume pricing applies for teams — see each course for details.</p></details>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <strong>© 2026 BIS Safety Software</strong><br>
+      261 Seneca Road, Sherwood Park, AB T8A 4G6 · (866) 416 1660
+    </div>
+  </footer>
+
+  <script>
+    // ---- Course filtering ----
+    // Filters are AND across groups (role AND condition AND standard),
+    // OR within a group. A card must satisfy every group that has an
+    // active chip. NOTE: in production this depends on product-level
+    // tagging, which does not exist yet — see the PRD.
+    (function () {
+      var cards = Array.prototype.slice.call(document.querySelectorAll('.card[data-tags]'));
+      var sections = Array.prototype.slice.call(document.querySelectorAll('[data-filterable]'));
+      var groups = Array.prototype.slice.call(document.querySelectorAll('.chips[data-group]'));
+      var countEl = document.getElementById('filterCount');
+      var clearEl = document.getElementById('filterClear');
+      var noneEl = document.getElementById('noResults');
+      var total = cards.length;
+
+      function activeIn(group) {
+        return Array.prototype.slice.call(group.querySelectorAll('.chip.is-active'))
+          .map(function (c) { return c.dataset.filter; });
+      }
+
+      function apply() {
+        var anyActive = false;
+        var perGroup = groups.map(function (g) {
+          var a = activeIn(g);
+          if (a.length) anyActive = true;
+          return a;
+        });
+
+        var shown = 0;
+        cards.forEach(function (card) {
+          var tags = (card.dataset.tags || '').split(/\s+/);
+          // must match at least one chip in EVERY group that has a selection
+          var ok = perGroup.every(function (sel) {
+            return sel.length === 0 || sel.some(function (t) { return tags.indexOf(t) !== -1; });
+          });
+          card.hidden = !ok;
+          if (ok) shown++;
+        });
+
+        // hide a section whose cards are all filtered out
+        sections.forEach(function (sec) {
+          var visible = sec.querySelectorAll('.card[data-tags]:not([hidden])').length;
+          sec.hidden = visible === 0;
+        });
+
+        countEl.textContent = anyActive
+          ? 'Showing ' + shown + ' of ' + total + ' courses'
+          : 'Showing all ' + total + ' courses';
+        clearEl.hidden = !anyActive;
+        noneEl.hidden = shown !== 0;
+      }
+
+      groups.forEach(function (group) {
+        group.querySelectorAll('.chip').forEach(function (chip) {
+          chip.addEventListener('click', function () {
+            chip.classList.toggle('is-active');
+            apply();
+          });
+        });
+      });
+
+      clearEl.addEventListener('click', function () {
+        document.querySelectorAll('.chip.is-active').forEach(function (c) { c.classList.remove('is-active'); });
+        apply();
+      });
+
+      apply();
+    })();
+  </script>
+</body>
+</html>
