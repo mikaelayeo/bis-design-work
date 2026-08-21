@@ -485,6 +485,14 @@
     {
       "kind": "item",
       "audience": "showcase",
+      "category": "docs",
+      "title": "Wayfinding & the Back Button",
+      "date": "2026-08-21",
+      "path": "showcase/docs/wayfinding-and-the-back-button.html"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
       "category": "design-system",
       "title": "BisTab",
       "date": "2026-06-09",
