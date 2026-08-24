@@ -61,8 +61,8 @@
     .dot.new { background: #2f6fa8; }
     .dot.question { background: #35507a; }
 
-    .canvas { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
-    .main-col { display: flex; flex-direction: column; gap: 18px; width: 720px; min-width: 320px; flex-shrink: 0; }
+    .canvas { display: block; }
+    .main-col { display: flex; flex-direction: column; gap: 18px; width: 100%; max-width: 920px; margin: 0 auto; }
 
     .section { background: #fff; border: 1px solid #ccc; border-radius: 4px; overflow: hidden; }
     .section__title {
@@ -667,51 +667,6 @@
       </div>
 
     </div><!-- /main-col -->
-
-    <!-- NOTES -->
-    <aside class="design-notes">
-      <div class="status-tag">Round 3 — design-system components applied</div>
-
-      <h3>Components Used</h3>
-      <ul>
-        <li><strong>Banner (sharp)</strong> — Sections A, B, E. Sits flush below the module header. Semantic colors: info (blue), warning (amber), error (red).</li>
-        <li><strong>Warning modal</strong> — Section C (Trial Expired). Closeable.</li>
-        <li><strong>Success modal</strong> — Section D (Request Sent).</li>
-        <li><strong>Error modal</strong> — Section E final confirmation. No X, no cancel — deletion only stopped via account manager.</li>
-        <li><strong>Lone Worker (A2)</strong> — no admin page, so: web tile + Trial Mode badge → status-coloured modal; mobile "Working Alone" chip + minimized banner. Admins only.</li>
-        <li>All pulled from the BIStrainer UI Library so the build matches the live system exactly.</li>
-      </ul>
-
-      <h3>Decisions Confirmed</h3>
-      <ul>
-        <li><strong>A</strong> — update all module wording, fix Forms typo. ✓</li>
-        <li><strong>B</strong> — info → warning → error as it gets closer. ✓</li>
-        <li><strong>C</strong> — closeable; "in 60 days" added. Displays for all client admins. Added a 2nd pop-up for re-enable attempts after data is deleted (no thank-you / deletion line). ✓</li>
-        <li><strong>D</strong> — success modal + duplicate-click guard. ✓</li>
-        <li><strong>E</strong> — reminders 30 / 7 / 1 day; no new export; error modal with Confirm / Notify (no cancel). ✓</li>
-        <li><strong>F</strong> — override switch. ✓</li>
-        <li><strong>G</strong> — blue = override on, grey = data deleted. ✓</li>
-        <li><strong>A2 — Lone Worker:</strong> web tile + badge + modal; mobile "Working Alone" chip + minimized banner; admins only. ✓</li>
-        <li><strong>Forms watermark:</strong> trial PDFs keep SAMPLE even after Forms is paid for (not retroactive). ✓</li>
-      </ul>
-
-      <h3>Answered — Trial Start Date</h3>
-      <ul>
-        <li>The 90-day countdown starts from the date the module was turned on — matching the note added to the Notes section on the Company Settings page when a module is enabled. That note date is the source of truth.</li>
-      </ul>
-
-      <h3>Still Open</h3>
-      <ul>
-        <li><strong>Reminder count:</strong> confirm 3 reminders (30/7/1) vs. 2 (30/7).</li>
-        <li><strong>"Platform 2.0":</strong> broader redesign, or just a version label? (affects styling).</li>
-        <li><strong>TKT-18451:</strong> confirm exactly what admin pages it adds before placing the four new banners.</li>
-      </ul>
-
-      <h3>Next Step</h3>
-      <ul>
-        <li>Build these into the actual screens (real pages, in context) rather than these isolated component mock-ups.</li>
-      </ul>
-    </aside>
 
   </div><!-- /canvas -->
 
