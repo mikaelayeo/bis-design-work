@@ -161,6 +161,28 @@
     .sys-tgl.off { background: #4a4a4a; }
     .sys-tgl.off::after { left: 2px; }
 
+    /* Lone Worker special case (Section A2) */
+    .trial-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 12px; white-space: nowrap; }
+    .trial-chip svg { flex-shrink: 0; }
+    .trial-chip.info { background: #f2fcff; color: #0078b3; border: 1px solid #b9e6f5; }
+    .trial-chip.warning { background: #fffcf2; color: #8a6d1a; border: 1px solid #eddca0; }
+    .trial-chip.error { background: #fff2f2; color: #cc2222; border: 1px solid #f2c2c2; }
+    .lw-tilegrid { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+    .lw-tile { width: 150px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px 12px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; background: #fff; font-family: "Segoe UI", system-ui, sans-serif; }
+    .lw-tile__label { font-size: 13px; font-weight: 600; color: #2f6fa8; }
+    .lw-tilecap { font-size: 11px; color: #888; margin-top: 6px; }
+    .lw-phone { max-width: 340px; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; font-family: "Segoe UI", system-ui, sans-serif; background: #fff; }
+    .lw-phone__bar { background: #46405f; color: #fff; font-size: 13px; font-weight: 600; padding: 10px 14px; display: flex; align-items: center; gap: 8px; }
+    .lw-more__row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+    .lw-more__row:last-child { border-bottom: none; }
+    .lw-more__icon { color: #e0567a; flex-shrink: 0; display: flex; }
+    .lw-more__label { flex: 1; font-weight: 500; color: #333; }
+    .lw-more__chev { color: #bbb; flex-shrink: 0; }
+    .lw-mini-banner { display: flex; align-items: center; gap: 10px; padding: 10px 14px; font-size: 13px; font-weight: 600; color: #191919; }
+    .lw-mini-banner.info { background: #f2fcff; }
+    .lw-mini-banner.warning { background: #fffcf2; }
+    .lw-mini-banner.error { background: #fff2f2; }
+
     /* Pills (Section G) */
     .pill-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
     .pill { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 3px; color: #fff; }
@@ -242,11 +264,101 @@
               <tr><td>Rewards</td><td>Rewards admin view</td><td class="center">New — no banner today</td><td>"Your Rewards program is in trial mode until {date}. Please contact your account manager if you would like to access the full features of this module."</td></tr>
               <tr><td>Playbooks</td><td>Playbooks admin view</td><td class="center">New — no banner today</td><td>"Your Playbooks is in trial mode until {date}. Please contact your account manager if you would like to access the full features of this module."</td></tr>
               <tr><td>Driver Management</td><td>Company Settings &gt; System Modules &gt; Driver Mgmt edit page</td><td class="center">New — no banner today</td><td>"Your Driver Management is in trial mode until {date}. Please contact your account manager if you would like to access the full features of this module."</td></tr>
-              <tr><td>Lone Worker</td><td>Mobile app</td><td class="center">New — mobile, no banner today</td><td>"Your Lone Worker module is in trial mode until {date}. Please contact your account manager if you would like to access the full features of this module."</td></tr>
+              <tr><td>Lone Worker</td><td>No web admin page → special treatment</td><td class="center">See Section A2</td><td>Handled separately (web tile + badge + modal, and a mobile "Working Alone" treatment) because Lone Worker has no admin page to host a banner. See <strong>Section A2</strong> below.</td></tr>
             </tbody>
           </table>
         </div>
-        <div class="section__note">Note: the live Forms banner today has a small typo ("...if you want like to access...") — worth fixing to "would like to" while this is being updated anyway.</div>
+        <div class="section__note">Note: the live Forms banner today has a small typo ("...if you want like to access...") — worth fixing to "would like to" while this is being updated anyway.<br><br><strong>Forms watermark rule (behaviour, not a visual):</strong> PDFs completed while Forms is in trial keep the <strong>SAMPLE</strong> watermark even after Forms is later paid for — they are not un-watermarked retroactively. Only new PDFs created after payment are watermark-free.</div>
+      </div>
+
+      <!-- SECTION A2: Lone Worker special case -->
+      <div class="section">
+        <div class="section__title">A2. Lone Worker — Special Case (no admin page) <span class="tag done">✓ New — admins only</span></div>
+        <div class="section__body">
+          <p style="font-size:12px; color:#666; margin-bottom:12px;">Lone Worker has no web admin page to host a banner, and on mobile it's an end-user feature. So the trial communication is <strong>admin-only</strong> and takes a different shape on each surface.</p>
+
+          <p style="font-size:12px; font-weight:700; color:#444; margin-bottom:8px;">Web — module tile + "Trial Mode" badge (opens a modal)</p>
+          <p style="font-size:12px; color:#666; margin-bottom:8px;">A Lone Worker tile on the admin module grid carries a "Trial Mode" badge in the 3 statuses. Clicking the tile opens a modal whose content is the <strong>same as the banner</strong>, coloured to match the status.</p>
+          <div class="lw-tilegrid">
+            <div>
+              <div class="lw-tile">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#e0567a" stroke-width="2"><circle cx="12" cy="14" r="2" fill="#e0567a" stroke="none"/><path d="M8.5 10.5a5 5 0 0 1 7 0"/><path d="M6 8a9 9 0 0 1 12 0"/></svg>
+                <span class="lw-tile__label">Lone Worker</span>
+                <span class="trial-chip info"><svg viewBox="0 0 16 16" width="12" height="12"><circle cx="8" cy="8" r="8" fill="#009acb"/><rect x="7.1" y="7" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="4.6" r="1.05" fill="#fff"/></svg> Trial Mode</span>
+              </div>
+              <div class="lw-tilecap">Info (&gt;14 days)</div>
+            </div>
+            <div>
+              <div class="lw-tile">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#e0567a" stroke-width="2"><circle cx="12" cy="14" r="2" fill="#e0567a" stroke="none"/><path d="M8.5 10.5a5 5 0 0 1 7 0"/><path d="M6 8a9 9 0 0 1 12 0"/></svg>
+                <span class="lw-tile__label">Lone Worker</span>
+                <span class="trial-chip warning"><svg viewBox="0 0 16 15" width="12" height="11"><path d="M8 0.5 L15.5 14 L0.5 14 Z" fill="#c29c14"/><rect x="7.1" y="5" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="12.2" r="1.05" fill="#fff"/></svg> Trial Mode</span>
+              </div>
+              <div class="lw-tilecap">Warning (3–14 days)</div>
+            </div>
+            <div>
+              <div class="lw-tile">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#e0567a" stroke-width="2"><circle cx="12" cy="14" r="2" fill="#e0567a" stroke="none"/><path d="M8.5 10.5a5 5 0 0 1 7 0"/><path d="M6 8a9 9 0 0 1 12 0"/></svg>
+                <span class="lw-tile__label">Lone Worker</span>
+                <span class="trial-chip error"><svg viewBox="0 0 16 16" width="12" height="12"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg> Trial Mode</span>
+              </div>
+              <div class="lw-tilecap">Error (&lt;3 days)</div>
+            </div>
+          </div>
+
+          <p style="font-size:12px; color:#666; margin:16px 0 8px;">Clicking the tile → modal (info shown; warning = amber, error = red, same as the banner):</p>
+          <div class="ds-modal-frame">
+            <div class="ds-modal">
+              <div class="ds-modal__header">
+                <div class="ds-modal__title-group">
+                  <span class="ds-modal__icon">
+                    <svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#009acb"/><rect x="9" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="10" cy="5.6" r="1.3" fill="#fff"/></svg>
+                  </span>
+                  <span class="ds-modal__title">Lone Worker</span>
+                </div>
+                <span class="ds-modal__close">
+                  <svg viewBox="0 0 20 20" width="20" height="20"><path d="M4.5 4.5 L15.5 15.5 M15.5 4.5 L4.5 15.5" stroke="#191919" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+              </div>
+              <div class="ds-modal__body">Your Lone Worker module is in trial mode until October 12, 2025. Please contact your account manager if you would like to access the full features of this module.</div>
+              <div class="ds-modal__footer">
+                <button class="ds-btn ds-btn--tertiary">Close</button>
+                <button class="ds-btn ds-btn--primary-blue">Notify Account Manager</button>
+              </div>
+            </div>
+          </div>
+
+          <p style="font-size:12px; font-weight:700; color:#444; margin:18px 0 8px;">Mobile (BIS Safety app — "Working Alone", admins only)</p>
+          <p style="font-size:12px; color:#666; margin-bottom:8px;">On the More page, a static "Trial Mode" chip sits next to Working Alone — icon/colour change by status, but the text always reads "Trial Mode" (no dynamic text):</p>
+          <div class="lw-phone" style="margin-bottom:14px;">
+            <div class="lw-more__row">
+              <span class="lw-more__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e0567a" stroke-width="2"><circle cx="12" cy="14" r="2" fill="#e0567a" stroke="none"/><path d="M8.5 10.5a5 5 0 0 1 7 0"/><path d="M6 8a9 9 0 0 1 12 0"/></svg></span>
+              <span class="lw-more__label">Working Alone</span>
+              <span class="trial-chip info"><svg viewBox="0 0 16 16" width="12" height="12"><circle cx="8" cy="8" r="8" fill="#009acb"/><rect x="7.1" y="7" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="4.6" r="1.05" fill="#fff"/></svg> Trial Mode</span>
+              <span class="lw-more__chev">›</span>
+            </div>
+            <div class="lw-more__row">
+              <span class="lw-more__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e0567a" stroke-width="2"><circle cx="12" cy="14" r="2" fill="#e0567a" stroke="none"/><path d="M8.5 10.5a5 5 0 0 1 7 0"/><path d="M6 8a9 9 0 0 1 12 0"/></svg></span>
+              <span class="lw-more__label">Working Alone</span>
+              <span class="trial-chip warning"><svg viewBox="0 0 16 15" width="12" height="11"><path d="M8 0.5 L15.5 14 L0.5 14 Z" fill="#c29c14"/><rect x="7.1" y="5" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="12.2" r="1.05" fill="#fff"/></svg> Trial Mode</span>
+              <span class="lw-more__chev">›</span>
+            </div>
+            <div class="lw-more__row">
+              <span class="lw-more__icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e0567a" stroke-width="2"><circle cx="12" cy="14" r="2" fill="#e0567a" stroke="none"/><path d="M8.5 10.5a5 5 0 0 1 7 0"/><path d="M6 8a9 9 0 0 1 12 0"/></svg></span>
+              <span class="lw-more__label">Working Alone</span>
+              <span class="trial-chip error"><svg viewBox="0 0 16 16" width="12" height="12"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg> Trial Mode</span>
+              <span class="lw-more__chev">›</span>
+            </div>
+          </div>
+          <p style="font-size:12px; color:#666; margin-bottom:8px;">Opening the Working Alone page shows a minimized banner at the top — text stays "In trial mode until October 12, 2025.", only the colour escalates:</p>
+          <div class="lw-phone">
+            <div class="lw-phone__bar"><span>‹</span> Working Alone</div>
+            <div class="lw-mini-banner info"><svg viewBox="0 0 16 16" width="15" height="15"><circle cx="8" cy="8" r="8" fill="#009acb"/><rect x="7.1" y="7" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="4.6" r="1.05" fill="#fff"/></svg> In trial mode until October 12, 2025.</div>
+            <div class="lw-mini-banner warning"><svg viewBox="0 0 16 15" width="15" height="14"><path d="M8 0.5 L15.5 14 L0.5 14 Z" fill="#c29c14"/><rect x="7.1" y="5" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="12.2" r="1.05" fill="#fff"/></svg> In trial mode until October 12, 2025.</div>
+            <div class="lw-mini-banner error"><svg viewBox="0 0 16 16" width="15" height="15"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg> In trial mode until October 12, 2025.</div>
+          </div>
+        </div>
+        <div class="section__note">Admins only on both surfaces — end users never see the trial chip, badge, or banner. Mobile is informational (no button); the Notify Account Manager action lives on the web modal.</div>
       </div>
 
       <!-- SECTION B: escalating urgency -->
@@ -566,6 +678,7 @@
         <li><strong>Warning modal</strong> — Section C (Trial Expired). Closeable.</li>
         <li><strong>Success modal</strong> — Section D (Request Sent).</li>
         <li><strong>Error modal</strong> — Section E final confirmation. No X, no cancel — deletion only stopped via account manager.</li>
+        <li><strong>Lone Worker (A2)</strong> — no admin page, so: web tile + Trial Mode badge → status-coloured modal; mobile "Working Alone" chip + minimized banner. Admins only.</li>
         <li>All pulled from the BIStrainer UI Library so the build matches the live system exactly.</li>
       </ul>
 
@@ -578,6 +691,8 @@
         <li><strong>E</strong> — reminders 30 / 7 / 1 day; no new export; error modal with Confirm / Notify (no cancel). ✓</li>
         <li><strong>F</strong> — override switch. ✓</li>
         <li><strong>G</strong> — blue = override on, grey = data deleted. ✓</li>
+        <li><strong>A2 — Lone Worker:</strong> web tile + badge + modal; mobile "Working Alone" chip + minimized banner; admins only. ✓</li>
+        <li><strong>Forms watermark:</strong> trial PDFs keep SAMPLE even after Forms is paid for (not retroactive). ✓</li>
       </ul>
 
       <h3>Answered — Trial Start Date</h3>
