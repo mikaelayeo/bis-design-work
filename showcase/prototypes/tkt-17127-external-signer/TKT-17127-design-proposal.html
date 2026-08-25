@@ -235,59 +235,66 @@
     .succ-h { font-size: 20px; font-weight: 600; color: #111; margin-bottom: 8px; }
     .succ-b { font-size: 12.5px; color: #222; line-height: 1.6; }
 
-    /* ===================== MOBILE ===================== */
+    /* ============ RESPONSIVE — same web pages in a phone-width browser ============ */
     .phones { display: flex; gap: 14px; flex-wrap: wrap; }
-    .phone-col { flex: 1 1 210px; min-width: 195px; max-width: 240px; }
-    .phone { border: 8px solid #1c1f22; border-radius: 22px; overflow: hidden; background: #fff; height: 400px; display: flex; flex-direction: column; position: relative; }
-    .m-scrim { position: absolute; inset: 0; background: #eaf2f7; }
-    .m-modal { position: relative; background: #fff; flex: 1; display: flex; flex-direction: column; padding: 11px 10px 10px; }
-    .m-head { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: #111; }
-    .m-head .x { margin-left: auto; color: #444; font-size: 12px; }
-    .m-head .chev { color: #111; font-size: 12px; }
-    .m-intro { font-size: 9.5px; color: #333; margin: 7px 0 10px; line-height: 1.45; }
-    .m-label { font-size: 8.5px; color: #555; margin-bottom: 2px; display: block; }
-    .m-input { width: 100%; border: 1px solid #b9c2c8; border-radius: 2px; height: 22px; margin-bottom: 8px; background: #fff; }
-    .m-check { display: flex; align-items: center; gap: 5px; font-size: 8.5px; color: #111; margin: 4px 0 8px; }
-    .m-check .bx { width: 11px; height: 11px; border: 1.2px solid #6b7378; border-radius: 2px; flex-shrink: 0; }
-    .m-check.off { color: #b3bbc0; } .m-check.off .bx { border-color: #ccd3d7; }
-    .m-check .bx.on { background: var(--surface-primary); border-color: var(--surface-primary); color: #fff; font-size: 8px; display: flex; align-items: center; justify-content: center; }
-    .m-info { display: flex; align-items: center; gap: 6px; background: #f2fafd; border-radius: 2px; padding: 6px 7px; font-size: 8px; color: #333; }
-    .m-info .i { width: 10px; height: 10px; border-radius: 50%; background: var(--surface-primary); color: #fff; font-size: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .m-btn { margin-top: auto; background: var(--surface-primary); color: #fff; border-radius: 3px; text-align: center; font-size: 10px; font-weight: 600; padding: 7px; }
-    .m-btn.off { background: #9dcbe2; }
-    .m-card { display: flex; align-items: center; gap: 7px; border: 1px solid #e2e6e9; border-left: 3px solid #9aa4ab; border-radius: 3px; padding: 7px 8px; margin-bottom: 9px; }
-    .m-card.read { border-left-color: var(--surface-success); }
-    .m-card .doc { color: #6b7378; font-size: 11px; }
-    .m-card .txt { flex: 1; }
-    .m-card .chip { display: inline-block; font-size: 7px; font-weight: 700; color: #6b7378; background: #eef1f3; border-radius: 6px; padding: 1px 5px; margin-bottom: 2px; }
-    .m-card.read .chip { color: var(--surface-success); background: #eef8ea; }
-    .m-card .nm { font-size: 9px; font-weight: 600; color: #111; }
-    .m-card .eye { color: #6b7378; font-size: 10px; }
-    .m-sighead { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
-    .m-sighead .lb { font-size: 9px; font-weight: 600; color: #111; }
-    .m-sighead .lb .req { color: var(--surface-error); }
-    .m-sighead .cl { font-size: 9px; color: var(--surface-primary); font-weight: 600; }
-    .m-sighead.off .lb { color: #b3bbc0; } .m-sighead.off .cl { color: #cfdde4; }
-    .m-canvas { border: 1px solid #d7dde1; border-radius: 2px; background: #fdfeff; height: 86px; position: relative; }
-    .m-canvas.on { background: #eef8fc; }
-    .m-canvas .guide { position: absolute; left: 14%; right: 14%; bottom: 20px; border-top: 1.2px dashed #d3dbe0; }
-    .m-canvas .ink { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: "Brush Script MT", cursive; font-size: 30px; color: #111; }
-    .m-pdfbar { background: var(--surface-primary); color: #fff; display: flex; align-items: center; padding: 8px 9px; font-size: 10px; font-weight: 600; }
-    .m-pdfbar .dl { margin-left: auto; background: #fff; color: var(--surface-primary); border-radius: 3px; padding: 2px 8px; font-size: 8.5px; }
-    .m-pdfbody { flex: 1; background: #eceff1; display: flex; align-items: center; justify-content: center; padding: 12px; }
-    .m-pdfpage { background: #fff; width: 100%; border-radius: 2px; padding: 8px; font-size: 7px; color: #555; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
-    .m-pdfpage .t { font-size: 9px; font-weight: 700; color: #111; }
-    .m-pdfpage .sub { color: #8a6d9e; font-size: 6.5px; margin-bottom: 5px; }
-    .m-pdfpage .ln { height: 4px; background: #eceff1; border-radius: 2px; margin-bottom: 3px; }
-    .m-pdfpage .sigbox { border: 1px solid #e2e6e9; height: 26px; border-radius: 2px; margin-top: 5px; }
-    .m-login { flex: 1; background: #fff; display: flex; flex-direction: column; align-items: center; padding: 34px 14px 12px; }
-    .m-login .brand { font-size: 15px; font-weight: 700; color: #1b3f6b; letter-spacing: .5px; margin-bottom: 14px; }
-    .m-login .lbl { align-self: flex-start; font-size: 8px; color: #555; margin-bottom: 3px; }
-    .m-login .fld { width: 100%; border: 1px solid #b9c2c8; border-radius: 2px; height: 20px; margin-bottom: 8px; }
-    .m-login .btn { width: 100%; background: var(--surface-primary); color: #fff; text-align: center; font-size: 9px; font-weight: 600; padding: 6px; border-radius: 3px; margin-bottom: 6px; }
-    .m-login .btn2 { width: 100%; background: #dfe4e7; color: #333; text-align: center; font-size: 9px; font-weight: 600; padding: 6px; border-radius: 3px; }
-    .m-snack { position: absolute; left: 9px; right: 9px; top: 9px; background: #1c1f22; color: #fff; border-radius: 5px; padding: 9px 10px; font-size: 8.5px; line-height: 1.45; display: flex; gap: 7px; box-shadow: 0 2px 8px rgba(0,0,0,.25); z-index: 3; }
-    .m-snack .ck { flex-shrink: 0; color: #6ee7a8; font-size: 10px; }
+    .phone-col { flex: 1 1 200px; min-width: 190px; max-width: 230px; }
+    /* a narrow mobile-browser window (chrome + address bar), NOT the native app */
+    .mbrowser { border: 1px solid #cfd6db; border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 1px 5px rgba(0,0,0,.08); display: flex; flex-direction: column; height: 420px; }
+    .mb-chrome { background: #eef1f4; border-bottom: 1px solid #dfe4e8; display: flex; align-items: center; gap: 6px; padding: 7px 8px; }
+    .mb-url { flex: 1; background: #fff; border: 1px solid #dbe0e4; border-radius: 12px; padding: 3px 8px; font-size: 8px; color: #556; display: flex; align-items: center; gap: 4px; overflow: hidden; white-space: nowrap; }
+    .mb-url .lock { color: #7c868c; font-size: 7px; }
+    .mb-icons { display: flex; gap: 5px; color: #8d979d; font-size: 9px; }
+    .mb-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+    /* client-branded bars, scaled down */
+    .mb-logo { display: flex; align-items: center; gap: 5px; padding: 6px 9px; border-bottom: 1px solid #f0f0f0; }
+    .mb-logo .leaf { width: 15px; height: 15px; border-radius: 50%; border: 1.6px solid #4aa63c; display: flex; align-items: center; justify-content: center; color: #4aa63c; font-size: 8px; }
+    .mb-logo b { font-size: 9px; color: #111; letter-spacing: -.2px; }
+    .mb-logo small { font-size: 5px; letter-spacing: 1px; color: #444; display: block; line-height: 1; }
+    .mb-bar { background: var(--surface-primary); color: #fff; padding: 7px 9px; font-size: 9.5px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+    .mb-bar .back { margin-left: auto; border: 1px solid #fff; border-radius: 3px; padding: 1px 6px; font-size: 7.5px; }
+    .mb-stage { flex: 1; overflow: hidden; padding: 10px 9px; }
+    .mb-h { font-size: 11px; font-weight: 700; color: #111; }
+    .mb-sub { font-size: 8px; color: #333; margin: 3px 0 9px; }
+    .mb-label { font-size: 7.5px; color: #555; margin-bottom: 2px; display: block; }
+    .mb-input { width: 100%; border: 1px solid #b9c2c8; border-radius: 2px; height: 20px; margin-bottom: 7px; background: #fff; }
+    .mb-check { display: flex; align-items: flex-start; gap: 5px; font-size: 8px; color: #111; margin: 5px 0 8px; line-height: 1.35; }
+    .mb-check .bx { width: 10px; height: 10px; border: 1.2px solid #6b7378; border-radius: 2px; flex-shrink: 0; margin-top: 1px; }
+    .mb-check.off { color: #b3bbc0; } .mb-check.off .bx { border-color: #ccd3d7; }
+    .mb-check .bx.on { background: var(--surface-primary); border-color: var(--surface-primary); color: #fff; font-size: 7px; display: flex; align-items: center; justify-content: center; }
+    .mb-info { display: flex; align-items: center; gap: 5px; background: #f2fafd; border-radius: 2px; padding: 5px 6px; font-size: 7.5px; color: #333; margin-top: 8px; }
+    .mb-info .i { width: 9px; height: 9px; border-radius: 50%; background: var(--surface-primary); color: #fff; font-size: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .mb-btn { background: var(--surface-primary); color: #fff; border-radius: 3px; text-align: center; font-size: 8.5px; font-weight: 600; padding: 6px; margin-top: 9px; }
+    .mb-intro { font-size: 8px; color: #111; margin-bottom: 8px; line-height: 1.4; }
+    /* doc row (mobile-narrow: title stacks above the View button) */
+    .mb-doc { border: 1px solid #d7dde1; border-radius: 3px; padding: 7px 8px; margin-bottom: 8px; }
+    .mb-doc .top { display: flex; align-items: center; gap: 6px; }
+    .mb-doc .st { width: 11px; height: 11px; border-radius: 50%; border: 1.2px solid #8d979d; color: #8d979d; font-size: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; }
+    .mb-doc .st.done { border-color: var(--surface-success); color: var(--surface-success); }
+    .mb-doc .nm { flex: 1; font-size: 8.5px; font-weight: 600; color: #111; line-height: 1.3;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .mb-doc .view { border-radius: 3px; padding: 3px 9px; font-size: 8px; font-weight: 600; background: var(--surface-primary); color: #fff; flex-shrink: 0; }
+    .mb-doc .view.seen { background: #fff; color: #111; border: 1px solid #b9c2c8; }
+    .mb-sighead { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 3px; }
+    .mb-sighead .lb { font-size: 8px; font-weight: 600; color: #111; } .mb-sighead .lb .req { color: var(--surface-error); }
+    .mb-sighead .cl { font-size: 8px; color: var(--surface-primary); font-weight: 600; }
+    .mb-sighead.off .lb { color: #b3bbc0; } .mb-sighead.off .cl { color: #cfdde4; }
+    .mb-canvas { border: 1px solid #d7dde1; border-radius: 2px; background: #fdfeff; height: 74px; position: relative; }
+    .mb-canvas.on { background: #eef8fc; }
+    .mb-canvas .guide { position: absolute; left: 14%; right: 14%; bottom: 18px; border-top: 1.2px dashed #d3dbe0; }
+    .mb-canvas .ink { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: "Brush Script MT", cursive; font-size: 26px; color: #111; }
+    .mb-tools { font-size: 7px; color: #8d979d; margin-top: 5px; }
+    .mb-submit { display: flex; justify-content: flex-end; margin-top: 8px; }
+    .mb-submit span { border-radius: 3px; padding: 4px 12px; font-size: 8px; font-weight: 600; color: #fff; background: #9dcbe2; }
+    .mb-submit span.on { background: var(--surface-primary); }
+    /* success card, phone width */
+    .mb-succ { text-align: center; padding: 20px 12px; }
+    .mb-succ .ring { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--success-bright); display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+    .mb-succ .h { font-size: 12px; font-weight: 600; color: #111; margin-bottom: 6px; }
+    .mb-succ .b { font-size: 8px; color: #222; line-height: 1.5; }
+    /* dev-note callout tethered to a frame */
+    .devnote { position: relative; }
+    .devnote .pin { position: absolute; top: -6px; left: 8px; right: 8px; background: #eae6fb; border: 1px solid #c9bff0; border-radius: 5px; padding: 6px 8px; font-size: 8px; color: #4b3d7a; z-index: 2; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+    .devnote .pin b { display: block; font-size: 8.5px; margin-bottom: 1px; }
 
     @media (max-width: 720px) { .fieldrow { grid-template-columns: 1fr; } }
   </style>
@@ -297,8 +304,8 @@
   <div class="topbar">
     <span class="t-ticket">TKT-17127</span>
     <span class="t-project">External Signer Support for Forms</span>
-    <span class="badge-pill success">Proposal Document - v3</span>
-    <span class="t-date">July 20, 2026 Generated</span>
+    <span class="badge-pill success">Proposal Document - v4</span>
+    <span class="t-date">July 24, 2026 Generated</span>
   </div>
 
   <div class="page">
@@ -313,7 +320,7 @@
     <a href="#sec-e"><span class="l">E</span>Identity Confirmation</a>
     <a href="#sec-f"><span class="l">F</span>Review &amp; Sign</a>
     <a href="#sec-g"><span class="l">G</span>Signature Submitted</a>
-    <a href="#sec-h"><span class="l">H</span>Mobile</a>
+    <a href="#sec-h"><span class="l">H</span>On a Phone</a>
     <a href="#sec-i"><span class="l">I</span>Completed Form</a>
   </aside>
 
@@ -321,9 +328,9 @@
 
   <!-- ========================= HEADER ========================= -->
   <div class="page-header">
-    <div class="sub">Ticket TKT-17127 — let a BIS user send a completed form to someone <b>outside</b> the organization for signature, without creating a BIS account for them. Scoped to the existing <b>Multiple Signatures</b> field type, and delivered on <b>both web and mobile</b>.</div>
+    <div class="sub">Ticket TKT-17127 — let a BIS user send a completed form to someone <b>outside</b> the organization for signature, without creating a BIS account for them. Scoped to the existing <b>Multiple Signatures</b> field type, delivered as a <b>browser-only</b> solution (responsive down to phone width — no mobile-app build).</div>
     <div class="meta">
-      <span class="badge">Round 3 — final screens from Figma; mobile added to scope</span>
+      <span class="badge">Round 4 — mobile app dropped per dev; browser-only, responsive</span>
       <span class="badge">Prepared for: Alex Koyich / Erica To / dev review</span>
       <span style="color:#888;">2026-07-20</span>
       <span class="proto-link"><a href="TKT-17127-prototype.html" target="_blank" rel="noopener">▶ Try the interactive prototype</a></span>
@@ -349,14 +356,14 @@
         <div class="flow-arrow">&rarr;</div>
         <div class="flow-box">Confirms identity<small>name + email</small></div>
         <div class="flow-arrow">&rarr;</div>
-        <div class="flow-box">Views PDF &amp; signs<small>web or mobile</small></div>
+        <div class="flow-box">Views PDF &amp; signs<small>in any browser</small></div>
         <div class="flow-arrow">&rarr;</div>
         <div class="flow-box end">✓ Form complete<small>signature in the record</small></div>
       </div>
 
-      <div class="banner-line bl-info"><span class="ico">ℹ</span><div><b>Scope:</b> built on the existing <b>Multiple Signatures</b> field only — the type that already collects sign-off on an <i>already-submitted</i> form and can't be returned to the initiator. <b>Single Signature is out of scope.</b> The external signer experience ships on <b>web and mobile</b> (Section H).</div></div>
+      <div class="banner-line bl-info"><span class="ico">ℹ</span><div><b>Scope:</b> built on the existing <b>Multiple Signatures</b> field only — the type that already collects sign-off on an <i>already-submitted</i> form and can't be returned to the initiator. <b>Single Signature is out of scope</b>, and this is a <b>browser-only</b> build — no mobile app (Section H).</div></div>
     </div>
-    <div class="section__note"><b>Confirmed:</b> Multiple Signatures only — Single Signature is signed <i>while</i> the form is being filled out, which conflicts with an optional post-submission external sign-off. <b>Mobile is in scope</b> and mirrors the web flow exactly, including the same review-before-sign gating.</div>
+    <div class="section__note"><b>Confirmed:</b> Multiple Signatures only — Single Signature is signed <i>while</i> the form is being filled out, which conflicts with an optional post-submission external sign-off. <b>Browser-only</b>: the emailed link opens a web page (responsive down to phone width); there is no mobile-app build, since the link never routes into the native app and the app has no logged-out mode.</div>
   </div>
 
   <!-- ========================= B · FORM SETUP ========================= -->
@@ -650,102 +657,127 @@
     <div class="section__note"><b>Confirmed:</b> the confirmation names the form and the sender rather than saying "the reviewer", and tells the signer explicitly that nothing further is required. <b>Open item:</b> external signers currently get no copy of what they signed — a "Download a copy" action here would cover it, but that's an added scope decision for Alex, not a copy fix.</div>
   </div>
 
-  <!-- ========================= H · MOBILE ========================= -->
+  <!-- ========================= H · ON A PHONE (RESPONSIVE) ========================= -->
   <div class="section" id="sec-h">
-    <div class="section__title">H. Mobile — Same Flow, Same Gating <span class="sp"></span><span class="tag new">New — in scope</span></div>
+    <div class="section__title">H. On a Phone — Responsive Web, Not the App <span class="sp"></span><span class="tag new">New</span></div>
     <div class="section__body">
-      <p class="lede">Mobile is <b>in scope</b> and mirrors web step for step, including the review-before-sign gating. The difference is how it's presented: on mobile it opens as a <b>full-page modal on top of the app</b>, whatever the app was showing.</p>
+      <p class="lede">There is <b>no mobile-app build</b> for this. The emailed link opens the same web page in the phone's <b>browser</b> — even for someone who has the BIS app installed — so we ship one browser solution and let it respond to a narrow screen. Same URL, same PDF-gated flow, just stacked into a single column.</p>
 
-      <div class="sub-h">Where the modal appears</div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <div class="banner-line bl-info" style="flex:1; min-width:190px; margin:0;"><span class="ico">📱</span><div><b>Logged in</b> → modal opens over the <b>home page</b>.</div></div>
-        <div class="banner-line bl-info" style="flex:1; min-width:190px; margin:0;"><span class="ico">🔓</span><div><b>Logged out</b> → modal opens over the <b>login screen</b>. No sign-in required.</div></div>
-        <div class="banner-line bl-info" style="flex:1; min-width:190px; margin:0;"><span class="ico">🌐</span><div><b>No app installed</b> → opens in the <b>browser</b>, using the mobile layout.</div></div>
-      </div>
+      <div class="banner-line bl-info"><span class="ico">ℹ</span><div><b>Why not the app:</b> the link never redirects into the native app, and the app has no logged-out/public mode — supporting it would be a significant change for a flow that's just "fill in 3–4 fields and sign." So mobile = the responsive web page in a browser.</div></div>
 
-      <div class="sub-h">The screens</div>
+      <div class="sub-h">The same screens at phone width</div>
       <div class="phones">
+        <!-- 1 · Identity -->
         <div class="phone-col">
-          <div class="phone">
-            <div class="m-scrim"></div>
-            <div class="m-modal">
-              <div class="m-head"><span>Identity Confirmation</span><span class="x">✕</span></div>
-              <div class="m-intro">Before you can sign this form, we need a few details.</div>
-              <span class="m-label">First name</span><div class="m-input"></div>
-              <span class="m-label">Last name</span><div class="m-input"></div>
-              <span class="m-label">Email</span><div class="m-input"></div>
-              <div class="m-check"><span class="bx"></span><span>I have read and accept the privacy policy</span></div>
-              <div class="m-info"><span class="i">i</span><span>We don't create a BIS account for you</span></div>
-              <div class="m-btn">Continue</div>
-            </div>
-          </div>
-          <div class="caption">1 · Identity — modal over the app</div>
-        </div>
-
-        <div class="phone-col">
-          <div class="phone">
-            <div class="m-modal">
-              <div class="m-head"><span class="chev">‹</span><span>Signature Required</span></div>
-              <div class="m-intro">The following form needs your signature before it can be marked as complete.</div>
-              <div class="m-card"><span class="doc">📄</span><span class="txt"><span class="chip">Unread</span><div class="nm">Mika's Multi Signature Form</div></span><span class="eye">👁</span></div>
-              <div class="m-check off"><span class="bx"></span><span>I have reviewed the attached form and approved it.</span></div>
-              <div class="m-sighead off"><span class="lb">Signature<span class="req">*</span></span><span class="cl">Clear</span></div>
-              <div class="m-canvas"><span class="guide"></span></div>
-              <div class="m-btn off">Submit</div>
-            </div>
-          </div>
-          <div class="caption">2 · Locked — chip reads <b>Unread</b></div>
-        </div>
-
-        <div class="phone-col">
-          <div class="phone">
-            <div class="m-pdfbar"><span>‹</span><span class="dl">⤓ Download</span></div>
-            <div class="m-pdfbody">
-              <div class="m-pdfpage">
-                <div class="t">Mika - Multi Signature</div>
-                <div class="sub">Form/assessment description</div>
-                <div class="ln" style="width:35%"></div>
-                <div class="ln"></div><div class="ln" style="width:80%"></div>
-                <div class="ln" style="width:60%"></div>
-                <div class="sigbox"></div>
+          <div class="mbrowser">
+            <div class="mb-chrome"><span class="mb-icons">🛡</span><div class="mb-url"><span class="lock">🔒</span>bissafety.ca/external-sign/fs</div><span class="mb-icons">＋ ⋯</span></div>
+            <div class="mb-body">
+              <div class="mb-logo"><span class="leaf">🌿</span><span><b>CLEAN</b><small>ENVIRONMENT</small></span></div>
+              <div class="mb-bar">🔒 Identity Confirmation</div>
+              <div class="mb-stage">
+                <div class="mb-h">Confirm who you are</div>
+                <div class="mb-sub">Before you can sign this form, we need a few details.</div>
+                <span class="mb-label">First name</span><div class="mb-input"></div>
+                <span class="mb-label">Last name</span><div class="mb-input"></div>
+                <span class="mb-label">Email</span><div class="mb-input"></div>
+                <div class="mb-check"><span class="bx"></span><span>I have read and accept the privacy policy</span></div>
+                <div class="mb-btn">Continue</div>
+                <div class="mb-info"><span class="i">i</span><span>We don't create a BIS account for you</span></div>
               </div>
             </div>
           </div>
-          <div class="caption">3 · PDF opens full-screen, downloadable</div>
+          <div class="caption">1 · Identity Confirmation</div>
         </div>
 
+        <!-- 2 · Locked + long-title truncation dev note -->
         <div class="phone-col">
-          <div class="phone">
-            <div class="m-modal">
-              <div class="m-head"><span class="chev">‹</span><span>Signature Required</span></div>
-              <div class="m-intro">The following form needs your signature before it can be marked as complete.</div>
-              <div class="m-card read"><span class="doc">📄</span><span class="txt"><span class="chip">Read</span><div class="nm">Mika's Multi Signature Form</div></span><span class="eye">👁</span></div>
-              <div class="m-check"><span class="bx on">✓</span><span>I have reviewed the attached form and approved it.</span></div>
-              <div class="m-sighead"><span class="lb">Signature<span class="req">*</span></span><span class="cl">Clear</span></div>
-              <div class="m-canvas on"><span class="guide"></span><span class="ink">Jane</span></div>
-              <div class="m-btn">Submit</div>
+          <div class="devnote">
+            <div class="pin"><b>Dev Note</b>Truncates when it's more than 3 lines of text.</div>
+            <div class="mbrowser" style="margin-top:30px;">
+              <div class="mb-chrome"><span class="mb-icons">🛡</span><div class="mb-url"><span class="lock">🔒</span>bissafety.ca/external-sign/fs</div><span class="mb-icons">＋ ⋯</span></div>
+              <div class="mb-body">
+                <div class="mb-logo"><span class="leaf">🌿</span><span><b>CLEAN</b><small>ENVIRONMENT</small></span></div>
+                <div class="mb-bar">✍ Signature Required</div>
+                <div class="mb-stage">
+                  <div class="mb-intro">The following form needs your signature before it can be marked as complete.</div>
+                  <div class="mb-doc"><div class="top">
+                    <span class="nm">Mika's Multi Signature Form. this is a long form title so let's make sure that it cuts in the…</span>
+                    <span class="st">!</span><span class="view">View</span></div></div>
+                  <div class="mb-check off"><span class="bx"></span><span>I have reviewed the attached form and approved it.</span></div>
+                  <div class="mb-sighead off"><span class="lb">Signature<span class="req">*</span></span><span class="cl">Clear</span></div>
+                  <div class="mb-canvas"><span class="guide"></span></div>
+                  <div class="mb-tools">Images must JPG or PNG files and less than 4 MB.</div>
+                  <div class="mb-submit"><span>Submit</span></div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="caption">4 · Chip flips to <b>Read</b>, everything unlocks</div>
+          <div class="caption">2 · Locked — long titles clamp at 3 lines</div>
         </div>
 
+        <!-- 3 · Reviewed, checkbox unlocked -->
         <div class="phone-col">
-          <div class="phone">
-            <div class="m-login">
-              <div class="brand">BIS SAFETY</div>
-              <span class="lbl">Username</span><div class="fld"></div>
-              <div class="btn">Continue</div>
-              <div class="btn2">Enter Code</div>
+          <div class="mbrowser">
+            <div class="mb-chrome"><span class="mb-icons">🛡</span><div class="mb-url"><span class="lock">🔒</span>bissafety.ca/external-sign/fs</div><span class="mb-icons">＋ ⋯</span></div>
+            <div class="mb-body">
+              <div class="mb-logo"><span class="leaf">🌿</span><span><b>CLEAN</b><small>ENVIRONMENT</small></span></div>
+              <div class="mb-bar">✍ Signature Required</div>
+              <div class="mb-stage">
+                <div class="mb-intro">The following form needs your signature before it can be marked as complete.</div>
+                <div class="mb-doc"><div class="top"><span class="nm">Mika's Multi Signature Form</span><span class="st done">✓</span><span class="view seen">View</span></div></div>
+                <div class="mb-check"><span class="bx"></span><span>I have reviewed the attached form and approved it.</span></div>
+                <div class="mb-sighead off"><span class="lb">Signature<span class="req">*</span></span><span class="cl">Clear</span></div>
+                <div class="mb-canvas"><span class="guide"></span></div>
+                <div class="mb-submit"><span>Submit</span></div>
+              </div>
             </div>
-            <div class="m-snack"><span class="ck">✓</span><span>Your signature has been added to Mika - Multi Signature and sent back to Miku Hatsune</span></div>
           </div>
-          <div class="caption">5 · Success = snackbar over the app</div>
+          <div class="caption">3 · PDF opened → checkbox unlocks</div>
+        </div>
+
+        <!-- 4 · Signed -->
+        <div class="phone-col">
+          <div class="mbrowser">
+            <div class="mb-chrome"><span class="mb-icons">🛡</span><div class="mb-url"><span class="lock">🔒</span>bissafety.ca/external-sign/fs</div><span class="mb-icons">＋ ⋯</span></div>
+            <div class="mb-body">
+              <div class="mb-logo"><span class="leaf">🌿</span><span><b>CLEAN</b><small>ENVIRONMENT</small></span></div>
+              <div class="mb-bar">✍ Signature Required</div>
+              <div class="mb-stage">
+                <div class="mb-intro">The following form needs your signature before it can be marked as complete.</div>
+                <div class="mb-doc"><div class="top"><span class="nm">Mika's Multi Signature Form</span><span class="st done">✓</span><span class="view seen">View</span></div></div>
+                <div class="mb-check"><span class="bx on">✓</span><span>I have reviewed the attached form and approved it.</span></div>
+                <div class="mb-sighead"><span class="lb">Signature<span class="req">*</span></span><span class="cl">Clear</span></div>
+                <div class="mb-canvas on"><span class="guide"></span><span class="ink">Jane Doe</span></div>
+                <div class="mb-submit"><span class="on">Submit</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="caption">4 · Checkbox ticked → signature unlocks</div>
+        </div>
+
+        <!-- 5 · Success -->
+        <div class="phone-col">
+          <div class="mbrowser">
+            <div class="mb-chrome"><span class="mb-icons">🛡</span><div class="mb-url"><span class="lock">🔒</span>bissafety.ca/external-sign/fs</div><span class="mb-icons">＋ ⋯</span></div>
+            <div class="mb-body">
+              <div class="mb-logo"><span class="leaf">🌿</span><span><b>CLEAN</b><small>ENVIRONMENT</small></span></div>
+              <div class="mb-bar">✍ Signature Required</div>
+              <div class="mb-stage">
+                <div class="mb-succ">
+                  <div class="ring"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#22a06b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 L10 17.5 L19 7"/></svg></div>
+                  <div class="h">Signature submitted</div>
+                  <div class="b">Thanks, Jane. Your signature has been added to <b>Mika - Multi Signature</b> and sent back to Miku Hatsune. Nothing else is needed from you. You can close this tab.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="caption">5 · Same success card, phone width</div>
         </div>
       </div>
 
-      <div class="banner-line bl-ok" style="margin-bottom:0;"><span class="ico">✓</span><div>Mobile adds a <b>Read / Unread chip</b> and a coloured left edge on the document card — a clearer at-a-glance signal than the web's small icon swap, and the same gate underneath.</div></div>
+      <div class="banner-line bl-ok" style="margin-bottom:0;"><span class="ico">✓</span><div>It's the <b>same pages</b> reflowed — same gate, same PDF review, same success card. The only mobile-specific rule is that a long form title <b>clamps to 3 lines</b> in the document row so it can't push the controls off-screen.</div></div>
     </div>
-    <div class="section__note"><b>Confirmed:</b> mobile is in scope and uses the identical gate (view → confirm → sign → submit). It presents as a <b>full-page modal over the app</b> — over the home page when logged in, over the login screen when logged out, and in the browser at mobile width when the app isn't installed. On mobile the confirmation is a <b>snackbar</b> over the underlying screen rather than a full card, since the app is still there behind it.</div>
+    <div class="section__note"><b>Confirmed:</b> no mobile-app build — the link opens the responsive web page in the phone's browser (the app never intercepts it, and has no public/logged-out mode). Identical PDF-gated flow and the same success card as desktop; the one added detail is the 3-line truncation on long form titles.</div>
   </div>
 
   <!-- ========================= I · COMPLETED FORM ========================= -->
