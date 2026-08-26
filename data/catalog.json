@@ -486,6 +486,14 @@
       "kind": "item",
       "audience": "showcase",
       "category": "docs",
+      "title": "Site management roadmap",
+      "date": "2026-08-26",
+      "path": "showcase/docs/site-management-roadmap.html"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "docs",
       "title": "Wayfinding & the Back Button",
       "date": "2026-08-21",
       "path": "showcase/docs/wayfinding-and-the-back-button.html"
