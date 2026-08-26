@@ -15,9 +15,15 @@
 
   ── SHAPE OF THE PAGE ─────────────────────────────────────────────────────────
   This is an app shell, not a document: header bar / view area / status bar, all
-  inside 100dvh. The page itself never scrolls. Three views share the shell —
-  Map (the dependency canvas), Register (the full ticket table) and About (what
-  this is, the tiers in full, and how it refreshes).
+  inside 100dvh. The page itself never scrolls. Four views share the shell —
+  Map (the dependency canvas), Scope (the parent ticket's eight interface scope
+  items against the children that gate them), Register (the full ticket table)
+  and About (what this is, the tiers in full, and how it refreshes).
+
+  Map and Scope are two readings of the same project at two grains. The Map is
+  ticket-to-ticket: what blocks what. The Scope matrix goes one level finer —
+  which of the MVP's interface scope items each child actually gates — which is
+  the question the Map deliberately does not answer.
 
   The Map view is a canvas. The graph flows LEFT TO RIGHT, one column per stage,
   and it pans (drag the background), scrolls and zooms inside its own container.
@@ -69,6 +75,14 @@
 
   The status bar reports which source was actually used, so a stale mirror is
   visible rather than silent.
+
+  The Scope view reads a SECOND, SEPARATE block — <script id="scope-data"> — that
+  is authored in this file and nowhere else, between the SCOPE-DATA:BEGIN /
+  SCOPE-DATA:END markers just below the mirror. It is deliberately NOT folded
+  into the mirrored JSON: it is scope-item grain rather than ticket grain, it has
+  no BIS PM live half to refresh, and merging it in would force a mirror re-sync
+  on every scope edit for no gain. A roadmap refresh must not touch it, and it
+  has no sibling .json file to keep in step.
 
   ── HOW A REFRESH WORKS (Claude does this, the page never does) ───────────────
   A browser page cannot call MCP tools — MCP runs on Claude's side. So:
@@ -546,6 +560,96 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
 .deflist .dt{font-weight:600;color:var(--ink)}
 .deflist .dd{font-size:14px;line-height:1.55;color:var(--ink-2)}
 
+/* ─── scope matrix (the Scope view) ───────────────────────────────────────────
+   Rows are the parent ticket's eight interface scope items; columns are the
+   child tickets that gate them. It has to read in BOTH directions — across a
+   row is what one scope item needs, down a column is what one ticket unblocks —
+   so the footer carries a per-column count and the right-hand rail a per-row
+   one. The two totals meet at the corner cell.
+
+   Column heads and marked cells reuse the card's --tier / --tier-soft pairing
+   verbatim rather than inventing a second palette, which is what keeps the
+   matrix colour-matched to the Map and correct in both themes for free: on the
+   light ground the tiers are the dark saturated values, on the dark ground the
+   light ones, and both were already contrast-checked for the cards.
+
+   Most of the work here is UNDOING global table styles for the row headers —
+   the shared th rule is a sticky uppercase mono column head, which is right for
+   the top row and wrong for a scope item's name and prose.                    */
+.sc-table{min-width:800px}
+.sc-table th.sc-item-h{min-width:320px}
+.sc-table th.sc-col-h{text-align:center;padding:8px 6px;width:80px}
+.sc-table th.sc-need-h{text-align:right;width:82px;padding-right:14px}
+
+/* the scope-item cell — a row header, but not the column-head treatment */
+.sc-table th.sc-item{position:static;z-index:0;background:var(--surface);
+  border-bottom:1px solid var(--rule-2);text-align:left;vertical-align:top;
+  white-space:normal;text-transform:none;letter-spacing:normal;
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:14.5px;font-weight:600;color:var(--ink);padding:12px 14px 13px}
+.sc-i{display:flex;gap:9px;align-items:baseline}
+.sc-i .sc-num{flex:0 0 auto;min-width:15px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:11px;font-weight:500;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.sc-table .sc-built{margin:5px 0 0 24px;max-width:58ch;font-size:12.5px;line-height:1.5;
+  font-weight:400;color:var(--ink-3)}
+.sc-tags{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 0 24px}
+.sc-tags:empty{display:none}
+
+/* marked cell — a filled tier token that is also the jump control */
+.sc-table td.sc-cell{text-align:center;vertical-align:middle;padding:6px 4px}
+.sc-hit{display:inline-grid;place-items:center;width:28px;height:28px;padding:0;cursor:pointer;
+  background:transparent;border:1px solid transparent;border-radius:4px;color:var(--tier,var(--accent));
+  transition:background .14s ease,border-color .14s ease}
+.sc-hit i{display:block;width:13px;height:13px;border-radius:3px;background:currentColor}
+.sc-hit:hover{background:var(--tier-soft,var(--accent-soft));border-color:var(--tier,var(--accent))}
+/* unmarked cell — an outline, not a blank. The grid has to stay a grid or the
+   eye loses the column it is tracking down. */
+.sc-none{display:inline-block;width:13px;height:13px;border-radius:3px;
+  border:1px solid var(--rule);background:transparent}
+
+/* column head chip — the card's .k treatment, made activatable */
+.sc-col{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;font-weight:600;
+  letter-spacing:.05em;white-space:nowrap;padding:3px 8px;border-radius:2px;cursor:pointer;
+  border:1px solid transparent;background:var(--tier-soft,var(--accent-soft));
+  color:var(--tier,var(--accent));transition:border-color .14s ease}
+.sc-col:hover{border-color:var(--tier,var(--accent))}
+.sc-col.flat{cursor:default}
+
+/* per-row rail */
+.sc-table td.sc-need{text-align:right;padding-right:14px;vertical-align:middle;white-space:nowrap;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11px;color:var(--ink-3);
+  font-variant-numeric:tabular-nums}
+.sc-table td.sc-need b{font-size:14px;font-weight:600;color:var(--ink)}
+
+/* footer — the down-a-column reading */
+.sc-table tfoot th,.sc-table tfoot td{background:var(--surface-2);border-top:2px solid var(--rule);
+  border-bottom:0;padding:11px 6px}
+.sc-table tfoot th.sc-foot-h{position:static;z-index:0;text-align:left;white-space:normal;
+  padding:11px 14px;color:var(--ink-3)}
+.sc-count{display:block;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:16px;
+  font-weight:600;line-height:1.1;color:var(--tier,var(--accent));font-variant-numeric:tabular-nums}
+.sc-count.zero{color:var(--ink-3)}
+.sc-sub{display:block;margin-top:3px;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:8.5px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+.sc-table tfoot td.sc-need b{color:var(--ink-2)}
+
+/* the zero-dependency row. Not an empty row — a finding. Tinted with the "ok"
+   pair (which has its own light/dark values) and rail-marked on the left, so it
+   reads as GO rather than as data that failed to load. Held through :hover so
+   the row-hover wash can't quietly cancel the one row that needed the emphasis. */
+.sc-table tbody tr.sc-free th.sc-item,
+.sc-table tbody tr.sc-free:hover th.sc-item{background:var(--ok-soft);
+  box-shadow:inset 3px 0 0 var(--ok)}
+.sc-table tbody tr.sc-free td,
+.sc-table tbody tr.sc-free:hover td{background:var(--ok-soft)}
+.sc-table tbody tr.sc-free td.sc-need b{color:var(--ok)}
+.chip.sc-go{color:var(--ok);border-color:var(--ok);background:var(--surface)}
+
+.sc-read{display:flex;flex-wrap:wrap;gap:8px 22px;margin:0 0 16px;padding:0 0 2px}
+.sc-read span{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-3)}
+.sc-read .sc-none,.sc-read .sc-key{flex:0 0 auto}
+.sc-read .sc-key{width:13px;height:13px;border-radius:3px;background:var(--accent);display:inline-block}
+
 /* ─── responsive ──────────────────────────────────────────────────────────── */
 @media (max-width:1080px){
   .mvpstat{display:none}
@@ -683,7 +787,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "title": "Site object",
       "tier": "A",
       "role": "child",
-      "summary": "The place work happens — it holds what's owed and shows current vs N outstanding. Built as a new object alongside Site Access, which stays exactly as it is for MVP. The Site also holds the operating calendar: which days this site works, inherited from a company default and overridden per site.",
+      "summary": "The place work happens — it holds what's owed and the operating calendar, and shows current vs N outstanding. Built as a new object alongside Site Access, which stays exactly as it is for MVP. The operating calendar is which days this site works, inherited from a company default and overridden per site.",
       "slice": null,
       "dependsOn": [],
       "relatedTo": [],
@@ -724,16 +828,16 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
 
     {
       "key": "S-01",
-      "title": "Work context attribution",
+      "title": "Forms report to the right site",
       "tier": "B",
       "role": "child",
-      "summary": "A form submission can declare the work context it reports against — business unit, job, customer site, crew — independent of the submitter's home location or where they physically were. The data often already exists on the submission; the gap is that the reporting layer can't query it. Not a new hierarchy: an attribute clients already fill in that the system currently drops.",
-      "slice": "Site Management can read and group by work context, so the comparison knows which forms count toward which site.",
+      "summary": "Count a form toward the site the work was for — not the worker's home location. A submission can declare the work context it reports against — business unit, job, customer site, crew — independent of where the submitter is based or where they physically were. The data often already exists on the submission; the gap is that the reporting layer can't query it. Not a new hierarchy: an attribute clients already fill in that the system currently drops.",
+      "slice": "Only the read path: SM can group and count forms by the site the work was for, so the comparison knows which forms count toward which site.",
       "dependsOn": [],
       "relatedTo": [],
       "mvpBlocking": true,
       "mvpNote": "MVP-blocking — this slice must ship for SM to push. The full initiative (reporting filtering, hierarchy separation, retrofitting existing submissions) is post-SM and not blocking.",
-      "boundary": null,
+      "boundary": "Likely the first slice of something larger. Getting a form to report against the work context it was for — rather than the submitter's home location — is the same underlying problem as tying reports generally to the right place. That larger initiative isn't scoped and isn't this ticket. What Site Management needs is only the read path: SM can group and count forms by the site the work was for. The reporting-layer half, where the client-visible payoff lands, ships on its own timeline.",
       "openQuestions": [
         "Is every client's work-context field the same field? One client carries a business unit, another links to Job, a third needs a customer site that doesn't exist as an object. This may be one configurable attribute or three problems wearing the same coat.",
         "Two of the six client attributions are verified directly against source; the other four come from cross-interview synthesis and haven't been checked against the per-source evidence banks."
@@ -839,7 +943,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "relatedTo": [],
       "mvpBlocking": false,
       "mvpNote": "Not MVP-blocking. Today's bulk-attest already produces a signal the comparison can match against; individual signing makes it correct, not possible.",
-      "boundary": "Attendance capture only. The Toolbox Talk content object is split out as SM-07. A universal cross-system signing tool stays the long-term goal, not the MVP.",
+      "boundary": "Attendance capture only. The meeting / toolbox-talk content object is split out as SM-07. A universal cross-system signing tool stays the long-term goal, not the MVP.",
       "openQuestions": [
         "Two halves, possibly two owners: the individual-signing widget rework is Forms-wide, Crew pre-population is SM-specific. Worth asking who owns the widget before assigning."
       ],
@@ -857,7 +961,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "title": "Mobile",
       "tier": "A",
       "role": "child",
-      "summary": "SM's mobile surfaces — supervisor and worker — as one ticket, one platform, one team. The shape is settled: a layer that annotates surfaces people already use rather than becoming its own area, phone-primary and often shared. Worker-side is pull, never push, with dual visibility so a site-assigned item also appears in the normal assigned-forms list.",
+      "summary": "Supervisor and worker surfaces — SM's mobile half as one ticket, one platform, one team, carrying the offline and device-profile decisions with it. The shape is settled: a layer that annotates surfaces people already use rather than becoming its own area, phone-primary and often shared. Worker-side is pull, never push, with dual visibility so a site-assigned item also appears in the normal assigned-forms list.",
       "slice": null,
       "dependsOn": ["S-02"],
       "relatedTo": [],
@@ -885,7 +989,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
 
     {
       "key": "SM-07",
-      "title": "Toolbox Talk feature",
+      "title": "Meeting / Toolbox Talk",
       "tier": "C",
       "role": "child",
       "summary": "The content object behind a toolbox talk or daily safety meeting — name it, upload what's being talked about, and report on who attended which one. The minimal version floated on the call is a title, a PDF upload and a signature. Split out of S-04 because product leadership ruled out building the attendance tool and this at the same time.",
@@ -1012,6 +1116,113 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
 </script>
 <!-- ROADMAP-DATA:END -->
 
+<!-- SCOPE-DATA:BEGIN ───────────────────────────────────────────────────────────
+     A SEPARATE data block, and deliberately so. This is NOT mirrored anywhere
+     and has NO sibling .json file: it is authored here and read only by the
+     Scope view. A roadmap refresh must leave it alone — everything above the
+     ROADMAP-DATA:END marker is the mirrored half, everything here is not.
+
+     Why it lives apart rather than inside the roadmap JSON: it is scope-item
+     grain, not ticket grain; it carries no BIS PM live fields, so it has nothing
+     for a refresh to write; and folding it into a file that must stay
+     byte-identical with an inline mirror would mean re-syncing both every time
+     a scope line is reworded. Two files to keep in step is the exact failure the
+     mirror contract exists to prevent, so scope data does not join it.
+
+     The `columns` array is only the tie-break for ordering. The rendered column
+     order is computed — most-gating first — because that ordering IS one of the
+     findings, and hand-sorting it here would let it drift from the marks.
+     ─────────────────────────────────────────────────────────────────────── -->
+<script type="application/json" id="scope-data">
+{
+  "_about": {
+    "what": "The parent ticket's eight interface scope items, and which child tickets gate each one. One level finer than the dependency map, which is ticket-to-ticket only.",
+    "source": "The Site Management MVP parent ticket in BIS PM — its interface scope list and each item's 'depends on' line.",
+    "authority": "The parent ticket is the source of truth. Do not invent scope items or dependencies here.",
+    "columns": "Every key in `columns` must also exist in the roadmap data's tickets array — the view reads tier and title from there, which is what keeps the matrix colour-matched to the Map instead of carrying a second copy of the palette.",
+    "sm04": "SM-04 (Mobile) is carried as a column with nothing in it on purpose. The parent's scope is the WEB interface, so mobile gates none of it. A rendered zero reads as a measured finding; a missing column reads as an oversight."
+  },
+
+  "parentKey": "SM-MVP",
+  "columns": ["SM-01", "SM-02", "SM-03", "SM-04", "S-01"],
+
+  "items": [
+    {
+      "n": 1,
+      "name": "Sites index",
+      "built": "Filterable list, one row per site, state as the leftmost visual — current or N outstanding. Most-outstanding first by default.",
+      "dependsOn": ["SM-01", "S-01"],
+      "priority": null,
+      "flag": null
+    },
+    {
+      "n": 2,
+      "name": "Single-site view",
+      "built": "This period's obligations grouped by ritual; missing items on top, completed collapsed beneath. Header states the period and the cutoff.",
+      "dependsOn": ["SM-01", "SM-03", "S-01"],
+      "priority": null,
+      "flag": null
+    },
+    {
+      "n": 3,
+      "name": "Day-one empty state",
+      "built": "Not a blank \"create your first site\" screen. Offers conversion: pick existing Locations or Assets and turn them into Sites, copying the name only — no hierarchy, permissions or relationships inherited. Multi-select so 52 branches is a few clicks. Then attach a starter ritual, so day one shows real state rather than an empty shell.",
+      "dependsOn": ["SM-01", "SM-03"],
+      "priority": null,
+      "flag": "Conversion mechanics need dev input"
+    },
+    {
+      "n": 4,
+      "name": "Surfacing what's outstanding",
+      "built": "A ranking rule, not a screen: incomplete above complete everywhere, complete collapses to a count. Computed on read, snapshotted at period close.",
+      "dependsOn": ["SM-01", "SM-03", "S-01"],
+      "priority": null,
+      "flag": null
+    },
+    {
+      "n": 5,
+      "name": "Real-time event view",
+      "built": "A mode opened for an event, not a tab people live in. Read-only list of who's on site, timestamped, auto-refreshing, with the last-refreshed moment visible.",
+      "dependsOn": ["SM-01", "SM-02"],
+      "priority": null,
+      "flag": "Refresh interval TBD"
+    },
+    {
+      "n": 6,
+      "name": "Notification triggers",
+      "built": "Admin panel listing SM's trigger events with on/off and a recipient each, conservative defaults. Ships on existing email/text rails.",
+      "dependsOn": [],
+      "priority": null,
+      "flag": null
+    },
+    {
+      "n": 7,
+      "name": "Calendar view + past-day lookup",
+      "built": "Month grid with rituals plotted per site; past days click through to a read-only snapshot of what was completed that day.",
+      "dependsOn": ["SM-01", "SM-03"],
+      "priority": "low",
+      "flag": null
+    },
+    {
+      "n": 8,
+      "name": "Ad-hoc assignment",
+      "built": "An action on a site or crew: pick a form or task plus the people, assign without touching any ritual config.",
+      "dependsOn": ["SM-01", "SM-02"],
+      "priority": "low",
+      "flag": null
+    }
+  ],
+
+  "notes": [
+    "SM-01 is the floor. It gates every scope item that has a gate at all — nothing in the interface starts before the Site object exists.",
+    "SM-04 (Mobile) gates nothing on this matrix, and that is the answer rather than a gap: the parent's scope is the web interface. Mobile is its own surface, its own ticket, and its own scope list.",
+    "Notification triggers is the only scope item with no gate. It ships on the existing email and text rails and needs no new object, so it is buildable now, in parallel with the foundations — the one piece of the MVP that does not have to wait.",
+    "Day-one empty state is decided in approach but not in mechanics. The approach is user-picks, not auto-derive: a client chooses which Locations or Assets become Sites, because deriving them automatically would inherit the overloaded-Location problem and mint nonsense Sites wherever that data is bent. What still needs dev input is the conversion itself — which object types are pickable, what a converted Site requires on creation, whether the copy is one-time or stays linked to its source, how duplicate names are handled, whether the picker exposes existing hierarchy, and a practical ceiling on one bulk run. Conversion creates Sites flat; sub-site structure is SM-08 and out of scope."
+  ]
+}
+</script>
+<!-- SCOPE-DATA:END -->
+
 <div class="app">
 
   <header class="appbar">
@@ -1025,6 +1236,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
 
     <nav class="views" role="tablist" aria-label="Views">
       <button role="tab" id="tab-map" data-view="map" aria-controls="view-map" aria-selected="true" tabindex="0">Map</button>
+      <button role="tab" id="tab-scope" data-view="scope" aria-controls="view-scope" aria-selected="false" tabindex="-1">Scope</button>
       <button role="tab" id="tab-register" data-view="register" aria-controls="view-register" aria-selected="false" tabindex="-1">Register</button>
       <button role="tab" id="tab-about" data-view="about" aria-controls="view-about" aria-selected="false" tabindex="-1">About</button>
     </nav>
@@ -1101,6 +1313,44 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       </div>
     </section>
 
+    <!-- ── SCOPE ───────────────────────────────────────────────────────────
+         The same project one grain finer than the Map. Head row, marked cells
+         and column counts are all built by renderScope() from the scope-data
+         block; only the frame and the prose are static.                     -->
+    <section class="view view-doc" id="view-scope" role="tabpanel" aria-labelledby="tab-scope" tabindex="0" hidden>
+      <div class="doc">
+        <section>
+          <span class="snum">03</span>
+          <h2>Scope matrix</h2>
+          <hr class="rule">
+          <p class="standfirst">
+            The map is ticket-to-ticket. This is one level finer: the MVP parent&rsquo;s eight
+            interface scope items against the children that actually gate them. Read across a row
+            for what one scope item needs, and down a column for what one ticket unblocks.
+          </p>
+          <div class="sc-read" aria-hidden="true">
+            <span><i class="sc-key"></i>gated by this ticket</span>
+            <span><i class="sc-none"></i>not gated</span>
+            <span>Column totals along the bottom &middot; row totals down the right</span>
+          </div>
+          <div class="tscroll">
+            <table class="sc-table">
+              <caption class="sr-only">
+                Which child tickets gate each of the Site Management MVP&rsquo;s eight interface scope
+                items. Rows are scope items, columns are child tickets, ordered most-gating first.
+                Each row states its dependencies in full, so the matrix does not have to be read
+                cell by cell. Selecting a column heading or a marked cell opens that ticket on the map.
+              </caption>
+              <thead id="scope-head"></thead>
+              <tbody id="scope-body"></tbody>
+              <tfoot id="scope-foot"></tfoot>
+            </table>
+          </div>
+          <div id="scope-notes"></div>
+        </section>
+      </div>
+    </section>
+
     <!-- ── REGISTER ────────────────────────────────────────────────────── -->
     <section class="view view-doc" id="view-register" role="tabpanel" aria-labelledby="tab-register" tabindex="0" hidden>
       <div class="doc">
@@ -1153,6 +1403,13 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
             Hover or tab onto a card to trace its dependencies; everything unrelated dims and its
             direct neighbours are tagged <b>before</b> and <b>after</b>. Click, or press Enter, for
             the full detail panel.
+          </p>
+          <p>
+            The <b>Scope</b> tab is the same project one grain finer. The map stops at
+            ticket-to-ticket &mdash; what blocks what. The scope matrix goes inside the MVP parent
+            and asks which of its eight interface scope items each child actually gates, which is
+            the question the map deliberately does not answer. Its column totals are the useful
+            half: they say what each ticket <em>unblocks</em>, not what it waits on.
           </p>
         </section>
 
@@ -1458,6 +1715,156 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       });
     });
     document.getElementById("register").innerHTML = html;
+  }
+
+  /* ── the scope matrix ───────────────────────────────────────────────────────
+     Reads the SEPARATE #scope-data block, not the roadmap mirror. Everything
+     numeric here is derived: the column order, the column counts, the row
+     counts and the corner total all fall out of the marks, so a scope edit can
+     never leave a hand-written total behind contradicting the grid.
+
+     Tier colour and ticket title come from byKey — the roadmap data — which is
+     what ties the matrix to the Map. A column key with no matching ticket
+     renders as a plain label rather than a jump control, because there would be
+     nothing on the map to jump to.                                            */
+
+  function readScopeData() {
+    var el = document.getElementById("scope-data");
+    if (!el) return null;
+    try { return JSON.parse(el.textContent); } catch (e) { return null; }
+  }
+
+  function scopeTierStyle(key) {
+    var t = byKey[key];
+    var s = String((t && t.tier) || "a").toLowerCase();
+    return "--tier:var(--tier-" + s + ");--tier-soft:var(--tier-" + s + "-soft)";
+  }
+
+  function joinKeys(list) {
+    if (list.length === 1) return list[0];
+    return list.slice(0, -1).join(", ") + " and " + list[list.length - 1];
+  }
+
+  function renderScope() {
+    var head = document.getElementById("scope-head"),
+        body = document.getElementById("scope-body"),
+        foot = document.getElementById("scope-foot"),
+        note = document.getElementById("scope-notes");
+    if (!head || !body || !foot) return;
+
+    var S = readScopeData();
+    if (!S || !S.items || !S.items.length) {
+      body.innerHTML = '<tr><td colspan="9" style="color:var(--bad)">' +
+        "The scope-item data block in this file could not be read." + "</td></tr>";
+      return;
+    }
+
+    var items = S.items;
+
+    // Columns: the declared list, plus anything a row depends on that was left
+    // out of it — a scope item can never lose its gate to a typo in `columns`.
+    var cols = (S.columns || []).slice();
+    items.forEach(function (it) {
+      (it.dependsOn || []).forEach(function (k) { if (cols.indexOf(k) < 0) cols.push(k); });
+    });
+
+    var declaredAt = {};
+    cols.forEach(function (k, i) { declaredAt[k] = i; });
+
+    var count = {};
+    cols.forEach(function (k) { count[k] = 0; });
+    items.forEach(function (it) {
+      (it.dependsOn || []).forEach(function (k) { count[k]++; });
+    });
+
+    // Most-gating first. That ordering is the down-a-column finding made
+    // visible, so it is sorted from the marks rather than authored.
+    cols.sort(function (a, b) {
+      return (count[b] - count[a]) || (declaredAt[a] - declaredAt[b]);
+    });
+
+    var total = 0;
+    cols.forEach(function (k) { total += count[k]; });
+
+    /* head */
+    var h = '<tr><th scope="col" class="sc-item-h">Scope item &mdash; what gets built</th>';
+    cols.forEach(function (k) {
+      var t = byKey[k];
+      var label = esc(k) + (t ? '<span class="sr-only"> — ' + esc(t.title) + "</span>" : "");
+      h += '<th scope="col" class="sc-col-h">' + (t
+        ? '<button type="button" class="sc-col" data-key="' + esc(k) + '"' +
+          ' style="' + scopeTierStyle(k) + '"' +
+          ' title="Show ' + esc(k + " — " + t.title) + ' on the map">' + label + "</button>"
+        : '<span class="sc-col flat" style="' + scopeTierStyle(k) + '">' + label + "</span>") + "</th>";
+    });
+    h += '<th scope="col" class="sc-need-h">Needs</th></tr>';
+    head.innerHTML = h;
+
+    /* body */
+    var b = "";
+    items.forEach(function (it) {
+      var deps = it.dependsOn || [];
+      var free = deps.length === 0;
+
+      var tags = "";
+      if (free) tags += '<span class="chip sc-go">Independent &mdash; buildable now</span>';
+      if (it.flag) tags += '<span class="chip mvp-open">⚠ ' + esc(it.flag) + "</span>";
+      if (it.priority === "low") tags += '<span class="chip mvp-no">Low priority</span>';
+
+      // The row's own sentence. It is what a screen reader gets instead of
+      // walking 5 cells, and it is why the unmarked cells stay silent.
+      var say = free
+        ? "No gating dependencies. Independent — buildable now."
+        : "Depends on " + joinKeys(deps) + ".";
+
+      b += '<tr' + (free ? ' class="sc-free"' : "") + ">" +
+        '<th scope="row" class="sc-item">' +
+          // The space between the two spans is load-bearing: they are flex
+          // items, so it is dropped from the layout but kept by the accessible
+          // name, which would otherwise read "01Sites index" as one word.
+          '<span class="sc-i"><span class="sc-num">' +
+            (it.n < 10 ? "0" : "") + esc(it.n) + "</span> " +
+            "<span>" + esc(it.name) + "</span></span>" +
+          '<p class="sc-built">' + esc(it.built) + "</p>" +
+          '<span class="sc-tags">' + tags + "</span>" +
+          '<span class="sr-only"> ' + esc(say) + "</span>" +
+        "</th>";
+
+      cols.forEach(function (k) {
+        if (deps.indexOf(k) < 0) {
+          b += '<td class="sc-cell"><span class="sc-none" aria-hidden="true"></span></td>';
+          return;
+        }
+        var t = byKey[k];
+        b += '<td class="sc-cell"><button type="button" class="sc-hit" data-key="' + esc(k) + '"' +
+          ' style="' + scopeTierStyle(k) + '"' +
+          ' title="' + esc(k + " gates " + it.name) + ' — show it on the map">' +
+          '<i aria-hidden="true"></i><span class="sr-only">' +
+          esc(k + (t ? " " + t.title : "") + " gates " + it.name + ". Show it on the map.") +
+          "</span></button></td>";
+      });
+
+      b += '<td class="sc-need"><b>' + deps.length + "</b> of " + cols.length + "</td></tr>";
+    });
+    body.innerHTML = b;
+
+    /* foot — the down-a-column count */
+    var f = '<tr><th scope="row" class="sc-foot-h">Scope items gated &mdash; ' +
+            "what each ticket unblocks inside the MVP</th>";
+    cols.forEach(function (k) {
+      var n = count[k];
+      f += '<td class="sc-cell"><span class="sc-count' + (n ? "" : " zero") + '"' +
+        ' style="' + scopeTierStyle(k) + '">' + n + "</span>" +
+        '<span class="sc-sub">of ' + items.length + "</span></td>";
+    });
+    f += '<td class="sc-need"><b>' + total + "</b> marks</td></tr>";
+    foot.innerHTML = f;
+
+    if (note) {
+      note.innerHTML = (S.notes || []).map(function (n) {
+        return '<p class="tnote" style="margin-bottom:9px">' + esc(n) + "</p>";
+      }).join("");
+    }
   }
 
   function renderLegendTiers() {
@@ -1822,6 +2229,16 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     else ensureDrawn();
   }
 
+  // One jump path, three callers: the Register's key buttons, and the Scope
+  // matrix's column heads and marked cells. Anything carrying a data-key in a
+  // document view means the same thing — show me this ticket on the map — so it
+  // resolves through here rather than each view growing its own version.
+  function jumpToMap(key) {
+    if (!key || !byKey[key]) return;
+    showView("map", false);
+    openPanel(key, { scroll: true });
+  }
+
   function wireTabs() {
     TABS.forEach(function (b) {
       b.addEventListener("click", function () { showView(b.getAttribute("data-view"), false); });
@@ -2041,10 +2458,16 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
 
     document.getElementById("register").addEventListener("click", function (e) {
       var b = up(e.target, ".row-jump");
-      if (!b) return;
-      showView("map", false);
-      openPanel(b.getAttribute("data-key"), { scroll: true });
+      if (b) jumpToMap(b.getAttribute("data-key"));
     });
+
+    var scopeView = document.getElementById("view-scope");
+    if (scopeView) {
+      scopeView.addEventListener("click", function (e) {
+        var b = up(e.target, "button[data-key]");
+        if (b) jumpToMap(b.getAttribute("data-key"));
+      });
+    }
 
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && selectedKey) { e.preventDefault(); closePanel(true); return; }
@@ -2089,6 +2512,18 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     renderLegendTiers();
     renderStages();
     renderRegister();
+
+    // The scope block is the one data source with no mirror to check it against
+    // and no refresh step to catch a bad edit, so it is not allowed to take the
+    // rest of the page down with it. It fails loudly INSIDE its own view — the
+    // same principle as the status bar naming its data source — and the Map,
+    // Register and About views carry on regardless.
+    try { renderScope(); }
+    catch (e) {
+      var sb = document.getElementById("scope-body");
+      if (sb) sb.innerHTML = '<tr><td colspan="9" style="color:var(--bad)">' +
+        "The scope matrix could not be built: " + esc(e.message) + "</td></tr>";
+    }
 
     CARDS = Array.prototype.slice.call(graph.querySelectorAll(".card"));
 

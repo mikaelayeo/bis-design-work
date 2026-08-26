@@ -1,0 +1,405 @@
+{
+  "_about": {
+    "what": "Data behind site-management-roadmap.html. Every ticket object has two halves: STATIC fields authored from the ticket skeleton, and LIVE fields (pmTicketNumber / pmStatus / pmAssignee / pmUrl) that stay null until the tickets exist in BIS PM.",
+    "source": "_notes/scope/site-management-ticket skeleton.md",
+    "authority": "The skeleton md is the source of truth for every STATIC field. Do not invent tickets or dependencies here.",
+    "structure": "Graph structure comes from each ticket's dependsOn (hard prerequisites) and relatedTo (relationships that do not gate the target). edgeMeta only decorates those edges with a kind + note; an edge with no edgeMeta entry defaults to kind 'required'. Stage/layer position is computed in the page by longest-path layering, so adding a dependency re-lays-out the graph automatically.",
+    "order": "Within a stage, cards render in the order tickets appear in this array. That order is chosen to minimise connector crossings — reorder deliberately."
+  },
+
+  "_refresh": {
+    "summary": "Claude refreshes this file; the browser never calls BIS PM. A page opened from file:// cannot fetch a sibling JSON, so the HTML carries an inline mirror of this file.",
+    "steps": [
+      "1. Read this file.",
+      "2. For every ticket where pmTicketNumber is NOT null, call mcp__pmMCP__getTicketDetails with that number.",
+      "3. Write the result into that ticket's LIVE fields: pmStatus (the PM status string), pmAssignee (display name or null), pmUrl (the BIS PM ticket URL). Leave every STATIC field untouched.",
+      "4. For tickets that have since been created in BIS PM, set pmTicketNumber first (find it with mcp__pmMCP__getTicketList or getTicketsByGroup), then do step 3. pmUrl is what makes a card clickable.",
+      "5. Set meta.lastRefreshed to an ISO-8601 timestamp. The page renders it in the masthead; null renders as 'never'.",
+      "6. Rewrite this file.",
+      "7. CRITICAL — also rewrite the inline mirror inside site-management-roadmap.html, between the ROADMAP-DATA:BEGIN and ROADMAP-DATA:END comment markers. The two must stay byte-identical, or a double-clicked page will show stale data. The page footer reports which source it actually used."
+    ],
+    "notes": [
+      "No tickets exist in BIS PM yet, so every LIVE field starts null and every card shows the muted '#—' placeholder chip.",
+      "S-03, SM-06 and SM-07 are flagged 'Create ticket now' in the skeleton — they are the likely first three to get real numbers.",
+      "Nothing in the HTML fetches anything at runtime except Google Fonts. There is no build step."
+    ]
+  },
+
+  "meta": {
+    "title": "Site Management — build order and dependencies",
+    "standfirst": "Thirteen tickets, four tiers, one MVP. This is the dependency spine: what has to land first, what can land in parallel, and what explicitly does not gate the MVP.",
+    "generated": "2026-08-25",
+    "lastRefreshed": null,
+    "parentKey": "SM-MVP",
+    "layerLabels": [
+      { "n": "Stage 0", "label": "Foundations — nothing blocks these" },
+      { "n": "Stage 1", "label": "Builds directly on a foundation" },
+      { "n": "Stage 2", "label": "Second order — waits on stage 1" },
+      { "n": "Stage 3", "label": "The MVP rollup" }
+    ],
+    "standaloneLabel": {
+      "n": "No edges",
+      "label": "Independent — nothing blocks them, they block nothing"
+    },
+    "tiers": {
+      "A": { "label": "Tier A", "name": "Site Management MVP", "note": "The parent plus the four objects the MVP is made of." },
+      "B": { "label": "Tier B", "name": "System-wide (S)", "note": "Cross-module work. One slice is MVP-blocking; the rest are not." },
+      "C": { "label": "Tier C", "name": "Strengthens SM", "note": "Real value, not required for MVP." },
+      "D": { "label": "Tier D", "name": "Backlog", "note": "Revisit post-MVP." }
+    },
+    "edgeKinds": {
+      "required": { "label": "Hard prerequisite", "note": "The target cannot be built until the source lands." },
+      "open": { "label": "MVP inclusion open", "note": "The dependency is real, but whether it lands inside the MVP is pending team sign-off." },
+      "related": { "label": "Related, not blocking", "note": "A real relationship that does not gate the target. Decided Aug 24." }
+    }
+  },
+
+  "edgeMeta": [
+    { "from": "SM-01", "to": "SM-03", "kind": "required", "note": "A ritual attaches to a site and reads its operating calendar." },
+    { "from": "SM-01", "to": "SM-MVP", "kind": "required", "note": "Nothing else in the list functions without the Site object." },
+    { "from": "SM-02", "to": "S-02", "kind": "required", "note": "Crew is the thing scoped permissions scopes to." },
+    { "from": "SM-02", "to": "S-04", "kind": "required", "note": "Crew supplies the name list that pre-populates the attendance field." },
+    { "from": "SM-02", "to": "SM-MVP", "kind": "required", "note": "View-without-edit and site membership both hang off Crew." },
+    { "from": "SM-03", "to": "SM-MVP", "kind": "required", "note": "Blocks the parent's \"surfacing what's outstanding\" scope." },
+    { "from": "SM-04", "to": "SM-MVP", "kind": "required", "note": "Named in the parent's Blocked by line." },
+    { "from": "S-01", "to": "SM-MVP", "kind": "required", "note": "The SM slice must ship for SM to push — the comparison has to know which forms count toward which site." },
+    { "from": "S-02", "to": "SM-04", "kind": "open", "note": "The supervisor site/crew overview depends on S-02, pending MVP confirmation." },
+    { "from": "S-02", "to": "SM-MVP", "kind": "open", "note": "The parent lists S-02 under \"related, not blocking\"; S-02's own ticket marks MVP inclusion as open, needing team sign-off. Both readings are recorded here rather than picking one." },
+    { "from": "S-03", "to": "SM-MVP", "kind": "related", "note": "Decided Aug 24 — no longer a blocking dependency of the parent's surfacing scope. SM-03's ritual bundle already groups what a site owes." },
+    { "from": "S-04", "to": "SM-MVP", "kind": "related", "note": "Today's bulk-attest already produces a signal the comparison can match against. Individual signing makes it correct, not possible." },
+    { "from": "S-04", "to": "SM-07", "kind": "required", "note": "SM-07 sits on top of S-04's attendance capture." }
+  ],
+
+  "tickets": [
+
+    {
+      "key": "SM-01",
+      "title": "Site object",
+      "tier": "A",
+      "role": "child",
+      "summary": "The place work happens — it holds what's owed and the operating calendar, and shows current vs N outstanding. Built as a new object alongside Site Access, which stays exactly as it is for MVP. The operating calendar is which days this site works, inherited from a company default and overridden per site.",
+      "slice": null,
+      "dependsOn": [],
+      "relatedTo": [],
+      "mvpBlocking": true,
+      "mvpNote": "MVP-blocking. Nothing else in this list functions without it.",
+      "boundary": "Assets keeps things — vehicles, equipment, properties. Site keeps place and work context.",
+      "openQuestions": [],
+      "scope": [],
+      "actionFlag": null,
+      "evidence": "4 clients tried Assets as an organisational construct and abandoned it. Product leadership's decisive point: an asset can only have one assigned person, and an asset-used-as-a-site can't tell who's on it or what's owed.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "SM-02",
+      "title": "Crew object",
+      "tier": "A",
+      "role": "child",
+      "summary": "Who's answerable for a site, as distinct from who did the work — membership changes daily, and a site takes crews and/or individually added people. Built as a system-wide grouping tool rather than an SM-only feature, so it also serves evaluator lists and delegation fallback. Permissions stay deliberately coarse: none / read-only / full edit.",
+      "slice": null,
+      "dependsOn": [],
+      "relatedTo": [],
+      "mvpBlocking": true,
+      "mvpNote": "MVP-blocking.",
+      "boundary": "Not work dispatch, not a static org chart. View-without-edit only for MVP.",
+      "openQuestions": [],
+      "scope": [],
+      "actionFlag": null,
+      "evidence": "7 of 15 clients have no crew object and bend Location into one. Named Crew, not Group — decided, because Group collides with the existing Permission Group / Company Group feature in BIS Admin.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "S-01",
+      "title": "Forms report to the right site",
+      "tier": "B",
+      "role": "child",
+      "summary": "Count a form toward the site the work was for — not the worker's home location. A submission can declare the work context it reports against — business unit, job, customer site, crew — independent of where the submitter is based or where they physically were. The data often already exists on the submission; the gap is that the reporting layer can't query it. Not a new hierarchy: an attribute clients already fill in that the system currently drops.",
+      "slice": "Only the read path: SM can group and count forms by the site the work was for, so the comparison knows which forms count toward which site.",
+      "dependsOn": [],
+      "relatedTo": [],
+      "mvpBlocking": true,
+      "mvpNote": "MVP-blocking — this slice must ship for SM to push. The full initiative (reporting filtering, hierarchy separation, retrofitting existing submissions) is post-SM and not blocking.",
+      "boundary": "Likely the first slice of something larger. Getting a form to report against the work context it was for — rather than the submitter's home location — is the same underlying problem as tying reports generally to the right place. That larger initiative isn't scoped and isn't this ticket. What Site Management needs is only the read path: SM can group and count forms by the site the work was for. The reporting-layer half, where the client-visible payoff lands, ships on its own timeline.",
+      "openQuestions": [
+        "Is every client's work-context field the same field? One client carries a business unit, another links to Job, a third needs a customer site that doesn't exist as an object. This may be one configurable attribute or three problems wearing the same coat.",
+        "Two of the six client attributions are verified directly against source; the other four come from cross-interview synthesis and haven't been checked against the per-source evidence banks."
+      ],
+      "scope": [],
+      "actionFlag": null,
+      "evidence": "Six clients across two corpora describe the same failure. Likely the same underlying issue as the form-to-job join key that blocks the Job anchor — 4 of 15, the largest anchor group, and probably the single biggest coverage lever in the backlog.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "S-03",
+      "title": "Form grouping / category layer",
+      "tier": "B",
+      "role": "child",
+      "summary": "A category above the individual form, so one metric can span several forms. A grouping layer over existing forms, not a change to forms themselves.",
+      "slice": "Site-level status lines that span several forms — the multi-branch client's branch scorecard and per-branch rollup.",
+      "dependsOn": [],
+      "relatedTo": [],
+      "mvpBlocking": false,
+      "mvpNote": "Not MVP-blocking — decided Aug 24. SM-03's ritual bundle already groups what a site owes.",
+      "boundary": null,
+      "openQuestions": [
+        "Rituals (SM-03) may be able to serve this, or it may need its own axis. Worth deciding rather than building both."
+      ],
+      "scope": [],
+      "actionFlag": "Create ticket now",
+      "evidence": "A 52-branch client runs 30+ forms at mixed cadences and every metric they want spans several. Two further clients describe the same need. Already committed on a client call to take to product.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "SM-03",
+      "title": "Ritual object",
+      "tier": "A",
+      "role": "child",
+      "summary": "A named bundle of things that belong together — forms and tasks for MVP — defined once centrally and reused across sites. Two layers: the ritual is what's in the bundle; the attachment is which site does it and on what cadence. Cadence lives on the attachment, so the same ritual runs daily at one site and weekly at another.",
+      "slice": null,
+      "dependsOn": ["SM-01"],
+      "relatedTo": [],
+      "mvpBlocking": true,
+      "mvpNote": "MVP-blocking.",
+      "boundary": "Sites only for v1 — not crews, not assets. Only recurring rituals can be outstanding; triggered ones like Incident have no cadence and never appear in the site state view.",
+      "openQuestions": [
+        "Cadence granularity is not a push trigger. The system can know a second FLHA is owed at shift change without notifying anyone at 2pm — without this line someone builds 8am notifications and reintroduces the time-based push a client already reverted from.",
+        "Name unresolved. Product leadership dislikes the term ritual but offered no alternative — task and job are taken, requirement implies pre-existing. The objection was registered as non-blocking.",
+        "One client's no-rhythm case (1–10 per shift, no predictable pattern) may not be expressible as a cadence at all. Decide explicitly rather than forcing a rule that fits badly."
+      ],
+      "scope": [
+        "Cadence vocabulary: fixed interval, working-days-only, use-triggered, metered, sub-day / shift-based",
+        "Freeform scheduling with exceptions",
+        "A starter ritual library so day one isn't blank",
+        "Trigger: a ritual assigns once a person is confirmed on site — not the clock, not person scan-in"
+      ],
+      "actionFlag": null,
+      "evidence": "Cadence is not a recurrence rule. A daily check at a site that works 27 days in a 31-day month would count 31 days owed against 27 worked — 4 phantom misses per site, every month. The client was plain that the engine gets discarded if it does that.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "S-02",
+      "title": "Scoped permissions",
+      "tier": "B",
+      "role": "child",
+      "summary": "Separate view from edit as distinct grants, and let a grant target a named set of sites rather than one home location. Already on the roadmap, so it may land in parallel regardless.",
+      "slice": "SM-scoped custom permissions built into the new module out of the box — it helps SM-04's supervisor view and SM-02's view-without-edit grant.",
+      "dependsOn": ["SM-02"],
+      "relatedTo": [],
+      "mvpBlocking": "open",
+      "mvpNote": "Open — needs team sign-off. Product leadership suggested it could be its own module; the design read is that MVP can likely run without it. The parent ticket lists S-02 under \"related, not blocking\".",
+      "boundary": null,
+      "openQuestions": [
+        "Validate the ask first — sometimes what a client calls a permissions problem is really a reporting problem (the witness-forms example raised in review).",
+        "At one client the only available workaround breaks their payroll-system integration.",
+        "The system-wide custom-permissions half this ticket splits off has no ticket anywhere in the backlog yet. A standalone one is being drafted; it is not part of this initiative's scope."
+      ],
+      "scope": [],
+      "actionFlag": null,
+      "evidence": "6 clients, ranked #1 by two. Pulled toward MVP on Aug 24 — product leadership's position: system-wide custom roles are a large build, but building it out of the box inside a new module is acceptable, and site management is a workable place to start.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "S-04",
+      "title": "Attendance with individual signatures",
+      "tier": "B",
+      "role": "child",
+      "summary": "Capture who was actually present — each person signing beside their own name, not one person attesting for the group. Enhances the existing attendance field: pre-populate everyone on site that day, prompt each of them to sign, timestamp every signature, and surface missing ones as a gap in Site Management. Scope also covers reworking the attendance field UX to incorporate Crew.",
+      "slice": "Crew pre-population on the attendance field, so ritual fulfilment is trustworthy — toolbox talks are the most common ritual in the corpus.",
+      "dependsOn": ["SM-02"],
+      "relatedTo": [],
+      "mvpBlocking": false,
+      "mvpNote": "Not MVP-blocking. Today's bulk-attest already produces a signal the comparison can match against; individual signing makes it correct, not possible.",
+      "boundary": "Attendance capture only. The meeting / toolbox-talk content object is split out as SM-07. A universal cross-system signing tool stays the long-term goal, not the MVP.",
+      "openQuestions": [
+        "Two halves, possibly two owners: the individual-signing widget rework is Forms-wide, Crew pre-population is SM-specific. Worth asking who owns the widget before assigning."
+      ],
+      "scope": [],
+      "actionFlag": null,
+      "evidence": "One client rejects bulk-attest outright for legal reasons. Another client's loudest single ask is to stop making foremen retype 20–30 names, and that same client has no timestamps on FLHA entries — the safety regulator flagged it after an accident. Unlocks the most common ritual in the corpus: 11 of 15 run toolbox talks.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "SM-04",
+      "title": "Mobile",
+      "tier": "A",
+      "role": "child",
+      "summary": "Supervisor and worker surfaces — SM's mobile half as one ticket, one platform, one team, carrying the offline and device-profile decisions with it. The shape is settled: a layer that annotates surfaces people already use rather than becoming its own area, phone-primary and often shared. Worker-side is pull, never push, with dual visibility so a site-assigned item also appears in the normal assigned-forms list.",
+      "slice": null,
+      "dependsOn": ["S-02"],
+      "relatedTo": [],
+      "mvpBlocking": true,
+      "mvpNote": "MVP-blocking — named in the parent's Blocked by line. Its supervisor scope depends on S-02, whose MVP inclusion is still open.",
+      "boundary": "Not work dispatch. No time-of-day push, never delivered as assignments, and it must tolerate late and backdated submissions.",
+      "openQuestions": [
+        "Offline behaviour undecided. The comparison is server-side — either the obligation set syncs to the device or the mobile surface degrades to something that works offline. One client runs 50–80% no-signal sites; at another, operators go days without connectivity.",
+        "Shared devices mean per-person signatures can't rely on who's logged in — needs a lightweight identify-the-signer step, not a full logout/login.",
+        "Reach caveat: at one client field workers never return to the app after orientation, at another ~75% of work zones are no-device, and at a third 15 of 49 projects refuse the app. Real demand, limited reach."
+      ],
+      "scope": [
+        "A. Supervisor site/crew overview + light admin actions",
+        "B. Worker \"what's here\" surface — context and navigation, not a task list",
+        "C. Site identification — scan, geolocation, or a planned site list (nice to have)",
+        "D. Web ↔ mobile parity — decide deliberately what is app-only, web-only, or both"
+      ],
+      "actionFlag": null,
+      "evidence": "One client's #1 ask is explicitly mobile. A mobile-first safety administrator at another client has to leave the app for mobile web today. At a third, bulk-add attendees is web-only — the highest-volume, most time-critical task sits on the platform the foreman isn't holding.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "SM-07",
+      "title": "Meeting / Toolbox Talk",
+      "tier": "C",
+      "role": "child",
+      "summary": "The content object behind a toolbox talk or daily safety meeting — name it, upload what's being talked about, and report on who attended which one. The minimal version floated on the call is a title, a PDF upload and a signature. Split out of S-04 because product leadership ruled out building the attendance tool and this at the same time.",
+      "slice": null,
+      "dependsOn": ["S-04"],
+      "relatedTo": [],
+      "mvpBlocking": false,
+      "mvpNote": "Not MVP-blocking as it stands — but the tier is unresolved. An effort estimate is the deciding input for whether this joins the MVP.",
+      "boundary": null,
+      "openQuestions": [
+        "Tier unresolved — needs an effort estimate. Product leadership's position: if it's cheap, add it; if not, build it anyway, because the client value is large. Engineering's early read is that title + PDF + sign is a small build."
+      ],
+      "scope": [],
+      "actionFlag": "Create ticket now",
+      "evidence": "Product leadership wants it and rates it highly — daily safety meetings happen everywhere and there's no good way to handle it. The signing half is easy; the content half is the gap.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "SM-MVP",
+      "title": "Site Management MVP",
+      "tier": "A",
+      "role": "parent",
+      "summary": "The parent ticket. It carries the full MVP scope and links each child, so QA and reviewers can see the whole project in one view. Done, in client terms: a corporate safety lead at a 52-branch client opens Site Management, sees every branch reading current or N outstanding, clicks into one branch and sees what it owed this month against what was done — and builds nothing to get there.",
+      "slice": null,
+      "dependsOn": ["SM-01", "SM-02", "SM-03", "SM-04", "S-01"],
+      "relatedTo": ["S-02", "S-03", "S-04"],
+      "mvpBlocking": true,
+      "mvpNote": "This is the MVP. It ships when its five blockers ship.",
+      "boundary": null,
+      "openQuestions": [],
+      "scope": [
+        "Sites index — current / N outstanding per site",
+        "Single-site view — owed vs done this period",
+        "Day-one empty state — what a client sees with zero configuration",
+        "Surfacing what's outstanding",
+        "Real-time event view",
+        "Notification triggers",
+        "Calendar view + past-day lookup — low priority",
+        "Ad-hoc assignment — low priority"
+      ],
+      "actionFlag": null,
+      "evidence": "This is where the design work lives.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "SM-05",
+      "title": "Object-scan to open the right form",
+      "tier": "C",
+      "role": "child",
+      "summary": "Scan an asset and its form, task or folder opens immediately — context supplied, no list to hunt through. Extends what already works; the unblock is removing the requirement that the scanned thing be an owned asset, which is the restriction that lost one client's business.",
+      "slice": null,
+      "dependsOn": [],
+      "relatedTo": [],
+      "mvpBlocking": false,
+      "mvpNote": "Not MVP-blocking. Strengthens SM; nothing waits on it and it waits on nothing.",
+      "boundary": null,
+      "openQuestions": [],
+      "scope": [],
+      "actionFlag": null,
+      "evidence": "Works today and is well liked. Clients describe the pattern as walking past a thing, scanning it, filling in the form and moving on. Unlocks the worker-facing entry point that demonstrably works, as opposed to time-based push, which one client already reverted.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "SM-06",
+      "title": "Multi-topic competency gate on Site Access",
+      "tier": "C",
+      "role": "child",
+      "summary": "Check more than one competency before granting entry, and expose that check to Site Management. References existing LMS state rather than building new data. Runs standalone; SM consumes the result, which turns Site Access from an in/out tracker into SM's competency signal.",
+      "slice": null,
+      "dependsOn": [],
+      "relatedTo": [],
+      "mvpBlocking": false,
+      "mvpNote": "Not MVP-blocking. Runs standalone.",
+      "boundary": null,
+      "openQuestions": [
+        "Site-entry vs work-authorisation are being conflated — different features, different data requirements. Resolve first.",
+        "Small build, real data-fitness risk. Two independent clients say the underlying training data isn't fit to gate on as-is: at one, expiry dates are wrong in both directions; at the other, BIS only models the trained third of competency. Worth a short spike before treating this as a quick win."
+      ],
+      "scope": [],
+      "actionFlag": "Create ticket now",
+      "evidence": "One client's #1 ask, raised unprompted. An electrical contractor with a valid induction but an expired licence walks straight through the gate.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "SM-08",
+      "title": "Sub-site work sections",
+      "tier": "D",
+      "role": "child",
+      "summary": "Multiple work areas or job numbers beneath one physical site. Likely mobile and transient rather than fixed structure — and possibly expressible as Crews rather than as sub-sites, which is worth testing before building a new hierarchy level.",
+      "slice": null,
+      "dependsOn": [],
+      "relatedTo": [],
+      "mvpBlocking": false,
+      "mvpNote": "Backlog — revisit post-MVP.",
+      "boundary": null,
+      "openQuestions": [],
+      "scope": [],
+      "actionFlag": null,
+      "evidence": "One client runs 6 job numbers on one physical site with one crew, already worked around via multi-asset attachment. At another, a single neighbourhood holds three concrete crews, two paving crews and an underground crew, each with its own FLHA.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    }
+
+  ]
+}
