@@ -710,9 +710,9 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
 <script type="application/json" id="roadmap-data">
 {
   "_about": {
-    "what": "Data behind site-management-roadmap.html. Every ticket object has two halves: STATIC fields authored from the ticket skeleton, and LIVE fields (pmTicketNumber / pmStatus / pmAssignee / pmUrl) that stay null until the tickets exist in BIS PM.",
-    "source": "_notes/scope/site-management-ticket skeleton.md",
-    "authority": "The skeleton md is the source of truth for every STATIC field. Do not invent tickets or dependencies here.",
+    "what": "Data behind site-management-roadmap.html. Every ticket object has two halves: STATIC fields authored from the ticket scope files, and LIVE fields (pmTicketNumber / pmStatus / pmAssignee / pmUrl) that stay null until the tickets exist in BIS PM.",
+    "source": "_notes/scope/Site Managment/scope/parent-site-management-mvp.md",
+    "authority": "parent-site-management-mvp.md is the source of truth for every STATIC field. Do not invent tickets or dependencies here.",
     "structure": "Graph structure comes from each ticket's dependsOn (hard prerequisites) and relatedTo (relationships that do not gate the target). edgeMeta only decorates those edges with a kind + note; an edge with no edgeMeta entry defaults to kind 'required'. Stage/layer position is computed in the page by longest-path layering, so adding a dependency re-lays-out the graph automatically.",
     "order": "Within a stage, cards render in the order tickets appear in this array. That order is chosen to minimise connector crossings — reorder deliberately."
   },
@@ -730,7 +730,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     ],
     "notes": [
       "No tickets exist in BIS PM yet, so every LIVE field starts null and every card shows the muted '#—' placeholder chip.",
-      "S-03, SM-06 and SM-07 are flagged 'Create ticket now' in the skeleton — they are the likely first three to get real numbers.",
+      "S-03, SM-06 and SM-07 are flagged 'Create ticket now' in the scope files — they are the likely first three to get real numbers.",
       "Nothing in the HTML fetches anything at runtime except Google Fonts. There is no build step."
     ]
   },
@@ -1428,7 +1428,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
             <div class="di"><span class="chip mvp-yes">MVP-blocking</span><span class="dd">The MVP cannot ship without it.</span></div>
             <div class="di"><span class="chip mvp-open">MVP open</span><span class="dd">Inclusion pending team sign-off.</span></div>
             <div class="di"><span class="chip mvp-no">Not MVP-blocking</span><span class="dd">Real value, but the MVP ships without it.</span></div>
-            <div class="di"><span class="chip flag">Create ticket now</span><span class="dd">Flagged in the skeleton as one to raise in BIS PM immediately.</span></div>
+            <div class="di"><span class="chip flag">Create ticket now</span><span class="dd">Flagged in the scope files as one to raise in BIS PM immediately.</span></div>
             <div class="di"><span class="pm">#&mdash;</span><span class="dd">No BIS PM ticket yet. Becomes a real number and a working link once created and refreshed.</span></div>
           </div>
         </section>
@@ -1458,7 +1458,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
           </div>
           <p>
             <b style="color:var(--ink-2);font-weight:500">Source of truth for every static field:</b>
-            <code>_notes/scope/site-management-ticket skeleton.md</code>
+            <code>_notes/scope/Site Managment/scope/parent-site-management-mvp.md</code>
           </p>
         </section>
       </div>
