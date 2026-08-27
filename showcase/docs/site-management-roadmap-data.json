@@ -561,7 +561,9 @@
       "pmTicketNumber": null,
       "pmStatus": null,
       "pmAssignee": null,
-      "pmUrl": null
+      "pmUrl": null,
+      "pinLayer": 0,
+      "layerNote": "A foundational object like Site — nothing gates it. It sits at the start because of what it is, not because anything downstream waits on it yet."
     },
     {
       "key": "S-03",

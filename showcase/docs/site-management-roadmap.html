@@ -1330,7 +1330,9 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "pmTicketNumber": null,
       "pmStatus": null,
       "pmAssignee": null,
-      "pmUrl": null
+      "pmUrl": null,
+      "pinLayer": 0,
+      "layerNote": "A foundational object like Site — nothing gates it. It sits at the start because of what it is, not because anything downstream waits on it yet."
     },
     {
       "key": "S-03",
@@ -2045,7 +2047,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     // Longest-path layering. Iterate to a fixed point; the data is a DAG, and
     // the pass cap keeps a bad edit from hanging the page. Layer number is the
     // column index, so every edge is guaranteed to run left to right.
-    D.tickets.forEach(function (t) { LAYER[t.key] = 0; });
+    D.tickets.forEach(function (t) { LAYER[t.key] = t.pinLayer || 0; });
     for (var pass = 0; pass < D.tickets.length + 2; pass++) {
       var moved = false;
       EDGES.forEach(function (e) {
@@ -2057,7 +2059,14 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
 
   function blockedBy(key) { return EDGES.filter(function (e) { return e.to === key; }); }
   function blocks(key)    { return EDGES.filter(function (e) { return e.from === key; }); }
-  function isIsolated(k)  { return blockedBy(k).length === 0 && blocks(k).length === 0; }
+  /* A ticket is isolated only if nothing gates it AND nothing waits on it. pinLayer
+     overrides that: a foundational object belongs at the start because of what it is,
+     even before anything downstream depends on it. */
+  function isIsolated(k)  {
+    var t = D.tickets.filter(function (x) { return x.key === k; })[0];
+    if (t && t.pinLayer !== undefined && t.pinLayer !== null) return false;
+    return blockedBy(k).length === 0 && blocks(k).length === 0;
+  }
 
   function conflictsFor(key) { return conflictIdx[key] || []; }
   function conflictPartners(key) {
