@@ -441,6 +441,21 @@
       ]
     },
     {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "prototypes",
+      "id": "site-management",
+      "title": "Site Management",
+      "date": "2026-08-27",
+      "children": [
+        {
+          "title": "Site Management — MVP Flows",
+          "path": "showcase/prototypes/site-management/site-management-flows.html",
+          "date": "2026-08-27"
+        }
+      ]
+    },
+    {
       "kind": "item",
       "audience": "showcase",
       "category": "prototypes",

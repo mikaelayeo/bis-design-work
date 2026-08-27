@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  SITE MANAGEMENT — LO-FI FLOW PROTOTYPE v0.4
+  ----------------------------------------------------------------------------
+  Deliberately low fidelity. Greyscale wireframe language from
+  site-management-presentation.html. The point is the FLOW, not the pixels.
+
+  FLOWS
+    A · Day one            SM-01 · SM-09 · SM-03   admin, web
+    B · Create a ritual    SM-03                   admin, web
+    C · Create a crew      SM-02                   admin, web
+    D · Share a site       S-02                    admin, web  (2 options, undecided)
+    E · Review attendance  S-04 · SM-02            admin, web
+    F · Find the gap       SM-01 · SM-03 · S-01    admin, web
+    G · Fix it from field  SM-04 · S-04            supervisor, mobile
+    H · Who's on the field SM-01 · SM-02           supervisor, mobile
+    I · The worker floor   SM-04                   mobile (deferred module)
+  ============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Site Management — Flows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --paper:#F2F5F7; --surface:#FFFFFF; --surface-2:#E7EDF1; --sunk:#EAEFF3;
+    --ink:#0F1B23; --ink-2:#48606E; --ink-3:#6C8494;
+    --rule:#D3DFE6; --rule-strong:#B2C4CF;
+    --rust:#1387C9; --rust-soft:#D9EDF9;
+    --teal:#5E9E1E; --teal-soft:#E4F1D4;
+    --warn:#B4560E; --warn-soft:#FBE6D7;
+    --wire-fill:#E3EAEF; --wire-line:#A7BAC6;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;font-size:14px;color:var(--ink);background:var(--paper);line-height:1.5;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+  button{font-family:inherit;cursor:pointer}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;letter-spacing:.05em}
+
+  /* chrome */
+  .topbar{background:var(--surface);border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 18px;flex-shrink:0;flex-wrap:wrap}
+  .tl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .t-name{font-size:15px;font-weight:600}
+  .t-sub{font-size:13px;color:var(--ink-2)}
+  .pill{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;border-radius:3px;padding:2px 8px;border:1px solid var(--rule-strong);color:var(--ink-2);background:var(--sunk)}
+  .pill.hot{border-color:var(--rust);color:var(--rust);background:var(--rust-soft)}
+  .t-date{font-size:11.5px;color:var(--ink-3)}
+  .btn-reset{background:var(--surface);border:1px solid var(--rule-strong);border-radius:3px;padding:5px 12px;font-size:12.5px;color:var(--ink-2)}
+  .btn-reset:hover{background:var(--sunk)}
+
+  .page{flex:1;min-height:0;display:flex;flex-direction:column;padding:10px 18px 12px}
+
+  .flows{display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0;margin-bottom:8px}
+  .fbtn{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:6px 11px;text-align:left;min-width:132px}
+  .fbtn:hover{border-color:var(--rule-strong)}
+  .fbtn.on{border-color:var(--rust);background:var(--rust-soft)}
+  .fbtn .fl{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.08em;color:var(--ink-3);display:block}
+  .fbtn.on .fl{color:var(--rust)}
+  .fbtn .fn{font-size:12px;font-weight:600;display:block;line-height:1.3}
+  .fbtn .fw{font-size:10px;color:var(--ink-3);display:block}
+
+  .steprail{display:flex;align-items:center;gap:7px;flex-wrap:wrap;flex-shrink:0;margin-bottom:8px;background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:6px 10px}
+  .sbtn{background:none;border:none;display:flex;align-items:center;gap:7px;padding:3px 6px;border-radius:3px;color:var(--ink-3);font-size:12px}
+  .sbtn .sn{width:19px;height:19px;border-radius:50%;border:1px solid var(--rule-strong);display:inline-flex;align-items:center;justify-content:center;font-family:"IBM Plex Mono",monospace;font-size:10px;flex-shrink:0}
+  .sbtn.on{color:var(--ink);font-weight:600}
+  .sbtn.on .sn{background:var(--rust);border-color:var(--rust);color:#fff}
+  .sbtn.past .sn{background:var(--wire-fill)}
+  .sarrow{color:var(--rule-strong);font-size:12px}
+  .stepnav{margin-left:auto;display:flex;gap:6px}
+  .stepnav button{background:var(--surface);border:1px solid var(--rule-strong);border-radius:3px;padding:4px 12px;font-size:12px;color:var(--ink-2)}
+  .stepnav button:hover:not(:disabled){background:var(--sunk)}
+  .stepnav button:disabled{opacity:.35;cursor:default}
+  .stepnav .next{border-color:var(--rust);color:var(--rust);background:var(--rust-soft);font-weight:600}
+
+  .card{background:var(--surface);border:1px solid var(--rule);border-radius:4px;flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  .stage{flex:1;min-height:0;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 340px}
+  .framewrap{display:flex;justify-content:center;align-items:flex-start;padding:24px 24px 30px;min-width:0;overflow-y:auto}
+  @media(max-width:1080px){
+    .stage{grid-template-columns:1fr;overflow-y:auto}
+    .framewrap{padding:16px 14px 8px;overflow:visible}
+    .ann{overflow:visible}
+  }
+  .foot{border-top:1px solid var(--rule);background:var(--sunk);padding:9px 18px 11px;flex-shrink:0}
+  .foot h4{font-size:13px;font-weight:600;display:flex;align-items:center;gap:9px;margin-bottom:4px}
+  .foot .tkt{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.06em;background:var(--surface);border:1px solid var(--rule-strong);color:var(--ink-2);border-radius:3px;padding:1px 7px}
+  .foot ul{list-style:none;font-size:12px;color:var(--ink-2);display:flex;flex-direction:column;gap:1px}
+  .foot li{padding-left:13px;position:relative}
+  .foot li::before{content:"—";position:absolute;left:0;color:var(--rule-strong)}
+
+  /* wireframe primitives */
+  .win{border:1px solid var(--wire-line);border-radius:2px;background:var(--surface);width:100%;max-width:840px}
+  .win__bar{background:var(--wire-fill);border-bottom:1px solid var(--wire-line);padding:10px 15px;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);display:flex;align-items:center;gap:9px}
+  .win__bar .r{margin-left:auto;letter-spacing:.04em}
+  .win__body{padding:18px}
+
+  .ph{border:1px solid var(--wire-line);border-radius:22px;background:var(--surface);width:340px;flex-shrink:0;overflow:hidden}
+  .ph__bar{background:var(--wire-fill);border-bottom:1px solid var(--wire-line);padding:12px 15px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+  .ph__bar .r{margin-left:auto;letter-spacing:.03em}
+  .ph__bar .back{background:none;border:none;color:var(--ink-2);font-size:14px;padding:0 3px 0 0}
+  .ph__body{padding:16px;min-height:600px}
+
+  .lbl{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:5px}
+  .h{font-size:16px;font-weight:600;margin-bottom:2px}
+  .sub{font-size:12.5px;color:var(--ink-3);margin-bottom:12px}
+
+  .row{border:1px solid var(--wire-line);background:var(--surface);padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;gap:11px;font-size:13.5px;width:100%;text-align:left;border-radius:2px}
+  .row.fill{background:var(--wire-fill)}
+  .row.act{cursor:pointer}
+  .row.act:hover{border-color:var(--rust)}
+  .row.hi{border-color:var(--rust);border-style:dashed}
+  .row.sel{border-color:var(--rust);background:var(--rust-soft)}
+  .row.dim{opacity:.5}
+  .row.tight{padding:8px 11px;font-size:12.5px;margin-bottom:5px}
+  .row .t{font-weight:500;min-width:0}
+  .row .t small{display:block;font-weight:400;color:var(--ink-3);font-size:11.5px}
+  .row .r{margin-left:auto;flex-shrink:0;font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.05em;color:var(--ink-3)}
+  .row .r.miss{color:var(--rust);font-weight:600}
+  .row .r.ok{color:var(--teal)}
+  .row .r.warn{color:var(--warn)}
+
+  .box{border:1px solid var(--wire-line);padding:14px;border-radius:2px;margin-bottom:11px;font-size:13px}
+  .box.dash{border-style:dashed}
+  .box.tightb{padding:10px;font-size:12.5px}
+  .empty{border:1px dashed var(--wire-line);background:var(--wire-fill);padding:36px 20px;text-align:center;border-radius:2px}
+
+  .cb{width:17px;height:17px;border:1px solid var(--wire-line);border-radius:2px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:var(--surface);flex-shrink:0;background:var(--surface)}
+  .cb.on{background:var(--rust);border-color:var(--rust);color:#fff}
+  .cb.rnd{border-radius:50%}
+  .av{width:26px;height:26px;border-radius:50%;border:1px solid var(--wire-line);flex-shrink:0;background:var(--wire-fill)}
+
+  .tabs{display:flex;border-bottom:1px solid var(--wire-line);margin-bottom:12px}
+  .tab{background:none;border:none;border-bottom:2px solid transparent;padding:8px 16px;font-size:13.5px;color:var(--ink-3);margin-bottom:-1px}
+  .tab.on{color:var(--rust);border-bottom-color:var(--rust);font-weight:600}
+
+  .toggle2{display:inline-flex;border:1px solid var(--wire-line);border-radius:2px;overflow:hidden;margin-bottom:12px}
+  .toggle2 button{background:var(--surface);border:none;border-left:1px solid var(--wire-line);padding:9px 22px;font-size:13.5px;color:var(--ink-2)}
+  .toggle2 button:first-child{border-left:none}
+  .toggle2 button.on{background:var(--rust-soft);color:var(--rust);font-weight:600}
+
+  .btn{border:1px solid var(--wire-line);background:var(--surface);border-radius:2px;padding:9px 18px;font-size:13.5px;color:var(--ink-2)}
+  .btn:hover:not(:disabled){background:var(--sunk)}
+  .btn:disabled{opacity:.4;cursor:default}
+  .btn.pri{border-color:var(--rust);color:var(--rust);background:var(--rust-soft);font-weight:600}
+  .btn.blk{width:100%}
+  .btn.sm{padding:6px 13px;font-size:12.5px}
+
+  .field{border:1px solid var(--wire-line);border-radius:2px;padding:10px 12px;font-size:13.5px;color:var(--ink-3);margin-bottom:10px;background:var(--surface)}
+  .field.filled{color:var(--ink)}
+
+  .grouphead{display:flex;align-items:center;gap:9px;background:var(--wire-fill);border:1px solid var(--wire-line);border-bottom:none;padding:9px 13px;font-size:12.5px;border-radius:2px 2px 0 0}
+  .grouphead .gn{font-weight:600}
+  .grouphead .gc{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.05em;color:var(--ink-3)}
+  .grouphead .r{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--rust)}
+  .group{border:1px solid var(--wire-line);border-top:none;border-radius:0 0 2px 2px;margin-bottom:11px;padding:10px 11px 3px}
+
+  .kv{display:grid;grid-template-columns:160px 1fr;gap:9px 16px;font-size:13.5px}
+  .kv dt{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);padding-top:3px}
+  .kv dd em{font-style:normal;color:var(--rust);font-weight:600}
+
+  .split2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .pick{border:1px solid var(--wire-line);border-radius:2px;padding:16px;text-align:left;background:var(--surface)}
+  .pick:hover{border-color:var(--rust)}
+  .pick.on{border-color:var(--rust);background:var(--rust-soft)}
+  .pick h5{font-size:15px;font-weight:600;margin-bottom:4px}
+  .pick p{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+  .pick .ex{font-size:11.5px;color:var(--ink-3);margin-top:8px;padding-top:8px;border-top:1px dashed var(--wire-line)}
+
+  /* share sheet */
+  .share{border:1px solid var(--wire-line);border-radius:2px}
+  .share__h{background:var(--wire-fill);border-bottom:1px solid var(--wire-line);padding:10px 14px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+  .share__b{padding:14px}
+  .lvlmenu{border:1px solid var(--wire-line);border-radius:2px;background:var(--surface);padding:4px}
+  .lvlopt{padding:9px 11px;border-bottom:1px solid var(--wire-line);font-size:12.5px}
+  .lvlopt:last-child{border-bottom:none}
+  .lvlopt b{display:block;font-size:13.5px;font-weight:600;margin-bottom:2px}
+  .lvlopt span{color:var(--ink-3);font-size:12px}
+  .lvlopt.on{background:var(--rust-soft)}
+  .lvlopt.on b{color:var(--rust)}
+  .note-dash{border:1px dashed var(--rust);padding:11px 13px;border-radius:2px;font-size:12px;color:var(--ink-2);margin-top:12px}
+  .note-dash .mono{color:var(--rust);display:block;margin-bottom:6px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+
+  /* annotations */
+  .ann{border-left:1px solid var(--rule);background:var(--sunk);padding:20px 20px 26px;overflow-y:auto}
+  @media(max-width:1080px){ .ann{border-left:none;border-top:1px solid var(--rule)} }
+  .ann__t{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin-bottom:11px;padding-bottom:7px;border-bottom:1px solid var(--rule-strong)}
+  .a{margin-bottom:13px;padding-left:16px;position:relative;font-size:12px;color:var(--ink-2);line-height:1.55}
+  .a::before{content:"";position:absolute;left:0;top:7px;width:9px;border-top:1px dashed var(--rust)}
+  .a b{color:var(--ink);font-weight:600;display:block}
+  .a i{font-style:italic}
+  .a.warnrow::before{border-color:var(--warn)}
+  .a.warnrow b{color:var(--warn)}
+  .banner{border:1px dashed var(--rust);background:var(--rust-soft);padding:8px 11px;border-radius:2px;font-size:11.5px;color:var(--ink-2);margin-top:14px}
+  .banner b{color:var(--rust);font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:3px}
+  .caption{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);text-align:center;margin-top:8px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tl">
+    <span class="t-name">Site Management</span>
+    <span class="t-sub">MVP — flows</span>
+    <span class="pill hot">Lo-fi · v0.4</span>
+    <span class="pill">Structure only</span>
+    <span class="t-date">Scope of 2026-08-27</span>
+  </div>
+  <button class="btn-reset" onclick="resetAll()">↺ Reset</button>
+</div>
+
+<div class="page">
+  <div class="flows" id="flows"></div>
+  <div class="steprail" id="steprail"></div>
+  <div class="card">
+    <div class="stage" id="stage"></div>
+    <div class="foot"><h4 id="ftitle"></h4><ul id="flist"></ul></div>
+  </div>
+</div>
+
+<script>
+/* ===================== FLOWS ===================== */
+var FLOWS = [
+  { id:'a', label:'Flow A', name:'Day one',           where:'Admin · web', steps:['Site or Job','Convert','Attach rituals','Real state'] },
+  { id:'b', label:'Flow B', name:'Create a ritual',   where:'Admin · web', steps:['The bundle','Cadence','Attach to sites'] },
+  { id:'c', label:'Flow C', name:'Create a crew',     where:'Admin · web', steps:['Members','Supervisor','Add to a site'] },
+  { id:'d', label:'Flow D', name:'Share a site',      where:'Admin · web', steps:['Option A — share sheet','Option B — custom roles'] },
+  { id:'e', label:'Flow E', name:'Review attendance', where:'Admin · web', steps:['Attendance on a site','The checklist'] },
+  { id:'f', label:'Flow F', name:'Find the gap',      where:'Admin · web', steps:['Index','One site','Inside a ritual','Why it counted'] },
+  { id:'g', label:'Flow G', name:'Fix it from the field', where:'Supervisor · mobile', steps:['My crew','Inside FLHA','Mark present','Move a ritual'] },
+  { id:'h', label:'Flow H', name:'Who’s on the field',where:'Supervisor · mobile', steps:['The list','One person'] },
+  { id:'i', label:'Flow I', name:'The worker floor',  where:'Mobile · deferred', steps:['Today / All'] }
+];
+
+var LOCATIONS=[{n:'North Yard'},{n:'West Depot'},{n:'Central Branch'},{n:'Lakeside Branch'},{n:'South Yard'},{n:'Concrete Crew 3',bent:true}];
+var ASSETS=[{n:'Restoration Job 4471'},{n:'Restoration Job 4482'},{n:'Cable run — Sector 12'},{n:'Toolbox Holder',bent:true}];
+var CREW=[
+  {n:'J. Alvarez',role:'Foreman'},{n:'K. Bennett',role:'Operator',driving:true},
+  {n:'L. Cortez',role:'Operator'},{n:'M. Diallo',role:'Labourer'},
+  {n:'N. Emerson',role:'Labourer'},{n:'P. Fontaine',role:'Operator'},
+  {n:'R. Gill',role:'Labourer'},{n:'S. Haddad',role:'Apprentice'}
+];
+var RITUAL_LIB=[
+  {id:'sod',n:'Start of Day',items:['Field Level Hazard Assessment','Equipment Pre-Op','Yard walk'],cad:'Daily · working days'},
+  {id:'tbt',n:'Toolbox Talk',items:['Talk topic','Attendance checklist'],cad:'Weekly · Mon'},
+  {id:'eq', n:'Equipment Check',items:['Fire extinguisher','Eyewash station','Shop inspection'],cad:'Weekly · Fri'},
+  {id:'inc',n:'Incident',items:['Incident report','Witness statement','Follow-up task'],cad:'Triggered — never outstanding'}
+];
+var FORMS=[
+  {id:'flha',n:'Field Level Hazard Assessment'},{id:'preop',n:'Equipment Pre-Op'},
+  {id:'yard',n:'Yard walk'},{id:'hot',n:'Hot work permit'},
+  {id:'cse',n:'Confined space entry'},{id:'veh',n:'Vehicle inspection'}
+];
+var FILES=[
+  {n:'SDS — solvent cleaner.pdf',p:'Safety / Daily'},
+  {n:'Site map — current.pdf',p:'Safety / Daily'},
+  {n:'Emergency contacts.pdf',p:'Safety / Permits'}
+];
+var MEETINGS=[
+  {n:'Toolbox Talk',d:'weekly · topic + attendance'},
+  {n:'Tailgate Meeting',d:'per shift · short'},
+  {n:'Pre-Job Briefing',d:'per job · hazards + roles'}
+];
+var CADENCES=[
+  {id:'fixed',  n:'Fixed interval',   d:'Daily, weekly, monthly',                     s:'extend'},
+  {id:'working',n:'Working days only',d:'Reads the site’s operating calendar',        s:'build'},
+  {id:'metered',n:'Metered',          d:'Engine-hours or mileage',                    s:'exists'},
+  {id:'subday', n:'Sub-day / shift',  d:'Two runs on a 12-hour shift',                s:'build'},
+  {id:'use',    n:'Use-triggered',    d:'No use, nothing owed',                       s:'open'},
+  {id:'trig',   n:'Triggered only',   d:'Fires on an event — never shows as outstanding', s:'extend'}
+];
+
+function fresh(){
+  return { flow:'a', step:0,
+    mode:null, convTab:'locations', pickedLoc:[0,1,2,3,4], pickedAsset:[], converted:0,
+    rituals:['sod'], cadEdit:null, cadence:{sod:'working'},
+    noRitual:false, floatItems:['flha'],
+    indexTab:'sites',
+    bundle:[{t:'form',n:'Field Level Hazard Assessment'}], addOpen:null, meetingMode:'template',
+    rName:'', rItems:['flha'], rCad:'working', rAttach:[0,1,2],
+    cName:'', cMembers:[0,1,2,3], cRule:null, cSup:0, cPerm:'read', cSite:null,
+    permModel:'a', openLevel:'crew', access:{me:'full',crew:'edit',tina:'view'},
+    att:{}, attOpen:false,
+    showDone:false, ritualOpen:null,
+    presentNoSig:false, ritualDay:'Fri',
+    person:null, workerTab:'today' };
+}
+var st=fresh();
+
+/* ===================== DERIVED ===================== */
+function siteCount(){ return st.converted || 52; }
+function flhaDone(){ return st.presentNoSig?5:4; }
+function obligations(){
+  return [
+    {r:'Start of Day',cad:'Daily · 6-day week',what:'Field Level Hazard Assessment',id:'flha',when:flhaDone()+' of 8 crew done',n:8-flhaDone()},
+    {r:'Start of Day',cad:'Daily · 6-day week',what:'Equipment Pre-Op',id:'preop',when:'2 units not submitted',n:2},
+    {r:'Equipment Check',cad:'Weekly · '+st.ritualDay,what:'Fire extinguisher check',id:'fire',when:'due '+st.ritualDay,n:1,soon:true}
+  ];
+}
+function outstanding(){ return obligations().reduce(function(t,o){return t+o.n;},0); }
+function attState(name){ return st.att[name] || (name==='K. Bennett' ? (st.presentNoSig?'nosig':'none') : 'present'); }
+function attCount(){ return CREW.filter(function(p){return attState(p.n)!=='none';}).length; }
+
+/* ===================== NAV ===================== */
+function curFlow(){ return FLOWS.filter(function(f){return f.id===st.flow;})[0]; }
+function enterFlow(id){ st.flow=id; st.step=0; if(id==='a'){st.converted=0;st.mode=null;} render(); }
+function setStep(i){ st.step=i; render(); }
+function nextStep(){ if(st.step<curFlow().steps.length-1){st.step++;render();} }
+function prevStep(){ if(st.step>0){st.step--;render();} }
+function goto(f,s){ st.flow=f; st.step=s; render(); }
+function resetAll(){ st=fresh(); render(); }
+
+/* ===================== ACTIONS ===================== */
+function setMode(m){ st.mode=m; st.convTab = m==='job'?'assets':'locations'; render(); }
+function setConvTab(t){ st.convTab=t; render(); }
+function togglePick(list,i){ var a=st[list],k=a.indexOf(i); if(k<0)a.push(i); else a.splice(k,1); render(); }
+function selectAllLoc(){ st.pickedLoc=[0,1,2,3,4]; render(); }
+function totalPicked(){ return st.pickedLoc.length + st.pickedAsset.length; }
+function convert(){ st.converted = st.mode==='job' ? totalPicked() : 47+totalPicked(); st.step=2; render(); }
+function toggleRitual(id){ var k=st.rituals.indexOf(id);
+  if(k<0){ st.rituals.push(id); st.cadence[id]=RITUAL_LIB.filter(function(r){return r.id===id;})[0].cad; }
+  else { st.rituals.splice(k,1); delete st.cadence[id]; if(st.cadEdit===id)st.cadEdit=null; }
+  render(); }
+function editCad(id){ st.cadEdit = st.cadEdit===id?null:id; render(); }
+function setCad(id,v){ st.cadence[id]=v; st.cadEdit=null; render(); }
+function setIndexTab(t){ st.indexTab=t; render(); }
+function toggleNoRitual(){ st.noRitual=!st.noRitual; st.cadEdit=null; render(); }
+function toggleFloat(id){ var k=st.floatItems.indexOf(id); if(k<0)st.floatItems.push(id); else st.floatItems.splice(k,1); render(); }
+function openAdd(t){ st.addOpen = st.addOpen===t?null:t; render(); }
+function setMeetingMode(m){ st.meetingMode=m; render(); }
+function removeItem(i){ st.bundle.splice(i,1); render(); }
+function addItem(t,n,sub){
+  var at=-1;
+  st.bundle.forEach(function(b,i){ if(b.t===t&&b.n===n) at=i; });
+  if(at>=0) st.bundle.splice(at,1); else st.bundle.push({t:t,n:n,sub:sub});
+  render();
+}
+function setRCad(v){ st.rCad=v; render(); }
+function toggleRItem(id){ var k=st.rItems.indexOf(id); if(k<0)st.rItems.push(id); else st.rItems.splice(k,1); render(); }
+function toggleRAttach(i){ var k=st.rAttach.indexOf(i); if(k<0)st.rAttach.push(i); else st.rAttach.splice(k,1); render(); }
+function toggleMember(i){ var k=st.cMembers.indexOf(i); if(k<0)st.cMembers.push(i); else st.cMembers.splice(k,1); render(); }
+function setRule(r){ st.cRule = st.cRule===r?null:r; render(); }
+function setSup(i){ st.cSup=i; render(); }
+function setPerm(p){ st.cPerm=p; render(); }
+function assignSite(n){ st.cSite=n; render(); }
+function setPermModel(m){ st.permModel=m; st.step = m==='a'?0:1; render(); }
+function openLevel(k){ st.openLevel = st.openLevel===k?null:k; render(); }
+function setAccess(k,v){ st.access[k]=v; st.openLevel=null; render(); }
+function setAtt(n,v){ st.att[n]=v; render(); }
+function markAllPresent(){ CREW.forEach(function(p){ st.att[p.n]='present'; }); render(); }
+function toggleDone(){ st.showDone=!st.showDone; render(); }
+function openRitual(id){ st.ritualOpen=id; st.step=2; render(); }
+function markPresent(){ st.presentNoSig=true; st.att['K. Bennett']='nosig'; render(); }
+function moveRitual(){ st.ritualDay = st.ritualDay==='Fri'?'Thu':'Fri'; render(); }
+function openPerson(i){ st.person=i; st.step=1; render(); }
+function setWorkerTab(t){ st.workerTab=t; render(); }
+
+/* ===================== SHELLS ===================== */
+function win(bar,right,body){
+  return '<div class="framewrap"><div class="win"><div class="win__bar">'+bar+'<span class="r">'+(right||'')+'</span></div>'
+    +'<div class="win__body">'+body+'</div></div></div>';
+}
+function phone(bar,right,body,cap,back){
+  return '<div class="framewrap"><div><div class="ph"><div class="ph__bar">'
+    +(back?'<button class="back" onclick="'+back+'">‹</button>':'')+bar+'<span class="r">'+(right||'')+'</span></div>'
+    +'<div class="ph__body">'+body+'</div></div>'+(cap?'<div class="caption">'+cap+'</div>':'')+'</div></div>';
+}
+function ann(title,items,banner){
+  return '<div class="ann"><div class="ann__t">'+title+'</div>'
+    +items.map(function(a){return '<div class="a'+(a.warn?' warnrow':'')+'"><b>'+a.h+'</b>'+a.b+'</div>';}).join('')
+    +(banner?'<div class="banner"><b>'+banner.h+'</b>'+banner.b+'</div>':'')+'</div>';
+}
+function cbx(on){ return '<span class="cb'+(on?' on':'')+'">'+(on?'✓':'')+'</span>'; }
+function rdo(on){ return '<span class="cb rnd'+(on?' on':'')+'">'+(on?'•':'')+'</span>'; }
+
+/* ===================== FLOW A ===================== */
+function a0(){
+  var m=st.mode;
+  return win('Site Management','nothing here yet',
+    '<div class="empty" style="margin-bottom:16px"><span class="lbl">Site Management is on</span>'
+    +'<div class="h">What are you tracking?</div>'
+    +'<div class="sub" style="margin-bottom:0">Pick the one that matches how your compliance actually groups. You can add the other later.</div></div>'
+    +'<div class="split2">'
+    +'<button class="pick'+(m==='site'?' on':'')+'" onclick="setMode(\'site\')"><h5>'+rdo(m==='site')+' A Site</h5>'
+    +'<p><b>A place that keeps going.</b> A branch, a yard, a plant. It has an operating calendar, people can be present on it, and it answers <i>what does this place owe.</i></p>'
+    +'<div class="ex">Build from <b>Locations or Assets</b> — whichever you already bent into service. Fits a fixed branch network.</div></button>'
+    +'<button class="pick'+(m==='job'?' on':'')+'" onclick="setMode(\'job\')"><h5>'+rdo(m==='job')+' A Job</h5>'
+    +'<p><b>An engagement that ends.</b> An address, a start, an expected end. It answers <i>is this engagement done.</i> It does <b>not</b> need a Site to exist.</p>'
+    +'<div class="ex">Also from <b>Locations or Assets</b> — but not tied to a location, so Assets is the more common source.</div></button></div>'
+    +(m?'<button class="btn pri blk" style="margin-top:14px" onclick="setStep(1)">Continue with '+(m==='job'?'Jobs':'Sites')+'</button>':''))
+  + ann('The fork that comes first',[
+      {h:'Job is not a rename of Site',b:'Site answers <i>what does this place owe.</i> Job answers <i>is this engagement done.</i> Different shapes, deliberately.'},
+      {h:'Job is the largest single anchor in the corpus',b:'Four of fifteen clients group compliance by engagement, not place — larger than Place (3) or Asset (2) individually.'},
+      {h:'A Job stands alone',b:'It may optionally sit inside a Site where a client’s reality nests that way. It never has to. That is the config-burden answer for Job — no scaffolding to create one.'},
+      {h:'Both convert from Locations or Assets',b:'Either object can be built from either source — clients bent both into service, so both are supported ways out. Only the <b>default tab</b> differs, because a Job isn’t tied to a location.'}
+    ],{h:'Try it',b:'Pick each one — step 2 opens on a different tab, but both tabs stay available either way.'});
+}
+function a1(){
+  var job = st.mode==='job';
+  var tab = st.convTab;
+  var locRows=LOCATIONS.map(function(l,i){
+    var on=st.pickedLoc.indexOf(i)>=0;
+    return '<button class="row act'+(l.bent?' hi':'')+'" onclick="togglePick(\'pickedLoc\','+i+')">'+cbx(on)
+      +'<span class="t">'+l.n+(l.bent?'<small>this Location is really a crew — don’t convert it</small>':'')+'</span></button>';
+  }).join('');
+  var assetRows=ASSETS.map(function(a,i){
+    var on=st.pickedAsset.indexOf(i)>=0;
+    return '<button class="row act'+(a.bent?' hi':'')+'" onclick="togglePick(\'pickedAsset\','+i+')">'+cbx(on)
+      +'<span class="t">'+a.n+(a.bent?'<small>a pseudo-asset invented to hold a toolbox talk — a crew, not a job</small>':'')+'</span></button>';
+  }).join('');
+  var nLoc=st.pickedLoc.length, nAsset=st.pickedAsset.length, total=nLoc+nAsset;
+  var parts=[]; if(nLoc) parts.push(nLoc+' location'+(nLoc>1?'s':'')); if(nAsset) parts.push(nAsset+' asset'+(nAsset>1?'s':''));
+  return win('Site Management · Convert', job?'building Jobs':'building Sites',
+    '<div class="tabs">'
+    +'<button class="tab'+(tab==='locations'?' on':'')+'" onclick="setConvTab(\'locations\')">Locations (52)'
+    +(nLoc?' · '+nLoc:'')+'</button>'
+    +'<button class="tab'+(tab==='assets'?' on':'')+'" onclick="setConvTab(\'assets\')">Assets (318)'
+    +(nAsset?' · '+nAsset:'')+'</button></div>'
+    +'<div class="box dash"><span class="lbl">Pull from either, or both</span>'
+    +(job
+      ? 'A Job isn’t tied to a Location, so <b>Assets</b> is the more common source — but if your Locations are really engagements, convert them from there too.'
+      : 'Some clients bent <b>Locations</b> into sites, others bent <b>Assets</b>. Both are supported, and you can mix them in one pass.')
+    +'</div>'
+    +'<div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">'
+    +(tab==='locations'?'<button class="btn sm" onclick="selectAllLoc()">Select all 52</button>':'')
+    +'<span class="mono" style="font-size:11px;color:var(--ink-3)">'
+    +(total?parts.join(' + ')+' selected':'nothing selected yet')
+    +(tab==='locations'?' · 47 more below':'')+'</span></div>'
+    +(tab==='locations'?locRows:assetRows)
+    +(nLoc&&nAsset?'<div class="box tightb"><span class="lbl">Converting together</span>'
+      +parts.join(' + ')+' → <b>'+total+' '+(job?'Jobs':'Sites')+'</b>. The source doesn’t change what you get: one flat '+(job?'Job':'Site')+' per row, named the same.</div>':'')
+    +'<div class="box dash"><span class="lbl">What gets copied</span>The <b>name only</b>. No hierarchy, no permissions, no relationships, no reporting linkage. The original Location or Asset is left exactly as it was.</div>'
+    +'<button class="btn pri blk" onclick="convert()"'+(total?'':' disabled')+'>'
+    +(total?'Convert '+total+' into '+(job?'Jobs':'Sites'):'Pick something to convert')+'</button>')
+  + ann('Two decisions live here',[
+      {h:'Name only, nothing inherited',b:'The new object is clean and happens to be spelled the same. Inheriting hierarchy would drag the old baggage straight in.'},
+      {h:'The admin picks — we do not auto-derive',b:'Auto-deriving would silently generate nonsense for the clients whose data is most bent. One client’s Locations <i>are</i> crews; another’s are gangs. Untick the dashed rows on either tab.'},
+      {h:'Either source, or both in one pass',b:'Four clients bent <b>Assets</b> into an organisational construct and abandoned it; others bent <b>Locations</b>. A client whose sites are split across both shouldn’t have to convert twice — the tabs share one selection.'},
+      {h:'Multi-select is the feature',b:'52 branches has to be a few clicks. At 172 properties a flat picker may itself be unusable — flagged, not solved.',warn:true}
+    ],null);
+}
+function a2(){
+  var lib=RITUAL_LIB.map(function(r){
+    var on=st.rituals.indexOf(r.id)>=0;
+    var editing=st.cadEdit===r.id;
+    var cad=st.cadence[r.id]||r.cad;
+    var block='<button class="row act'+(on?' sel':'')+'" onclick="toggleRitual(\''+r.id+'\')">'+cbx(on)
+      +'<span class="t">'+r.n+'<small>'+r.items.join(' · ')+'</small></span><span class="r">starter</span></button>';
+    if(on){
+      block+='<div class="box tightb" style="margin:-3px 0 9px">'
+        +'<div style="display:flex;align-items:center;gap:9px"><span class="lbl" style="margin:0">Cadence</span>'
+        +'<span class="mono" style="font-size:11.5px">'+cad+'</span>'
+        +'<button class="btn sm" style="margin-left:auto" onclick="editCad(\''+r.id+'\')">'+(editing?'Close':'Edit')+'</button></div>'
+        +(editing?'<div style="margin-top:9px">'+CADENCES.map(function(c){
+            return '<button class="row tight act'+(cad===c.n||cad.indexOf(c.n)===0?' sel':'')+'" onclick="setCad(\''+r.id+'\',\''+c.n+'\')">'
+              +'<span class="t">'+c.n+'<small>'+c.d+'</small></span></button>';
+          }).join('')+'</div>':'')
+        +'</div>';
+    }
+    return block;
+  }).join('');
+  var nFloat=st.floatItems.length;
+  var ready = st.noRitual ? nFloat>0 : st.rituals.length>0;
+  return win('Site Management · Attach rituals','step 2 of 2',
+    '<div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">'
+    +'<span class="lbl" style="margin:0">Starter library</span>'
+    +'<button class="btn sm" style="margin-left:auto" onclick="goto(\'b\',0)">+ Create a ritual</button></div>'
+    +'<div'+(st.noRitual?' style="opacity:.4"':'')+'>'+lib+'</div>'
+    +'<div style="display:flex;align-items:center;gap:10px;margin:14px 0 10px">'
+    +'<span style="flex:1;border-top:1px dashed var(--wire-line)"></span>'
+    +'<span class="lbl" style="margin:0">or</span>'
+    +'<span style="flex:1;border-top:1px dashed var(--wire-line)"></span></div>'
+    +'<button class="row act'+(st.noRitual?' sel':'')+'" onclick="toggleNoRitual()">'+rdo(st.noRitual)
+    +'<span class="t">No ritual — just loose items for the day'
+    +'<small>attach forms directly, group them later once you see how the day actually runs</small></span></button>'
+    +(st.noRitual
+      ? '<div class="box tightb"><span class="lbl">Loose items ('+nFloat+')</span>'
+        +FORMS.slice(0,4).map(function(f){
+            var on=st.floatItems.indexOf(f.id)>=0;
+            return '<button class="row tight act'+(on?' sel':'')+'" onclick="toggleFloat(\''+f.id+'\')">'+cbx(on)
+              +'<span class="t">'+f.n+'</span><span class="r">form</span></button>';
+          }).join('')
+        +'<div style="font-size:12.5px;color:var(--ink-3);margin-top:6px">These sit on the site unattached. Bundle them into a ritual whenever you\'re ready — nothing has to be decided now.</div></div>'
+      :'')
+    +'<div class="box dash"><span class="lbl">⚠ What this means for reporting</span>'
+    +'Each day <b>captures the ritual as it stood that day</b>. Editing a ritual — or bundling loose items into one — changes <b>new days only</b>. Last month keeps reporting against what was actually owed then.</div>'
+    +'<button class="btn pri blk" onclick="setStep(3)"'+(ready?'':' disabled')+'>'
+    +(st.noRitual
+      ? (nFloat?'Attach '+nFloat+' loose item'+(nFloat>1?'s':'')+' to all '+siteCount():'Pick at least one item')
+      : (st.rituals.length?'Attach '+st.rituals.length+' ritual'+(st.rituals.length>1?'s':'')+' to all '+siteCount():'Pick a ritual, or choose loose items'))
+    +'</button>')
+  + ann('Multi-select — or skip rituals entirely',[
+      {h:'Attach more than one',b:'A site owes several rituals, not one. Tick as many as apply — they all attach in the same action.'},
+      {h:'A ritual is not mandatory on day one',b:'Asking someone to bundle their work before they\'ve run a single day is configuration-first thinking. Loose items let them start, then group once the shape is obvious.'},
+      {h:'Cadence is editable here, not later',b:'Every selected ritual exposes its cadence inline. Change it before anything is attached rather than hunting for it afterwards.'},
+      {h:'⚠ The day is snapshotted, the ritual is not',b:'A day records what it owed <i>at the time</i>. Later edits move forward only — otherwise regrouping items would silently rewrite last month\'s compliance record. Same rule as crew membership history.',warn:true},
+      {h:'Incident is deliberately different',b:'It is triggered, not recurring — and a triggered ritual never appears as outstanding. Only recurring rituals can be owed.'}
+    ],{h:'Try it',b:'Pick "No ritual" — the library dims and loose items take over.'});
+}
+function a3(){
+  var jobs = st.mode==='job';
+  var sitesTab = st.indexTab==='sites';
+  var body='<div class="toggle2">'
+    +'<button class="'+(sitesTab?'on':'')+'" onclick="setIndexTab(\'sites\')">Sites ('+(jobs?52:siteCount())+')</button>'
+    +'<button class="'+(!sitesTab?'on':'')+'" onclick="setIndexTab(\'jobs\')">Jobs ('+(jobs?siteCount():6)+')</button></div>';
+  if(sitesTab){
+    body+='<div class="row fill"><span class="t">'+(jobs?52:siteCount())+' sites<small>converted from Locations · '+st.rituals.length+' ritual'+(st.rituals.length>1?'s':'')+' attached</small></span><span class="r ok">setup done</span></div>'
+      +'<div style="height:8px"></div>'
+      +'<div class="row"><span class="t">North Yard<small>6-day week</small></span><span class="r miss">'+outstanding()+' outstanding</span></div>'
+      +'<div class="row"><span class="t">West Depot<small>6-day week</small></span><span class="r miss">3 outstanding</span></div>'
+      +'<div class="row"><span class="t">Lakeside Branch<small>5-day week</small></span><span class="r miss">2 outstanding</span></div>'
+      +'<div class="row dim"><span class="t">South Yard<small>6-day week</small></span><span class="r ok">current</span></div>'
+      +'<div class="row dim"><span class="t">Central Branch<small>6-day week</small></span><span class="r ok">current</span></div>';
+  } else {
+    body+='<div class="row"><span class="t">Job 4471 — Riverbend<small>started Aug 12 · expected end Aug 29</small></span><span class="r miss">2 outstanding</span></div>'
+      +'<div class="row"><span class="t">Job 4482 — Oakridge<small>started Aug 19 · no expected end</small></span><span class="r miss">1 outstanding</span></div>'
+      +'<div class="row"><span class="t">Cable run — Sector 12<small>started Aug 26 · one night</small></span><span class="r ok">current</span></div>'
+      +'<div class="row dim"><span class="t">Job 4390 — Sherwood<small>ran 11 days over expected end</small></span><span class="r warn">awaiting close</span></div>'
+      +'<div class="box dash" style="margin-top:10px"><span class="lbl">Different row shape, on purpose</span>'
+      +'A job carries a <b>lifespan</b>, so its row shows start and expected end, and can sit in <b>awaiting close</b> — a state a site never has.</div>';
+  }
+  return win('Site Management','as of Thu 12:00',body)
+  + ann(sitesTab?'Definition of done, in client terms':'Why Jobs need their own row',[
+      sitesTab
+        ? {h:'She built nothing to get here',b:'Three screens: pick the shape, pick the sources, attach rituals. No forms authored, no cadence maths, no per-site configuration.'}
+        : {h:'A job’s state is not a site’s state',b:'The index renders Sites today; once Job lands it needs a second row shape. A site is never <i>awaiting close</i> — a job is, constantly.'},
+      sitesTab
+        ? {h:'State is the leftmost thing that matters',b:'Every row answers one question — current, or N outstanding. Most-outstanding first by default.'}
+        : {h:'Closing is never automatic',b:'A person confirms it. Auto-closing on the expected-end date would quietly hide a job that ran long — exactly the silently-wrong failure this product exists to prevent.'},
+      {h:'Same machinery underneath',b:'A Job holds Rituals, Attendance and Meetings and feeds owed-vs-done exactly as a Site does. That is what keeps the core reusable rather than duplicated.'},
+      {h:'Open — one gang, ten open jobs',b:'Whether Crew owns many Jobs is untested against a second client. And whether a multi-job day is one page or one page per job was unsettled on the research call itself.',warn:true}
+    ],{h:'Try it',b:'Toggle Sites / Jobs.'});
+}
+
+/* ===================== FLOW B ===================== */
+function b0(){
+  var kindLabel={form:'form',file:'file',meeting:'meeting',task:'task'};
+  var bundle = st.bundle.length
+    ? st.bundle.map(function(b,i){
+        return '<div class="row tight"><span class="t">'+b.n+(b.sub?'<small>'+b.sub+'</small>':'')+'</span>'
+          +'<span class="r">'+kindLabel[b.t]+'</span>'
+          +'<button class="btn sm" style="margin-left:8px" onclick="removeItem('+i+')">Remove</button></div>';
+      }).join('')
+    : '<div class="row tight dim" style="justify-content:center;color:var(--ink-3)">Nothing in the bundle yet</div>';
+
+  var picker='';
+  if(st.addOpen==='form'){
+    picker='<div class="box tightb"><span class="lbl">Add forms — multi-select</span>'
+      +'<div class="field">Search forms…</div>'
+      +FORMS.map(function(f){
+          var on=st.bundle.some(function(b){return b.t==='form'&&b.n===f.n;});
+          return '<button class="row tight act'+(on?' sel':'')+'" onclick="addItem(\'form\',\''+f.n+'\')">'+cbx(on)
+            +'<span class="t">'+f.n+'</span></button>';
+        }).join('')
+      +'<button class="row tight act" style="border-style:dashed;justify-content:center;color:var(--rust)">'
+      +'+ Create a new form &nbsp;<span class="mono" style="font-size:10px">→ OPENS THE FORMS MODULE</span></button></div>';
+  }
+  if(st.addOpen==='file'){
+    picker='<div class="box tightb"><span class="lbl">Folder module — pick files</span>'
+      +'<div class="row tight fill"><span class="t">📁 Safety<small>Daily · Permits · SDS</small></span><span class="r">folder</span></div>'
+      +FILES.map(function(f){
+          var on=st.bundle.some(function(b){return b.t==='file'&&b.n===f.n;});
+          return '<button class="row tight act'+(on?' sel':'')+'" style="margin-left:16px" onclick="addItem(\'file\',\''+f.n+'\',\''+f.p+'\')">'+cbx(on)
+            +'<span class="t">'+f.n+'<small>'+f.p+'</small></span></button>';
+        }).join('')
+      +'<div style="font-size:12px;color:var(--ink-3);margin-top:6px">Opens as a modal over the folder module — the same picker used everywhere else, not a second file browser.</div></div>';
+  }
+  if(st.addOpen==='meeting'){
+    picker='<div class="box tightb"><span class="lbl">Add a meeting</span>'
+      +'<div style="display:flex;gap:7px;margin-bottom:9px">'
+      +'<button class="btn sm'+(st.meetingMode!=='scratch'?' pri':'')+'" onclick="setMeetingMode(\'template\')">From a template</button>'
+      +'<button class="btn sm'+(st.meetingMode==='scratch'?' pri':'')+'" onclick="setMeetingMode(\'scratch\')">From scratch</button></div>'
+      +(st.meetingMode==='scratch'
+        ? '<span class="lbl">Name</span><div class="field filled">Night shift tailgate</div>'
+          +'<span class="lbl">Agenda</span><div class="field">Add agenda points…</div>'
+          +'<div class="row tight fill"><span class="t">Attendance checklist<small>attached after the meeting happens</small></span><span class="r">included</span></div>'
+          +'<button class="btn sm pri blk" style="margin-top:8px" onclick="addItem(\'meeting\',\'Night shift tailgate\',\'built from scratch\')">Add this meeting</button>'
+        : MEETINGS.map(function(m){
+            var on=st.bundle.some(function(b){return b.t==='meeting'&&b.n===m.n;});
+            return '<button class="row tight act'+(on?' sel':'')+'" onclick="addItem(\'meeting\',\''+m.n+'\',\'template\')">'+cbx(on)
+              +'<span class="t">'+m.n+'<small>'+m.d+'</small></span><span class="r">template</span></button>';
+          }).join(''))
+      +'</div>';
+  }
+  if(st.addOpen==='task'){
+    picker='<div class="box tightb"><span class="lbl">Add a task</span>'
+      +'<div class="field filled">Confirm barricades set</div>'
+      +'<button class="btn sm pri blk" onclick="addItem(\'task\',\'Confirm barricades set\')">Add task</button></div>';
+  }
+
+  return win('Rituals · New ritual','step 1 of 3',
+    '<span class="lbl">Name</span><div class="field filled">Start of Night Shift</div>'
+    +'<span class="lbl">What’s in the bundle ('+st.bundle.length+')</span>'
+    +bundle
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0">'
+    +[['form','+ Form'],['file','+ Files from a folder'],['meeting','+ Meeting'],['task','+ Task']].map(function(x){
+        return '<button class="btn sm'+(st.addOpen===x[0]?' pri':'')+'" onclick="openAdd(\''+x[0]+'\')">'+x[1]+'</button>';
+      }).join('')
+    +'</div>'
+    +picker)
+  + ann('Four things can go in a bundle',[
+      {h:'Forms — multi-select from what exists',b:'A searchable picker over the forms already built, so a ritual is assembled rather than authored. Creating a new one hands off to the Forms module instead of duplicating a form builder here.'},
+      {h:'Files from a folder — the existing picker, as a modal',b:'An SDS sheet or a site map that has to be to hand when the ritual runs. It opens the folder module over the top rather than becoming a second file browser.'},
+      {h:'Meetings — new, and creatable on the spot',b:'Templates for the common ones, or built from scratch without leaving setup. This is the object behind a toolbox talk, and its attendance checklist attaches after the meeting happens.'},
+      {h:'⚠ Wider than the written scope',b:'SM-03 currently says forms and tasks only, with folders deferred and staying on-demand. Files and meetings here are a deliberate widening — worth reconciling the ticket before it reaches dev.',warn:true},
+      {h:'⚠ The name is not settled',b:'"Ritual" is a working label throughout the scope. Worth landing before it reaches a client-facing screen.',warn:true}
+    ],null);
+}
+function b1(){
+  var tags={exists:'already built',extend:'extend',build:'new build',open:'unresolved'};
+  return win('Rituals · New ritual · Cadence','step 2 of 3',
+    '<div class="box dash"><span class="lbl">Where cadence lives</span>On the <b>attachment</b>, not on the ritual. You’re setting the default here; each site can differ.</div>'
+    +CADENCES.map(function(c){
+        var on=st.rCad===c.id;
+        return '<button class="row act'+(on?' sel':'')+'" onclick="setRCad(\''+c.id+'\')">'+rdo(on)
+          +'<span class="t">'+c.n+'<small>'+c.d+'</small></span><span class="r'+(c.s==='build'?' warn':(c.s==='exists'?' ok':''))+'">'+tags[c.s]+'</span></button>';
+      }).join('')
+    +(st.rCad==='working'?'<div class="box tightb"><span class="lbl">Reads from</span>Each site’s operating calendar. North Yard runs six days; Lakeside Branch runs five. Neither counts a non-working day as owed.</div>':'')
+    +(st.rCad==='use'?'<div class="box tightb"><span class="lbl">⚠ Unresolved</span>Metered assets may already be covered — the reading advances the next trigger. The genuinely unsolved case is an <b>unmetered</b> pre-use-only asset, where a time-based obligation needs suppressing on non-use.</div>':'')
+    +'<div class="box"><span class="lbl">Exceptions</span>'
+    +'<div class="row tight"><span class="t">Cancel Thursday 4 Sept<small>reuses the existing blockout mechanism</small></span><span class="r">+ add</span></div></div>')
+  + ann('Six shapes, four states',[
+      {h:'This is not one undifferentiated build',b:'Two shapes already exist, two are extensions, two are genuinely new, one is unresolved. Splitting them stops the whole thing being priced as a single large unknown.'},
+      {h:'Metered is nearly free',b:'Fully implemented and closed-loop today, for hours <i>and</i> mileage, with threshold alerting. It just needs to accept a Site attachment.'},
+      {h:'Working-days-only is the one that matters',b:'A daily check counted against 31 calendar days at a 27-working-day branch produces four phantom misses a month, every month. A client said plainly the engine gets discarded if it does that.'},
+      {h:'⚠ Absence discipline',b:'The two "new build" rows rest on absence of evidence in an admittedly incomplete code index — not on proof. A dev should confirm rather than treat them as settled.',warn:true}
+    ],null);
+}
+function b2(){
+  var sites=['North Yard','West Depot','Central Branch','Lakeside Branch','South Yard','East Branch'];
+  return win('Rituals · New ritual · Attach','step 3 of 3',
+    '<span class="lbl">Attach to</span>'
+    +'<div style="display:flex;gap:8px;margin-bottom:10px"><button class="btn sm" onclick="toggleRAttach(-1)">Select all</button>'
+    +'<span class="mono" style="font-size:11px;color:var(--ink-3);align-self:center">'+st.rAttach.length+' of 52 selected</span></div>'
+    +sites.map(function(s,i){
+        var on=st.rAttach.indexOf(i)>=0;
+        return '<button class="row act'+(on?' sel':'')+'" onclick="toggleRAttach('+i+')">'+cbx(on)
+          +'<span class="t">'+s+'</span><span class="r">'+(i===3?'5-day week':'6-day week')+'</span></button>';
+      }).join('')
+    +'<div class="box dash"><span class="lbl">Per-site override</span>Every attachment keeps its own cadence. Change one later and the other 51 are untouched.</div>'
+    +'<button class="btn pri blk" onclick="goto(\'f\',0)">Create and attach to '+st.rAttach.length+' sites</button>')
+  + ann('Define once, attach many',[
+      {h:'This is the config-burden answer',b:'One definition covers every site. The alternative is configuring the same thing 52 times — which is the failure mode this whole initiative is built around.'},
+      {h:'A starter library ships regardless',b:'The counterweight to unlimited scheduling options. A new client sees rituals, not an empty configuration screen.'},
+      {h:'Attachment carries the cadence',b:'So a site on a five-day week and one on six can share a ritual without either being wrong.'}
+    ],null);
+}
+
+/* ===================== FLOW C ===================== */
+function c0(){
+  var rules=[{id:'loc',n:'Everyone at a location'},{id:'role',n:'Everyone with a company role'},{id:'hand',n:'Pick people by hand'}];
+  return win('Crews · New crew','step 1 of 3',
+    '<span class="lbl">Name</span><div class="field filled">North Yard Crew</div>'
+    +'<span class="lbl">How do you want to fill it?</span>'
+    +rules.map(function(r){
+        var on=st.cRule===r.id;
+        return '<button class="row act'+(on?' sel':'')+'" onclick="setRule(\''+r.id+'\')">'+rdo(on)+'<span class="t">'+r.n+'</span></button>';
+      }).join('')
+    +(st.cRule&&st.cRule!=='hand'
+      ? '<div class="box dash"><span class="lbl">⚠ Rule for setup, materialised for the record</span>The rule decides who gets <b>added</b>. Membership is then fixed. If it stayed a live query, viewing last month would re-evaluate against today’s data and the historical record would silently change underneath you.</div>'
+      :'')
+    +'<span class="lbl" style="margin-top:14px">Members ('+st.cMembers.length+')</span>'
+    +CREW.map(function(p,i){
+        var on=st.cMembers.indexOf(i)>=0;
+        return '<button class="row tight act'+(on?' sel':'')+'" onclick="toggleMember('+i+')">'+cbx(on)
+          +'<span class="av" style="width:20px;height:20px"></span><span class="t">'+p.n+'<small>'+p.role+'</small></span></button>';
+      }).join(''))
+  + ann('Crew is a new object — nothing like it exists',[
+      {h:'Seven of fifteen clients bend Location into a crew',b:'Three say it outright: their Locations are gangs; their Locations are crews, unrelated to the job site; no third option beyond location'},
+      {h:'A static roster fails on day one',b:'crews are transient and move project to project, so they are never the same twice Membership has to be editable without recreating the crew.'},
+      {h:'Rule-based fill answers roster upkeep',b:'A client with transient crews shouldn’t maintain lists by hand. But the rule seeds membership; it does not stay live.'},
+      {h:'Membership history is the one that matters most',b:'This is a record layer. Look at last month and it must show who was on the crew <i>then</i>. Current-state-only is cheap to build and very expensive to retrofit.',warn:true}
+    ],null);
+}
+function c1(){
+  var perms=[{id:'none',n:'None',d:'Sees nothing beyond their own work'},
+             {id:'read',n:'Read-only',d:'Sees the crew’s state, changes nothing'},
+             {id:'edit',n:'Full edit',d:'Can change crew members and records'}];
+  return win('Crews · North Yard Crew · Supervisor','step 2 of 3',
+    '<div class="box dash"><span class="lbl">Optional, and that matters</span>One client has <b>no supervisor role in the organisation at all.</b> A crew must work without one.</div>'
+    +'<span class="lbl">Designated supervisor</span>'
+    +'<button class="row act'+(st.cSup===null?' sel':'')+'" onclick="setSup(null)">'+rdo(st.cSup===null)+'<span class="t">No supervisor<small>the crew still works — nobody carries it</small></span></button>'
+    +CREW.slice(0,3).map(function(p,i){
+        return '<button class="row act'+(st.cSup===i?' sel':'')+'" onclick="setSup('+i+')">'+rdo(st.cSup===i)
+          +'<span class="av" style="width:20px;height:20px"></span><span class="t">'+p.n+'<small>'+p.role+'</small></span></button>';
+      }).join('')
+    +(st.cSup!==null
+      ? '<div style="margin-top:12px"><span class="lbl">What can they do to crew members?</span>'
+        +perms.map(function(p){
+          return '<button class="row tight act'+(st.cPerm===p.id?' sel':'')+'" onclick="setPerm(\''+p.id+'\')">'+rdo(st.cPerm===p.id)
+            +'<span class="t">'+p.n+'<small>'+p.d+'</small></span></button>';
+        }).join('')
+        +'<div class="box dash tightb"><span class="lbl">Deliberately coarse</span>Three levels, nothing finer — deliberately no finer than that This reuses the existing edit-user surface rather than building a new one.</div></div>'
+      :''))
+  + ann('Coarse on purpose',[
+      {h:'None / read-only / full edit, and that’s it',b:'Anything finer belongs to scoped permissions (Flow D), not here. Keeping this coarse is what keeps Crew on the MVP critical path.'},
+      {h:'Grants are additive only',b:'A crew can give someone access they don’t have. It can <b>never remove</b> access they already hold. That kills the entire conflict class — no precedence engine needed.'},
+      {h:'The read-only need has no home today',b:'see it without being able to change it Read-only is a first-class grant, not an afterthought.'}
+    ],null);
+}
+function c2(){
+  var sites=['North Yard','West Depot','Central Branch'];
+  return win('Crews · Add to a site','step 3 of 3',
+    '<span class="lbl">Assign North Yard Crew to</span>'
+    +sites.map(function(s){
+        var on=st.cSite===s;
+        return '<button class="row act'+(on?' sel':'')+'" onclick="assignSite(\''+s+'\')">'+rdo(on)+'<span class="t">'+s+'</span>'
+          +'<span class="r">'+(s==='North Yard'?'2 crews already':'1 crew already')+'</span></button>';
+      }).join('')
+    +(st.cSite
+      ? '<div class="box"><span class="lbl">'+st.cSite+' — who’s on it now</span>'
+        +'<div class="row tight fill"><span class="t">Paving Crew 2<small>6 people</small></span><span class="r">crew</span></div>'
+        +'<div class="row tight fill"><span class="t">Underground Crew<small>4 people</small></span><span class="r">crew</span></div>'
+        +'<div class="row tight sel"><span class="t">North Yard Crew<small>'+st.cMembers.length+' people · just added</span></span><span class="r">crew</span></div>'
+        +'<div class="row tight"><span class="t">T. Ibarra<small>site visitor — not in any crew</small></span><span class="r">individual</span></div></div>'
+      :'')
+    +'<div class="box dash"><span class="lbl">Assigned to, not owned by</span>Crews move between sites. The same crew can be on a different site tomorrow without being recreated.</div>')
+  + ann('Site → crew is one-to-many',[
+      {h:'A site holds several crews at once',b:'One client’s single neighbourhood holds three concrete crews, two paving crews and an underground crew each with its own FLHA.'},
+      {h:'And individuals who are in no crew',b:'A visitor, a contractor, someone covering. The model can’t assume everyone belongs to a crew.'},
+      {h:'Crew exists independently of any site',b:'That’s why it’s <i>assigned to</i> a site rather than owned by one — crews move daily.'},
+      {h:'This is what feeds attendance',b:'The crew is what pre-populates the attendance checklist, so nobody retypes 20–30 names. That’s Flow E.'}
+    ],{h:'Next',b:'Crew is also the <i>subject</i> half of a permission grant — Flow D.'});
+}
+
+/* ===================== FLOW D ===================== */
+function d0(){
+  var lvls=[{id:'full',n:'Full access',d:'See everything, change everything, and share it'},
+            {id:'edit',n:'Can edit',d:'Complete forms, move a ritual, add or remove people — but not create sites or rituals'},
+            {id:'view',n:'Can view',d:'See what’s owed, done and missing. Change nothing.'}];
+  var name={full:'Full access',edit:'Can edit',view:'Can view'};
+  function subject(k,label,sub,isCrew){
+    return '<div class="row"><span class="av"></span><span class="t"'+(isCrew?' style="color:var(--rust)"':'')+'>'+label+'<small>'+sub+'</small></span>'
+      +'<button class="btn sm" style="margin-left:auto" onclick="openLevel(\''+k+'\')">'+name[st.access[k]]+' ▾</button></div>';
+  }
+  return win('Share · North Yard branch','option A',
+    '<div class="share"><div class="share__h">Share · North Yard branch</div><div class="share__b">'
+    +'<div style="display:flex;gap:9px;margin-bottom:14px"><div class="field" style="flex:1;margin:0">Add people or a crew…</div>'
+    +'<button class="btn">Invite</button></div>'
+    +'<span class="lbl">Who has access</span>'
+    +subject('me','You (admin)','Designer')
+    +subject('crew','North Yard Crew','Crew · '+st.cMembers.length+' people',true)
+    +subject('tina','A. Whitmore','Safety manager, all branches')
+    +'<span class="lbl" style="margin-top:14px">General access</span>'
+    +'<div class="row fill"><span class="t">🔒 Only people invited</span></div>'
+    +(st.openLevel?'<div style="margin-top:12px"><span class="lbl">Access level</span><div class="lvlmenu">'
+      +lvls.map(function(l){
+        return '<button class="lvlopt'+(st.access[st.openLevel]===l.id?' on':'')+'" style="width:100%;text-align:left;border:none;background:none;display:block" onclick="setAccess(\''+st.openLevel+'\',\''+l.id+'\')">'
+          +'<b>'+l.n+(st.access[st.openLevel]===l.id?' ✓':'')+'</b><span>'+l.d+'</span></button>';
+      }).join('')
+      +'<div class="lvlopt"><b style="color:var(--warn)">Remove</b></div></div></div>':'')
+    +'<div class="note-dash"><span class="mono">The subject can be a person or a crew — the same control either way. The scope is this site, not the user’s home location.</span>'
+    +'One client has no supervisor role at all; another needs a single person doing a single job — so both subjects have to work.</div>'
+    +'</div></div>'
+    +'<div style="margin-top:12px;display:flex;gap:8px"><button class="btn sm pri">Option A — share sheet</button>'
+    +'<button class="btn sm" onclick="setPermModel(\'b\')">Option B — custom roles ›</button></div>')
+  + ann('Option A — it works like sharing a document',[
+      {h:'Pick a person or a crew, choose what they can do, done',b:'No role to build, nothing to configure before it’s useful — the setup-friction argument applied to permissions.'},
+      {h:'Three levels cover every case in the research',b:'see it without being able to change it is Can view, with zero configuration to get there.'},
+      {h:'The "Can edit" boundary is load-bearing',b:'It mirrors the mobile "edit, don’t create" rule exactly. If one changes, the other must.'},
+      {h:'⚠ Say the ceiling out loud',b:'Three levels are a strict subset of Option B. A client needing a fourth has no upgrade path until the system-wide overhaul exists. Unsaid, the first client to hit it reads as a bug rather than a known trade-off.',warn:true}
+    ],{h:'Undecided',b:'Neither meeting on record settled this. Both options are evidenced — the room chooses.'});
+}
+function d1(){
+  var roles=['Site Administrator','Site Supervisor','Crew Lead','Safety Manager — read only','Records Validator'];
+  var objs=['Sites','Crews','Rituals','Records'];
+  return win('Roles · Records Validator','option B',
+    '<span class="lbl">Custom roles</span>'
+    +roles.map(function(r,i){
+        return '<button class="row tight act'+(i===4?' sel':'')+'"><span class="t">'+r+'</span>'
+          +'<span class="r">'+(i===4?'editing':'')+'</span></button>';
+      }).join('')
+    +'<div class="box" style="margin-top:12px"><span class="lbl">What can this role do?</span>'
+    +'<div class="row tight fill"><span class="t" style="font-weight:600">Object</span><span class="r">view · edit</span></div>'
+    +objs.map(function(o,i){
+        var v=i<3, e=(i===3);
+        return '<div class="row tight"><span class="t">'+o+'</span><span class="r">'+cbx(v)+' &nbsp; '+cbx(e)+'</span></div>';
+      }).join('')
+    +'</div>'
+    +'<div class="box"><span class="lbl">Granted over</span>'
+    +'<div class="row tight fill"><span class="t">A named set of sites<small>North Yard · West Depot · Lakeside Branch</small></span><span class="r">3 sites</span></div>'
+    +'<div class="row tight"><span class="t">Subject<small>A. Whitmore — or a whole crew</small></span><span class="r">individual</span></div></div>'
+    +'<div style="margin-top:12px;display:flex;gap:8px"><button class="btn sm" onclick="setPermModel(\'a\')">‹ Option A — share sheet</button>'
+    +'<button class="btn sm pri">Option B — custom roles</button></div>')
+  + ann('Option B — named, reusable roles',[
+      {h:'Records Validator is not a hypothetical',b:'It is one client’s actual case: no in-between role exists — learner or admin, nothing between — a record-validator forced into full admin and now with access well beyond what the job needs'},
+      {h:'Start from everything, carve down',b:'The client admin holds it all; a role removes rather than assembles. Less to configure before it works.'},
+      {h:'Scope is a named set of sites',b:'Never the user’s home location, and never a single site. That is the half Crew doesn’t cover — Crew is the <i>subject</i>, this is the <i>scope</i>.'},
+      {h:'Why either is cheap here',b:'Site Management has no pages yet. Building them segmented from the start costs a fraction of retrofitting segmentation into pages never designed for it. That reasoning is an argument, not a measurement — nobody has estimated either half.',warn:true}
+    ],{h:'Where this lives',b:'A settings area inside Site Management, not a separate module.'});
+}
+
+/* ===================== FLOW E ===================== */
+function e0(){
+  var crews=[{n:'North Yard Crew',c:8,p:6},{n:'Paving Crew 2',c:6,p:6},{n:'Underground Crew',c:4,p:3}];
+  return win('Site Management · North Yard','attendance',
+    '<div class="tabs"><button class="tab">Overview</button><button class="tab on">Attendance</button><button class="tab">Rituals</button><button class="tab">Crews</button></div>'
+    +'<div class="row fill"><span class="t">Thursday 21 August<small>3 crews assigned · 18 people expected</small></span><span class="r miss">3 unaccounted</span></div>'
+    +'<div style="height:10px"></div>'
+    +crews.map(function(c,i){
+        var gap=c.c-c.p;
+        return '<div class="grouphead"><span class="gn">'+c.n+'</span><span class="gc">'+c.c+' expected</span>'
+          +'<span class="r">'+(gap?gap+' unaccounted':'all accounted')+'</span></div>'
+          +'<div class="group">'
+          +(i===0
+            ? CREW.slice(0,4).map(function(p){
+                var s=attState(p.n);
+                var lab={present:'present',nosig:'present — no signature',none:'not accounted for',absent:'absent'}[s];
+                return '<div class="row tight"><span class="av" style="width:20px;height:20px"></span>'
+                  +'<span class="t">'+p.n+'<small>'+lab+'</small></span>'
+                  +'<span class="r'+(s==='none'?' miss':(s==='nosig'?' warn':' ok'))+'">'+(s==='none'?'—':(s==='nosig'?'flagged':'07:1'+CREW.indexOf(p)))+'</span></div>';
+              }).join('')+'<div class="mono" style="font-size:10px;color:var(--ink-3);padding:4px 2px">+4 MORE</div>'
+            : '<div class="row tight dim"><span class="t">'+c.p+' of '+c.c+' recorded<small>collapsed</small></span></div>')
+          +'<button class="btn sm" style="margin:4px 2px 8px" onclick="setStep(1)">Open checklist</button></div>';
+      }).join(''))
+  + ann('Attendance sits on the site, by crew',[
+      {h:'Crew is what makes this readable',b:'Without a crew object, attendance is one flat list of everyone. With it, the gap is attributable — you can see <i>which</i> crew is unaccounted for.'},
+      {h:'Missing people surface as a gap, not a blank',b:'Three unaccounted is a number the site owes an answer for. A blank row would just be silence.'},
+      {h:'Present-without-signature is its own state',b:'A person present who did not sign must stay distinguishable from a person who was not present. Two different facts.'},
+      {h:'⚠ Per-attendee signing already exists',b:'A dedicated per-attendee table, per-attendee signature writes, outstanding-signature tracking and deferred signing are all already built. What is missing is recording presence <i>without a form</i>.',warn:true}
+    ],null);
+}
+function e1(){
+  var recorded=CREW.filter(function(p){return attState(p.n)!=='none';}).length;
+  return win('Attendance checklist · North Yard Crew','one person fills this',
+    '<div class="box dash"><span class="lbl">Pre-populated from the crew</span>Eight names arrived already filled. A starting point, not a lock — add someone who turned up, remove someone who didn’t.</div>'
+    +'<div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">'
+    +'<button class="btn sm" onclick="markAllPresent()">Mark all present</button>'
+    +'<span class="mono" style="font-size:11px;color:var(--ink-3)">'+recorded+' of 8 recorded</span></div>'
+    +CREW.map(function(p){
+        var s=attState(p.n);
+        return '<div class="row tight"><span class="av" style="width:20px;height:20px"></span>'
+          +'<span class="t">'+p.n+'<small>'+p.role+(s==='nosig'?' · marked present, no signature':'')+'</small></span>'
+          +'<span class="r" style="display:flex;gap:5px">'
+          +'<button class="btn sm'+(s==='present'?' pri':'')+'" onclick="setAtt(\''+p.n+'\',\'present\')">Present</button>'
+          +'<button class="btn sm'+(s==='nosig'?' pri':'')+'" onclick="setAtt(\''+p.n+'\',\'nosig\')">No sig</button>'
+          +'<button class="btn sm'+(s==='absent'?' pri':'')+'" onclick="setAtt(\''+p.n+'\',\'absent\')">Absent</button>'
+          +'</span></div>';
+      }).join('')
+    +'<button class="row tight act" style="border-style:dashed;justify-content:center;color:var(--ink-3)">+ Add someone not in the crew</button>'
+    +'<div class="box dash"><span class="lbl">Where it can attach</span>'
+    +'<div class="row tight fill"><span class="t">A Site<small>the day’s attendance — who was here today</small></span></div>'
+    +'<div class="row tight fill"><span class="t">A Meeting<small>attached <b>after</b> it happened — who was at this meeting</small></span></div></div>')
+  + ann('One person records what they observed',[
+      {h:'A checklist, not a signature ritual',b:'It is not collecting signatures. One supervisor records presence. If per-person signatures are needed on top, that is the existing signing capability, not this.'},
+      {h:'Why not self sign-in',b:'Personal devices banned in ~75% of areas at one client; field workers who never reopen the app at another; 15 of 49 projects refusing the app at a third; an outright install refusal at a fourth. <b>Self-serve capture fails hardest for exactly the clients who need this most.</b>'},
+      {h:'One person needs the app, not the whole crew',b:'That is the entire argument, and it works on day one with zero configuration.'},
+      {h:'This is what unblocks Meetings',b:'A meeting does not have to be a form to collect attendance — the supervisor attaches a checklist afterwards.'},
+      {h:'Bulk-attest stays rejected',b:'accurate attendance of who was actually there — not a checklist of who could have been Marking all present is a supervisor’s observation, recorded as such — not an attestation on anyone’s behalf.'}
+    ],null);
+}
+
+/* ===================== FLOW F ===================== */
+function f0(){
+  return win('Site Management','as of Thu 12:00 · this week',
+    '<div style="display:flex;gap:7px;margin-bottom:12px"><button class="btn sm">This week ▾</button>'
+    +'<button class="btn sm">All regions ▾</button><button class="btn sm" style="margin-left:auto">↓ Export</button></div>'
+    +'<button class="row act hi" onclick="setStep(1)"><span class="t">North Yard<small>6-day week</small></span><span class="r miss">'+outstanding()+' outstanding</span></button>'
+    +'<div class="row"><span class="t">West Depot<small>6-day week</small></span><span class="r miss">3 outstanding</span></div>'
+    +'<div class="row"><span class="t">Lakeside Branch<small>5-day week</small></span><span class="r miss">2 outstanding</span></div>'
+    +'<div class="row dim"><span class="t">South Yard</span><span class="r ok">current</span></div>'
+    +'<div class="row dim"><span class="t">Central Branch</span><span class="r ok">current</span></div>'
+    +'<div class="row dim"><span class="t">East Branch</span><span class="r ok">current</span></div>')
+  + ann('The ranking rule',[
+      {h:'Incomplete above complete, everywhere',b:'Not a screen — a rule that applies at every level of the product. Complete collapses to a count.'},
+      {h:'Period, not live',b:'The header states the period and the cutoff. Computed on read, snapshotted at period close.'},
+      {h:'Two states, nothing else',b:'Current, or N outstanding. A site is never "78% compliant" — that is a number nobody can act on.'}
+    ],{h:'Try it',b:'Click the dashed row.'});
+}
+function f1(){
+  var obs=obligations(),byR={},order=[];
+  obs.forEach(function(o){ if(!byR[o.r]){byR[o.r]=[];order.push(o.r);} byR[o.r].push(o); });
+  var groups=order.map(function(r){
+    var list=byR[r],n=list.reduce(function(t,o){return t+o.n;},0);
+    return '<div class="grouphead"><span class="gn">'+r+'</span><span class="gc">'+list[0].cad+'</span><span class="r">'+n+' outstanding</span></div>'
+      +'<div class="group">'+list.map(function(o){
+        return '<button class="row act" onclick="openRitual(\''+o.id+'\')"><span class="t">'+o.what+'<small>'+o.when+'</small></span>'
+          +'<span class="r'+(o.soon?'':' miss')+'">'+(o.soon?'not yet due':o.n+' missing')+' ›</span></button>';
+      }).join('')+'</div>';
+  }).join('');
+  return win('Site Management · North Yard','as of Thu 12:00',
+    '<div class="tabs"><button class="tab on">Overview</button><button class="tab" onclick="goto(\'e\',0)">Attendance</button><button class="tab">Rituals</button><button class="tab">Crews</button></div>'
+    +'<div class="box"><span class="lbl">This period</span>'
+    +'<div style="font-size:22px;font-weight:600">'+outstanding()+' outstanding'
+    +'<span style="font-size:13px;font-weight:400;color:var(--ink-3)"> of 15 owed</span></div></div>'
+    +groups
+    +'<button class="row fill act" onclick="toggleDone()"><span class="t">'+(15-outstanding())+' completed this period</span>'
+    +'<span class="r">'+(st.showDone?'▾ hide':'▸ show')+'</span></button>'
+    +(st.showDone?'<div class="box tightb" style="margin-top:-3px;color:var(--ink-3)">Yard walk ×4 · FLHA ×4 · Pre-Op ×3 · Shop inspection …</div>':'')
+    +'<div class="box dash"><span class="lbl">Not counted</span>Sunday — North Yard runs a 6-day week. Two pre-use-only lifts weren’t used, so they owe nothing.</div>')
+  + ann('What makes this number trustworthy',[
+      {h:'Grouped by the ritual that owed it',b:'The ritual is the "what was owed" half. Without it there is nothing to compare against and the site cannot say <i>current</i>.'},
+      {h:'The operating calendar is doing real work',b:'A daily check counted against 31 calendar days at a 27-working-day branch produces four phantom misses a month. That is how the engine gets discarded.'},
+      {h:'Missing on top, complete collapsed',b:'Every other compliance screen in the product leads with what got done. This one deliberately does not.'}
+    ],{h:'Try it',b:'Click any obligation to open it.'});
+}
+function f2(){
+  var id=st.ritualOpen||'flha';
+  var titles={flha:'Field Level Hazard Assessment',preop:'Equipment Pre-Op',fire:'Fire extinguisher check'};
+  var done=flhaDone();
+  var assigned=CREW.slice(done, 8);
+  var inprog=[CREW[6]];
+  return win('North Yard · '+titles[id],'Start of Day · daily',
+    '<div class="box"><span class="lbl">This period</span>'
+    +'<div style="font-size:20px;font-weight:600">'+(8-done)+' outstanding<span style="font-size:13px;font-weight:400;color:var(--ink-3)"> of 8 expected</span></div></div>'
+    +'<div class="grouphead"><span class="gn">Not started</span><span class="gc">assigned</span><span class="r">'+assigned.length+'</span></div>'
+    +'<div class="group">'+assigned.map(function(p){
+        return '<div class="row tight"><span class="av" style="width:20px;height:20px"></span><span class="t">'+p.n
+          +'<small>'+(p.driving&&st.presentNoSig?'marked present, no submission':'nothing submitted')+'</small></span>'
+          +'<span class="r miss">—</span></div>';
+      }).join('')+'</div>'
+    +'<div class="grouphead"><span class="gn">In progress</span><span class="gc">saved, not submitted</span><span class="r">'+inprog.length+'</span></div>'
+    +'<div class="group">'+inprog.map(function(p){
+        return '<div class="row tight"><span class="av" style="width:20px;height:20px"></span><span class="t">'+p.n
+          +'<small>started 07:40 · 4 of 9 sections</small></span><span class="r warn">draft</span></div>';
+      }).join('')+'</div>'
+    +'<div class="grouphead"><span class="gn">Completed</span><span class="gc">submitted</span><span class="r">'+done+'</span></div>'
+    +'<div class="group">'+CREW.slice(0,done).map(function(p,i){
+        return '<button class="row tight act" onclick="setStep(3)"><span class="av" style="width:20px;height:20px"></span>'
+          +'<span class="t">'+p.n+'<small>submitted 07:1'+i+'</small></span><span class="r ok">✓ ›</span></button>';
+      }).join('')+'</div>')
+  + ann('Inside one obligation',[
+      {h:'Three states, not two',b:'Not started, in progress, completed. A saved-but-unsubmitted draft is neither done nor missing — collapsing it into either one misreports the site.'},
+      {h:'This is the level where you can act',b:'The site view tells you <i>something</i> is missing. This tells you <b>who</b>, which is what makes the follow-up call possible.'},
+      {h:'Late and backdated still count',b:'A worker was met on site carrying seven unsubmitted forms. When those land they move up here rather than being reported as seven failures.'},
+      {h:'Click a completed row',b:'The next step shows why that submission counted toward this site at all — the least visible ticket in the MVP.'}
+    ],null);
+}
+function f3(){
+  return win('Submission · Field Level Hazard Assessment','',
+    '<dl class="kv">'
+    +'<dt>Submitted by</dt><dd>J. Alvarez</dd>'
+    +'<dt>Home location</dt><dd>Head Office <span class="mono" style="font-size:10px;color:var(--ink-3)">— UNCHANGED</span></dd>'
+    +'<dt>Work context</dt><dd><em>North Yard</em> <span class="mono" style="font-size:10px;color:var(--ink-3)">— DECLARED ON THE FORM</span></dd>'
+    +'<dt>Counts toward</dt><dd><em>North Yard</em></dd>'
+    +'<dt>Crew</dt><dd>North Yard Crew</dd>'
+    +'<dt>Submitted</dt><dd>Thu 07:12 · backdated to Wed</dd></dl>'
+    +'<div class="box dash" style="margin-top:14px"><span class="lbl">Today, without this</span>'
+    +'Reporting walks the company hierarchy from the <b>user</b>, so this submission counts toward Head Office — and North Yard looks like it did nothing.</div>')
+  + ann('S-01 — the invisible MVP blocker',[
+      {h:'Two different questions',b:'Where the submitter belongs, and what the work was against. The product already accepts these are different — it just only does it when the work was against a registered asset.'},
+      {h:'This is why four clients bent Assets into sites',b:'An asset is the only entity that can own a location, own a form obligation, and appear on a submission. That is the ceiling they hit.'},
+      {h:'Nothing above works without it',b:'Every number in this flow is wrong if submissions attribute to the submitter’s home location. It is the least visible ticket in the MVP and one of the most blocking.'}
+    ],null);
+}
+
+/* ===================== FLOW G ===================== */
+function g0(){
+  var obs=obligations(),byR={},order=[];
+  obs.forEach(function(o){ if(!byR[o.r]){byR[o.r]=[];order.push(o.r);} byR[o.r].push(o); });
+  var groups=order.map(function(r){
+    var list=byR[r],n=list.reduce(function(t,o){return t+o.n;},0);
+    return '<div class="grouphead" style="padding:7px 10px;font-size:11.5px"><span class="gn">'+r+'</span>'
+      +'<span class="r">'+n+'</span></div>'
+      +'<div class="group" style="padding:8px 8px 2px">'+list.map(function(o){
+        return '<button class="row tight act" onclick="setStep(1)"><span class="t">'+o.what.replace('Field Level Hazard Assessment','FLHA')
+          +'<small>'+o.when+'</small></span><span class="r'+(o.soon?'':' miss')+'">'+o.n+' ›</span></button>';
+      }).join('')+'</div>';
+  }).join('');
+  return phone('My crew · on the field','',
+    '<div class="h">North Yard</div><div class="sub">Today · 8 on the field</div>'
+    +groups
+    +'<button class="btn blk sm" style="margin-bottom:10px" onclick="goto(\'h\',0)">View attendance ›</button>'
+    +'<span class="lbl">On the field</span>'
+    +CREW.slice(0,4).map(function(p,i){
+        var s=attState(p.n);
+        var lab={present:'signed',nosig:'marked present — driving',none:'not signed',absent:'absent'}[s];
+        return '<button class="row tight act" onclick="openPerson('+i+')"><span class="av" style="width:20px;height:20px"></span>'
+          +'<span class="t">'+p.n+'<small>'+lab+'</small></span>'
+          +'<span class="r'+(s==='none'?' miss':(s==='nosig'?' warn':' ok'))+'">'+(s==='none'?'—':'✓')+' ›</span></button>';
+      }).join('')
+    +'<div class="mono" style="font-size:10px;color:var(--ink-3);text-align:center;padding:4px">+4 MORE</div>'
+    +'<button class="btn blk sm" onclick="setStep(3)">Move a ritual</button>','Supervisor')
+  + ann('State first, names second',[
+      {h:'Grouped by ritual — same as the web',b:'The supervisor and the admin are reading the same structure. Two different groupings for one dataset is how people stop trusting the number.'},
+      {h:'"On the field", not "on site"',b:'The container can be a job as easily as a site. The label has to survive both.'},
+      {h:'Everything here is a way in',b:'Tap a ritual to see who’s missing. Tap a person to fix their record. Tap View attendance for the whole picture.'},
+      {h:'A layer, not a section',b:'Turn Site Management on and the app levels up — same app, upgraded. A separate section is how you get the "a pile of disconnected programs" complaint clients already make.'}
+    ],{h:'Caveat to say out loud',b:'No end user was interviewed. Every claim about what a supervisor wants is an assumption — this flow is safe bets, not evidence.'});
+}
+function g1(){
+  var done=flhaDone();
+  return phone('FLHA','',
+    '<div class="h">FLHA</div><div class="sub">Start of Day · daily</div>'
+    +'<div class="box tightb"><div style="font-size:19px;font-weight:600">'+(8-done)+' outstanding'
+    +'<span style="font-size:12px;font-weight:400;color:var(--ink-3)"> of 8</span></div></div>'
+    +'<div class="grouphead" style="padding:7px 10px;font-size:11.5px"><span class="gn">Not started</span><span class="r">'+(8-done-1)+'</span></div>'
+    +'<div class="group" style="padding:8px 8px 2px">'
+    + CREW.slice(done,7).map(function(p){
+        return '<button class="row tight act" onclick="openPerson('+CREW.indexOf(p)+')"><span class="t">'+p.n
+          +'<small>nothing submitted</small></span><span class="r miss">— ›</span></button>';
+      }).join('')+'</div>'
+    +'<div class="grouphead" style="padding:7px 10px;font-size:11.5px"><span class="gn">In progress</span><span class="r">1</span></div>'
+    +'<div class="group" style="padding:8px 8px 2px">'
+    +'<div class="row tight"><span class="t">R. Gill<small>4 of 9 sections</small></span><span class="r warn">draft</span></div></div>'
+    +'<div class="grouphead" style="padding:7px 10px;font-size:11.5px"><span class="gn">Completed</span><span class="r">'+done+'</span></div>'
+    +'<div class="group" style="padding:8px 8px 2px">'
+    + CREW.slice(0,done).map(function(p,i){
+        return '<div class="row tight"><span class="t">'+p.n+'<small>submitted 07:1'+i+'</small></span><span class="r ok">✓</span></div>';
+      }).join('')+'</div>','Same three states as the web','setStep(0)')
+  + ann('The same shape on both platforms',[
+      {h:'Not started · in progress · completed',b:'Identical to the web view. A supervisor and an admin looking at the same obligation should see the same three buckets in the same order.'},
+      {h:'A draft is not a miss',b:'Someone four sections into a form is not the same as someone who hasn’t started. Collapsing them loses the only actionable difference.'},
+      {h:'Tap a name to fix it',b:'"Not started" is where the <i>he’s driving</i> case lives — the next step.'}
+    ],null);
+}
+function g2(){
+  var p=CREW[st.person!==null?st.person:1];
+  var done=attState(p.n)==='nosig';
+  return phone('Attendance','',
+    '<div class="h">'+p.n+'</div><div class="sub">'+p.role+' · FLHA not signed</div>'
+    +'<div class="box'+(done?'':' dash')+'"><span class="lbl">'+(done?'Recorded':'Supervisor action')+'</span>'
+    +(done
+      ? '<div style="font-size:13px">Marked present by supervisor<br><span class="mono" style="font-size:10px;color:var(--ink-3)">THU 07:20 · NO SIGNATURE · REASON: DRIVING</span></div>'
+      : '<div style="font-size:13px;margin-bottom:10px">He’s driving — he was here, he just didn’t sign.</div>'
+        +'<button class="btn pri blk sm" onclick="markPresent()">Mark present without a signature</button>')
+    +'</div>'
+    +'<div class="row tight"><span class="t">FLHA<small>'+(done?'attendance recorded':'awaiting signature')+'</small></span>'
+    +'<span class="r'+(done?' ok':' miss')+'">'+(done?'✓':'—')+'</span></div>'
+    +(done?'<button class="btn blk sm" style="margin-top:10px" onclick="setStep(3)">Next — move a ritual</button>':''),
+    'The one evidenced action','setStep(1)')
+  + ann('Mark present without a signature',[
+      {h:'The single action the research actually evidences',b:'a supervisor wants to open the app and say who has left and who is here — not the controls, just the fact of it'},
+      {h:'Not work dispatch',b:'Corrective action on state that is already visible. Nobody is being assigned anything here.'},
+      {h:'It is recorded as what it is',b:'Marked-present-by-supervisor stays distinguishable from a signature. Bulk-attest is rejected on legal grounds by the client who asked hardest for attendance.'},
+      {h:'⚠ Open — who is signing on a shared phone',b:'Phones pass between people. There is an existing deferred-signing path in the product; sign-later-on-your-own-device may sidestep this rather than solve it.',warn:true}
+    ],null);
+}
+function g3(){
+  var moved=st.ritualDay==='Thu';
+  return phone('Move a ritual','',
+    '<div class="h">Equipment Check</div><div class="sub">North Yard · weekly</div>'
+    +'<span class="lbl">Runs on</span>'
+    +'<div class="toggle2" style="width:100%"><button class="'+(!moved?'on':'')+'" style="flex:1" onclick="'+(moved?'moveRitual()':'')+'">Friday</button>'
+    +'<button class="'+(moved?'on':'')+'" style="flex:1" onclick="'+(!moved?'moveRitual()':'')+'">Thursday</button></div>'
+    +(moved?'<div class="box tightb"><span class="lbl">Changed</span>Moved to Thursday for this site only. The other 51 are unaffected.</div>':'')
+    +'<div class="box dash"><span class="lbl">Not available here</span>'
+    +'<div style="color:var(--ink-3);font-size:12.5px">Create a new ritual · Create a new site<br>Those stay on the web.</div></div>',
+    'Edit, don’t create','setStep(0)')
+  + ann('Edit, don’t create',[
+      {h:'A supervisor shouldn’t have to phone a desk to fix the record',b:'Adjusting reality — moving a ritual, marking someone present — is field work. Authoring is not.'},
+      {h:'The line is creation',b:'New rituals and new sites stay on the web. That keeps the mobile surface small and the config burden in one place.'},
+      {h:'Per-site override, by construction',b:'Because cadence lives on the attachment, moving it here cannot leak into the other 51 sites.'},
+      {h:'⚠ Open — one person, ten sites in a day',b:'Clients described driving between as many as ten. Every supervisor screen has to work for someone holding one and someone holding ten. No answer yet.',warn:true}
+    ],{h:'Mirrors',b:'This boundary is the same one as "Can edit" in Flow D. If one moves, the other must.'});
+}
+
+/* ===================== FLOW H ===================== */
+function h0(){
+  return phone('Who’s on the field','live',
+    '<div class="h">North Yard</div><div class="sub">Live · refreshed 30s ago</div>'
+    +'<div class="box tightb" style="background:var(--wire-fill);text-align:center">'
+    +'<div style="font-size:24px;font-weight:600">'+attCount()+'</div><span class="lbl" style="margin:0">on the field</span></div>'
+    +CREW.map(function(p,i){
+        var s=attState(p.n);
+        return '<button class="row tight act" onclick="openPerson('+i+')"><span class="av" style="width:20px;height:20px"></span>'
+          +'<span class="t">'+p.n+'<small>'+(s==='nosig'?'marked present':'in 07:0'+(i+2))+'</small></span>'
+          +'<span class="r'+(s==='none'?' miss':'')+'">'+(s==='none'?'—':'07:0'+(i+2))+' ›</span></button>';
+      }).join('')
+    +'<div class="box dash tightb"><span class="mono" style="font-size:10px;color:var(--ink-3)">READ-ONLY · LAST REFRESHED 12:04:31</span></div>',
+    'Opened for an event')
+  + ann('A mode, not a tab people live in',[
+      {h:'Opened for an event, then closed',b:'Muster and incident triage. It is not a dashboard anyone is expected to watch.'},
+      {h:'One client of fifteen asked for real time',b:'And only for emergency muster. The two clients who declined real time declined <i>routine monitoring</i> — neither declined event urgency.'},
+      {h:'The last-refreshed moment is always visible',b:'A stale list presented as current is worse than no list. Refresh interval is still TBD.'},
+      {h:'⚠ Open — who can see it',b:'Shipping this ungated is a deliberate call to confirm, not a default to assume.',warn:true}
+    ],{h:'Try it',b:'Tap any person.'});
+}
+function h1(){
+  var i=st.person!==null?st.person:0, p=CREW[i];
+  var s=attState(p.n);
+  return phone(p.n,'',
+    '<div class="h">'+p.n+'</div><div class="sub">'+p.role+' · North Yard Crew</div>'
+    +'<dl class="kv" style="grid-template-columns:120px 1fr;font-size:12.5px">'
+    +'<dt>On field since</dt><dd>'+(s==='nosig'?'07:20 — marked present':'07:0'+(i+2))+'</dd>'
+    +'<dt>How</dt><dd>'+(s==='nosig'?'supervisor, no signature':'signed in')+'</dd>'
+    +'<dt>Crew</dt><dd>North Yard Crew</dd></dl>'
+    +'<span class="lbl" style="margin-top:14px">Due today</span>'
+    +'<div class="row tight"><span class="t">FLHA<small>Start of Day</small></span>'
+    +'<span class="r'+(i<flhaDone()?' ok':' miss')+'">'+(i<flhaDone()?'✓ 07:1'+i:'—')+'</span></div>'
+    +'<div class="row tight"><span class="t">Equipment Pre-Op<small>Start of Day</small></span>'
+    +'<span class="r'+(i<2?' ok':' miss')+'">'+(i<2?'✓ 07:2'+i:'—')+'</span></div>'
+    +'<div class="row tight"><span class="t">Yard walk<small>Start of Day</small></span><span class="r ok">✓ 06:5'+i+'</span></div>'
+    +'<div class="box tightb"><span class="lbl">Their progress today</span>'
+    +'<div style="font-size:18px;font-weight:600">'+(i<flhaDone()?3:(i<2?2:1))+' of 3<span style="font-size:12px;font-weight:400;color:var(--ink-3)"> done</span></div></div>'
+    +'<div class="box dash tightb"><span class="lbl">Not shown</span>'
+    +'<span style="color:var(--ink-3);font-size:12.5px">Anything outside this site. A supervisor sees their crew here, not a person’s whole record.</span></div>',
+    'Person detail','setStep(0)')
+  + ann('One person, on this site, today',[
+      {h:'Three facts a supervisor actually needs',b:'When they arrived, how that was established, and what they still owe. Everything else is somebody else’s screen.'},
+      {h:'Marked-present reads differently from signed-in',b:'The row says <i>supervisor, no signature</i> rather than showing a time that never happened. The record stays honest about how it knows.'},
+      {h:'Scoped to this site deliberately',b:'A crew supervisor is not a person’s manager. Showing a whole training and compliance history here would be a permissions decision nobody has made.'},
+      {h:'⚠ Only works where sign-in exists',b:'Thirteen of fifteen clients have no check-in event at all. For them this reads from the crew roster and the attendance checklist instead — the arrival time simply isn’t there.',warn:true}
+    ],null);
+}
+
+/* ===================== FLOW I ===================== */
+function i0(){
+  var today=st.workerTab==='today';
+  return phone('My forms','',
+    '<div class="toggle2" style="width:100%">'
+    +'<button class="'+(today?'on':'')+'" style="flex:1" onclick="setWorkerTab(\'today\')">Today</button>'
+    +'<button class="'+(!today?'on':'')+'" style="flex:1" onclick="setWorkerTab(\'all\')">All</button></div>'
+    +'<div class="row fill"><span class="t"><span class="lbl" style="margin-bottom:2px">North Yard · due today</span>Field Level Hazard Assessment</span></div>'
+    +'<div class="row fill"><span class="t"><span class="lbl" style="margin-bottom:2px">North Yard · due today</span>Equipment Pre-Op</span></div>'
+    +(today?'':'<div class="row"><span class="t">In progress</span><span class="r">2</span></div>'
+      +'<div class="row"><span class="t">Assigned to me</span><span class="r">5</span></div>'
+      +'<div class="row"><span class="t">Folder favourites</span><span class="r">7</span></div>'
+      +'<div class="row"><span class="t">Recently submitted</span><span class="r">12</span></div>')
+    +'<div class="box dash tightb" style="margin-top:12px"><span class="lbl">Same list, filtered</span>'
+    +'<span style="color:var(--ink-3);font-size:12.5px">Nothing here is new. Today is a filter over the list this worker already uses.</span></div>',
+    'Worker — the floor, not the feature')
+  + ann('What actually ships for the worker',[
+      {h:'A filter, not a new screen',b:'Today versus all, over the list they already use. No new object, no sync work, and it is cheap.'},
+      {h:'The full worker module is deferred',b:'The demand is real; the reach is not — roughly 75% no-device zones at one client, workers who never reopen the app at another, an outright install refusal at a third.'},
+      {h:'Site items stay in the normal list too',b:'Neither view is a subset the other hides. An item assigned by a site appears in both places.'},
+      {h:'Three hard constraints',b:'No time-of-day push — zero clients asked. Never delivered as assignments — one client ran that and reverted. Must tolerate late and backdated entries.'}
+    ],{h:'Pull, never push',b:'Context and navigation, not a task list.'});
+}
+
+var SCREENS={a:[a0,a1,a2,a3],b:[b0,b1,b2],c:[c0,c1,c2],d:[d0,d1],e:[e0,e1],f:[f0,f1,f2,f3],g:[g0,g1,g2,g3],h:[h0,h1],i:[i0]};
+
+/* ===================== FOOTER ===================== */
+function FOOT(){
+  return {
+  a:[{k:'SM-01 · SM-09',t:'Site or Job — the fork that comes first',b:['Two shapes, deliberately different. Site answers what a place owes; Job answers whether an engagement is done.','Job is the largest single compliance anchor in the corpus — 4 of 15.','Pick each one: the conversion source in step 2 changes with it.']},
+     {k:'SM-01',t:'Convert — from Locations, Assets, or both',b:['Either source builds either object. Only the default tab differs; the selection is shared across both.','Untick the dashed rows — a Location that is really a crew, an asset invented to hold a toolbox talk.','Name only. The original Location or Asset is left exactly as it was.']},
+     {k:'SM-03',t:'Attach rituals — multi-select, cadence editable here',b:['Tick as many rituals as apply; they attach in one action.','Each selected ritual exposes its cadence inline — edit before anything is attached.','"Create a ritual" jumps to Flow B without abandoning setup.']},
+     {k:'SM-01 · SM-09',t:'Real state, built by nobody',b:['Toggle Sites / Jobs — a job’s row carries a lifespan and can be awaiting close.','Every row answers one question: current, or N outstanding.','Open: whether a multi-job day is one page or one per job.']}],
+  b:[{k:'SM-03',t:'The bundle — forms and tasks only',b:['Defined once centrally, reused across sites.','Named after the moment, not the form.','⚠ "Ritual" is a working label — the name is not settled.']},
+     {k:'SM-03',t:'Cadence — six shapes, four build states',b:['Two already exist, two are extensions, two are new, one unresolved.','Working-days-only is the one that stops four phantom misses a month.','⚠ The "new build" rows rest on absence of evidence, not proof.']},
+     {k:'SM-03',t:'Attach to sites — define once, attach many',b:['One definition covers every site — not 52 configurations.','Each attachment keeps its own cadence, so per-site override is free.','A starter library ships so day one is never blank.']}],
+  c:[{k:'SM-02',t:'Members — hand-picked or rule-based',b:['Nothing like Crew exists in BIS today. 7 of 15 clients bend Location into one.','A rule seeds membership, then it materialises — a live query would falsify history.','Membership must be editable without recreating the crew.']},
+     {k:'SM-02',t:'Supervisor — optional, and coarse',b:['One client has no supervisor role at all, so a crew must work without one.','None / read-only / full edit. Nothing finer.','Grants are additive only — they can never remove access someone already holds.']},
+     {k:'SM-02',t:'Add to a site — one-to-many, both ways',b:['A site holds several crews at once, plus individuals in no crew.','Crew is assigned to a site, not owned by one — they move daily.','This is what pre-populates the attendance checklist.']}],
+  d:[{k:'S-02',t:'Option A — the share sheet',b:['Pick a person or a crew, choose a level, done. Nothing to configure first.','Three levels cover every case in the research.','⚠ Say the ceiling out loud — no fourth level until the system-wide overhaul.']},
+     {k:'S-02',t:'Option B — custom roles',b:['Named, reusable roles with a per-object view/edit grid.','Records Validator is a real client case, not a hypothetical.','Scope is a named set of sites — the half Crew doesn’t cover.']}],
+  e:[{k:'S-04 · SM-02',t:'Attendance on a site, grouped by crew',b:['Crew is what makes the gap attributable rather than one flat list.','Missing people surface as a gap, not a blank.','Present-without-signature is its own state, distinct from absent.']},
+     {k:'S-04',t:'The checklist — one person records what they saw',b:['Pre-populated from the crew. A starting point, not a lock.','Attaches to a Site for the day, or to a Meeting after it happened.','⚠ Per-attendee signing already exists in code — what’s missing is presence without a form.']}],
+  f:[{k:'SM-01 · S-01',t:'Index — the ranking rule',b:['Incomplete above complete, everywhere in the product.','Period and cutoff in the header. Computed on read, snapshotted at close.','Click the dashed row.']},
+     {k:'SM-03 · SM-01',t:'One site — owed against done',b:[outstanding()+' outstanding of 15 owed, grouped by ritual.','The operating calendar is what stops four phantom misses a month.','Click any obligation to open it.']},
+     {k:'SM-03',t:'Inside a ritual — three states, not two',b:['Not started, in progress, completed. A draft is neither done nor missing.','This is the level that names who, which is what makes follow-up possible.','Click a completed row for the attribution step.']},
+     {k:'S-01',t:'Why this submission counted here',b:['Work context is declared on the form, separate from the submitter’s home location.','Reporting today walks the hierarchy from the user, so this would count toward Head Office.','The least visible ticket in the MVP, and one of the most blocking.']}],
+  g:[{k:'SM-04 · SM-02',t:'My crew — same grouping as the web',b:['Rituals group the state here exactly as they do for the admin.','Tap a ritual, a person, or View attendance — three ways in.','"On the field" — the container can be a job as easily as a site.']},
+     {k:'SM-04 · SM-03',t:'Inside FLHA — the same three states',b:['Not started, in progress, completed — identical to the web view.','A draft is not a miss, and collapsing them loses the actionable difference.','Tap a not-started name for the "he’s driving" case.']},
+     {k:'SM-04 · S-04',t:'Mark present without a signature',b:['The one action the research actually evidences.','Recorded as marked-present, distinguishable from a signature.','⚠ Open: signer identity on a shared phone.']},
+     {k:'SM-04 · SM-03',t:'Move a ritual — edit, don’t create',b:['Adjust reality from the field; authoring stays on the web.','Per-site override by construction, because cadence lives on the attachment.','⚠ Open: one person can be on ten sites in a day.']}],
+  h:[{k:'SM-01 · SM-02',t:'Event view — a mode, not a tab',b:['Read-only, timestamped, auto-refreshing, last-refreshed visible.','Opened for muster or incident triage, dormant otherwise.','Tap any person for their detail.']},
+     {k:'SM-02 · S-04',t:'One person — arrival, what’s due, progress',b:['When they arrived, how that was established, and what they still owe.','Marked-present reads differently from signed-in — the record stays honest.','⚠ Arrival time only exists where sign-in does — 13 of 15 have no check-in event.']}],
+  i:[{k:'SM-04',t:'The worker floor — a filter, not a feature',b:['Today/All over the list they already use. No new object, no sync work.','The full worker module is deferred: real demand, limited reach.','Toggle it — All is today’s list; Today is the whole change.']}]
+  };
+}
+
+/* ===================== RENDER ===================== */
+function renderFlows(){
+  document.getElementById('flows').innerHTML=FLOWS.map(function(f){
+    return '<button class="fbtn'+(f.id===st.flow?' on':'')+'" onclick="enterFlow(\''+f.id+'\')">'
+      +'<span class="fl">'+f.label+'</span><span class="fn">'+f.name+'</span><span class="fw">'+f.where+'</span></button>';
+  }).join('');
+}
+function renderRail(){
+  var f=curFlow();
+  var steps=f.steps.map(function(s,i){
+    return '<button class="sbtn'+(i===st.step?' on':(i<st.step?' past':''))+'" onclick="setStep('+i+')">'
+      +'<span class="sn">'+(i+1)+'</span>'+s+'</button>';
+  }).join('<span class="sarrow">→</span>');
+  document.getElementById('steprail').innerHTML=steps
+    +'<div class="stepnav"><button onclick="prevStep()"'+(st.step===0?' disabled':'')+'>‹ Back</button>'
+    +'<button class="next" onclick="nextStep()"'+(st.step===f.steps.length-1?' disabled':'')+'>Next ›</button></div>';
+}
+function render(){
+  renderFlows(); renderRail();
+  var stage=document.getElementById('stage');
+  stage.innerHTML=SCREENS[st.flow][st.step]();
+  var d=FOOT()[st.flow][st.step];
+  document.getElementById('ftitle').innerHTML='<span class="tkt">'+d.k+'</span>'+d.t;
+  document.getElementById('flist').innerHTML=d.b.map(function(x){return '<li>'+x+'</li>';}).join('');
+  stage.scrollTop=0;
+  ['.framewrap','.ann'].forEach(function(sel){ var el=stage.querySelector(sel); if(el) el.scrollTop=0; });
+}
+render();
+</script>
+</body>
+</html>
