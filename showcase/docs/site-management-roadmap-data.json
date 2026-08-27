@@ -9,7 +9,6 @@
     "conflicts": "Top-level `conflicts` records cross-ticket disagreements that are flagged and NOT fixed. Each names the tickets it sits between; the page derives a warning chip on each of those cards and lists the conflict in full in the About view. Nothing here is a decision.",
     "order": "Within a stage, cards render in the order tickets appear in this array. That order is chosen to minimise connector crossings — reorder deliberately. The register groups by tier and preserves the same order inside each group."
   },
-
   "_refresh": {
     "summary": "Claude refreshes this file; the browser never calls BIS PM. A page opened from file:// cannot fetch a sibling JSON, so the HTML carries an inline mirror of this file.",
     "steps": [
@@ -27,7 +26,6 @@
       "Nothing in the HTML fetches anything at runtime except Google Fonts. There is no build step."
     ]
   },
-
   "meta": {
     "title": "Site Management — build order and dependencies",
     "standfirst": "Fourteen tickets on two independent axes. Tier is timing; the SM- / S- prefix is ownership. This is the dependency spine: what has to land first, what builds alongside it, and what explicitly does not gate the MVP.",
@@ -35,25 +33,66 @@
     "lastRefreshed": null,
     "parentKey": "SM-MVP",
     "layerLabels": [
-      { "n": "Stage 0", "label": "Foundations — nothing blocks these" },
-      { "n": "Stage 1", "label": "Builds directly on a foundation" },
-      { "n": "Stage 2", "label": "Second order — waits on stage 1" },
-      { "n": "Stage 3", "label": "Third order — waits on stage 2" },
-      { "n": "Stage 4", "label": "The MVP rollup" }
+      {
+        "n": "Stage 0",
+        "label": "Foundations — nothing blocks these"
+      },
+      {
+        "n": "Stage 1",
+        "label": "Builds directly on a foundation"
+      },
+      {
+        "n": "Stage 2",
+        "label": "Second order — waits on stage 1"
+      },
+      {
+        "n": "Stage 3",
+        "label": "Third order — waits on stage 2"
+      },
+      {
+        "n": "Stage 4",
+        "label": "The MVP rollup"
+      }
     ],
     "standaloneLabel": {
       "n": "No edges",
       "label": "Independent — nothing blocks them, they block nothing"
     },
     "tiers": {
-      "A": { "label": "Tier A", "name": "Ships with MVP", "note": "Blocks release. The MVP does not ship until every one of these lands." },
-      "B": { "label": "Tier B", "name": "Parallel build", "note": "Does not block the MVP, and is active now." },
-      "C": { "label": "Tier C", "name": "After MVP", "note": "Scheduled, not urgent." },
-      "D": { "label": "Tier D", "name": "Backlog", "note": "Not scheduled." }
+      "A": {
+        "label": "Tier A",
+        "name": "Ships with MVP",
+        "note": "Blocks release. The MVP does not ship until every one of these lands."
+      },
+      "B": {
+        "label": "Tier B",
+        "name": "Parallel build",
+        "note": "Does not block the MVP, and is active now."
+      },
+      "C": {
+        "label": "Tier C",
+        "name": "After MVP",
+        "note": "Scheduled, not urgent."
+      },
+      "D": {
+        "label": "Tier D",
+        "name": "Backlog",
+        "note": "Not scheduled."
+      }
     },
     "prefixes": {
-      "SM": { "label": "SM-", "name": "Site Management", "short": "Site mgmt", "note": "Specific to this module. Site Management drives it and Site Management's team builds it." },
-      "S":  { "label": "S-",  "name": "System-wide", "short": "System-wide", "note": "Serves the whole platform. Site Management is the reason it gets prioritised, not its home." }
+      "SM": {
+        "label": "SM-",
+        "name": "Site Management",
+        "short": "Site mgmt",
+        "note": "Specific to this module. Site Management drives it and Site Management's team builds it."
+      },
+      "S": {
+        "label": "S-",
+        "name": "System-wide",
+        "short": "System-wide",
+        "note": "Serves the whole platform. Site Management is the reason it gets prioritised, not its home."
+      }
     },
     "edgeKinds": {
       "required": {
@@ -72,45 +111,117 @@
       }
     }
   },
-
   "conflicts": [
     {
       "id": "competency-gate",
       "title": "Two mechanisms claim the competency gate",
-      "between": ["SM-06", "S-04"],
+      "between": [
+        "SM-06",
+        "S-04"
+      ],
       "what": "The object model routes LMS → Attendance (S-04) for a competency check at sign-in. SM-06 gates the same need on Site Access instead.",
       "state": "Two mechanisms, one need, and no decision on which owns it. Resolve before either ticket is estimated — whichever loses is carrying scope it should not have."
-    },
-    {
-      "id": "meetings-signing",
-      "title": "Meetings' signing route assumes scope Attendance does not claim",
-      "between": ["SM-07", "S-04"],
-      "what": "The stated route is that Meetings collects signatures through Attendance rather than building its own capture. But a meeting is explicitly not a form, and S-04's mechanism is form-bound — the narrowed S-04 no longer delivers attendance outside a form.",
-      "state": "Either S-04 widens to support signing detached from a form submission — scope it does not currently claim — or \"through Attendance\" means reusing a shared signature component rather than S-04's actual mechanism. Undecided. Read side by side, the two ticket files currently contradict each other."
     }
   ],
-
   "edgeMeta": [
-    { "from": "SM-01", "to": "SM-02", "kind": "required", "note": "Crews are assigned to sites." },
-    { "from": "SM-01", "to": "SM-03", "kind": "required", "note": "A ritual attaches to a site and reads its operating calendar." },
-    { "from": "SM-01", "to": "S-02", "kind": "required", "note": "\"A named set of sites\" has no meaning until the Site object exists." },
-    { "from": "SM-01", "to": "SM-05", "kind": "required", "note": "A scannable Site cannot exist before the Site object does — SM-01 is what supplies the alternative to \"must be an owned asset\"." },
-    { "from": "SM-01", "to": "SM-08", "kind": "required", "note": "SM-01's conversion feature creates Sites flat; sub-site structure is deferred here on purpose." },
-    { "from": "SM-01", "to": "SM-04", "kind": "required", "note": "The mobile surfaces render Site state, so there is nothing to render until the Site object exists." },
-    { "from": "SM-01", "to": "SM-MVP", "kind": "required", "note": "Nothing else in the list functions without the Site object." },
-    { "from": "SM-02", "to": "S-04", "kind": "required", "note": "Crew supplies the name list that pre-populates the attendance field." },
-    { "from": "SM-02", "to": "SM-04", "kind": "required", "note": "The \"My Crew\" view in the supervisor surface." },
-    { "from": "SM-02", "to": "SM-07", "kind": "required", "note": "The agreed minimum scope populates a meeting's people list by reusing the crew import, so Meetings cannot be built before Crew exists." },
-    { "from": "SM-02", "to": "SM-MVP", "kind": "required", "note": "View-without-edit and site membership both hang off Crew." },
-    { "from": "SM-02", "to": "S-02", "kind": "partial", "note": "Crew-as-subject grants only. Individual-subject grants are NOT blocked by Crew — the earlier framing that S-02 is wholly downstream of Crew was too strong." },
-    { "from": "SM-03", "to": "SM-MVP", "kind": "required", "note": "Blocks the parent's \"surfacing what's outstanding\" scope." },
-    { "from": "S-01", "to": "SM-MVP", "kind": "required", "note": "The SM slice must ship for SM to push — the comparison has to know which forms count toward which site." },
-    { "from": "S-02", "to": "SM-04", "kind": "partial", "note": "Section A only: the supervisor view's scope — which sites a supervisor sees. The rest of SM-04 is not gated by it, and if S-02 slips, section A needs an interim answer rather than SM-04 stalling." },
-    { "from": "SM-04", "to": "SM-MVP", "kind": "required", "note": "Named in the parent's Blocked by line." }
+    {
+      "from": "SM-01",
+      "to": "SM-02",
+      "kind": "required",
+      "note": "Crews are assigned to sites."
+    },
+    {
+      "from": "SM-01",
+      "to": "SM-03",
+      "kind": "required",
+      "note": "A ritual attaches to a site and reads its operating calendar."
+    },
+    {
+      "from": "SM-01",
+      "to": "S-02",
+      "kind": "required",
+      "note": "\"A named set of sites\" has no meaning until the Site object exists."
+    },
+    {
+      "from": "SM-01",
+      "to": "SM-05",
+      "kind": "required",
+      "note": "A scannable Site cannot exist before the Site object does — SM-01 is what supplies the alternative to \"must be an owned asset\"."
+    },
+    {
+      "from": "SM-01",
+      "to": "SM-08",
+      "kind": "required",
+      "note": "SM-01's conversion feature creates Sites flat; sub-site structure is deferred here on purpose."
+    },
+    {
+      "from": "SM-01",
+      "to": "SM-04",
+      "kind": "required",
+      "note": "The mobile surfaces render Site state, so there is nothing to render until the Site object exists."
+    },
+    {
+      "from": "SM-01",
+      "to": "SM-MVP",
+      "kind": "required",
+      "note": "Nothing else in the list functions without the Site object."
+    },
+    {
+      "from": "SM-02",
+      "to": "S-04",
+      "kind": "required",
+      "note": "Crew supplies the name list that pre-populates the attendance field."
+    },
+    {
+      "from": "SM-02",
+      "to": "SM-04",
+      "kind": "required",
+      "note": "The \"My Crew\" view in the supervisor surface."
+    },
+    {
+      "from": "SM-02",
+      "to": "SM-07",
+      "kind": "required",
+      "note": "The agreed minimum scope populates a meeting's people list by reusing the crew import, so Meetings cannot be built before Crew exists."
+    },
+    {
+      "from": "SM-02",
+      "to": "SM-MVP",
+      "kind": "required",
+      "note": "View-without-edit and site membership both hang off Crew."
+    },
+    {
+      "from": "SM-02",
+      "to": "S-02",
+      "kind": "partial",
+      "note": "Crew-as-subject grants only. Individual-subject grants are NOT blocked by Crew — the earlier framing that S-02 is wholly downstream of Crew was too strong."
+    },
+    {
+      "from": "SM-03",
+      "to": "SM-MVP",
+      "kind": "required",
+      "note": "Blocks the parent's \"surfacing what's outstanding\" scope."
+    },
+    {
+      "from": "S-01",
+      "to": "SM-MVP",
+      "kind": "required",
+      "note": "The SM slice must ship for SM to push — the comparison has to know which forms count toward which site."
+    },
+    {
+      "from": "S-02",
+      "to": "SM-04",
+      "kind": "partial",
+      "note": "Section A only: the supervisor view's scope — which sites a supervisor sees. The rest of SM-04 is not gated by it, and if S-02 slips, section A needs an interim answer rather than SM-04 stalling."
+    },
+    {
+      "from": "SM-04",
+      "to": "SM-MVP",
+      "kind": "required",
+      "note": "Named in the parent's Blocked by line."
+    }
   ],
-
   "tickets": [
-
     {
       "key": "SM-01",
       "title": "Site object",
@@ -136,7 +247,6 @@
       "pmAssignee": null,
       "pmUrl": null
     },
-
     {
       "key": "S-01",
       "title": "Forms report to the right site",
@@ -147,8 +257,14 @@
       "dependsOn": [],
       "relatedTo": [],
       "related": [
-        { "key": "SM-09", "note": "Probably the same underlying issue: the missing form-to-job join key is what blocks the Job anchor." },
-        { "key": "S-03", "note": "The same reporting subsystem from a different direction — one form pointing at the right site, versus one metric spanning several forms." }
+        {
+          "key": "SM-09",
+          "note": "Probably the same underlying issue: the missing form-to-job join key is what blocks the Job anchor."
+        },
+        {
+          "key": "S-03",
+          "note": "The same reporting subsystem from a different direction — one form pointing at the right site, versus one metric spanning several forms."
+        }
       ],
       "blockedByAlso": [],
       "blocksNote": null,
@@ -170,7 +286,6 @@
       "pmAssignee": null,
       "pmUrl": null
     },
-
     {
       "key": "SM-02",
       "title": "Crew object",
@@ -178,7 +293,9 @@
       "role": "child",
       "summary": "Who's answerable for a site, as distinct from who did the work — membership changes daily, and a site takes crews and/or individually added people. Built as a system-wide grouping tool rather than an SM-only feature, so it also serves evaluator lists and delegation fallback. Permissions stay deliberately coarse: none / read-only / full edit.",
       "slice": null,
-      "dependsOn": ["SM-01"],
+      "dependsOn": [
+        "SM-01"
+      ],
       "relatedTo": [],
       "related": [],
       "blockedByAlso": [],
@@ -199,7 +316,6 @@
       "pmAssignee": null,
       "pmUrl": null
     },
-
     {
       "key": "SM-03",
       "title": "Ritual object",
@@ -207,10 +323,15 @@
       "role": "child",
       "summary": "A named bundle of things that belong together — forms and tasks for MVP — defined once centrally and reused across sites. Two layers: the ritual is what's in the bundle; the attachment is which site does it and on what cadence. Cadence lives on the attachment, so the same ritual runs daily at one site and weekly at another.",
       "slice": null,
-      "dependsOn": ["SM-01"],
+      "dependsOn": [
+        "SM-01"
+      ],
       "relatedTo": [],
       "related": [
-        { "key": "S-03", "note": "Overlapping but distinct axes — a ritual bundles what a site owes, a category bundles what a metric spans. Decide which layer owns grouping before building both." }
+        {
+          "key": "S-03",
+          "note": "Overlapping but distinct axes — a ritual bundles what a site owes, a category bundles what a metric spans. Decide which layer owns grouping before building both."
+        }
       ],
       "blockedByAlso": [],
       "blocksNote": null,
@@ -237,7 +358,6 @@
       "pmAssignee": null,
       "pmUrl": null
     },
-
     {
       "key": "SM-04",
       "title": "Mobile",
@@ -245,10 +365,17 @@
       "role": "child",
       "summary": "Supervisor and worker surfaces — SM's mobile half as one ticket, one platform, one team, carrying the offline and device-profile decisions with it. The shape is settled: a layer that annotates surfaces people already use rather than becoming its own area, phone-primary and often shared. Worker-side is pull, never push, with dual visibility so a site-assigned item also appears in the normal assigned-forms list.",
       "slice": null,
-      "dependsOn": ["SM-01", "SM-02", "S-02"],
+      "dependsOn": [
+        "SM-01",
+        "SM-02",
+        "S-02"
+      ],
       "relatedTo": [],
       "related": [
-        { "key": "S-04", "note": "Signer identity on shared devices — the existing remote/deferred signing path may already answer it." }
+        {
+          "key": "S-04",
+          "note": "Signer identity on shared devices — the existing remote/deferred signing path may already answer it."
+        }
       ],
       "blockedByAlso": [
         "The parent's comparison logic — mobile consumes computed state, it does not compute it.",
@@ -278,7 +405,6 @@
       "pmAssignee": null,
       "pmUrl": null
     },
-
     {
       "key": "SM-MVP",
       "title": "Site Management MVP",
@@ -286,7 +412,13 @@
       "role": "parent",
       "summary": "The parent ticket. It carries the full MVP scope and links each child, so QA and reviewers can see the whole project in one view. Done, in client terms: a corporate safety lead at a 52-branch client opens Site Management, sees every branch reading current or N outstanding, clicks into one branch and sees what it owed this month against what was done — and builds nothing to get there.",
       "slice": null,
-      "dependsOn": ["SM-01", "SM-02", "SM-03", "SM-04", "S-01"],
+      "dependsOn": [
+        "SM-01",
+        "SM-02",
+        "SM-03",
+        "SM-04",
+        "S-01"
+      ],
       "relatedTo": [],
       "related": [],
       "blockedByAlso": [],
@@ -313,7 +445,6 @@
       "pmAssignee": null,
       "pmUrl": null
     },
-
     {
       "key": "S-02",
       "title": "Scoped permissions",
@@ -321,7 +452,10 @@
       "role": "child",
       "summary": "Separate view from edit; grant across a named set of sites. Two open interaction models — a share sheet (subject → access level) vs. named custom roles with a per-object grid. Both evidenced; present both, don't pick one before the room does. Every grant has two halves, a subject (a crew or an individual) and a scope (a named set of sites), and grants are additive only — a grant can give access, never remove it.",
       "slice": "SM-scoped custom permissions built into the new module out of the box — it helps SM-04's supervisor view and SM-02's view-without-edit grant.",
-      "dependsOn": ["SM-01", "SM-02"],
+      "dependsOn": [
+        "SM-01",
+        "SM-02"
+      ],
       "relatedTo": [],
       "related": [],
       "blockedByAlso": [],
@@ -346,22 +480,23 @@
       "pmAssignee": null,
       "pmUrl": null
     },
-
     {
       "key": "S-04",
-      "title": "Attendance with individual signatures",
+      "title": "Attendance",
       "tier": "B",
       "role": "child",
-      "summary": "Individual signatures, crew pre-populated. ⚠ Approach contested. Two positions are on record — pre-populate the existing attendance form field as a quick win, versus building phase 1 of the standalone attendance tool instead rather than extending a field the platform intends to phase out. This ticket documents the narrower option; it is not a decision.",
-      "slice": "Crew pre-population on the attendance field, so ritual fulfilment is trustworthy — toolbox talks are the most common ritual in the corpus.",
-      "dependsOn": ["SM-02"],
+      "summary": "A supervisor checklist (attachable to a Site, or to a Meeting after the fact), plus a separate crew-on-form-field quick win. The two never link — that is the design. Per-attendee signing already exists in code; what was missing is recording presence without a form, and filling the list without typing.",
+      "slice": "Crew pre-populates the checklist, so one supervisor records who was actually present — one person needs a device, not the whole crew. Decisive given how many clients cannot get the app onto workers at all.",
+      "dependsOn": [
+        "SM-02"
+      ],
       "relatedTo": [],
       "related": [],
       "blockedByAlso": [],
-      "blocksNote": "Nothing waits on it. SM-07 used to, and no longer does — which is a problem rather than a simplification. See the flagged conflict.",
+      "blocksNote": "SM-07 Meetings — its attendance comes from the supervisor checklist, which works outside a form. That is the fact SM-07 was waiting on.",
       "maturity": null,
       "mvpBlocking": false,
-      "mvpNote": "Tier B — parallel build, active now. Not release-blocking: today's bulk-attest already produces a signal the comparison can match against, so individual signing makes the record correct rather than possible.",
+      "mvpNote": "Tier B — parallel build, active now. Not release-blocking, but the crew-on-form-field half is small and stops foremen retyping 20–30 names.",
       "boundary": "Attendance capture only. The meeting / toolbox-talk content object is split out as SM-07. A universal cross-system signing tool stays the long-term goal, not the MVP.",
       "openQuestions": [
         "The approach itself is contested and goes to the presentation meeting. A later session decided to build a standalone phase-1 attendance tool with an explicit no-linking rule between the two, and redefined the MVP as a supervisor checklist and nothing more. This ticket's current content reflects the earlier direction and needs a rewrite pass before it is presented as current.",
@@ -380,7 +515,6 @@
       "pmAssignee": null,
       "pmUrl": null
     },
-
     {
       "key": "SM-09",
       "title": "Job",
@@ -391,9 +525,18 @@
       "dependsOn": [],
       "relatedTo": [],
       "related": [
-        { "key": "SM-02", "note": "The ownership-direction question: does a Crew own many Jobs, or a Job own a Crew? Only one client's evidence, and it reads as crew-owns-jobs." },
-        { "key": "S-01", "note": "Probably the same anchor S-01's coverage argument names — the missing form-to-job join key is what leaves this group unserved." },
-        { "key": "S-03", "note": "Two of S-03's three originally cited clients moved here on re-verification: their root problem was a missing container, not un-groupable forms." }
+        {
+          "key": "SM-02",
+          "note": "The ownership-direction question: does a Crew own many Jobs, or a Job own a Crew? Only one client's evidence, and it reads as crew-owns-jobs."
+        },
+        {
+          "key": "S-01",
+          "note": "Probably the same anchor S-01's coverage argument names — the missing form-to-job join key is what leaves this group unserved."
+        },
+        {
+          "key": "S-03",
+          "note": "Two of S-03's three originally cited clients moved here on re-verification: their root problem was a missing container, not un-groupable forms."
+        }
       ],
       "blockedByAlso": [],
       "blocksNote": "Nothing waits on it — including the MVP's web interface. The Sites index will need a second row-shape once Job lands, but that is later work, not a gate.",
@@ -420,7 +563,6 @@
       "pmAssignee": null,
       "pmUrl": null
     },
-
     {
       "key": "S-03",
       "title": "Form grouping / category layer",
@@ -431,9 +573,18 @@
       "dependsOn": [],
       "relatedTo": [],
       "related": [
-        { "key": "SM-09", "note": "Where the evidence went: two of the three originally cited clients were re-verified as needing the Job object, because their root problem was a missing container rather than un-groupable forms." },
-        { "key": "SM-03", "note": "Overlapping but distinct axes — a ritual bundles what a site owes, a category bundles what a metric spans." },
-        { "key": "S-01", "note": "The same reporting subsystem from a different direction, and the ticket that relativises this one's coverage claim." }
+        {
+          "key": "SM-09",
+          "note": "Where the evidence went: two of the three originally cited clients were re-verified as needing the Job object, because their root problem was a missing container rather than un-groupable forms."
+        },
+        {
+          "key": "SM-03",
+          "note": "Overlapping but distinct axes — a ritual bundles what a site owes, a category bundles what a metric spans."
+        },
+        {
+          "key": "S-01",
+          "note": "The same reporting subsystem from a different direction, and the ticket that relativises this one's coverage claim."
+        }
       ],
       "blockedByAlso": [],
       "blocksNote": "Nothing in the MVP — decided Aug 24. SM-03's ritual bundle already groups what a site owes.",
@@ -457,7 +608,6 @@
       "pmAssignee": null,
       "pmUrl": null
     },
-
     {
       "key": "SM-05",
       "title": "Object-scan to open the right form",
@@ -465,11 +615,19 @@
       "role": "child",
       "summary": "Scan an asset and its form, task or folder opens immediately — context supplied, no list to hunt through. Extends what already works; the unblock is removing the requirement that the scanned thing be an owned asset, which is the restriction that lost one client's business.",
       "slice": null,
-      "dependsOn": ["SM-01"],
+      "dependsOn": [
+        "SM-01"
+      ],
       "relatedTo": [],
       "related": [
-        { "key": "SM-03", "note": "When a scanned Site owes a bundle, the ritual is what the scan should resolve to." },
-        { "key": "S-04", "note": "The attendance field's existing QR-code option may be this same mechanism approached from the other end. Check it before building a second one." }
+        {
+          "key": "SM-03",
+          "note": "When a scanned Site owes a bundle, the ritual is what the scan should resolve to."
+        },
+        {
+          "key": "S-04",
+          "note": "The attendance field's existing QR-code option may be this same mechanism approached from the other end. Check it before building a second one."
+        }
       ],
       "blockedByAlso": [
         "The offline decision in SM-04 section 3.",
@@ -491,7 +649,6 @@
       "pmAssignee": null,
       "pmUrl": null
     },
-
     {
       "key": "SM-06",
       "title": "Multi-topic competency gate on Site Access",
@@ -502,7 +659,10 @@
       "dependsOn": [],
       "relatedTo": [],
       "related": [
-        { "key": "SM-01", "note": "Via the eventual Site Access replacement path, not via MVP scope — SM-01 leaves Site Access untouched for MVP, and this is the ticket that changes it." }
+        {
+          "key": "SM-01",
+          "note": "Via the eventual Site Access replacement path, not via MVP scope — SM-01 leaves Site Access untouched for MVP, and this is the ticket that changes it."
+        }
       ],
       "blockedByAlso": [],
       "blocksNote": "Nothing on the MVP critical path. The parent's interface can consume the competency signal if it exists, and simply doesn't show it if it doesn't.",
@@ -525,20 +685,31 @@
       "pmAssignee": null,
       "pmUrl": null
     },
-
     {
       "key": "SM-07",
       "title": "Meetings",
       "tier": "C",
       "role": "child",
-      "summary": "The object behind a daily safety meeting or toolbox talk, client-labelled. Trigger and object model decided; signing route open. Clients call it different things — safety meetings, daily safety meetings, toolbox talks — so the object carries a client-set custom name rather than one the product picks. Split out of S-04 because product leadership ruled out building the attendance tool and this at the same time.",
+      "summary": "The object behind a daily safety meeting or toolbox talk, client-labelled. Trigger, object model and signing route (via S-04's checklist) all decided.",
       "slice": null,
-      "dependsOn": ["SM-02"],
+      "dependsOn": [
+        "SM-02",
+        "S-04"
+      ],
       "relatedTo": [],
       "related": [
-        { "key": "SM-03", "note": "A meeting may be a ritual, or may sit inside one — worth settling before build." },
-        { "key": "SM-04", "note": "The calendar view lands on the mobile surface." },
-        { "key": "S-04", "note": "No longer a blocker, and that is the problem — see the flagged conflict on signing." }
+        {
+          "key": "SM-03",
+          "note": "A meeting may be a ritual, or may sit inside one — worth settling before build."
+        },
+        {
+          "key": "SM-04",
+          "note": "The calendar view lands on the mobile surface."
+        },
+        {
+          "key": "S-04",
+          "note": "No longer a blocker, and that is the problem — see the flagged conflict on signing."
+        }
       ],
       "blockedByAlso": [],
       "blocksNote": "Nothing waits on it.",
@@ -560,7 +731,6 @@
       "pmAssignee": null,
       "pmUrl": null
     },
-
     {
       "key": "SM-08",
       "title": "Sub-site work sections",
@@ -568,11 +738,19 @@
       "role": "child",
       "summary": "Multiple work areas or job numbers beneath one physical site. Likely mobile and transient rather than fixed structure — and possibly expressible as Crews rather than as sub-sites, which is worth testing before building a new hierarchy level.",
       "slice": null,
-      "dependsOn": ["SM-01"],
+      "dependsOn": [
+        "SM-01"
+      ],
       "relatedTo": [],
       "related": [
-        { "key": "SM-02", "note": "Test whether Crew already expresses this before adding a hierarchy level." },
-        { "key": "S-01", "note": "Shares two of this ticket's three clients, and may be the better answer to the one-crew-six-job-numbers case." }
+        {
+          "key": "SM-02",
+          "note": "Test whether Crew already expresses this before adding a hierarchy level."
+        },
+        {
+          "key": "S-01",
+          "note": "Shares two of this ticket's three clients, and may be the better answer to the one-crew-six-job-numbers case."
+        }
       ],
       "blockedByAlso": [],
       "blocksNote": "Nothing in the initiative waits on this.",
@@ -594,6 +772,5 @@
       "pmAssignee": null,
       "pmUrl": null
     }
-
   ]
 }
