@@ -18,7 +18,25 @@
   inside 100dvh. The page itself never scrolls. Four views share the shell —
   Map (the dependency canvas), Scope (the parent ticket's eight interface scope
   items against the children that gate them), Register (the full ticket table)
-  and About (what this is, the tiers in full, and how it refreshes).
+  and About (what this is, the three client lenses, the two classification axes,
+  the unresolved cross-ticket conflicts, and how it refreshes).
+
+  ── THE TWO AXES ──────────────────────────────────────────────────────────────
+  TIER IS TIMING; THE PREFIX IS OWNERSHIP. They are independent, and the earlier
+  version of this page conflated them — it named a tier after an ownership class,
+  which made an ownership label look like a schedule slot. That is why S-01 sat
+  outside Tier A despite always having been MVP-blocking.
+
+    Tier A  ships with MVP · blocks release        SM-  Site-Management-specific
+    Tier B  parallel build · active now             S-  system-wide, serves the
+    Tier C  after MVP · scheduled, not urgent           whole platform
+    Tier D  backlog · not scheduled
+
+  Tier owns the colour coding — the card's top stripe, the key chip, the matrix
+  cells. Ownership deliberately gets NO colour: it is a muted mono mark on the
+  right of each card (.own), a legend section, and a line in the panel header.
+  Anything filled or tinted there would read as a third tier. The prefix is
+  DERIVED from the key, never stored, so the two can't drift apart.
 
   Map and Scope are two readings of the same project at two grains. The Map is
   ticket-to-ticket: what blocks what. The Scope matrix goes one level finer —
@@ -308,6 +326,10 @@ button{font:inherit;color:inherit}
 #wires path{fill:none;stroke-linecap:round;
   transition:opacity .18s ease,stroke-width .18s ease,filter .18s ease}
 path.e-required{stroke:var(--accent);stroke-width:1.7}
+/* "partial" is the conditional edge: a real dependency that gates only PART of
+   the target. Dash-dot rather than a plain dash, so it can never be mistaken for
+   the even dashes of a related line or the fine dots of an open one. */
+path.e-partial{stroke:var(--part);stroke-width:1.9;stroke-dasharray:9 4 2 4}
 path.e-open{stroke:var(--part);stroke-width:1.8;stroke-dasharray:1 5}
 path.e-related{stroke:var(--edge-rel);stroke-width:1.6;stroke-dasharray:7 5}
 #wires path.dim{opacity:var(--wire-dim)}
@@ -315,6 +337,7 @@ path.e-related{stroke:var(--edge-rel);stroke-width:1.6;stroke-dasharray:7 5}
    the dash gaps are widened so a fattened dotted line can't read as solid. */
 #wires path.hot{opacity:1;filter:drop-shadow(0 0 5px var(--glow))}
 path.e-required.hot{stroke-width:3.2}
+path.e-partial.hot{stroke-width:3.2;stroke-dasharray:11 6 2 6}
 path.e-open.hot{stroke-width:3.2;stroke-dasharray:1 9}
 path.e-related.hot{stroke-width:3;stroke-dasharray:10 7}
 /* Scoped under #wires deliberately: the arrowhead paths live inside <defs> in
@@ -323,6 +346,7 @@ path.e-related.hot{stroke-width:3;stroke-dasharray:10 7}
    is what lets the tokens actually reach the markers — and it is why the heads
    re-colour with the theme alongside the lines they cap. */
 #wires .ah-required{fill:var(--accent)}
+#wires .ah-partial{fill:var(--part)}
 #wires .ah-open{fill:var(--part)}
 #wires .ah-related{fill:var(--edge-rel)}
 
@@ -375,6 +399,16 @@ path.e-related.hot{stroke-width:3;stroke-dasharray:10 7}
   border:1px dashed var(--rule);white-space:nowrap;text-decoration:none}
 .pm.live{border-style:solid;border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 a.pm.live:hover{background:var(--accent);color:var(--surface)}
+
+/* ─── ownership mark (the second axis) ────────────────────────────────────────
+   Tier is timing and owns the colour coding. OWNERSHIP is the other axis, and
+   it deliberately gets no colour of its own — it is a right-aligned typographic
+   mark in the muted ink, so it can be scanned down a column of cards without
+   ever competing with the tier stripe. Anything filled or coloured here would
+   read as a third tier. */
+.own{margin-left:auto;flex:0 0 auto;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:8.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-3);white-space:nowrap}
 .card h4{margin:0;font-size:15px;font-weight:600;line-height:1.32;letter-spacing:-.005em;
   text-wrap:balance}
 .card-chips{display:flex;flex-wrap:wrap;gap:5px}
@@ -385,6 +419,11 @@ a.pm.live:hover{background:var(--accent);color:var(--surface)}
 .chip.mvp-open{color:var(--part);border-color:var(--part);background:var(--part-soft)}
 .chip.mvp-no{color:var(--ink-3);border-color:var(--rule);background:var(--surface-2)}
 .chip.flag{color:var(--bad);border-color:var(--bad);background:var(--bad-soft)}
+/* A FILLED red, deliberately the loudest chip on the page. "Create ticket now"
+   is an outline red because it is an action; an unresolved cross-ticket conflict
+   is a fact about the plan being wrong somewhere, and it should stop the eye. */
+.chip.conflict{color:var(--surface);border-color:var(--bad);background:var(--bad)}
+.chip.caution{color:var(--part);border-color:var(--part);background:var(--part-soft)}
 .card-deps{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;
   color:var(--ink-3);line-height:1.5;border-top:1px solid var(--rule-2);padding-top:7px}
 .card-deps span{white-space:nowrap;margin-right:10px}
@@ -415,6 +454,12 @@ a.pm.live:hover{background:var(--accent);color:var(--surface)}
 .sw-a{background:var(--tier-a)} .sw-b{background:var(--tier-b)}
 .sw-c{background:var(--tier-c)} .sw-d{background:var(--tier-d)}
 .leg-line{flex:0 0 auto;width:30px;height:12px;margin-top:3px}
+/* The prefix key gets a text mark, not a swatch — the ownership axis has no
+   colour by design, and inventing one here would undo that. */
+.leg-pfx{flex:0 0 auto;width:23px;margin-top:1px;text-align:right;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:10.5px;font-weight:600;
+  letter-spacing:.04em;color:var(--ink-2)}
+.leg-note{margin:8px 0 0;font-size:11px;line-height:1.45;color:var(--ink-3)}
 .leg-foot{margin:10px 0 0;padding-top:9px;border-top:1px solid var(--rule-2);
   font-size:11px;line-height:1.45;color:var(--ink-3);display:flex;gap:8px;align-items:flex-start}
 .leg-foot .pm{flex:0 0 auto}
@@ -550,6 +595,16 @@ td a{color:var(--accent)}
   padding:22px 24px;margin:0 0 18px;max-width:780px}
 .callout h3{margin:0 0 10px;font-size:16.5px;font-weight:600;color:var(--ink)}
 .callout p:last-child{margin-bottom:0}
+/* A conflict callout. Same frame, red rule instead of accent — these are the
+   two places the plan is known to disagree with itself, and the About view is
+   where they are stated in full rather than compressed to a chip. */
+.callout.warn{border-top-color:var(--bad)}
+.callout .cf-keys{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 11px}
+.callout .cf-keys .k{cursor:pointer;border:1px solid transparent}
+.callout .cf-keys .k:hover{border-color:var(--tier,var(--accent))}
+.callout .cf-state{margin-top:11px;padding-top:10px;border-top:1px solid var(--rule-2);
+  font-size:14px;line-height:1.6;color:var(--ink-2)}
+.callout .cf-state b{color:var(--bad);font-weight:600}
 .callout ol{margin:0 0 4px;padding-left:20px;font-size:14px;line-height:1.6;color:var(--ink-2)}
 .callout li{margin-bottom:7px}
 code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
@@ -670,8 +725,12 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
   .themer{padding:2px}
   .themer button{width:26px}
 }
-@media (max-height:620px){
-  .legend[data-open="true"] .legend-body{max-height:38vh;overflow:auto}
+/* The legend carries two classification keys now, not one, so it is taller than
+   it was. Raised from 620 to 700 so a 1366×768 laptop — where the viewport lands
+   around 640px once browser chrome is taken off — caps and scrolls the body
+   instead of pushing the legend off the bottom of the canvas. */
+@media (max-height:700px){
+  .legend[data-open="true"] .legend-body{max-height:42vh;overflow:auto}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
@@ -713,8 +772,11 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     "what": "Data behind site-management-roadmap.html. Every ticket object has two halves: STATIC fields authored from the ticket scope files, and LIVE fields (pmTicketNumber / pmStatus / pmAssignee / pmUrl) that stay null until the tickets exist in BIS PM.",
     "source": "_notes/scope/Site Managment/scope/parent-site-management-mvp.md",
     "authority": "parent-site-management-mvp.md is the source of truth for every STATIC field. Do not invent tickets or dependencies here.",
+    "axes": "TWO INDEPENDENT AXES, and conflating them is the mistake the old tier system made. TIER is timing — A ships with MVP, B builds in parallel, C comes after, D is backlog. PREFIX is ownership — SM- is Site-Management-specific, S- serves the whole platform. A ticket's prefix does not determine its tier: S-01 is an S-ticket in Tier A, SM-08 is an SM-ticket in Tier D. Prefix is derived from the key in the page; it is not a stored field.",
     "structure": "Graph structure comes from each ticket's dependsOn (hard prerequisites) and relatedTo (relationships that do not gate the target). edgeMeta only decorates those edges with a kind + note; an edge with no edgeMeta entry defaults to kind 'required'. Stage/layer position is computed in the page by longest-path layering, so adding a dependency re-lays-out the graph automatically.",
-    "order": "Within a stage, cards render in the order tickets appear in this array. That order is chosen to minimise connector crossings — reorder deliberately."
+    "nonTicketFields": "Three fields carry things the edge model cannot. `blockedByAlso` is an array of non-ticket blockers (a pending decision, a pre-build confirmation) — real gates with no card to draw an arrow from. `blocksNote` qualifies an empty Blocks list. `related` is a display-only relationship list that deliberately draws NO edge, so a ticket that blocks nothing still reads as connected to the tickets it touches.",
+    "conflicts": "Top-level `conflicts` records cross-ticket disagreements that are flagged and NOT fixed. Each names the tickets it sits between; the page derives a warning chip on each of those cards and lists the conflict in full in the About view. Nothing here is a decision.",
+    "order": "Within a stage, cards render in the order tickets appear in this array. That order is chosen to minimise connector crossings — reorder deliberately. The register groups by tier and preserves the same order inside each group."
   },
 
   "_refresh": {
@@ -729,7 +791,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "7. CRITICAL — also rewrite the inline mirror inside site-management-roadmap.html, between the ROADMAP-DATA:BEGIN and ROADMAP-DATA:END comment markers. The two must stay byte-identical, or a double-clicked page will show stale data. The page footer reports which source it actually used."
     ],
     "notes": [
-      "No tickets exist in BIS PM yet, so every LIVE field starts null and every card shows the muted '#—' placeholder chip.",
+      "No tickets exist in BIS PM yet, so every LIVE field starts null and every card shows the muted '#—' placeholder chip. This page is published to a public repo, so live BIS PM URLs are a separate decision — do not fill these in without being asked.",
       "S-03, SM-06 and SM-07 are flagged 'Create ticket now' in the scope files — they are the likely first three to get real numbers.",
       "Nothing in the HTML fetches anything at runtime except Google Fonts. There is no build step."
     ]
@@ -737,47 +799,83 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
 
   "meta": {
     "title": "Site Management — build order and dependencies",
-    "standfirst": "Thirteen tickets, four tiers, one MVP. This is the dependency spine: what has to land first, what can land in parallel, and what explicitly does not gate the MVP.",
-    "generated": "2026-08-25",
+    "standfirst": "Fourteen tickets on two independent axes. Tier is timing; the SM- / S- prefix is ownership. This is the dependency spine: what has to land first, what builds alongside it, and what explicitly does not gate the MVP.",
+    "generated": "2026-08-27",
     "lastRefreshed": null,
     "parentKey": "SM-MVP",
     "layerLabels": [
       { "n": "Stage 0", "label": "Foundations — nothing blocks these" },
       { "n": "Stage 1", "label": "Builds directly on a foundation" },
       { "n": "Stage 2", "label": "Second order — waits on stage 1" },
-      { "n": "Stage 3", "label": "The MVP rollup" }
+      { "n": "Stage 3", "label": "Third order — waits on stage 2" },
+      { "n": "Stage 4", "label": "The MVP rollup" }
     ],
     "standaloneLabel": {
       "n": "No edges",
       "label": "Independent — nothing blocks them, they block nothing"
     },
     "tiers": {
-      "A": { "label": "Tier A", "name": "Site Management MVP", "note": "The parent plus the four objects the MVP is made of." },
-      "B": { "label": "Tier B", "name": "System-wide (S)", "note": "Cross-module work. One slice is MVP-blocking; the rest are not." },
-      "C": { "label": "Tier C", "name": "Strengthens SM", "note": "Real value, not required for MVP." },
-      "D": { "label": "Tier D", "name": "Backlog", "note": "Revisit post-MVP." }
+      "A": { "label": "Tier A", "name": "Ships with MVP", "note": "Blocks release. The MVP does not ship until every one of these lands." },
+      "B": { "label": "Tier B", "name": "Parallel build", "note": "Does not block the MVP, and is active now." },
+      "C": { "label": "Tier C", "name": "After MVP", "note": "Scheduled, not urgent." },
+      "D": { "label": "Tier D", "name": "Backlog", "note": "Not scheduled." }
+    },
+    "prefixes": {
+      "SM": { "label": "SM-", "name": "Site Management", "short": "Site mgmt", "note": "Specific to this module. Site Management drives it and Site Management's team builds it." },
+      "S":  { "label": "S-",  "name": "System-wide", "short": "System-wide", "note": "Serves the whole platform. Site Management is the reason it gets prioritised, not its home." }
     },
     "edgeKinds": {
-      "required": { "label": "Hard prerequisite", "note": "The target cannot be built until the source lands." },
-      "open": { "label": "MVP inclusion open", "note": "The dependency is real, but whether it lands inside the MVP is pending team sign-off." },
-      "related": { "label": "Related, not blocking", "note": "A real relationship that does not gate the target. Decided Aug 24." }
+      "required": {
+        "label": "Hard prerequisite",
+        "note": "The target cannot be built until the source lands.",
+        "stroke": "var(--accent)",
+        "width": 1.8,
+        "dash": null
+      },
+      "partial": {
+        "label": "Conditional — part only",
+        "note": "A real dependency that gates only part of the target. The rest of that ticket is not blocked, so this line must not be read as a whole-ticket gate.",
+        "stroke": "var(--part)",
+        "width": 1.9,
+        "dash": "9 4 2 4"
+      }
     }
   },
 
+  "conflicts": [
+    {
+      "id": "competency-gate",
+      "title": "Two mechanisms claim the competency gate",
+      "between": ["SM-06", "S-04"],
+      "what": "The object model routes LMS → Attendance (S-04) for a competency check at sign-in. SM-06 gates the same need on Site Access instead.",
+      "state": "Two mechanisms, one need, and no decision on which owns it. Resolve before either ticket is estimated — whichever loses is carrying scope it should not have."
+    },
+    {
+      "id": "meetings-signing",
+      "title": "Meetings' signing route assumes scope Attendance does not claim",
+      "between": ["SM-07", "S-04"],
+      "what": "The stated route is that Meetings collects signatures through Attendance rather than building its own capture. But a meeting is explicitly not a form, and S-04's mechanism is form-bound — the narrowed S-04 no longer delivers attendance outside a form.",
+      "state": "Either S-04 widens to support signing detached from a form submission — scope it does not currently claim — or \"through Attendance\" means reusing a shared signature component rather than S-04's actual mechanism. Undecided. Read side by side, the two ticket files currently contradict each other."
+    }
+  ],
+
   "edgeMeta": [
+    { "from": "SM-01", "to": "SM-02", "kind": "required", "note": "Crews are assigned to sites." },
     { "from": "SM-01", "to": "SM-03", "kind": "required", "note": "A ritual attaches to a site and reads its operating calendar." },
+    { "from": "SM-01", "to": "S-02", "kind": "required", "note": "\"A named set of sites\" has no meaning until the Site object exists." },
+    { "from": "SM-01", "to": "SM-05", "kind": "required", "note": "A scannable Site cannot exist before the Site object does — SM-01 is what supplies the alternative to \"must be an owned asset\"." },
+    { "from": "SM-01", "to": "SM-08", "kind": "required", "note": "SM-01's conversion feature creates Sites flat; sub-site structure is deferred here on purpose." },
+    { "from": "SM-01", "to": "SM-04", "kind": "required", "note": "The mobile surfaces render Site state, so there is nothing to render until the Site object exists." },
     { "from": "SM-01", "to": "SM-MVP", "kind": "required", "note": "Nothing else in the list functions without the Site object." },
-    { "from": "SM-02", "to": "S-02", "kind": "required", "note": "Crew is the thing scoped permissions scopes to." },
     { "from": "SM-02", "to": "S-04", "kind": "required", "note": "Crew supplies the name list that pre-populates the attendance field." },
+    { "from": "SM-02", "to": "SM-04", "kind": "required", "note": "The \"My Crew\" view in the supervisor surface." },
+    { "from": "SM-02", "to": "SM-07", "kind": "required", "note": "The agreed minimum scope populates a meeting's people list by reusing the crew import, so Meetings cannot be built before Crew exists." },
     { "from": "SM-02", "to": "SM-MVP", "kind": "required", "note": "View-without-edit and site membership both hang off Crew." },
+    { "from": "SM-02", "to": "S-02", "kind": "partial", "note": "Crew-as-subject grants only. Individual-subject grants are NOT blocked by Crew — the earlier framing that S-02 is wholly downstream of Crew was too strong." },
     { "from": "SM-03", "to": "SM-MVP", "kind": "required", "note": "Blocks the parent's \"surfacing what's outstanding\" scope." },
-    { "from": "SM-04", "to": "SM-MVP", "kind": "required", "note": "Named in the parent's Blocked by line." },
     { "from": "S-01", "to": "SM-MVP", "kind": "required", "note": "The SM slice must ship for SM to push — the comparison has to know which forms count toward which site." },
-    { "from": "S-02", "to": "SM-04", "kind": "open", "note": "The supervisor site/crew overview depends on S-02, pending MVP confirmation." },
-    { "from": "S-02", "to": "SM-MVP", "kind": "open", "note": "The parent lists S-02 under \"related, not blocking\"; S-02's own ticket marks MVP inclusion as open, needing team sign-off. Both readings are recorded here rather than picking one." },
-    { "from": "S-03", "to": "SM-MVP", "kind": "related", "note": "Decided Aug 24 — no longer a blocking dependency of the parent's surfacing scope. SM-03's ritual bundle already groups what a site owes." },
-    { "from": "S-04", "to": "SM-MVP", "kind": "related", "note": "Today's bulk-attest already produces a signal the comparison can match against. Individual signing makes it correct, not possible." },
-    { "from": "S-04", "to": "SM-07", "kind": "required", "note": "SM-07 sits on top of S-04's attendance capture." }
+    { "from": "S-02", "to": "SM-04", "kind": "partial", "note": "Section A only: the supervisor view's scope — which sites a supervisor sees. The rest of SM-04 is not gated by it, and if S-02 slips, section A needs an interim answer rather than SM-04 stalling." },
+    { "from": "SM-04", "to": "SM-MVP", "kind": "required", "note": "Named in the parent's Blocked by line." }
   ],
 
   "tickets": [
@@ -791,6 +889,10 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "slice": null,
       "dependsOn": [],
       "relatedTo": [],
+      "related": [],
+      "blockedByAlso": [],
+      "blocksNote": null,
+      "maturity": null,
       "mvpBlocking": true,
       "mvpNote": "MVP-blocking. Nothing else in this list functions without it.",
       "boundary": "Assets keeps things — vehicles, equipment, properties. Site keeps place and work context.",
@@ -805,41 +907,28 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     },
 
     {
-      "key": "SM-02",
-      "title": "Crew object",
-      "tier": "A",
-      "role": "child",
-      "summary": "Who's answerable for a site, as distinct from who did the work — membership changes daily, and a site takes crews and/or individually added people. Built as a system-wide grouping tool rather than an SM-only feature, so it also serves evaluator lists and delegation fallback. Permissions stay deliberately coarse: none / read-only / full edit.",
-      "slice": null,
-      "dependsOn": [],
-      "relatedTo": [],
-      "mvpBlocking": true,
-      "mvpNote": "MVP-blocking.",
-      "boundary": "Not work dispatch, not a static org chart. View-without-edit only for MVP.",
-      "openQuestions": [],
-      "scope": [],
-      "actionFlag": null,
-      "evidence": "7 of 15 clients have no crew object and bend Location into one. Named Crew, not Group — decided, because Group collides with the existing Permission Group / Company Group feature in BIS Admin.",
-      "pmTicketNumber": null,
-      "pmStatus": null,
-      "pmAssignee": null,
-      "pmUrl": null
-    },
-
-    {
       "key": "S-01",
       "title": "Forms report to the right site",
-      "tier": "B",
+      "tier": "A",
       "role": "child",
       "summary": "Count a form toward the site the work was for — not the worker's home location. A submission can declare the work context it reports against — business unit, job, customer site, crew — independent of where the submitter is based or where they physically were. The data often already exists on the submission; the gap is that the reporting layer can't query it. Not a new hierarchy: an attribute clients already fill in that the system currently drops.",
       "slice": "Only the read path: SM can group and count forms by the site the work was for, so the comparison knows which forms count toward which site.",
       "dependsOn": [],
       "relatedTo": [],
+      "related": [
+        { "key": "SM-09", "note": "Probably the same underlying issue: the missing form-to-job join key is what blocks the Job anchor." },
+        { "key": "S-03", "note": "The same reporting subsystem from a different direction — one form pointing at the right site, versus one metric spanning several forms." }
+      ],
+      "blockedByAlso": [],
+      "blocksNote": null,
+      "maturity": null,
       "mvpBlocking": true,
-      "mvpNote": "MVP-blocking — this slice must ship for SM to push. The full initiative (reporting filtering, hierarchy separation, retrofitting existing submissions) is post-SM and not blocking.",
+      "mvpNote": "MVP-blocking — this slice must ship for SM to push. Moved into Tier A on 2026-08-27: it was always MVP-blocking and only sat in the old \"Tier B\" because that system conflated ownership with timing. The full initiative (reporting filtering, hierarchy separation, retrofitting existing submissions) is post-SM and not blocking.",
       "boundary": "Likely the first slice of something larger. Getting a form to report against the work context it was for — rather than the submitter's home location — is the same underlying problem as tying reports generally to the right place. That larger initiative isn't scoped and isn't this ticket. What Site Management needs is only the read path: SM can group and count forms by the site the work was for. The reporting-layer half, where the client-visible payoff lands, ships on its own timeline.",
       "openQuestions": [
-        "Is every client's work-context field the same field? One client carries a business unit, another links to Job, a third needs a customer site that doesn't exist as an object. This may be one configurable attribute or three problems wearing the same coat.",
+        "Pre-build schema check — the single biggest sizing question. Does the form-submission header carry its own location column, or is location always resolved through the user record? If it already has one, this ticket shrinks substantially. About 10 minutes for a dev, and nothing should be estimated before it is answered.",
+        "Is every client's work-context field the same field? One client carries a business unit, another links to a job, a third needs a customer site that doesn't exist as an object. This may be one configurable attribute or three problems wearing the same coat.",
+        "Can the slice ship on derived context alone, or does it need explicit selection too? Derived context covers the happy path with zero configuration, but a form completed outside any ritual — done unprompted, or filled in late — would carry no site and count toward nothing. That makes N outstanding wrong in the direction that erodes trust fastest: the work was done and the system still says it's missing.",
         "Two of the six client attributions are verified directly against source; the other four come from cross-interview synthesis and haven't been checked against the per-source evidence banks."
       ],
       "scope": [],
@@ -852,23 +941,28 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     },
 
     {
-      "key": "S-03",
-      "title": "Form grouping / category layer",
-      "tier": "B",
+      "key": "SM-02",
+      "title": "Crew object",
+      "tier": "A",
       "role": "child",
-      "summary": "A category above the individual form, so one metric can span several forms. A grouping layer over existing forms, not a change to forms themselves.",
-      "slice": "Site-level status lines that span several forms — the multi-branch client's branch scorecard and per-branch rollup.",
-      "dependsOn": [],
+      "summary": "Who's answerable for a site, as distinct from who did the work — membership changes daily, and a site takes crews and/or individually added people. Built as a system-wide grouping tool rather than an SM-only feature, so it also serves evaluator lists and delegation fallback. Permissions stay deliberately coarse: none / read-only / full edit.",
+      "slice": null,
+      "dependsOn": ["SM-01"],
       "relatedTo": [],
-      "mvpBlocking": false,
-      "mvpNote": "Not MVP-blocking — decided Aug 24. SM-03's ritual bundle already groups what a site owes.",
-      "boundary": null,
+      "related": [],
+      "blockedByAlso": [],
+      "blocksNote": null,
+      "maturity": null,
+      "mvpBlocking": true,
+      "mvpNote": "MVP-blocking.",
+      "boundary": "Not work dispatch, not a static org chart. View-without-edit only for MVP.",
       "openQuestions": [
-        "Rituals (SM-03) may be able to serve this, or it may need its own axis. Worth deciding rather than building both."
+        "Is crew membership dated, or current-state only? Dated is more expensive, but current-state-only means historical records silently misreport who was there — and this is a record layer.",
+        "Does universal assignability change this ticket's bucket? Crew is SM-prefixed because SM drives it and SM's team builds it. If it ships as a system-wide assignment target it behaves like an S-ticket — the build is the same either way, the question is who owns it after MVP."
       ],
       "scope": [],
-      "actionFlag": "Create ticket now",
-      "evidence": "A 52-branch client runs 30+ forms at mixed cadences and every metric they want spans several. Two further clients describe the same need. Already committed on a client call to take to product.",
+      "actionFlag": null,
+      "evidence": "7 of 15 clients have no crew object and bend Location into one. Named Crew, not Group — decided, because Group collides with the existing Permission Group / Company Group feature in BIS Admin.",
       "pmTicketNumber": null,
       "pmStatus": null,
       "pmAssignee": null,
@@ -884,13 +978,20 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "slice": null,
       "dependsOn": ["SM-01"],
       "relatedTo": [],
+      "related": [
+        { "key": "S-03", "note": "Overlapping but distinct axes — a ritual bundles what a site owes, a category bundles what a metric spans. Decide which layer owns grouping before building both." }
+      ],
+      "blockedByAlso": [],
+      "blocksNote": null,
+      "maturity": null,
       "mvpBlocking": true,
       "mvpNote": "MVP-blocking.",
       "boundary": "Sites only for v1 — not crews, not assets. Only recurring rituals can be outstanding; triggered ones like Incident have no cadence and never appear in the site state view.",
       "openQuestions": [
         "Cadence granularity is not a push trigger. The system can know a second FLHA is owed at shift change without notifying anyone at 2pm — without this line someone builds 8am notifications and reintroduces the time-based push a client already reverted from.",
         "Name unresolved. Product leadership dislikes the term ritual but offered no alternative — task and job are taken, requirement implies pre-existing. The objection was registered as non-blocking.",
-        "One client's no-rhythm case (1–10 per shift, no predictable pattern) may not be expressible as a cadence at all. Decide explicitly rather than forcing a rule that fits badly."
+        "One client's no-rhythm case (1–10 per shift, no predictable pattern) may not be expressible as a cadence at all. Decide explicitly rather than forcing a rule that fits badly.",
+        "Two pre-build schema checks, about 25 minutes total: what columns the existing form-frequency settings table carries, and whether any working-days / operating-calendar table exists anywhere. Neither should be estimated around until answered."
       ],
       "scope": [
         "Cadence vocabulary: fixed interval, working-days-only, use-triggered, metered, sub-day / shift-based",
@@ -907,71 +1008,31 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     },
 
     {
-      "key": "S-02",
-      "title": "Scoped permissions",
-      "tier": "B",
-      "role": "child",
-      "summary": "Separate view from edit as distinct grants, and let a grant target a named set of sites rather than one home location. Already on the roadmap, so it may land in parallel regardless.",
-      "slice": "SM-scoped custom permissions built into the new module out of the box — it helps SM-04's supervisor view and SM-02's view-without-edit grant.",
-      "dependsOn": ["SM-02"],
-      "relatedTo": [],
-      "mvpBlocking": "open",
-      "mvpNote": "Open — needs team sign-off. Product leadership suggested it could be its own module; the design read is that MVP can likely run without it. The parent ticket lists S-02 under \"related, not blocking\".",
-      "boundary": null,
-      "openQuestions": [
-        "Validate the ask first — sometimes what a client calls a permissions problem is really a reporting problem (the witness-forms example raised in review).",
-        "At one client the only available workaround breaks their payroll-system integration.",
-        "The system-wide custom-permissions half this ticket splits off has no ticket anywhere in the backlog yet. A standalone one is being drafted; it is not part of this initiative's scope."
-      ],
-      "scope": [],
-      "actionFlag": null,
-      "evidence": "6 clients, ranked #1 by two. Pulled toward MVP on Aug 24 — product leadership's position: system-wide custom roles are a large build, but building it out of the box inside a new module is acceptable, and site management is a workable place to start.",
-      "pmTicketNumber": null,
-      "pmStatus": null,
-      "pmAssignee": null,
-      "pmUrl": null
-    },
-
-    {
-      "key": "S-04",
-      "title": "Attendance with individual signatures",
-      "tier": "B",
-      "role": "child",
-      "summary": "Capture who was actually present — each person signing beside their own name, not one person attesting for the group. Enhances the existing attendance field: pre-populate everyone on site that day, prompt each of them to sign, timestamp every signature, and surface missing ones as a gap in Site Management. Scope also covers reworking the attendance field UX to incorporate Crew.",
-      "slice": "Crew pre-population on the attendance field, so ritual fulfilment is trustworthy — toolbox talks are the most common ritual in the corpus.",
-      "dependsOn": ["SM-02"],
-      "relatedTo": [],
-      "mvpBlocking": false,
-      "mvpNote": "Not MVP-blocking. Today's bulk-attest already produces a signal the comparison can match against; individual signing makes it correct, not possible.",
-      "boundary": "Attendance capture only. The meeting / toolbox-talk content object is split out as SM-07. A universal cross-system signing tool stays the long-term goal, not the MVP.",
-      "openQuestions": [
-        "Two halves, possibly two owners: the individual-signing widget rework is Forms-wide, Crew pre-population is SM-specific. Worth asking who owns the widget before assigning."
-      ],
-      "scope": [],
-      "actionFlag": null,
-      "evidence": "One client rejects bulk-attest outright for legal reasons. Another client's loudest single ask is to stop making foremen retype 20–30 names, and that same client has no timestamps on FLHA entries — the safety regulator flagged it after an accident. Unlocks the most common ritual in the corpus: 11 of 15 run toolbox talks.",
-      "pmTicketNumber": null,
-      "pmStatus": null,
-      "pmAssignee": null,
-      "pmUrl": null
-    },
-
-    {
       "key": "SM-04",
       "title": "Mobile",
       "tier": "A",
       "role": "child",
       "summary": "Supervisor and worker surfaces — SM's mobile half as one ticket, one platform, one team, carrying the offline and device-profile decisions with it. The shape is settled: a layer that annotates surfaces people already use rather than becoming its own area, phone-primary and often shared. Worker-side is pull, never push, with dual visibility so a site-assigned item also appears in the normal assigned-forms list.",
       "slice": null,
-      "dependsOn": ["S-02"],
+      "dependsOn": ["SM-01", "SM-02", "S-02"],
       "relatedTo": [],
+      "related": [
+        { "key": "S-04", "note": "Signer identity on shared devices — the existing remote/deferred signing path may already answer it." }
+      ],
+      "blockedByAlso": [
+        "The parent's comparison logic — mobile consumes computed state, it does not compute it.",
+        "The offline decision (section 3) — sync or degrade. This is the blocking decision, and it is not made."
+      ],
+      "blocksNote": null,
+      "maturity": null,
       "mvpBlocking": true,
-      "mvpNote": "MVP-blocking — named in the parent's Blocked by line. Its supervisor scope depends on S-02, whose MVP inclusion is still open.",
+      "mvpNote": "MVP-blocking — named in the parent's Blocked by line. Only its supervisor scope (section A) waits on S-02, and only for which sites a supervisor sees.",
       "boundary": "Not work dispatch. No time-of-day push, never delivered as assignments, and it must tolerate late and backdated submissions.",
       "openQuestions": [
         "Offline behaviour undecided. The comparison is server-side — either the obligation set syncs to the device or the mobile surface degrades to something that works offline. One client runs 50–80% no-signal sites; at another, operators go days without connectivity.",
-        "Shared devices mean per-person signatures can't rely on who's logged in — needs a lightweight identify-the-signer step, not a full logout/login.",
-        "Reach caveat: at one client field workers never return to the app after orientation, at another ~75% of work zones are no-device, and at a third 15 of 49 projects refuse the app. Real demand, limited reach."
+        "Shared devices mean per-person signatures can't rely on who's logged in — needs a lightweight identify-the-signer step, not a full logout/login. Check the existing remote-signing path first; the question may go away rather than need solving.",
+        "Is the worker surface (section B) actually MVP-blocking? Section A has strong evidence and supervisors are the reliable mobile users. Section B's reach is genuinely questionable — at one client field workers never return to the app after orientation, at another ~75% of work zones are no-device, and at a third 15 of 49 projects refuse the app. Real demand, limited reach.",
+        "Which team and repo owns this? The mobile app is a different codebase from the backend — this may need splitting by repo even though it is one product surface."
       ],
       "scope": [
         "A. Supervisor site/crew overview + light admin actions",
@@ -988,30 +1049,6 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     },
 
     {
-      "key": "SM-07",
-      "title": "Meeting / Toolbox Talk",
-      "tier": "C",
-      "role": "child",
-      "summary": "The content object behind a toolbox talk or daily safety meeting — name it, upload what's being talked about, and report on who attended which one. The minimal version floated on the call is a title, a PDF upload and a signature. Split out of S-04 because product leadership ruled out building the attendance tool and this at the same time.",
-      "slice": null,
-      "dependsOn": ["S-04"],
-      "relatedTo": [],
-      "mvpBlocking": false,
-      "mvpNote": "Not MVP-blocking as it stands — but the tier is unresolved. An effort estimate is the deciding input for whether this joins the MVP.",
-      "boundary": null,
-      "openQuestions": [
-        "Tier unresolved — needs an effort estimate. Product leadership's position: if it's cheap, add it; if not, build it anyway, because the client value is large. Engineering's early read is that title + PDF + sign is a small build."
-      ],
-      "scope": [],
-      "actionFlag": "Create ticket now",
-      "evidence": "Product leadership wants it and rates it highly — daily safety meetings happen everywhere and there's no good way to handle it. The signing half is easy; the content half is the gap.",
-      "pmTicketNumber": null,
-      "pmStatus": null,
-      "pmAssignee": null,
-      "pmUrl": null
-    },
-
-    {
       "key": "SM-MVP",
       "title": "Site Management MVP",
       "tier": "A",
@@ -1019,13 +1056,17 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "summary": "The parent ticket. It carries the full MVP scope and links each child, so QA and reviewers can see the whole project in one view. Done, in client terms: a corporate safety lead at a 52-branch client opens Site Management, sees every branch reading current or N outstanding, clicks into one branch and sees what it owed this month against what was done — and builds nothing to get there.",
       "slice": null,
       "dependsOn": ["SM-01", "SM-02", "SM-03", "SM-04", "S-01"],
-      "relatedTo": ["S-02", "S-03", "S-04"],
+      "relatedTo": [],
+      "related": [],
+      "blockedByAlso": [],
+      "blocksNote": "It is the end of the graph — everything else flows into it.",
+      "maturity": null,
       "mvpBlocking": true,
       "mvpNote": "This is the MVP. It ships when its five blockers ship.",
-      "boundary": null,
+      "boundary": "A record and omission layer, not a work dispatch tool. Don't build a place to work; build a place that proves work happened and says what's missing.",
       "openQuestions": [],
       "scope": [
-        "Sites index — current / N outstanding per site",
+        "Sites index — current / N outstanding per site. MVP renders Sites only",
         "Single-site view — owed vs done this period",
         "Day-one empty state — what a client sees with zero configuration",
         "Surfacing what's outstanding",
@@ -1035,7 +1076,151 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
         "Ad-hoc assignment — low priority"
       ],
       "actionFlag": null,
-      "evidence": "This is where the design work lives.",
+      "evidence": "The risk that outranks every ticket is configuration burden. A safety lead with 52 branches was handed a working config path to her own #1 pain and never did it — it was simply too much. If the best-case user won't configure it, nobody will, so every decision is measured against what a client gets on day one with zero configuration.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "S-02",
+      "title": "Scoped permissions",
+      "tier": "B",
+      "role": "child",
+      "summary": "Separate view from edit; grant across a named set of sites. Two open interaction models — a share sheet (subject → access level) vs. named custom roles with a per-object grid. Both evidenced; present both, don't pick one before the room does. Every grant has two halves, a subject (a crew or an individual) and a scope (a named set of sites), and grants are additive only — a grant can give access, never remove it.",
+      "slice": "SM-scoped custom permissions built into the new module out of the box — it helps SM-04's supervisor view and SM-02's view-without-edit grant.",
+      "dependsOn": ["SM-01", "SM-02"],
+      "relatedTo": [],
+      "related": [],
+      "blockedByAlso": [],
+      "blocksNote": null,
+      "maturity": null,
+      "mvpBlocking": false,
+      "mvpNote": "Tier B — parallel build, active now, and it does not block the MVP. What is open is not whether it ships but which interaction model it ships as. Product leadership's read: system-wide custom roles are a large build, but building it out of the box inside a new module is acceptable.",
+      "boundary": "Sites are the only scope type for now. The system-wide custom-permissions overhaul this ticket splits off from is a separate initiative and is not in scope here.",
+      "openQuestions": [
+        "Option A or Option B? Share sheet or custom roles — the room decides, not this document. Option A is cheaper and needs zero configuration to reach \"can view\"; Option B is more capable at the cost of an admin building roles before anyone benefits. No meeting on record has picked one.",
+        "Validate the ask first — sometimes what a client calls a permissions problem is really a reporting problem. Before any of the six clients is counted as a permissions requirement, confirm the underlying need is access and not visibility. That costs one question per client and could shrink the ticket materially.",
+        "How rich is \"richer\"? A view/edit split per object type, per screen, per field? Undecided, and it is the main sizing lever — effectively the same question as Option A or B.",
+        "Is the additive union always safe? Additive-only avoids a precedence engine, but nobody has checked for a case where the union over-grants in a way a client would object to.",
+        "At one client the only available workaround breaks their payroll-system integration.",
+        "No technical investigation stands behind this ticket. The technical-findings work covers S-01, S-04 and SM-03; it does not cover permissions. Treat the sizing as unevidenced."
+      ],
+      "scope": [],
+      "actionFlag": null,
+      "evidence": "6 clients, ranked #1 by two. One client's record-validator is forced into full admin because there is nothing in between learner and admin — she is now doing things she should not be doing. Another has no supervisor role in the organisation at all, which is why individual subjects cannot be optional.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "S-04",
+      "title": "Attendance with individual signatures",
+      "tier": "B",
+      "role": "child",
+      "summary": "Individual signatures, crew pre-populated. ⚠ Approach contested. Two positions are on record — pre-populate the existing attendance form field as a quick win, versus building phase 1 of the standalone attendance tool instead rather than extending a field the platform intends to phase out. This ticket documents the narrower option; it is not a decision.",
+      "slice": "Crew pre-population on the attendance field, so ritual fulfilment is trustworthy — toolbox talks are the most common ritual in the corpus.",
+      "dependsOn": ["SM-02"],
+      "relatedTo": [],
+      "related": [],
+      "blockedByAlso": [],
+      "blocksNote": "Nothing waits on it. SM-07 used to, and no longer does — which is a problem rather than a simplification. See the flagged conflict.",
+      "maturity": null,
+      "mvpBlocking": false,
+      "mvpNote": "Tier B — parallel build, active now. Not release-blocking: today's bulk-attest already produces a signal the comparison can match against, so individual signing makes the record correct rather than possible.",
+      "boundary": "Attendance capture only. The meeting / toolbox-talk content object is split out as SM-07. A universal cross-system signing tool stays the long-term goal, not the MVP.",
+      "openQuestions": [
+        "The approach itself is contested and goes to the presentation meeting. A later session decided to build a standalone phase-1 attendance tool with an explicit no-linking rule between the two, and redefined the MVP as a supervisor checklist and nothing more. This ticket's current content reflects the earlier direction and needs a rewrite pass before it is presented as current.",
+        "How is presence actually established? Crew says who is assigned, not who turned up. Four candidate modes — supervisor checklist, self sign-in, QR scan, geotag — and they are not equally good. Treat them as one presence record with four sources, and put a source value on the record from day one.",
+        "Recommend against geofencing for MVP: it asserts presence with no human action, needs an always-on permission that app-hostile crews will not grant, raises consultation and privacy questions, and fails for accuracy exactly where it is needed. The salvageable version is geo as corroboration — stamp the location when someone taps \"I'm here\".",
+        "Is the per-signature timestamp persisted, or render-time only? Decides whether one client's regulator finding is a toggle or a schema change. About 10 minutes for a dev.",
+        "Is the attendee user-id nullable — are free-text/guest attendees allowed? If guests exist, \"everyone signs beside their own name\" has an unresolvable subset. This is the ticket's real technical risk.",
+        "Why isn't the existing per-person signing reaching clients? Not a build question — discoverability, defaults, scale, or a mobile gap. If a shipped capability isn't being adopted, shipping more configurable capability doesn't fix it, and this initiative is about to ship a lot of it.",
+        "QR scan pulls Site Access into scope, and the likely real blocker there is commercial rather than technical: Site Access is a toggled, licensed service. If SM presence must work for every client, that constraint decides it."
+      ],
+      "scope": [],
+      "actionFlag": null,
+      "evidence": "One client rejects bulk-attest outright for legal reasons. Another client's loudest single ask is to stop making foremen retype 20–30 names, and that same client has no timestamps on FLHA entries — the safety regulator flagged it after an accident. Unlocks the most common ritual in the corpus: 11 of 15 run toolbox talks.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "SM-09",
+      "title": "Job",
+      "tier": "B",
+      "role": "child",
+      "summary": "An engagement with an address and a lifespan — distinct from a Site, doesn't require one. Serves the largest single compliance anchor in the corpus: 4 of 15 clients. A Job has its own address, its own lifespan (start, expected end, actual close), and may optionally attach to a Site where a client's reality nests that way — but it never needs one.",
+      "slice": null,
+      "dependsOn": [],
+      "relatedTo": [],
+      "related": [
+        { "key": "SM-02", "note": "The ownership-direction question: does a Crew own many Jobs, or a Job own a Crew? Only one client's evidence, and it reads as crew-owns-jobs." },
+        { "key": "S-01", "note": "Probably the same anchor S-01's coverage argument names — the missing form-to-job join key is what leaves this group unserved." },
+        { "key": "S-03", "note": "Two of S-03's three originally cited clients moved here on re-verification: their root problem was a missing container, not un-groupable forms." }
+      ],
+      "blockedByAlso": [],
+      "blocksNote": "Nothing waits on it — including the MVP's web interface. The Sites index will need a second row-shape once Job lands, but that is later work, not a gate.",
+      "maturity": "Newer and less validated than the rest of the initiative — same-day new as of 2026-08-27. It has not been through the technical-findings process the older tickets had, and its open questions are more genuinely open than most. Read the confidence here as lower across the board.",
+      "mvpBlocking": false,
+      "mvpNote": "Tier B — parallel build, active now, and it blocks nothing. Whether it stays in B or moves to A once a second data point confirms the pattern generalises is itself an open question.",
+      "boundary": "Not a rename of Site. Site answers \"what does this place owe\"; Job answers \"is this engagement done\". Presence and sign-in stay Site's territory for MVP — a Job's address is reporting-grade, not a boundary to check in against. No Jobs nesting inside Jobs, and no automatic close.",
+      "openQuestions": [
+        "Does Job attach to Crew, or Crew to Job? One client's evidence reads as crew-owns-many-jobs — one gang holding around ten open jobs, hopping between them because work stops pending permits, with nothing marking which job is tonight's. Untested against a second client.",
+        "Does a Job have its own operating calendar, inherit one from an attached Site, or need none at all?",
+        "Is a multi-job day one page, or one page per job? Unsettled between two participants on the research call itself — a real open UX question, not yet a decision.",
+        "Does this belong in Tier B permanently, or move to Tier A once a second data point confirms the pattern generalises?"
+      ],
+      "scope": [
+        "Address — light and reporting-grade, not the presence-capable address a Site carries",
+        "Start date, optional expected end, and an actual close a person confirms — never an automatic close on the expected-end date",
+        "Standalone by default — a Job may optionally attach to a Site, and never needs one. This is the config-burden answer for Job: no scaffolding required to create one",
+        "The same attachment contract as Site — a Job holds Rituals, Attendance and Meetings, and feeds the owed-vs-done comparison exactly as a Site does"
+      ],
+      "actionFlag": null,
+      "evidence": "Four of 15 clients' compliance unit is an engagement, not a place — the largest single anchor in the corpus, bigger than place (3) or asset (2) individually, and today none of them have a container for it. One client is the cleanest case: the unit is the job — the residence plus the event plus the document set — and every disqualifier for the other two objects is explicit in one sentence, because the address is one-shot and the crews dissolve nightly. At another, the only link between a form and a job is a job number typed into the form's content, which is the structural defect that produces the retrieval pain.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "S-03",
+      "title": "Form grouping / category layer",
+      "tier": "C",
+      "role": "child",
+      "summary": "A category above the form so one metric can span several. ⚠ Evidence narrowed — 2 of its 3 original clients moved to SM-09. A grouping layer over existing forms, not a change to forms themselves.",
+      "slice": "Site-level status lines that span several forms — the multi-branch client's branch scorecard and per-branch rollup.",
+      "dependsOn": [],
+      "relatedTo": [],
+      "related": [
+        { "key": "SM-09", "note": "Where the evidence went: two of the three originally cited clients were re-verified as needing the Job object, because their root problem was a missing container rather than un-groupable forms." },
+        { "key": "SM-03", "note": "Overlapping but distinct axes — a ritual bundles what a site owes, a category bundles what a metric spans." },
+        { "key": "S-01", "note": "The same reporting subsystem from a different direction, and the ticket that relativises this one's coverage claim." }
+      ],
+      "blockedByAlso": [],
+      "blocksNote": "Nothing in the MVP — decided Aug 24. SM-03's ritual bundle already groups what a site owes.",
+      "maturity": null,
+      "mvpBlocking": false,
+      "mvpNote": "Tier C — after MVP, scheduled but not urgent. Created now anyway, because it is the upsell and taking it to product was committed on a client call.",
+      "boundary": null,
+      "openQuestions": [
+        "Evidence under revision. Two previously cited clients have been re-verified as needing the Job object (SM-09) instead. Only the branch-scorecard case and the discipline-grouping example remain valid support. The coverage-lever claim and the \"three or four more clients\" upsell figure both need updating — do not present the current evidence list as current until that pass happens.",
+        "Rituals (SM-03) may be able to serve this, or it may need its own axis. Worth deciding rather than building both — the cheapest test is to express the branch scorecard in each model and see which one strains.",
+        "What does outstanding mean for a category of mixed cadences? Is the category outstanding if any member form is, all of them, or weighted? No client has been asked, and it decides whether the branch scorecard is a number anyone trusts.",
+        "Can a form live in more than one category? Exclusive is simpler and probably wrong. Decide before the data model is fixed.",
+        "No sizing evidence exists. The \"two more months\" figure in the upsell framing is a talking point, not an estimate — do not let it harden into a commitment.",
+        "Who owns this after MVP? It is an S-ticket: it serves the whole platform, and reporting is not the Site Management team's module. Site Management is the reason it gets prioritised, not its home."
+      ],
+      "scope": [],
+      "actionFlag": "Create ticket now",
+      "evidence": "A 52-branch client runs 30+ forms at mixed cadences and every metric they want spans several. Already committed on a client call to take to product — which is why the ticket gets created now even though it is not in the MVP.",
       "pmTicketNumber": null,
       "pmStatus": null,
       "pmAssignee": null,
@@ -1049,12 +1234,24 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "role": "child",
       "summary": "Scan an asset and its form, task or folder opens immediately — context supplied, no list to hunt through. Extends what already works; the unblock is removing the requirement that the scanned thing be an owned asset, which is the restriction that lost one client's business.",
       "slice": null,
-      "dependsOn": [],
+      "dependsOn": ["SM-01"],
       "relatedTo": [],
+      "related": [
+        { "key": "SM-03", "note": "When a scanned Site owes a bundle, the ritual is what the scan should resolve to." },
+        { "key": "S-04", "note": "The attendance field's existing QR-code option may be this same mechanism approached from the other end. Check it before building a second one." }
+      ],
+      "blockedByAlso": [
+        "The offline decision in SM-04 section 3.",
+        "A pre-build confirmation — scope is not honestly estimable until someone says where the owned-asset requirement is actually enforced."
+      ],
+      "blocksNote": "Nothing critical. SM-04 section 4C names scan as one of its site-identification mechanisms — without SM-05 that degrades to its other mechanisms rather than failing, which is why 4C is a nice-to-have and this is Tier C.",
+      "maturity": null,
       "mvpBlocking": false,
-      "mvpNote": "Not MVP-blocking. Strengthens SM; nothing waits on it and it waits on nothing.",
+      "mvpNote": "Tier C — after MVP, scheduled but not urgent. It makes the worker-facing entry point better; nothing critical waits on it.",
       "boundary": null,
-      "openQuestions": [],
+      "openQuestions": [
+        "Where is the owned-asset requirement enforced? Nothing here is honestly estimable until that is answered — it is the cheapest unblocking action on the ticket."
+      ],
       "scope": [],
       "actionFlag": null,
       "evidence": "Works today and is well liked. Clients describe the pattern as walking past a thing, scanning it, filling in the form and moving on. Unlocks the worker-facing entry point that demonstrably works, as opposed to time-based push, which one client already reverted.",
@@ -1069,20 +1266,64 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "title": "Multi-topic competency gate on Site Access",
       "tier": "C",
       "role": "child",
-      "summary": "Check more than one competency before granting entry, and expose that check to Site Management. References existing LMS state rather than building new data. Runs standalone; SM consumes the result, which turns Site Access from an in/out tracker into SM's competency signal.",
+      "summary": "Check more than one competency before granting site entry. ⚠ Conflicts with S-04 on mechanism. References existing LMS state rather than building new data. Runs standalone; SM consumes the result, which turns Site Access from an in/out tracker into SM's competency signal.",
       "slice": null,
       "dependsOn": [],
       "relatedTo": [],
+      "related": [
+        { "key": "SM-01", "note": "Via the eventual Site Access replacement path, not via MVP scope — SM-01 leaves Site Access untouched for MVP, and this is the ticket that changes it." }
+      ],
+      "blockedByAlso": [],
+      "blocksNote": "Nothing on the MVP critical path. The parent's interface can consume the competency signal if it exists, and simply doesn't show it if it doesn't.",
+      "maturity": null,
       "mvpBlocking": false,
-      "mvpNote": "Not MVP-blocking. Runs standalone.",
-      "boundary": null,
+      "mvpNote": "Tier C — after MVP. Runs standalone, and deliberately sits outside the MVP.",
+      "boundary": "Build the check as a service — given a person and a set of competency topics, is each one valid and if not why not — callable from anywhere, not as logic embedded in the Site Access entry screen. That costs nothing now and is the difference between re-pointing and rewriting when Site Access is eventually replaced.",
       "openQuestions": [
+        "Which mechanism owns the competency gate — this ticket's Site Access route, or the LMS-to-Attendance route in S-04? Unresolved, and it must be settled before either ticket is estimated.",
         "Site-entry vs work-authorisation are being conflated — different features, different data requirements. Resolve first.",
-        "Small build, real data-fitness risk. Two independent clients say the underlying training data isn't fit to gate on as-is: at one, expiry dates are wrong in both directions; at the other, BIS only models the trained third of competency. Worth a short spike before treating this as a quick win."
+        "Small build, real data-fitness risk. Two independent clients say the underlying training data isn't fit to gate on as-is: at one, expiry dates are wrong in both directions; at the other, only the trained third of competency is modelled at all. Worth a short spike before treating this as a quick win.",
+        "State the evidence base honestly: one client and one scenario. No other client in the 15 raised multi-topic gating, and only one or two clients use Site Access at all. That is not a reason to drop it — the scenario is sharp and the ask was unprompted — but it is a reason not to size it as if it had corpus-wide backing.",
+        "Nobody who owns the Site Access replacement has signed off on the extend-vs-replace reasoning, and that replacement has no date, no scope and no owner recorded."
       ],
       "scope": [],
       "actionFlag": "Create ticket now",
       "evidence": "One client's #1 ask, raised unprompted. An electrical contractor with a valid induction but an expired licence walks straight through the gate.",
+      "pmTicketNumber": null,
+      "pmStatus": null,
+      "pmAssignee": null,
+      "pmUrl": null
+    },
+
+    {
+      "key": "SM-07",
+      "title": "Meetings",
+      "tier": "C",
+      "role": "child",
+      "summary": "The object behind a daily safety meeting or toolbox talk, client-labelled. Trigger and object model decided; signing route open. Clients call it different things — safety meetings, daily safety meetings, toolbox talks — so the object carries a client-set custom name rather than one the product picks. Split out of S-04 because product leadership ruled out building the attendance tool and this at the same time.",
+      "slice": null,
+      "dependsOn": ["SM-02"],
+      "relatedTo": [],
+      "related": [
+        { "key": "SM-03", "note": "A meeting may be a ritual, or may sit inside one — worth settling before build." },
+        { "key": "SM-04", "note": "The calendar view lands on the mobile surface." },
+        { "key": "S-04", "note": "No longer a blocker, and that is the problem — see the flagged conflict on signing." }
+      ],
+      "blockedByAlso": [],
+      "blocksNote": "Nothing waits on it.",
+      "maturity": null,
+      "mvpBlocking": false,
+      "mvpNote": "Tier C — after MVP. Corrected from a brief placement in Tier D during the tier migration, which undersold it: a ticket actively being sized is not a shelved one. C is the honest floor, and an effort estimate is the deciding input for whether it moves up.",
+      "boundary": "A meeting is deliberately not a form. The minimal version is a title, an upload of what is being talked about, and a signature — plus reporting on who attended which one.",
+      "openQuestions": [
+        "The signing route is open. Route A builds self-contained signing inside Meetings — ships independently, at the cost of a third signing implementation in the platform. Route B waits for a broader standalone attendance/signing tool, which has no ticket. A route has been named, but it points at S-04, whose current scope cannot deliver it.",
+        "Can the existing per-attendee signing path be invoked without a form submission? Per-attendee signing already exists in code, but it is bound to the form attendance field and assumes a submission exists to hang off. This single question decides whether Route A is a modest reuse or a genuine build, and it is the cheapest unblocking action on the ticket.",
+        "Tier coupling. If this joins the MVP, whatever it depends on for signing must join the MVP with it. A Tier C ticket must not quietly pull an unticketed, unestimated tool into the release.",
+        "The name has drifted across three revisions before landing on Meetings, and some upstream files still carry the older combined label. Flagged for whoever owns them; the object itself should carry a client-set custom name rather than any of the three."
+      ],
+      "scope": [],
+      "actionFlag": "Create ticket now",
+      "evidence": "Product leadership wants it and rates it highly — daily safety meetings happen everywhere and there's no good way to handle it. The signing half is easy; the content half is the gap. Scoping a meeting to a crew is also what fixes one client's chase-everyone problem: today toolbox talks go out company-wide and someone then checks who hasn't signed, one person at a time.",
       "pmTicketNumber": null,
       "pmStatus": null,
       "pmAssignee": null,
@@ -1096,12 +1337,24 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "role": "child",
       "summary": "Multiple work areas or job numbers beneath one physical site. Likely mobile and transient rather than fixed structure — and possibly expressible as Crews rather than as sub-sites, which is worth testing before building a new hierarchy level.",
       "slice": null,
-      "dependsOn": [],
+      "dependsOn": ["SM-01"],
       "relatedTo": [],
+      "related": [
+        { "key": "SM-02", "note": "Test whether Crew already expresses this before adding a hierarchy level." },
+        { "key": "S-01", "note": "Shares two of this ticket's three clients, and may be the better answer to the one-crew-six-job-numbers case." }
+      ],
+      "blockedByAlso": [],
+      "blocksNote": "Nothing in the initiative waits on this.",
+      "maturity": null,
       "mvpBlocking": false,
-      "mvpNote": "Backlog — revisit post-MVP.",
+      "mvpNote": "Tier D — backlog, not scheduled. Revisit post-MVP.",
       "boundary": null,
-      "openQuestions": [],
+      "openQuestions": [
+        "A migration question worth answering before clients import at scale. SM-01's conversion feature creates Sites flat. If a client converts 200 Locations into flat Sites now and sub-sites arrive later, do those Sites need restructuring — and is that a manual re-do or a supported migration? Cheaper to answer before people import than after.",
+        "Sub-sites or crews? The one-neighbourhood-many-crews case may be a Crew problem, not a hierarchy problem. Test before building.",
+        "Does the deferral rationale still hold when you read this? It rests on the claim that the clients who need it aren't served by the MVP anyway — which is a statement about a moment. Re-check it against S-01's status rather than assuming.",
+        "What does a sub-unit carry? Can a Ritual attach to a work section, or only to a Site? Can a Crew be assigned to a section rather than the whole site? Both change the size considerably, and neither has been asked."
+      ],
       "scope": [],
       "actionFlag": null,
       "evidence": "One client runs 6 job numbers on one physical site with one crew, already worked around via multi-asset attachment. At another, a single neighbourhood holds three concrete crews, two paving crews and an underground crew, each with its own FLHA.",
@@ -1140,17 +1393,17 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     "source": "The Site Management MVP parent ticket in BIS PM — its interface scope list and each item's 'depends on' line.",
     "authority": "The parent ticket is the source of truth. Do not invent scope items or dependencies here.",
     "columns": "Every key in `columns` must also exist in the roadmap data's tickets array — the view reads tier and title from there, which is what keeps the matrix colour-matched to the Map instead of carrying a second copy of the palette.",
-    "sm04": "SM-04 (Mobile) is carried as a column with nothing in it on purpose. The parent's scope is the WEB interface, so mobile gates none of it. A rendered zero reads as a measured finding; a missing column reads as an oversight."
+    "zeroColumns": "SM-04 (Mobile) and SM-09 (Job) are both carried as columns with nothing in them, on purpose. The parent's scope is the WEB interface: mobile is its own surface and gates none of it, and Job does not gate it either. A rendered zero reads as a measured finding; a missing column reads as an oversight."
   },
 
   "parentKey": "SM-MVP",
-  "columns": ["SM-01", "SM-02", "SM-03", "SM-04", "S-01"],
+  "columns": ["SM-01", "SM-02", "SM-03", "SM-04", "S-01", "SM-09"],
 
   "items": [
     {
       "n": 1,
       "name": "Sites index",
-      "built": "Filterable list, one row per site, state as the leftmost visual — current or N outstanding. Most-outstanding first by default.",
+      "built": "Filterable list, one row per site, state as the leftmost visual — current or N outstanding. Most-outstanding first by default. MVP renders Sites only — SM-09 Job doesn't block this, but the index will need a second row-shape once it lands, since a Job's state isn't identical to a Site's.",
       "dependsOn": ["SM-01", "S-01"],
       "priority": null,
       "flag": null
@@ -1216,6 +1469,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
   "notes": [
     "SM-01 is the floor. It gates every scope item that has a gate at all — nothing in the interface starts before the Site object exists.",
     "SM-04 (Mobile) gates nothing on this matrix, and that is the answer rather than a gap: the parent's scope is the web interface. Mobile is its own surface, its own ticket, and its own scope list.",
+    "SM-09 (Job) gates nothing either, and that is the finding worth stating out loud: Job does not hold up the web interface the MVP builds. What it does do is change the Sites index later — a Job's state is not identical to a Site's, so the index will need a second row-shape once Job lands. That is follow-on work, not a gate, and the zero in this column is what says so.",
     "Notification triggers is the only scope item with no gate. It ships on the existing email and text rails and needs no new object, so it is buildable now, in parallel with the foundations — the one piece of the MVP that does not have to wait.",
     "Day-one empty state is decided in approach but not in mechanics. The approach is user-picks, not auto-derive: a client chooses which Locations or Assets become Sites, because deriving them automatically would inherit the overloaded-Location problem and mint nonsense Sites wherever that data is bent. What still needs dev input is the conversion itself — which object types are pickable, what a converted Site requires on creation, whether the copy is one-time or stays linked to its source, how duplicate names are handled, whether the picker exposes existing hierarchy, and a practical ceiling on one bulk run. Conversion creates Sites flat; sub-site structure is SM-08 and out of scope."
   ]
@@ -1271,6 +1525,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
             <svg id="wires" aria-hidden="true" focusable="false">
               <defs>
                 <marker id="ah-required" viewBox="0 0 9 9" refX="8" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" class="ah-required"/></marker>
+                <marker id="ah-partial" viewBox="0 0 9 9" refX="8" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" class="ah-partial"/></marker>
                 <marker id="ah-open" viewBox="0 0 9 9" refX="8" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" class="ah-open"/></marker>
                 <marker id="ah-related" viewBox="0 0 9 9" refX="8" refY="4.5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" class="ah-related"/></marker>
               </defs>
@@ -1286,21 +1541,15 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
           <svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="legend-body" id="legend-body">
-          <h4>Tier &mdash; card colour</h4>
+          <h4>Tier &mdash; timing &middot; card colour</h4>
           <div id="leg-tiers"></div>
+          <h4>Prefix &mdash; ownership</h4>
+          <div id="leg-prefixes"></div>
+          <p class="leg-note">Two independent axes. A prefix does not set a tier &mdash;
+            <b>S&#8209;01</b> is system-wide and ships with the MVP; <b>SM&#8209;08</b> is
+            module-specific and sits in the backlog.</p>
           <h4>Connector &mdash; kind of dependency</h4>
-          <div class="leg-item">
-            <svg class="leg-line" viewBox="0 0 30 12" aria-hidden="true"><line x1="0" y1="6" x2="30" y2="6" stroke="var(--accent)" stroke-width="1.8"/></svg>
-            <span class="lab"><b>Hard prerequisite</b></span>
-          </div>
-          <div class="leg-item">
-            <svg class="leg-line" viewBox="0 0 30 12" aria-hidden="true"><line x1="0" y1="6" x2="30" y2="6" stroke="var(--part)" stroke-width="1.9" stroke-dasharray="1 5" stroke-linecap="round"/></svg>
-            <span class="lab"><b>MVP inclusion open</b></span>
-          </div>
-          <div class="leg-item">
-            <svg class="leg-line" viewBox="0 0 30 12" aria-hidden="true"><line x1="0" y1="6" x2="30" y2="6" stroke="var(--edge-rel)" stroke-width="1.7" stroke-dasharray="7 5"/></svg>
-            <span class="lab"><b>Related, not blocking</b></span>
-          </div>
+          <div id="leg-kinds"></div>
           <p class="leg-foot"><span class="pm">#&mdash;</span><span>No BIS PM ticket yet. Hover a card to trace it; click for detail.</span></p>
         </div>
       </div>
@@ -1360,7 +1609,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
           <hr class="rule">
           <div class="tscroll">
             <table>
-              <caption class="sr-only">Every Site Management ticket with its tier, MVP status, dependencies, and BIS PM fields. BIS PM columns are empty until the tickets are created. Selecting a key opens that ticket on the map.</caption>
+              <caption class="sr-only">Every Site Management ticket with its tier, MVP status, dependencies, and BIS PM fields. Rows are grouped by tier, which is timing; the SM- or S- prefix in the key is ownership, and the two are independent. BIS PM columns are empty until the tickets are created. Selecting a key opens that ticket on the map.</caption>
               <thead>
                 <tr>
                   <th scope="col">Key</th>
@@ -1376,6 +1625,13 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
               <tbody id="register"></tbody>
             </table>
           </div>
+          <p class="tnote" style="margin-bottom:9px">
+            Grouped by tier, which is <b style="color:var(--ink-2);font-weight:500">timing</b>. The
+            <code>SM-</code> / <code>S-</code> prefix in the key is
+            <b style="color:var(--ink-2);font-weight:500">ownership</b>, and it runs independently of
+            the grouping &mdash; which is why a system-wide ticket appears in Tier&nbsp;A and a
+            module-specific one in Tier&nbsp;D.
+          </p>
           <p class="tnote">
             The three right-hand columns are the live half. They read &ldquo;&mdash;&rdquo; because no
             ticket in this initiative exists in BIS PM yet. Selecting a key takes you to that card on
@@ -1415,26 +1671,74 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
 
         <section>
           <span class="snum">02</span>
-          <h2>Tiers in full</h2>
+          <h2>Three lenses, not one</h2>
           <hr class="rule">
-          <div class="deflist" id="about-tiers"></div>
+          <p>
+            Clients group the same safety work three different ways. Some group it by
+            <b>site</b> &mdash; a place, which owes things whether or not anyone is on it today.
+            Some group it by <b>job</b> &mdash; an engagement with a start and an end, which is
+            finished or it isn&rsquo;t. Some group it by <b>crew</b> &mdash; a team that moves,
+            and carries its obligations with it.
+          </p>
+          <p>
+            Site is the MVP lens. Job and Crew are <em>real objects with their own tickets</em>
+            &mdash; SM&#8209;09 and SM&#8209;02 &mdash; not modes of one flexible object. That
+            distinction is the reason SM&#8209;09 exists at all: a Job has its own address and
+            its own lifespan, and for the clients whose compliance unit is an engagement, the
+            address is one-shot and the crew dissolves nightly. Neither of the other two shapes
+            can hold their record.
+          </p>
         </section>
 
         <section>
           <span class="snum">03</span>
+          <h2>Two axes: tier and prefix</h2>
+          <hr class="rule">
+          <p>
+            <b style="color:var(--ink);font-weight:600">Tier is timing. The prefix is ownership.</b>
+            They are independent, and reading one off the other is the mistake the previous version
+            of this page made. A system-wide ticket can be MVP-blocking; a module-specific one can
+            sit in the backlog.
+          </p>
+          <p style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px;color:var(--ink-3)">
+            Tier &mdash; <b style="color:var(--ink-2);font-weight:500">when it lands</b>
+          </p>
+          <div class="deflist" id="about-tiers"></div>
+          <p style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px;color:var(--ink-3)">
+            Prefix &mdash; <b style="color:var(--ink-2);font-weight:500">whose problem it solves</b>
+          </p>
+          <div class="deflist" id="about-prefixes"></div>
+        </section>
+
+        <section>
+          <span class="snum">04</span>
+          <h2>Flagged, not fixed</h2>
+          <hr class="rule">
+          <p class="standfirst">
+            Two cross-ticket conflicts are on the record and neither is resolved. They are here
+            rather than inside a ticket panel because each one is a disagreement <em>between</em>
+            tickets &mdash; it cannot be settled by whoever picks up either half alone.
+          </p>
+          <div id="about-conflicts"></div>
+        </section>
+
+        <section>
+          <span class="snum">05</span>
           <h2>Reading a card</h2>
           <hr class="rule">
           <div class="deflist">
-            <div class="di"><span class="chip mvp-yes">MVP-blocking</span><span class="dd">The MVP cannot ship without it.</span></div>
-            <div class="di"><span class="chip mvp-open">MVP open</span><span class="dd">Inclusion pending team sign-off.</span></div>
-            <div class="di"><span class="chip mvp-no">Not MVP-blocking</span><span class="dd">Real value, but the MVP ships without it.</span></div>
+            <div class="di"><span class="chip mvp-yes">MVP-blocking</span><span class="dd">The MVP cannot ship without it. Always a Tier A ticket.</span></div>
+            <div class="di"><span class="chip mvp-no">Not MVP-blocking</span><span class="dd">Real value, but the MVP ships without it &mdash; Tier B, C or D.</span></div>
+            <div class="di"><span class="chip conflict">&#9888; Conflict</span><span class="dd">This ticket is one half of an unresolved cross-ticket conflict. Named on the card, stated in full above.</span></div>
+            <div class="di"><span class="chip caution">&#9888; Less validated</span><span class="dd">Newer than the rest and not through the same technical-findings process. Its open questions are more genuinely open.</span></div>
             <div class="di"><span class="chip flag">Create ticket now</span><span class="dd">Flagged in the scope files as one to raise in BIS PM immediately.</span></div>
+            <div class="di"><span class="own" style="margin-left:0">System-wide</span><span class="dd">The ownership mark, on the right of every card. Deliberately colourless &mdash; colour is the tier&rsquo;s job.</span></div>
             <div class="di"><span class="pm">#&mdash;</span><span class="dd">No BIS PM ticket yet. Becomes a real number and a working link once created and refreshed.</span></div>
           </div>
         </section>
 
         <section>
-          <span class="snum">04</span>
+          <span class="snum">06</span>
           <h2>Keeping it current</h2>
           <hr class="rule">
           <div class="callout">
@@ -1454,6 +1758,12 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
             <p style="font-size:14px;color:var(--ink-3);margin-top:14px">
               Say <em>&ldquo;refresh the Site Management roadmap&rdquo;</em>. Full instructions are in
               <code>REFRESH.md</code> and in the header comment of this file.
+            </p>
+            <p style="font-size:14px;color:var(--ink-3);margin-top:12px;padding-top:12px;border-top:1px solid var(--rule-2)">
+              <b style="color:var(--bad);font-weight:600">One caveat.</b> This page is published to a
+              public repository. Filling in live BIS PM numbers and URLs puts internal links on the
+              open web, which is a call nobody has made yet &mdash; so the live half stays empty until
+              it is asked for explicitly.
             </p>
           </div>
           <p>
@@ -1514,7 +1824,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
 
   /* ══ 2. GRAPH MODEL ══════════════════════════════════════════════════════ */
 
-  var D, byKey = {}, EDGES = [], LAYER = {}, edgeMetaIdx = {};
+  var D, byKey = {}, EDGES = [], LAYER = {}, edgeMetaIdx = {}, conflictIdx = {};
 
   function esc(s) {
     return String(s == null ? "" : s)
@@ -1526,6 +1836,15 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     D.tickets.forEach(function (t) { byKey[t.key] = t; });
 
     (D.edgeMeta || []).forEach(function (m) { edgeMetaIdx[m.from + ">" + m.to] = m; });
+
+    // A conflict is not an edge. It is a disagreement BETWEEN two tickets, with
+    // no direction and nothing blocking anything — so it is indexed by key and
+    // surfaced as a chip and a panel row, never as a wire.
+    (D.conflicts || []).forEach(function (c) {
+      (c.between || []).forEach(function (k) {
+        (conflictIdx[k] = conflictIdx[k] || []).push(c);
+      });
+    });
 
     // Edges come from the tickets, never from edgeMeta — edgeMeta only decorates.
     D.tickets.forEach(function (t) {
@@ -1563,6 +1882,27 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
   function blocks(key)    { return EDGES.filter(function (e) { return e.from === key; }); }
   function isIsolated(k)  { return blockedBy(k).length === 0 && blocks(k).length === 0; }
 
+  function conflictsFor(key) { return conflictIdx[key] || []; }
+  function conflictPartners(key) {
+    var out = [];
+    conflictsFor(key).forEach(function (c) {
+      (c.between || []).forEach(function (k) { if (k !== key && out.indexOf(k) < 0) out.push(k); });
+    });
+    return out;
+  }
+
+  /* The OWNERSHIP axis. It is derived from the key rather than stored, so a
+     ticket's prefix and its ownership label can never disagree — and adding a
+     ticket needs no extra field. Tier stays completely independent of it. */
+  function prefixOf(key) {
+    var p = String(key || "").split("-")[0];
+    return ((D.meta.prefixes || {})[p]) ? p : null;
+  }
+  function prefixMeta(key) {
+    var p = prefixOf(key);
+    return p ? D.meta.prefixes[p] : null;
+  }
+
   /* ══ 3. RENDER ═══════════════════════════════════════════════════════════ */
 
   var MVP = {
@@ -1594,17 +1934,30 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
   function cardHTML(t) {
     var m = mvpOf(t);
     var bb = blockedBy(t.key), bk = blocks(t.key);
+    var pfx = prefixMeta(t.key);
+    var foes = conflictPartners(t.key);
 
     var deps = '<span><b>' + bb.length + '</b> blocker' + (bb.length === 1 ? "" : "s") + '</span>' +
                '<span>blocks <b>' + bk.length + '</b></span>';
+
+    // The ownership mark is suppressed on the parent: SM-MVP is the initiative
+    // itself, not a ticket classified against the other axis, and labelling it
+    // would imply a distinction that isn't being drawn.
+    var own = (pfx && t.role !== "parent")
+      ? '<span class="own" title="' + esc(pfx.label + " " + pfx.name + " — " + pfx.note) + '">' +
+        esc(pfx.short) + "</span>"
+      : "";
 
     // The card is a button; its accessible name is short and its description
     // carries the detail, so a screen reader is not made to hear the whole
     // dependency story before it can decide whether to open the panel.
     var srBits = [
       tierName(t.tier) + ".",
+      pfx ? pfx.name + "." : "",
       t.summary,
       m.label + ". " + (t.mvpNote || ""),
+      foes.length ? "Unresolved conflict with " + foes.join(" and ") + "." : "",
+      t.maturity ? "Less validated than the rest of the initiative." : "",
       bb.length ? "Blocked by " + bb.map(function (e) { return e.from; }).join(", ") + "."
                 : "No blocking dependencies.",
       bk.length ? "Blocks " + bk.map(function (e) { return e.to; }).join(", ") + "." : "",
@@ -1619,11 +1972,13 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       ' aria-label="' + esc(t.key + ". " + t.title) + '"' +
       ' aria-describedby="sr-' + esc(t.key) + '">' +
       '<div class="card-top">' +
-        '<span class="k">' + esc(t.key) + "</span>" + pmChipHTML(t) +
+        '<span class="k">' + esc(t.key) + "</span>" + pmChipHTML(t) + own +
       "</div>" +
       "<h4>" + esc(t.title) + "</h4>" +
       '<div class="card-chips">' +
         '<span class="chip ' + m.cls + '">' + m.label + "</span>" +
+        (foes.length ? '<span class="chip conflict">⚠ Conflict: ' + esc(foes.join(" · ")) + "</span>" : "") +
+        (t.maturity ? '<span class="chip caution">⚠ Less validated</span>' : "") +
         (t.actionFlag ? '<span class="chip flag">' + esc(t.actionFlag) + "</span>" : "") +
       "</div>" +
       '<div class="card-deps">' + deps + "</div>" +
@@ -1664,15 +2019,18 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     document.getElementById("doc-standfirst").textContent = m.standfirst;
     document.title = m.title;
 
-    var yes = 0, open = 0, wired = 0;
+    // Counted over CHILDREN only. The parent is the MVP, not one of the things
+    // that blocks it, so including it would inflate "ships with MVP" by one.
+    var shipsWith = 0, parallel = 0, wired = 0;
     D.tickets.forEach(function (t) {
-      if (t.mvpBlocking === true) yes++;
-      if (t.mvpBlocking === "open") open++;
+      if (t.role !== "parent" && t.tier === "A") shipsWith++;
+      if (t.role !== "parent" && t.tier === "B") parallel++;
       if (t.pmTicketNumber) wired++;
     });
 
     document.getElementById("mvpstat").innerHTML =
-      "<span><b>" + yes + "</b> MVP-blocking</span><span>·</span><span><b>" + open + "</b> open</span>";
+      "<span><b>" + shipsWith + "</b> ship with MVP</span><span>·</span><span><b>" +
+      parallel + "</b> in parallel</span>";
 
     var refreshed = m.lastRefreshed
       ? "<b>" + esc(m.lastRefreshed) + "</b>"
@@ -1867,6 +2225,11 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     }
   }
 
+  /* Legend and About read the SAME meta blocks, so a tier reword, a prefix
+     reword or a new edge kind lands in both places at once. The connector
+     samples in particular are drawn from edgeKinds' own stroke/width/dash — a
+     kind that no edge uses simply never appears, which is what stops the legend
+     from advertising a line that isn't on the canvas. */
   function renderLegendTiers() {
     var t = D.meta.tiers || {};
     document.getElementById("leg-tiers").innerHTML = ["A", "B", "C", "D"].map(function (k) {
@@ -1881,6 +2244,71 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       return '<div class="di"><span class="sw sw-' + k.toLowerCase() + '"></span>' +
         '<span class="dd"><span class="dt">' + esc(m.label || "Tier " + k) + " — " +
         esc(m.name || "") + "</span><br>" + esc(m.note || "") + "</span></div>";
+    }).join("");
+
+    var p = D.meta.prefixes || {};
+    var pkeys = Object.keys(p);
+
+    document.getElementById("leg-prefixes").innerHTML = pkeys.map(function (k) {
+      var m = p[k];
+      return '<div class="leg-item"><span class="leg-pfx">' + esc(m.label) + "</span>" +
+        '<span class="lab"><b>' + esc(m.name) + "</b></span></div>";
+    }).join("");
+
+    document.getElementById("about-prefixes").innerHTML = pkeys.map(function (k) {
+      var m = p[k];
+      return '<div class="di"><span class="leg-pfx" style="width:34px;margin-top:4px">' +
+        esc(m.label) + "</span>" +
+        '<span class="dd"><span class="dt">' + esc(m.name) + "</span><br>" +
+        esc(m.note || "") + "</span></div>";
+    }).join("");
+
+    // Only kinds that an edge actually uses.
+    var used = {};
+    EDGES.forEach(function (e) { used[e.kind] = true; });
+    var kinds = D.meta.edgeKinds || {};
+    document.getElementById("leg-kinds").innerHTML = Object.keys(kinds)
+      .filter(function (k) { return used[k]; })
+      .map(function (k) {
+        var m = kinds[k];
+        return '<div class="leg-item">' +
+          '<svg class="leg-line" viewBox="0 0 30 12" aria-hidden="true"><line x1="0" y1="6" x2="30" y2="6"' +
+            ' stroke="' + esc(m.stroke || "var(--accent)") + '"' +
+            ' stroke-width="' + esc(m.width || 1.8) + '"' +
+            (m.dash ? ' stroke-dasharray="' + esc(m.dash) + '"' : "") + "/></svg>" +
+          '<span class="lab"><b>' + esc(m.label) + "</b></span></div>";
+      }).join("");
+  }
+
+  /* The two unresolved cross-ticket conflicts, rendered in the About view. The
+     ticket keys are jump controls, so a conflict is one click from either half
+     of it on the map. */
+  function renderConflicts() {
+    var host = document.getElementById("about-conflicts");
+    if (!host) return;
+    var list = D.conflicts || [];
+    if (!list.length) {
+      host.innerHTML = '<p class="tnote">Nothing flagged. Every cross-ticket disagreement on ' +
+        "record has been resolved.</p>";
+      return;
+    }
+    host.innerHTML = list.map(function (c) {
+      var keys = (c.between || []).map(function (k) {
+        var t = byKey[k];
+        var style = "--tier:" + tierVar((t && t.tier) || "a") +
+                    ";--tier-soft:var(--tier-" + String((t && t.tier) || "a").toLowerCase() + "-soft)";
+        return t
+          ? '<button type="button" class="k" data-key="' + esc(k) + '" style="' + style + '"' +
+            ' title="Show ' + esc(k + " — " + t.title) + ' on the map">' + esc(k) + "</button>"
+          : '<span class="k" style="' + style + '">' + esc(k) + "</span>";
+      }).join("");
+
+      return '<div class="callout warn">' +
+        '<div class="cf-keys">' + keys + "</div>" +
+        "<h3>" + esc(c.title) + "</h3>" +
+        "<p>" + esc(c.what) + "</p>" +
+        '<p class="cf-state"><b>Unresolved.</b> ' + esc(c.state) + "</p>" +
+        "</div>";
     }).join("");
   }
 
@@ -2094,6 +2522,18 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       '<span class="dn">' + esc(kind.label) + (e.note ? " — " + esc(e.note) : "") + "</span></button>";
   }
 
+  // Display-only relationship. It jumps like a dependency row but draws no wire,
+  // which is the whole point: SM-09 blocks nothing and is blocked by nothing, yet
+  // it is not floating free of the initiative.
+  function relRow(r) {
+    var o = byKey[r.key] || {};
+    return '<button type="button" class="dep-jump" data-key="' + esc(r.key) + '"' +
+      ' style="--dep-tier:' + tierVar(o.tier || "a") + '">' +
+      '<span class="arrow" aria-hidden="true">›</span>' +
+      '<span class="dk">' + esc(r.key) + "</span>" + esc(o.title || "") +
+      '<span class="dn">' + esc(r.note || "Related — does not gate either ticket") + "</span></button>";
+  }
+
   function headHTML(t) {
     var pm = t.pmTicketNumber
       ? '<span class="val">#' + esc(t.pmTicketNumber) + "</span>" +
@@ -2105,7 +2545,9 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
         '<span class="k" style="--tier:' + tierVar(t.tier) + ';--tier-soft:var(--tier-' +
           esc(String(t.tier).toLowerCase()) + '-soft)">' + esc(t.key) + "</span>" +
         '<span class="panel-tier">' + esc(tierName(t.tier)) +
-          (t.role === "parent" ? " · parent" : "") + "</span>" +
+          esc(t.role === "parent"
+                ? " · parent"
+                : (prefixMeta(t.key) ? " · " + prefixMeta(t.key).name : "")) + "</span>" +
         '<button type="button" class="panel-x" data-close="1" aria-label="Close detail panel">✕</button>' +
       "</div>" +
       '<h2 id="panel-title">' + esc(t.title) + "</h2>" +
@@ -2115,24 +2557,56 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
   function bodyHTML(t) {
     var m = mvpOf(t);
     var bb = blockedBy(t.key), bk = blocks(t.key);
+    var also = t.blockedByAlso || [], rel = t.related || [];
+    var cfs = conflictsFor(t.key);
     var h = '<p class="p-sum">' + esc(t.summary) + "</p>";
 
-    h += '<div class="row"><p class="rl">MVP status</p><p class="rv">' +
+    // Confidence first, because it qualifies every row beneath it.
+    if (t.maturity) {
+      h += '<div class="row"><p class="rl">Confidence</p><p class="rv">' +
+           '<span class="chip caution">⚠ Less validated</span>' + esc(t.maturity) + "</p></div>";
+    }
+
+    h += '<div class="row"><p class="rl">Tier — when it lands</p><p class="rv">' +
          '<span class="chip ' + m.cls + '">' + m.label + "</span>" +
          esc(t.mvpNote || "") + "</p></div>";
+
+    if (cfs.length) {
+      h += '<div class="row"><p class="rl">Flagged, not fixed</p>' + cfs.map(function (c) {
+        var other = (c.between || []).filter(function (k) { return k !== t.key; });
+        return '<p class="rv" style="margin-bottom:11px">' +
+          '<span class="chip conflict">⚠ ' + esc(other.join(" · ")) + "</span>" +
+          "<b style=\"color:var(--ink);font-weight:600\">" + esc(c.title) + ".</b> " +
+          esc(c.what) + " " + esc(c.state) + "</p>";
+      }).join("") + "</div>";
+    }
 
     if (t.slice) {
       h += '<div class="row"><p class="rl">What SM needs — the slice</p><p class="rv">' +
            esc(t.slice) + "</p></div>";
     }
 
-    h += '<div class="row"><p class="rl">Blocked by</p>' +
-      (bb.length ? bb.map(function (e) { return depRow(e, "in"); }).join("")
-                 : '<p class="rv">Nothing. It can start immediately.</p>') + "</div>";
+    var bbHTML = bb.length ? bb.map(function (e) { return depRow(e, "in"); }).join("") : "";
+    if (also.length) {
+      bbHTML += '<p class="rl" style="margin:' + (bb.length ? "13px" : "0") + ' 0 7px">' +
+        "Not a ticket — still a gate</p><ul>" +
+        also.map(function (s) { return '<li class="q">' + esc(s) + "</li>"; }).join("") + "</ul>";
+    }
+    if (!bbHTML) bbHTML = '<p class="rv">Nothing. It can start immediately.</p>';
+    h += '<div class="row"><p class="rl">Blocked by</p>' + bbHTML + "</div>";
 
-    h += '<div class="row"><p class="rl">Blocks</p>' +
-      (bk.length ? bk.map(function (e) { return depRow(e, "out"); }).join("")
-                 : '<p class="rv">Nothing waits on it.</p>') + "</div>";
+    var bkHTML = bk.length ? bk.map(function (e) { return depRow(e, "out"); }).join("") : "";
+    if (bk.length && t.blocksNote) {
+      bkHTML += '<p class="rv" style="margin-top:10px">' + esc(t.blocksNote) + "</p>";
+    } else if (!bk.length) {
+      bkHTML = '<p class="rv">' + esc(t.blocksNote || "Nothing waits on it.") + "</p>";
+    }
+    h += '<div class="row"><p class="rl">Blocks</p>' + bkHTML + "</div>";
+
+    if (rel.length) {
+      h += '<div class="row"><p class="rl">Related — no wire on the map</p>' +
+        rel.map(relRow).join("") + "</div>";
+    }
 
     if (t.scope && t.scope.length) {
       h += '<div class="row"><p class="rl">' + (t.role === "parent" ? "In this ticket" : "Scope") +
@@ -2461,13 +2935,16 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       if (b) jumpToMap(b.getAttribute("data-key"));
     });
 
-    var scopeView = document.getElementById("view-scope");
-    if (scopeView) {
-      scopeView.addEventListener("click", function (e) {
+    // The Scope matrix's column heads and marked cells, and the About view's
+    // conflict keys, all mean the same thing: show me this ticket on the map.
+    ["view-scope", "view-about"].forEach(function (id) {
+      var v = document.getElementById(id);
+      if (!v) return;
+      v.addEventListener("click", function (e) {
         var b = up(e.target, "button[data-key]");
         if (b) jumpToMap(b.getAttribute("data-key"));
       });
-    }
+    });
 
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && selectedKey) { e.preventDefault(); closePanel(true); return; }
@@ -2510,6 +2987,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     buildModel();
     renderChrome();
     renderLegendTiers();
+    renderConflicts();
     renderStages();
     renderRegister();
 
