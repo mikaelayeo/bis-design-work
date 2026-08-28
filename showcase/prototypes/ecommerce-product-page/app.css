@@ -578,6 +578,51 @@ body.page-store {
   .proto-nav__label { width: 100%; text-align: center; margin: 0 0 2px; }
 }
 
+/* ---- v3 prototype nav: Product Page is the scope, rest are reference ---- */
+.proto-nav--v3 { gap: 8px 12px; padding: 9px 14px; }
+.proto-nav--v3 .proto-nav__label { text-transform: none; font-weight: 400; font-size: 12px; color: rgba(255, 255, 255, .7); letter-spacing: 0; }
+.proto-nav--v3 .proto-nav__label b { color: #fff; }
+/* the scope button — same size as the reference pills, distinguished by the bold blue fill */
+.proto-nav--v3 .proto-nav__scope {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--surface-primary); color: #fff;
+  border: 1px solid var(--surface-primary); border-radius: 20px;
+  padding: 3px 12px; font-size: 12px; font-weight: 700;
+}
+.proto-nav--v3 .proto-nav__scope:hover { background: var(--surface-primary-hover); text-decoration: none; }
+.proto-nav--v3 .proto-nav__scope .star { color: #ffd24a; font-size: 11px; }
+.proto-nav--v3 .proto-nav__reflabel { font-size: 10px; text-transform: uppercase; letter-spacing: .6px; color: rgba(255, 255, 255, .45); margin-left: 8px; }
+/* reference links — muted */
+.proto-nav--v3 .proto-nav__ref {
+  color: rgba(255, 255, 255, .6); font-size: 12px; font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, .22); border-radius: 20px; padding: 3px 11px;
+}
+.proto-nav--v3 .proto-nav__ref:hover { color: #fff; background: rgba(255, 255, 255, .12); text-decoration: none; }
+/* "you are here" marker */
+.proto-nav--v3 .is-here { position: relative; }
+.proto-nav--v3 .proto-nav__ref.is-here { color: #fff; border-color: rgba(255, 255, 255, .55); }
+.proto-nav--v3 .is-here::after { content: "you are here"; position: absolute; left: 50%; transform: translateX(-50%); top: 100%; margin-top: 3px; font-size: 8.5px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; color: rgba(255, 255, 255, .5); white-space: nowrap; }
+@media (max-width: 560px) {
+  .proto-nav--v3 .is-here::after { display: none; }
+}
+
+/* ---- Live-style store footer (matches courses.trainanddevelop.ca) ---- */
+.store-footer { background: #3d3d3d; }
+.store-footer__inner {
+  padding: 14px var(--gutter);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end;
+  gap: 8px 22px; font-size: 13px; color: rgba(255, 255, 255, .72);
+}
+/* sticky-footer layout: pin to the bottom of the viewport when content is short.
+   The width:100% on direct children is required because a flex column would
+   otherwise shrink `.container` (margin:0 auto) to its content width. */
+body.v3 { min-height: 100vh; display: flex; flex-direction: column; }
+body.v3 > * { width: 100%; }
+body.v3 .store-footer { margin-top: auto; }
+.store-footer span, .store-footer a { display: inline-flex; align-items: center; gap: 6px; color: rgba(255, 255, 255, .72); }
+.store-footer a:hover { color: #fff; text-decoration: underline; }
+.store-footer svg { width: 13px; height: 13px; opacity: .8; }
+
 /* ============================================================
    Product page components
    ============================================================ */
@@ -786,7 +831,7 @@ body.page-store {
    Below-the-fold layout + STICKY MINI CARD (Figma 1025:23137)
    Hero card is fixed/static; this mini version is the sticky one.
    ============================================================ */
-.belowfold { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 48px; align-items: start; }
+.belowfold { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 48px; align-items: start; padding-bottom: 64px; }
 .belowfold__main { min-width: 0; }
 
 .mini-card {
@@ -949,6 +994,24 @@ body.page-store {
 .faq details[open] summary::after { transform: rotate(180deg); }
 .faq details p { padding: 0 6px 12px; font-size: 16px; line-height: 24px; color: #191919; }
 
+/* FAQ as a list of links to existing FAQ pages (v3 — matches current live pattern) */
+.faq-links { max-width: 750px; list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--stroke-default-light); }
+.faq-links li { border-bottom: 1px solid var(--stroke-default-light); }
+.faq-links a { display: flex; align-items: center; gap: 12px; padding: 14px 4px; color: var(--text-primary); font-size: 15px; line-height: 20px; }
+.faq-links span { flex: 1; min-width: 0; }
+.faq-links .chev { width: 18px; height: 18px; flex-shrink: 0; color: var(--stroke-default); }
+.faq-links a:hover span { text-decoration: underline; }
+.faq-links a:hover .chev { color: var(--text-secondary); }
+
+/* About tab: admin long description, HTML normalized to text (Figma 1301:2485) */
+.long-desc { max-width: 750px; }
+.long-desc > section { margin-bottom: 28px; }
+.long-desc > section:last-child { margin-bottom: 0; }
+.long-desc h4 { font-size: 15px; line-height: 20px; font-weight: 700; color: var(--text-default); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 10px; }
+.long-desc p { font-size: 15px; line-height: 22px; color: #3d3d3d; margin-bottom: 8px; }
+.long-desc ul { margin: 8px 0 0 20px; padding: 0; }
+.long-desc li { font-size: 15px; line-height: 22px; color: #3d3d3d; margin-bottom: 4px; }
+
 /* ============================================================
    REVIEWS tab (Figma 1100:1206)
    ============================================================ */
@@ -1055,6 +1118,10 @@ body.page-store {
   .mobile-powered { display: flex; }
   /* only the product page carries a buy bar, so only it needs the clearance */
   body.page-product { padding-bottom: 101px; }
+  /* v3: no separate "Powered by" bar (the real store footer replaced it), so the
+     buy bar sits at the very bottom and needs only its own clearance */
+  body.v3 .mobile-buybar { bottom: 0; }
+  body.v3.page-product { padding-bottom: 67px; }
 
   .tabpanel { padding-top: 24px; padding-bottom: 24px; }
   .recommended-wrap { padding-top: 32px; }

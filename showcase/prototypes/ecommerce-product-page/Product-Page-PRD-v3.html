@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eCommerce Product Page — New Design PRD (v3)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/all.min.css">
+<style>
+  :root{
+    --ink:#1a1d23; --ink-2:#555b66; --ink-3:#8a909a; --line:#e4e7ec; --line-2:#d0d5dd;
+    --bg:#f6f7f9; --surface:#ffffff; --accent:#0078b3; --accent-soft:#eaf6fb;
+    /* BIS design tokens — used by the component visuals below */
+    --primary-lightest:#f8feff; --primary-lighter:#f0f9fe; --t-primary:#0078b3; --icon-primary:#009acb;
+    --success-lighter:#ebf8d6; --t-success:#167b00;
+    --secondary-subtle:#f8f8f8; --secondary-lightest:#f2f2f2;
+    --stroke:#b2b2b3; --stroke-light:#dfdfe5; --t-default:#191919; --t-secondary:#666666;
+    --star:#d9a400; --cyan-tint:rgba(38,177,220,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;}
+  .wrap{max-width:940px;margin:0 auto;padding:0 24px 120px;}
+  .cover{background:linear-gradient(135deg,#0a3a54,#0078b3);color:#fff;padding:48px 0 40px;}
+  .cover .wrap{padding-bottom:40px;}
+  .eyebrow{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;opacity:.8;font-weight:600;}
+  .cover h1{font-size:40px;font-weight:700;margin:8px 0 6px;letter-spacing:-.5px;}
+  .cover .sub{font-size:18px;opacity:.9;margin-bottom:22px;}
+  .meta{display:flex;flex-wrap:wrap;gap:10px 28px;font-size:13.5px;}
+  .meta b{opacity:.7;font-weight:600;display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+  .pending-banner{margin-top:22px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:12px 16px;font-size:14px;display:flex;gap:10px;align-items:flex-start;}
+  .pending-banner i{font-size:16px;margin-top:3px;}
+  .pending-banner.risk{background:rgba(255,196,0,.18);border-color:rgba(255,213,79,.6);}
+  .doc{display:grid;grid-template-columns:200px 1fr;gap:40px;margin-top:36px;}
+  nav.toc{position:sticky;top:24px;align-self:start;font-size:13.5px;}
+  nav.toc a{display:block;color:var(--ink-2);text-decoration:none;padding:5px 10px;border-left:2px solid transparent;border-radius:0 4px 4px 0;}
+  nav.toc a:hover{color:var(--accent);background:var(--accent-soft);}
+  nav.toc .toc-h{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-3);font-weight:700;margin:16px 0 4px 10px;}
+  main{min-width:0;}
+  section{margin-bottom:44px;scroll-margin-top:20px;}
+  h2{font-size:26px;font-weight:700;letter-spacing:-.3px;padding-bottom:8px;border-bottom:2px solid var(--accent);margin-bottom:16px;}
+  h2 .num{color:var(--accent);font-weight:700;margin-right:8px;}
+  h3{font-size:17px;font-weight:700;margin:22px 0 8px;color:var(--ink);}
+  p{margin-bottom:12px;color:var(--ink-2);}
+  ul{margin:0 0 14px 22px;} li{margin-bottom:6px;color:var(--ink-2);}
+  code{font-family:ui-monospace,"Cascadia Code",monospace;font-size:.9em;background:#eef1f4;padding:1px 5px;border-radius:4px;color:#0a3a54;}
+  .lead{font-size:16px;color:var(--ink);}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:20px;letter-spacing:.3px;vertical-align:middle;}
+  .p-ok{background:#e7f6ec;color:#1b7a3d;} .p-chg{background:#fff4e0;color:#9a6400;}
+  .p-new{background:#e9f0ff;color:#2456b8;} .p-drop{background:#fdeaea;color:#b3261e;} .p-pend{background:#f2ecfb;color:#6b3fb0;}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:20px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px;}
+  .callout{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:8px;padding:12px 16px;margin:14px 0;font-size:14px;color:#0a3a54;}
+  .callout.warn{border-color:#d9a300;background:#fff8e8;color:#7a5600;}
+  .callout.stop{border-color:#cc2222;background:#fff2f2;color:#8c1c1c;}
+  table{width:100%;border-collapse:collapse;margin:8px 0 18px;font-size:13.5px;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  th{background:#0e3a56;color:#fff;text-align:left;padding:9px 12px;font-size:12px;letter-spacing:.3px;font-weight:600;}
+  td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top;color:var(--ink-2);}
+  tr:nth-child(even) td{background:#fafbfc;} td code{white-space:nowrap;}
+  .qid{font-family:ui-monospace,monospace;font-size:12px;color:var(--accent);font-weight:600;white-space:nowrap;}
+  .embed-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .embed-head a{font-size:13px;color:var(--accent);text-decoration:none;font-weight:600;}
+  .proto-cta{display:flex;align-items:center;gap:16px;text-decoration:none;background:linear-gradient(135deg,#0a3a54,#0078b3);color:#fff;border-radius:12px;padding:20px 24px;margin:16px 0 8px;box-shadow:0 6px 20px rgba(0,120,179,.25);transition:transform .15s ease,box-shadow .15s ease;}
+  .proto-cta:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,120,179,.32);}
+  .proto-cta__ico{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+  .proto-cta b{display:block;font-size:17px;margin-bottom:2px;}
+  .proto-cta small{display:block;font-size:13px;opacity:.85;}
+  .linkrow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .linkrow a{font-size:12.5px;font-weight:600;text-decoration:none;color:var(--accent);background:var(--accent-soft);border:1px solid #cde8f4;border-radius:20px;padding:4px 12px;}
+
+  /* ── Component visuals — rendered from the real BIS tokens, not screenshots ── */
+  .viz{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px;}
+  .viz .cap{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-3);font-weight:700;margin-bottom:10px;}
+  .row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;}
+  .save-badge{background:var(--success-lighter);color:var(--t-success);font:600 12px/16px "Segoe UI";padding:2px 6px;border-radius:12px;}
+  /* bulk pricing table */
+  .v-bulk{width:300px;background:var(--cyan-tint);border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.12);overflow:hidden;}
+  .v-bulk .r{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;}
+  .v-bulk .hd{color:var(--t-secondary);font:600 12px/16px "Segoe UI";}
+  .v-bulk .seat{font:400 14px/20px "Segoe UI";color:var(--t-default);}
+  .v-bulk .pr{display:inline-flex;align-items:center;gap:8px;font:600 12px/16px "Segoe UI";color:var(--t-default);}
+  /* for-team banner */
+  .v-banner{display:flex;gap:12px;align-items:center;background:var(--primary-lighter);border-radius:8px;padding:12px;width:320px;}
+  .v-banner .ic{width:16px;height:16px;border-radius:50%;background:var(--t-primary);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;}
+  .v-banner p{font:400 12px/20px "Segoe UI";color:var(--t-default);margin:0;}
+  /* segmented */
+  .v-seg{display:flex;gap:6px;background:var(--secondary-lightest);border-radius:8px;padding:4px;width:320px;}
+  .v-seg span{flex:1;text-align:center;padding:8px 16px;border-radius:4px;font:600 14px/18px "Segoe UI";color:var(--t-secondary);}
+  .v-seg span.on{background:#fff;color:var(--t-default);box-shadow:0 0 4px rgba(0,0,0,.15);}
+  /* mobile buy bar states */
+  .v-bar{width:320px;height:67px;background:var(--primary-lighter);box-shadow:0 0 8px rgba(0,0,0,.15);display:flex;align-items:center;gap:12px;padding:0 12px;border-radius:4px;}
+  .v-step{display:flex;align-items:stretch;border:1px solid var(--stroke-light);border-radius:8px;overflow:hidden;height:34px;background:#fff;width:110px;}
+  .v-step b{background:var(--secondary-lightest);border-right:1px solid var(--stroke-light);width:28px;display:flex;align-items:center;justify-content:center;font-weight:400;color:var(--t-default);}
+  .v-step b:last-child{border-right:none;border-left:1px solid var(--stroke-light);}
+  .v-step i{flex:1;display:flex;align-items:center;justify-content:center;font-style:normal;font:600 14px "Segoe UI";}
+  .v-price .maj{font:600 20px/28px "Segoe UI";} .v-price .min{font:400 16px/24px "Segoe UI";}
+  .v-cta{flex:1;height:42px;background:var(--t-primary);color:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;font:600 16px/26px "Segoe UI";}
+  .v-added{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--t-primary);font:600 20px/28px "Segoe UI";}
+  /* review */
+  .v-rev{width:330px;border-bottom:1px solid var(--stroke-light);padding:12px 0;display:flex;flex-direction:column;gap:16px;}
+  .v-rev .u{display:flex;align-items:center;gap:12px;}
+  .v-rev .av{width:25px;height:25px;border-radius:20px;background:#e2e2e3;color:var(--t-primary);font-size:12px;display:flex;align-items:center;justify-content:center;}
+  .v-rev .nm{font-size:12px;color:var(--t-default);} .v-rev .dt{font-size:12px;color:var(--t-secondary);}
+  .v-rev .bd{font:400 12px/1.5 "Segoe UI";color:var(--t-default);}
+  .stars{color:var(--star);letter-spacing:1px;font-size:14px;}
+  .v-bd{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--t-default);}
+  .v-bd .trk{flex:1;height:8px;border-radius:4px;background:var(--secondary-lightest);overflow:hidden;}
+  .v-bd .fil{height:100%;background:var(--t-primary);border-radius:4px;}
+  .v-bd .lb{width:44px;} .v-bd .pc{width:28px;text-align:right;color:var(--t-secondary);}
+  /* tab bar */
+  .v-tabs{display:flex;background:var(--secondary-subtle);border-bottom:1px solid var(--stroke-light);width:100%;}
+  .v-tabs span{padding:6px 16px 10px;font:600 16px/26px "Segoe UI";color:#63636d;position:relative;}
+  .v-tabs span.on{color:#19191b;}
+  .v-tabs span.on::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:50px;height:4px;background:var(--t-primary);border-radius:80px 80px 0 0;}
+  .bp{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid var(--line);font-size:12.5px;margin:10px 0 18px;}
+  .bp div{flex:1;padding:10px 12px;text-align:center;}
+  .bp div b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-3);margin-bottom:3px;}
+  .bp .b1{background:#eef7ff;} .bp .b2{background:#f2fbf4;} .bp .b3{background:#fff8e8;}
+  footer{border-top:1px solid var(--line);margin-top:40px;padding-top:18px;font-size:13px;color:var(--ink-3);}
+  footer a{color:var(--accent);}
+  @media(max-width:780px){ .doc{grid-template-columns:1fr;} nav.toc{display:none;} .cover h1{font-size:30px;} }
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="wrap">
+    <div class="eyebrow">Product Requirements · eCommerce Redesign</div>
+    <h1>Product Page — New Design</h1>
+    <div class="sub">Marketing to software purchase flow, redesigned product page, and the responsive buy experience.</div>
+    <div class="meta">
+      <div><b>Ticket</b>TKT-21542</div>
+      <div><b>Related</b>TKT-17024 (Phase 1)</div>
+      <div><b>Type</b>Redesign · EPIC</div>
+      <div><b>Board</b>Software Development · E-Commerce</div>
+      <div><b>Design owner</b>Mikaela Yeo</div>
+      <div><b>Updated</b>28 July 2026</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="doc">
+    <nav class="toc">
+      <div class="toc-h">Contents</div>
+      <a href="#live">Prototype</a>
+      <a href="#scope">1 · Scope</a>
+      <a href="#decisions">2 · Key decisions</a>
+      <a href="#anatomy">3 · Anatomy</a>
+      <a href="#visuals">4 · Component visuals</a>
+      <a href="#behaviour">5 · Behaviour (QA)</a>
+      <a href="#tech">6 · Technical</a>
+      <a href="#copy">7 · Copy</a>
+      <a href="#open">8 · Open questions</a>
+    </nav>
+
+    <main>
+      <div class="legend">
+        <span><span class="pill p-ok">✓ Confirmed</span> matches ticket</span>
+        <span><span class="pill p-chg">✎ Changed</span> from ticket</span>
+        <span><span class="pill p-new">+ New</span> this design round</span>
+        <span><span class="pill p-drop">✕ Gap</span> in ticket, not built</span>
+        <span><span class="pill p-pend">Pending</span> writer review</span>
+      </div>
+
+      <section id="live">
+        <h2>Prototype</h2>
+        <p>The prototype is fully interactive. On the product page: switch tabs, toggle <b>Myself / For team</b> to reveal the assignment banner, click the course thumbnail to open the video, and scroll to watch the sticky mini card fade in. <b>Drag the window narrower than 1024px</b> to see the purchase card hand over to the mobile buy bar. On the group page, the filters genuinely filter.</p>
+
+        <div class="callout"><b>Single layout — Option B.</b> The product page shows the course image beside the description with <b>no bulk pricing table</b>. (v1 offered an A/B toggle; Option B was chosen, so v2 drops the switcher.) Figma: <code>1231:4376</code> (web), <code>1231:3772</code> (mobile).</div>
+
+        <a class="proto-cta" href="defensive-driving-101-v3.html" target="_blank">
+          <span class="proto-cta__ico"><i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+          <span>
+            <b>Open the product page prototype</b>
+            <small>defensive-driving-101-v3.html — Defensive Driving 101. Opens in a new tab.</small>
+          </span>
+        </a>
+
+        <h3>The full flow</h3>
+        <p>Walk it in order to see the marketing to software handoff and the one-way door.</p>
+        <div class="linkrow">
+          <a href="store-v3.html" target="_blank"><i class="fa-solid fa-shop"></i> 1 · Marketing store</a>
+          <a href="defensive-driving-v3.html" target="_blank"><i class="fa-solid fa-layer-group"></i> 2 · Marketing group page</a>
+          <a href="defensive-driving-101-v3.html" target="_blank"><i class="fa-solid fa-file-lines"></i> 3 · Product page (software)</a>
+          <a href="course-list-v3.html" target="_blank"><i class="fa-solid fa-table-cells"></i> 4 · Software course list</a>
+        </div>
+      </section>
+
+      <section id="scope"><h2><span class="num">1</span>Scope</h2>
+        <p class="lead">A buyer discovers a course on the <b>marketing site</b> (bissafety.ca), crosses into the <b>software store</b> (bissafety.app) to buy it, and never returns to marketing. This round redesigns the product page at the centre of that flow, and defines the responsive purchase experience end to end.</p>
+
+        <h3>The flow</h3>
+        <table>
+          <tr><th style="width:26%">Page</th><th style="width:20%">Property</th><th>Role</th></tr>
+          <tr><td><code>store-v3.html</code></td><td>Marketing</td><td>Course catalogue. Prices removed. <span class="pill p-chg">✎</span></td></tr>
+          <tr><td><code>defensive-driving-v3.html</code></td><td>Marketing</td><td>Course <b>group</b> page. One umbrella page per topic instead of a page per course. <span class="pill p-new">+</span></td></tr>
+          <tr><td><code>defensive-driving-101-v3.html</code></td><td>Software</td><td>The product page. Main subject of this PRD.</td></tr>
+          <tr><td><code>course-list-v3.html</code></td><td>Software</td><td>Where Home leads. This is <b>TKT-17024's work</b> — proposed to stay as-is. <span class="pill p-ok">✓</span></td></tr>
+        </table>
+
+        <div class="callout"><b>Group pages have two valid entry points.</b> Primarily they are <b>entrance pages</b> from Google or site search — that is where their SEO value is realised. But they are also reachable <b>from the catalogue</b>, and both paths are intended. Separately, clicking a <b>specific course</b> in the catalogue goes straight to the software product page rather than via its group page (Sean: "if I clicked forklift operator, I wouldn't go to the forklift landing page, it'd be straight to that course"). So the catalogue links to <em>both</em> group pages and individual products, depending on what was clicked.</div>
+
+        <h3>Why this structure exists</h3>
+        <p>The driver is SEO, not aesthetics. Roughly <b>330,000 monthly searches</b> for WHMIS against ~3,000 for software, and the eCommerce store <b>is not indexed at all</b> — practically nobody lands there from search. Today every course needs its own marketing page, which creates mass duplication and, per Sean, <b>about 14% of the current catalogue links to nothing</b> because courses came down while their pages stayed up. Collapsing to roughly <b>90 to 100 stable group pages</b> fixes both: the page never comes down, only the courses linked beneath it change.</p>
+
+        <h3>In scope</h3>
+        <ul>
+          <li>Product page hero: breadcrumb, title, description, rating, course image, bulk pricing table.</li>
+          <li>Purchase card with <b>Buy for</b> Myself / For team, quantity stepper, and Add to cart.</li>
+          <li>A separate <b>sticky mini card</b> that appears once the hero card scrolls away.</li>
+          <li>Three tabs: About, Certificate, FAQs. (Reviews removed in v3.)</li>
+          <li><b>Recommended Courses</b>, always visible below the tabs.</li>
+          <li>Responsive behaviour to 360px, including the mobile sticky buy bar and its three states.</li>
+          <li>The one-way door: no navigation from software back to marketing.</li>
+        </ul>
+
+        <h3>Out of scope</h3>
+        <ul>
+          <li><b>Redesigning the software course list.</b> <code>course-list-v3.html</code> is <b>TKT-17024's delivery</b> and the proposal is to <b>leave it as-is</b> — it is a workable middle ground between the current store and where we are heading. Reproduced here so the loop can be clicked. See §8.9.</li>
+          <li>Cart, checkout, and post-purchase (tracked on <b>#9587</b>).</li>
+          <li>Admin Course List changes from this ticket (On Network column, Location filter) — unchanged by this round.</li>
+          <li>Pricing pages (Phase 2).</li>
+        </ul>
+      </section>
+
+      <section id="decisions"><h2><span class="num">2</span>Key decisions</h2>
+        <p>Each row is tagged against the <b>original TKT-17024 Phase 1 scope</b>, so Anoop and Sean can see exactly how this design departs from what was settled. The volume of <span class="pill p-new">+ New</span> and <span class="pill p-chg">✎ Changed</span> rows is the argument for a separate ticket.</p>
+        <table>
+          <tr><th style="width:23%">Decision</th><th>Resolution and why</th><th style="width:7%"></th></tr>
+          <tr style="background:#f4f9ff"><td><b>v3 · Reviews tab removed → Rating</b></td><td>Individual reviews are <b>deferred</b> (Dan agrees to wait). The tab is removed; "reviews" becomes "<b>ratings</b>" and only the aggregate (5.0 / 1,240 ratings) shows in the hero, non-clickable. A richer review feature that replaces the current feedback page is a <b>future consideration</b>.</td><td><span class="pill p-drop">✕</span></td></tr>
+          <tr style="background:#f4f9ff"><td><b>v3 · Recommended Courses removed for v1</b></td><td>Dropped from v1 (Dan agreed we can ship without it). <b>Future phases</b>: (1) admins manually pick recommendations per product + "often bought together" bundles incl. physical products (Sean likes this as phase 1); (2) a larger course tagging + recommendation-algorithm initiative.</td><td><span class="pill p-drop">✕</span></td></tr>
+          <tr style="background:#f4f9ff"><td><b>v3 · Certificate simplified</b></td><td>"Prove Your Training" copy is now <b>generic</b> (course name removed). "Join a Trusted Program" benefit <b>removed</b>. Two benefits remain: Prove Your Training, Stay Audit-Ready.</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr style="background:#f4f9ff"><td><b>v3 · FAQ = links</b></td><td>The FAQ tab is a <b>list of links to the existing FAQ pages</b> (bissafety.app faqdetails), matching the current live pattern — no inline answers. Curated set of 7. Product/category-specific FAQ content is a possible future plan (pending Sean confirm).</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr style="background:#f4f9ff"><td><b>v3 · About = admin long description</b></td><td>The About tab renders the course's admin-authored long description: stored <b>HTML converted to normalized text</b> following the design pattern (Anoop PoC). Sample structure: Course Overview / Course Topics (bulleted) / Online Course Duration, uppercase headings.</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr style="background:#f4f9ff"><td><b>v3 · Purchase card simplified</b></td><td><b>OHS Compliant removed</b> from the purchase card (now 70 minutes + Certificate Included). Hero social proof relabelled from "40,000+ drivers trained" to "<b>41,250 completions</b>".</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr style="background:#f4f9ff"><td><b>v3 · Default quantity 1</b></td><td>The quantity picker defaults to <b>1</b> (was 0) in the hero card, sticky mini card, and mobile buy bar.</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr><td><b>Recommended Courses</b> <span class="pill p-drop">Removed in v3</span></td><td>v2 reinstated the ticket's struck-through Recommended Courses section. <b>v3 removes it for v1</b> and moves it to future phases (see §8.2). Kept here for history.</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr><td><b>Marketing to software is a one-way door</b></td><td>Once a buyer is in the software there is no route back to marketing. The product breadcrumb is therefore only <code>home &gt; Defensive Driving 101</code>, with no group-page crumb. Home leads to the software course list.</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td><b>Course group pages</b></td><td>Related courses (all Defensive Driving variants) collect under one marketing umbrella page rather than a page per course.</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td><b>Hero card is fixed, mini card is sticky</b></td><td>The ticket asked for a sticky right panel repeating title, price and duration. Split in two instead: a full hero card that scrolls away, and a reduced sticky card. The mini card carries <b>price, Buy for, quantity, Add to cart only</b> — no rating, duration or validity list.</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr><td><b>Mini card fades in</b></td><td>Showing both cards at once read as duplicated. The mini card is hidden until the hero card passes under the sticky header, then fades in over 0.28s.</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td><b>Layout: Option B (no bulk pricing)</b></td><td>The hero shows the course image beside the description. The bulk pricing table (1-4 / 5-9 / 10+ seat tiers), trialled as Option A, is <b>dropped</b>. Volume pricing still exists at checkout via the For team flow.</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr><td><b>Location line hidden</b></td><td>"Valid in Alberta, Ontario, and 3 more" is <b>removed for now</b>. Dan is skeptical the jurisdiction data can be kept accurate; may return if that is proven out later.</td><td><span class="pill p-drop">✕</span></td></tr>
+          <tr><td><b>Trust section hidden</b></td><td>The "Delivered on BIS Learning Platform" block in the About tab is <b>removed for now</b>. Dan is 50/50 on it.</td><td><span class="pill p-drop">✕</span></td></tr>
+          <tr><td><b>Buy for Myself / For team</b></td><td>Segmented control. Choosing For team reveals an assignment banner, removing the "do I need everyone's details now?" objection at the point of purchase.</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td><b>Certificate gets its own tab</b></td><td>The ticket put a certificate preview in the hero banner. It moved to a dedicated tab with a certificate preview plus three benefit statements, keeping the hero compact.</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr><td><b>Store listing prices removed</b></td><td>Prices no longer appear on the marketing catalogue. They remain at product level.</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr><td><b>Mobile purchase moves to a buy bar</b></td><td>The ticket said "bottom sheet (mobile)". Delivered as a fixed 67px buy bar with three states, above a 34px Powered by BIS bar.</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr><td><b>Compact mode at 1024px</b></td><td>Between roughly 870 and 1024px a 350px sidebar cannot sit beside content without squeezing it. Both cards give way to the buy bar across that whole band rather than degrading gradually.</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td><b>BIS header untouched</b></td><td>The existing BIS header (logo bar and main nav) is used as-is and stays flush left. Only the search subheader is aligned to page content.</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td><b>Long description simplified</b></td><td>About tab is Why now / What it is / What you'll learn. Duration, language and certificate details moved out of the description, as the ticket asked.</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td><b>Duration on cards</b></td><td>"70 minutes" shown on product cards and in the purchase card.</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td><b>Add to Cart only</b></td><td>No Buy Now button, per the March 2026 decision.</td><td><span class="pill p-ok">✓</span></td></tr>
+        </table>
+
+        <h3>Carried over from the ticket, now designed</h3>
+        <p>Three items committed on TKT-17024 were initially absent from this design round. Two are now resolved; one remains open.</p>
+        <table>
+          <tr><th style="width:26%">Ticket item</th><th>Resolution</th><th style="width:7%"></th></tr>
+          <tr><td><b>Product video preview</b></td><td>Ticket: "This banner also acts as a link to preview the linked product video." <b>Now attached to the course thumbnail:</b> a play icon overlays the image, and clicking it opens a full lightbox over a dark scrim (Figma <code>1:4756</code>). Dismissible by the close button, clicking the scrim, or Esc. This replaces the whole-banner-as-link approach with a clearer, smaller target.</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr><td><b>Course ID on the product page</b></td><td>Confirmed by Luke (19 Mar 2026, "Yes lets keep this, great catch"). <b>Now shown as small secondary text on the price line</b> in the purchase card, so it is available without competing with the price.</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td><b>FAQ count and source</b></td><td>Ticket specifies <b>5 to 7 FAQs pulled from existing eCommerce FAQ pages</b>, curated by Bailey (Apr 2026) with links out. The prototype has <b>3 questions with placeholder answers</b>. <b>Content is pending Sean's approval</b>, and the per-product vs standard question is unresolved. See §8.4.</td><td><span class="pill p-pend">Pending</span></td></tr>
+        </table>
+      </section>
+
+      <section id="anatomy"><h2><span class="num">3</span>Anatomy</h2>
+        <table>
+          <tr><th style="width:24%">Zone</th><th>Contents</th></tr>
+          <tr><td><b>Header</b></td><td>Existing BIS header, unchanged: logo bar (68px) with help, main nav (38px), search subheader (46px). Total 152px, sticky.</td></tr>
+          <tr><td><b>Hero — left</b></td><td>Breadcrumb (home &gt; course), H1, description with the <b>course image beside it</b> (Option B), and a rating row (score, review count link, learners trained). No bulk pricing table.</td></tr>
+          <tr><td><b>Bulk row</b></td><td>Course image (flexible width, 140px tall, bordered) beside the bulk pricing table (435px, cyan tint, soft shadow, no row dividers). The image carries a <b>play icon</b> and opens the preview video.</td></tr>
+          <tr><td><b>Hero — right</b></td><td>Purchase card, 350px: price with <b>Course ID</b> alongside, duration, certificate, Buy for control, quantity stepper (defaults to 1), conditional assignment banner, Add to cart. Scrolls away. (Location line removed in v2; OHS Compliant removed in v3.)</td></tr>
+          <tr><td><b>Video lightbox</b></td><td>Full-viewport dark scrim with a 16:9 player. Opened from the thumbnail, dismissed by close button, scrim click, or Esc.</td></tr>
+          <tr><td><b>Tab bar</b></td><td>About · Certificate · FAQs. Subtle grey bar, active tab marked by a 50 × 4px blue bar. (Reviews removed in v3.)</td></tr>
+          <tr><td><b>Tab content — left</b></td><td>750px column. Panel contents vary; see §5.3.</td></tr>
+          <tr><td><b>Tab content — right</b></td><td>Sticky mini card, hidden until the hero card leaves the viewport.</td></tr>
+          <tr><td><b>Mobile only</b></td><td>Fixed buy bar (67px) above a Powered by BIS bar (34px). Replaces both purchase cards.</td></tr>
+        </table>
+      </section>
+
+      <section id="visuals"><h2><span class="num">4</span>Component visuals</h2>
+        <p>Rendered live from the real BIS tokens, so these stay accurate rather than going stale like screenshots.</p>
+
+        <h3>4.1 Bulk pricing table <span class="pill p-drop">✕ Dropped in v2</span></h3>
+        <div class="callout warn">Shown for the record only. This table was Option A and is <b>not in the current design</b> — Option B carries no bulk pricing table.</div>
+        <div class="viz" style="opacity:.55"><div class="cap">Cyan tint rgba(38,177,220,.05) · radius 8 · soft shadow · no row dividers</div>
+          <div class="v-bulk">
+            <div class="r hd"><span>Quantity</span><span>Price per course</span></div>
+            <div class="r"><span class="seat">1-4 seats</span><span class="pr">$29.99</span></div>
+            <div class="r"><span class="seat">5-9 seats</span><span class="pr">$27.99 <span class="save-badge">Save 7%</span></span></div>
+            <div class="r"><span class="seat">10+ seats</span><span class="pr">$24.99 <span class="save-badge">Save 17%</span></span></div>
+          </div>
+        </div>
+
+        <h3>4.2 Buy for control and assignment banner <span class="pill p-new">+ New</span></h3>
+        <div class="viz"><div class="cap">Default — Myself selected, no banner</div>
+          <div class="v-seg"><span class="on">Myself</span><span>For team</span></div>
+        </div>
+        <div class="viz"><div class="cap">For team selected — banner appears between the stepper and Add to cart</div>
+          <div class="v-seg" style="margin-bottom:12px"><span>Myself</span><span class="on">For team</span></div>
+          <div class="v-banner"><span class="ic">i</span><p>You'll assign these seats to team members after checkout</p></div>
+        </div>
+        <div class="callout">The banner appears in <b>both</b> the hero purchase card and the sticky mini card, and they toggle independently.</div>
+
+        <h3>4.3 Mobile buy bar — all three states <span class="pill p-chg">✎ Changed</span></h3>
+        <div class="viz"><div class="cap">State 1 · Default</div>
+          <div class="v-bar">
+            <span class="v-step"><b>−</b><i>0</i><b>+</b></span>
+            <span class="v-price"><span class="maj">$29</span><span class="min">.99</span></span>
+            <span class="v-cta">Add to cart</span>
+          </div>
+        </div>
+        <div class="viz"><div class="cap">State 2 · Added to Cart — transient confirmation, no controls</div>
+          <div class="v-bar"><span class="v-added"><i class="fa-solid fa-circle-check"></i> Added to Cart</span></div>
+        </div>
+        <div class="viz"><div class="cap">State 3 · View Cart — resting state, full-width action</div>
+          <div class="v-bar"><span class="v-cta"><i class="fa-solid fa-cart-shopping" style="margin-right:8px"></i> View Cart</span></div>
+        </div>
+
+        <h3>4.4 Course thumbnail with video, and Course ID <span class="pill p-chg">✎ Changed</span></h3>
+        <div class="viz"><div class="cap">Thumbnail — play icon overlay, whole tile is the trigger</div>
+          <div style="position:relative;width:240px;height:140px;border:1px solid var(--stroke-light);border-radius:8px;overflow:hidden;box-shadow:0 0 4px rgba(0,0,0,.15);background:#4a5a68">
+            <div style="position:absolute;inset:0;background:rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center">
+              <span style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.94);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3)">
+                <i class="fa-solid fa-play" style="color:var(--t-primary);font-size:15px;margin-left:3px"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="viz"><div class="cap">Price line — Course ID as small secondary text beside the price</div>
+          <div style="display:flex;align-items:baseline;gap:12px">
+            <span style="font:600 28px/36px 'Segoe UI';color:var(--t-default)">$29.99</span>
+            <span style="font:400 12px/16px 'Segoe UI';color:var(--t-secondary)">Course ID: 12345</span>
+          </div>
+        </div>
+
+        <h3>4.5 Tab bar</h3>
+        <div class="viz"><div class="cap">Active tab marked by a 50 × 4px bar, radius 80px top</div>
+          <div class="v-tabs"><span class="on">About</span><span>Certificate</span><span>FAQs</span></div>
+        </div>
+
+        <h3>4.6 Rating <span class="pill p-chg">✎ v3</span></h3>
+        <div class="callout warn"><b>v3: no Reviews tab.</b> Only the aggregate rating shows, in the hero, as non-clickable text: <b>5.0 (1,240 ratings)</b>. The distribution bars and individual-review list below were v1/v2 explorations, kept for the record — <b>not in v3</b>.</div>
+        <div class="viz" style="opacity:.5"><div class="cap">Historical — aggregate summary with distribution bars (dropped)</div>
+          <div style="width:330px">
+            <div class="stars">★★★★★</div>
+            <div style="font:600 18px/22px 'Segoe UI';color:#19191b">5.0</div>
+            <div style="font-size:12px;color:var(--t-secondary);margin-bottom:10px">1,240 Total Ratings</div>
+            <div class="v-bd"><span class="lb">5 stars</span><span class="trk"><span class="fil" style="width:92%"></span></span><span class="pc">92%</span></div>
+            <div class="v-bd"><span class="lb">4 stars</span><span class="trk"><span class="fil" style="width:6%"></span></span><span class="pc">6%</span></div>
+            <div class="v-bd"><span class="lb">3 stars</span><span class="trk"><span class="fil" style="width:1%"></span></span><span class="pc">1%</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="behaviour"><h2><span class="num">5</span>Behaviour <span style="font-size:14px;font-weight:500;color:var(--ink-3)">— QA reference</span></h2>
+        <p>Stable IDs so QA and dev can cite scenarios in TestRail (<a href="https://bistrainer.testrail.io/index.php?/plans/view/4039" target="_blank">plan 4039</a>) and tickets.</p>
+
+        <h3>5.1 Purchase card</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-1</td><td>Page loads</td><td>Buy for defaults to <b>Myself</b>. Quantity defaults to <b>1</b> (v3 — was 0), in the hero card, mini card, and mobile buy bar. No assignment banner.</td></tr>
+          <tr><td class="qid">B-2</td><td>Select <b>For team</b></td><td>Banner appears between stepper and Add to cart reading "You'll assign these seats to team members after checkout".</td></tr>
+          <tr><td class="qid">B-3</td><td>Select <b>Myself</b> again</td><td>Banner is removed.</td></tr>
+          <tr><td class="qid">B-4</td><td>Toggle For team in the <b>mini</b> card</td><td>Only the mini card's banner appears. The hero card is unaffected.</td></tr>
+          <tr><td class="qid">B-5</td><td>Press − at quantity 0</td><td>Quantity stays 0. Never negative.</td></tr>
+          <tr><td class="qid">B-6</td><td>Press + repeatedly</td><td>Quantity increments by 1 each press.</td></tr>
+          <tr><td class="qid">B-7</td><td>Quantity crosses a volume tier</td><td><span class="pill p-pend">Undefined</span> Whether the displayed price follows the bulk tiers is not yet specified. See §8.3.</td></tr>
+        </table>
+
+        <h3>5.2 Course preview video</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-60</td><td>View the course thumbnail</td><td>A play icon is overlaid on the image. The whole tile is the trigger and is a real button, reachable by keyboard.</td></tr>
+          <tr><td class="qid">B-61</td><td>Click or press Enter on the thumbnail</td><td>Video lightbox opens over a dark scrim. Focus moves to the close button.</td></tr>
+          <tr><td class="qid">B-62</td><td>Click the close button</td><td>Lightbox closes. Focus returns to the thumbnail.</td></tr>
+          <tr><td class="qid">B-63</td><td>Click the dark scrim outside the player</td><td>Lightbox closes.</td></tr>
+          <tr><td class="qid">B-64</td><td>Press Esc while open</td><td>Lightbox closes.</td></tr>
+          <tr><td class="qid">B-65</td><td>Click inside the player itself</td><td>Lightbox stays open.</td></tr>
+          <tr><td class="qid">B-66</td><td>Course has no linked video</td><td><span class="pill p-pend">Undefined</span> Whether the play icon is hidden or the thumbnail becomes inert is not yet specified.</td></tr>
+        </table>
+
+        <h3>5.3 Sticky mini card</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-10</td><td>At the top of the page</td><td>Mini card is hidden: opacity 0, visibility hidden, not focusable.</td></tr>
+          <tr><td class="qid">B-11</td><td>Hero card still partly visible</td><td>Mini card stays hidden. The two are never on screen together.</td></tr>
+          <tr><td class="qid">B-12</td><td>Hero card passes under the sticky header</td><td>Mini card fades in over 0.28s with an 8px upward drift.</td></tr>
+          <tr><td class="qid">B-13</td><td>Scroll back to the top</td><td>Mini card fades back out.</td></tr>
+          <tr><td class="qid">B-14</td><td>OS "reduce motion" enabled</td><td>Card appears and disappears with no transition.</td></tr>
+          <tr><td class="qid">B-15</td><td>Viewport below 1024px</td><td>Mini card never appears at any scroll position.</td></tr>
+        </table>
+
+        <h3>5.4 Tabs</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-20</td><td>Page loads</td><td><b>About</b> is active. Three tabs only: About · Certificate · FAQs.</td></tr>
+          <tr><td class="qid">B-21</td><td>Select a tab</td><td>Only that panel shows; the indicator bar moves.</td></tr>
+          <tr><td class="qid">B-22</td><td>Hero rating</td><td>Shows <b>5.0 (1,240 ratings)</b> as plain text. It is <b>not clickable</b> (no Reviews tab to open).</td></tr>
+          <tr><td class="qid">B-23</td><td>Open FAQs</td><td>A <b>list of question links</b> renders (7). No inline answers.</td></tr>
+          <tr><td class="qid">B-24</td><td>Click an FAQ link</td><td>Opens the corresponding FAQ page (bissafety.app faqdetails) in a <b>new tab</b>.</td></tr>
+          <tr><td class="qid">B-25</td><td>Tab bar too narrow for the tabs</td><td>Tab bar scrolls horizontally. The page itself never scrolls sideways.</td></tr>
+        </table>
+
+        <h3>5.5 Mobile buy bar</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-30</td><td>Viewport at or below 1024px</td><td>Both purchase cards hidden. Buy bar fixed at the bottom, above the 34px Powered by bar. Body gains 101px bottom padding so nothing is obscured.</td></tr>
+          <tr><td class="qid">B-31</td><td>Tap Add to cart</td><td>Bar switches to <b>Added to Cart</b>: centred blue check and label, no controls.</td></tr>
+          <tr><td class="qid">B-32</td><td>1.6s after B-31</td><td>Bar switches to a full-width <b>View Cart</b> button.</td></tr>
+          <tr><td class="qid">B-33</td><td>Quantity in the buy bar</td><td>Stepper behaves as B-5 and B-6.</td></tr>
+          <tr><td class="qid">B-34</td><td>Return to a viewport above 1024px</td><td>Buy bar hides; purchase cards return.</td></tr>
+        </table>
+
+        <h3>5.6 Navigation — the one-way door</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-40</td><td>Inspect the product page breadcrumb</td><td>Exactly two crumbs: a home icon and the course name. <b>No group-page crumb.</b></td></tr>
+          <tr><td class="qid">B-41</td><td>Click the home crumb</td><td>Opens the software course list, not the marketing catalogue.</td></tr>
+          <tr><td class="qid">B-42</td><td>Audit every link on the software pages</td><td><b>Zero</b> links to any marketing page. This is a regression check. <b>Exclude the prototype nav bar</b> (<code>.proto-nav</code>) — it is a review aid only and does not ship.</td></tr>
+          <tr><td class="qid">B-43</td><td>Click Explore all course in Recommended</td><td>Stays in the software course list.</td></tr>
+          <tr><td class="qid">B-44</td><td>From marketing, click a course on the group page</td><td>Crosses into the software product page.</td></tr>
+        </table>
+
+        <h3>5.7 Responsive</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-50</td><td>Any width from 360 to 1440px</td><td><b>No horizontal page scroll.</b> Verified across 55 widths in 20px steps.</td></tr>
+          <tr><td class="qid">B-51</td><td>Width at or below 1000px</td><td>BIS nav collapses to a hamburger before it can overflow.</td></tr>
+          <tr><td class="qid">B-52</td><td>Width at or below 560px</td><td>Course image and bulk table stay <b>side by side</b>, they do not stack.</td></tr>
+          <tr><td class="qid">B-53</td><td>Recommended Courses at or below 560px</td><td>Exactly one course card beside the More Courses tile. No horizontal scrolling.</td></tr>
+          <tr><td class="qid">B-54</td><td>Recommended between 561 and 1000px</td><td>Two per row, reduced type.</td></tr>
+          <tr><td class="qid">B-55</td><td>Header alignment, any width</td><td>Logo and nav stay flush left at 20px. Only the search subheader aligns to page content.</td></tr>
+        </table>
+      </section>
+
+      <section id="tech"><h2><span class="num">6</span>Technical</h2>
+        <h3>6.1 Breakpoints</h3>
+        <div class="bp">
+          <div class="b1"><b>≥ 1025px</b>Desktop<br><span style="font-size:11.5px;color:var(--ink-3)">hero card + sticky mini card</span></div>
+          <div class="b2"><b>≤ 1024px</b>Compact<br><span style="font-size:11.5px;color:var(--ink-3)">buy bar replaces both cards</span></div>
+          <div class="b3"><b>≤ 560px</b>Phone<br><span style="font-size:11.5px;color:var(--ink-3)">12px gutters, single rec card</span></div>
+        </div>
+        <p>The nav collapses independently at <b>1000px</b>, giving three observed layout states across the range: buy bar + hamburger (360–1000), buy bar + full nav (1010–1020), full desktop (1030+).</p>
+
+        <h3>6.2 Tokens used</h3>
+        <table>
+          <tr><th style="width:34%">Token</th><th style="width:22%">Value</th><th>Applied to</th></tr>
+          <tr><td>color/surface/primary</td><td><code>#0078b3</code></td><td>Primary buttons, active tab bar, section headings, links</td></tr>
+          <tr><td>color/icon/primary</td><td><code>#009acb</code></td><td>Proctoring badge border, accent icons</td></tr>
+          <tr><td>color/surface/primary-lighter</td><td><code>#f0f9fe</code></td><td>Assignment banner, trust card gradient, mobile buy bar</td></tr>
+          <tr><td>color/surface/primary-lightest</td><td><code>#f8feff</code></td><td>Recommended Courses panel</td></tr>
+          <tr><td>color/surface/success-lighter</td><td><code>#ebf8d6</code></td><td>Save % badges</td></tr>
+          <tr><td>color/text/success</td><td><code>#167b00</code></td><td>Save % text</td></tr>
+          <tr><td>bulk table tint</td><td><code>rgba(38,177,220,.05)</code></td><td>Bulk pricing table background</td></tr>
+          <tr><td>rating star</td><td><code>#d9a400</code></td><td>All star icons</td></tr>
+          <tr><td>Shadows/L2</td><td><code>0 0 4px rgba(0,0,0,.15)</code></td><td>Cards, course image</td></tr>
+          <tr><td>Shadows/L3</td><td><code>0 0 8px rgba(0,0,0,.15)</code></td><td>Header, mobile buy bar</td></tr>
+        </table>
+
+        <h3>6.3 Data required</h3>
+        <table>
+          <tr><th style="width:30%">Field</th><th>Notes</th></tr>
+          <tr><td>Volume price tiers</td><td>Tier boundaries and per-seat prices. Prototype assumes 1-4 / 5-9 / 10+. <b>Are tiers global or per course?</b></td></tr>
+          <tr><td>Discount percentages</td><td>Prototype hardcodes 7% and 17%. Confirm whether these are derived from tier prices or stored.</td></tr>
+          <tr><td>Jurisdiction validity <span class="pill p-drop">Hidden in v2</span></td><td>"Valid in Alberta, Ontario, and 3 more" — removed for now (accuracy concern). If reinstated, implies a list plus an overflow count.</td></tr>
+          <tr><td>Duration</td><td>Minutes, already available.</td></tr>
+          <tr><td>Rating aggregate</td><td>Average, total count, and a <b>five-bucket distribution</b> for the bars. The distribution is new.</td></tr>
+          <tr><td>Individual reviews</td><td><b>Existence unconfirmed.</b> See §8.1.</td></tr>
+          <tr><td>Recommended courses</td><td><b>Selection logic undefined</b> since the original ticket. See §8.2.</td></tr>
+        </table>
+
+        <h3>6.4 Dependencies raised in the Sean review <span class="pill p-new">+ New</span></h3>
+        <div class="callout"><b>Source:</b> eCommerce/marketing review with Sean Kopen, July 2026. These are hard dependencies that sit outside the design but gate it.</div>
+        <table>
+          <tr><th style="width:26%">Dependency</th><th>Detail</th></tr>
+          <tr><td><b>Live data sync</b></td><td>Marketing and eCommerce <b>do not currently talk to each other</b>, so marketing pricing is often wrong. Planned: a roughly <b>daily pull of pricing, product reviews and live links</b>, so a course that comes down drops off the group page automatically. Owner: Sean with Sachin.</td></tr>
+          <tr><td><b>Product-level tagging</b> <span class="pill p-drop">Blocking</span></td><td>Filters only work if courses are <b>tagged and categorised at product level</b> (vehicle class, conditions, standard). <b>None of this exists today.</b> It will likely need bulk spreadsheet work to seed, and it also affects sorts and filters in the eCommerce store. Day one filtering will be simplistic.<br><br><b>Recommended Courses very likely hinges on the same tagging</b> (§8.2) — without categories there is no basis for "same category" or "similar" recommendations beyond raw purchase data. Worth planning the two together rather than solving twice.</td></tr>
+          <tr><td><b>Catalogue rationalisation</b></td><td>Target is a maximum of <b>three to four courses per competency</b>. Sean: "defensive driving right now there shouldn't be 12 different options." <b>Applied in the prototype:</b> the vehicle/role group was trimmed from six to four by dropping "Small Vehicles" (overlaps General and Light &amp; Medium) and "Driving Defensively for CDL &amp; Large Vehicles" (a near duplicate of "Large Vehicles" — exactly the confusing overlap raised in the review). Total is now nine across four competency groups.</td></tr>
+          <tr><td><b>No guest checkout</b></td><td>Login or account creation <b>must happen in the cart before purchase</b>, to avoid duplicate accounts. Relevant to what Add to cart leads into.</td></tr>
+        </table>
+
+        <h3>6.5 Edge cases and gaps</h3>
+        <ul>
+          <li><b>Long titles and descriptions.</b> Store cards are a fixed 500px with no line clamp in the production design; the prototype adds a 5-line clamp. Real content will otherwise break the grid.</li>
+          <li><b>Zero or few ratings.</b> With the Reviews tab removed in v3 this is moot for now; if the richer review feature returns, define the empty/low-volume state then.</li>
+          <li><b>Single-jurisdiction courses.</b> The "and 3 more" pattern needs a rule when there is only one jurisdiction, or none.</li>
+          <li><b>Courses without volume pricing.</b> Behaviour when a course has no bulk tiers is undefined; presumably the table is hidden.</li>
+          <li><b>Reduced motion.</b> Honoured for the mini card fade.</li>
+        </ul>
+
+        <h3>6.6 Accessibility findings</h3>
+        <div class="callout warn"><b>Inherited from the current production store</b> (<code>course-list-v3.html</code>), not introduced by this design. Worth fixing while the area is open.</div>
+        <ul>
+          <li>Search placeholder <code>#807f7f</code> on <code>#feffff</code> is roughly <b>3.5:1 — fails WCAG AA</b> for input text.</li>
+          <li>The search field has no border while sitting on blue; boundary contrast is roughly <b>1.4:1</b>.</li>
+          <li>The green CTA is the only green on an otherwise all-blue page.</li>
+        </ul>
+        <p>In this design round: the mini card is <code>visibility:hidden</code> while concealed so it stays out of the tab order, and the assignment banner is inserted in DOM order before Add to cart so it is announced before the action.</p>
+
+        <h3>6.7 Known deviations in the prototype</h3>
+        <ul>
+          <li><b>H1 font.</b> Figma specifies Montserrat Bold; the prototype uses the system stack. Confirm whether Montserrat is being introduced.</li>
+          <li><b>Photography.</b> Unsplash placeholders throughout.</li>
+          <li><b>Trust mark.</b> Cropped from the full BIS lockup, as the isolated shield was not exported.</li>
+          <li><b>Course list styling.</b> Deliberately reproduces the current production store, so it will not match the redesigned pages.</li>
+          <li><b>Prototype nav bar.</b> The dark bar at the top of every page is a <b>review aid only and does not ship</b>. It deliberately crosses the one-way door so reviewers can move between the four pages freely. Styled unlike any product component so it is not mistaken for one.</li>
+          <li><b>Single layout (Option B).</b> v2 ships one layout — image beside the description, no bulk pricing table. The v1 A/B toggle has been removed now that Option B is chosen.</li>
+        </ul>
+      </section>
+
+      <section id="copy"><h2><span class="num">7</span>Copy</h2>
+        <div class="callout"><i class="fa-solid fa-pen-nib"></i> &nbsp;Every user-visible string on the page. <b>No em-dashes in UI copy.</b></div>
+
+        <h3>Purchase card</h3>
+        <table>
+          <tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Buy-for label</td><td>Buy for</td></tr>
+          <tr><td>Segment 1</td><td>Myself</td></tr>
+          <tr><td>Segment 2</td><td>For team</td></tr>
+          <tr><td>Assignment banner</td><td>You'll assign these seats to team members after checkout</td></tr>
+          <tr><td>Primary action</td><td>Add to cart</td></tr>
+          <tr><td>Duration</td><td>70 minutes</td></tr>
+          <tr><td>Certificate</td><td>Certificate Included</td></tr>
+          <tr><td>Validity <span class="pill p-drop">Hidden in v2</span></td><td><s>Valid in Alberta, Ontario, and 3 more</s></td></tr>
+          <tr><td>Compliance <span class="pill p-drop">Removed in v3</span></td><td><s>OHS Compliant</s> — removed from the purchase card.</td></tr>
+          <tr><td>Course ID</td><td>Course ID: 12345 <span class="tag-note">(format to confirm — with or without the "Course ID:" prefix)</span></td></tr>
+        </table>
+
+        <h3>Course preview video</h3>
+        <table>
+          <tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Thumbnail button label</td><td>Play course preview video <span class="tag-note">(screen readers only)</span></td></tr>
+          <tr><td>Close button label</td><td>Close video <span class="tag-note">(screen readers only)</span></td></tr>
+          <tr><td>No-video state</td><td><span class="pill p-pend">Needed</span> No copy yet for a course with no linked video.</td></tr>
+        </table>
+
+        <h3>Bulk pricing table <span class="pill p-drop">Dropped in v2</span></h3>
+        <p class="tag-note">Retained for the record; not shown in the current design.</p>
+        <table style="opacity:.6">
+          <tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Column headers</td><td>Quantity · Price per course</td></tr>
+          <tr><td>Tier labels</td><td>1-4 seats · 5-9 seats · 10+ seats</td></tr>
+          <tr><td>Saving badges</td><td>Save 7% · Save 17%</td></tr>
+        </table>
+
+        <h3>Tabs and About</h3>
+        <table>
+          <tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Tab labels</td><td>About · Certificate · FAQs</td></tr>
+          <tr><td>About tab <span class="pill p-chg">v3</span></td><td>Renders the course's <b>admin long description</b> (HTML normalized to text). Sample: <b>Course Overview</b> / <b>Course Topics</b> (Introduction, Care of Your Vehicle, Laws / Controls, Conditions, Preparedness, Conclusion) / <b>Online Course Duration</b>. Headings uppercase. Content is admin-authored, not fixed copy.</td></tr>
+          <tr><td>Trust section <span class="pill p-drop">Hidden in v2</span></td><td><s>Delivered on BIS Learning Platform / Trusted infrastructure for safety teams across Canada...</s> — removed from the About tab.</td></tr>
+        </table>
+
+        <h3>Certificate tab</h3>
+        <table>
+          <tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Heading</td><td>Complete This Course &amp; Get Your Certificate</td></tr>
+          <tr><td>Benefit 1 <span class="pill p-chg">v3 generic</span></td><td><b>Prove Your Training</b> — Get an OHS-compliant certificate the moment you finish the course.</td></tr>
+          <tr><td>Benefit 2</td><td><b>Stay Audit-Ready</b> — Keep a dated, verifiable record on file for compliance checks, insurance, or client requirements.</td></tr>
+          <tr><td>Benefit 3 <span class="pill p-drop">Removed in v3</span></td><td><s>Join a Trusted Program — 40,000+ drivers have completed this course...</s></td></tr>
+        </table>
+
+        <h3>FAQs <span class="pill p-chg">✎ v3 — links, no answers</span></h3>
+        <p class="tag-note">The FAQ tab is a list of links to the existing FAQ pages; labels are the FAQ page titles. Each row is a blue link with a chevron; opens the FAQ page in a new tab. (Product/category-specific FAQ content is a possible future phase — §8.4.)</p>
+        <table>
+          <tr><th style="width:50%">Link label</th><th>Destination</th></tr>
+          <tr><td>Making a Purchase on the Store Page</td><td>faqdetails · _504CD624…</td></tr>
+          <tr><td>Buying a Course for Someone Else</td><td>faqdetails · _74ECDC58…</td></tr>
+          <tr><td>Buying a Course with Virtual Proctoring</td><td>faqdetails · _D63FD68A…</td></tr>
+          <tr><td>Bulk Purchasing Courses</td><td>faqdetails · _46200FDF…</td></tr>
+          <tr><td>Purchasing a Course with a Purchase Order</td><td>faqdetails · _EC16A412…</td></tr>
+          <tr><td>Finding Purchased Course Codes</td><td>faqdetails · _391C9CDF…</td></tr>
+          <tr><td>Online Course Refunds</td><td>faqdetails · _7067F2E2…</td></tr>
+        </table>
+
+        <h3>Rating <span class="pill p-chg">✎ v3 — was "Reviews"</span></h3>
+        <table>
+          <tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Hero rating</td><td>5.0 (1,240 <b>ratings</b>) — plain text, not a link</td></tr>
+          <tr><td>Completions <span class="pill p-chg">v3</span></td><td>41,250 completions <span class="tag-note">(was "40,000+ drivers trained")</span></td></tr>
+          <tr><td>Distribution / individual reviews <span class="pill p-drop">Removed in v3</span></td><td><s>1,240 Total Ratings · 5/4/3/2/1 stars · review cards</s> — deferred, see §8.1.</td></tr>
+        </table>
+
+        <h3>Recommended Courses and mobile</h3>
+        <table>
+          <tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Section heading</td><td>Recommended Courses</td></tr>
+          <tr><td>Section sub</td><td>Those who purchased Defensive Driving 101 also consider courses in:</td></tr>
+          <tr><td>Card action</td><td>View course</td></tr>
+          <tr><td>More tile</td><td><b>More Courses</b> — Check out more courses that are fully accredited and trusted by more than 200,000 learners.</td></tr>
+          <tr><td>More tile action</td><td>Explore all course <span class="tag-note">(singular in Figma; likely should be "Explore all courses")</span></td></tr>
+          <tr><td>Buy bar state 2</td><td>Added to Cart</td></tr>
+          <tr><td>Buy bar state 3</td><td>View Cart</td></tr>
+          <tr><td>Mobile footer</td><td>Powered by BIS Safety Software</td></tr>
+        </table>
+      </section>
+
+      <section id="open"><h2><span class="num">8</span>Open questions</h2>
+
+        <h3>8.1 Individual reviews — deferred <span class="pill p-ok">Decided for v3</span></h3>
+        <div class="callout"><b>Resolved for now:</b> the Reviews tab is <b>removed</b>. Only the aggregate rating shows in the hero ("5.0 (1,240 ratings)"). Dan agrees to wait on showing individual reviews. A <b>richer review feature that replaces the current feedback page</b> is a future consideration (more to come).</div>
+        <p>The reasons it was deferred stand — if reviews ever return, these still need answering:</p>
+        <ul>
+          <li>Is review free text actually captured and retained in a queryable form?</li>
+          <li>Did reviewers ever consent to public display of their words, name or company? <b>Compliance and legal question.</b></li>
+          <li>What is the moderation and reporting path for published reviews?</li>
+          <li>What does "top 10" sort by — most recent, most helpful, highest rated? Sorting by rating risks reading as cherry-picking.</li>
+          <li>What shows for a course with 0 to 3 reviews?</li>
+        </ul>
+        <p><b>Owners:</b> dev to confirm the data exists; compliance to confirm consent; PM to define ordering and the empty state.</p>
+
+        <h3>8.2 Recommended Courses — deferred to future phases <span class="pill p-ok">Decided for v3</span></h3>
+        <div class="callout"><b>Resolved for now:</b> Recommended Courses is <b>removed from v1</b> (Dan agreed we can ship without it). It returns in future phases.</div>
+        <p><b>Agreed future-phase plan:</b></p>
+        <ul>
+          <li><b>Phase (near-term):</b> let admins <b>manually pick</b> the recommended items per product. Sean likes this as the first phase.
+            <ul><li>Also let them group products into an <b>"often bought together" bundle</b> — including physical products.</li></ul>
+          </li>
+          <li><b>Phase (larger initiative):</b> group and label course types in the system and introduce a <b>recommendation algorithm</b>.</li>
+        </ul>
+        <div class="callout warn">Both phases depend on the <b>product-level tagging</b> gap (§6.4) — worth planning that tagging model once, to serve filtering and recommendations together.</div>
+
+        <h3>8.3 Does the price follow the volume tiers?</h3>
+        <p>The purchase card shows a single price while the bulk table advertises three. If a buyer sets quantity to 10, does the displayed price and cart total drop to $24.99 per seat automatically? Undefined, and it directly affects cart logic (see B-7).</p>
+
+        <h3>8.4 FAQ — decided: links to existing FAQ pages <span class="pill p-ok">Decided for v3</span></h3>
+        <div class="callout"><b>Resolved:</b> the FAQ tab is a <b>list of hardcoded links to the existing FAQ pages</b> (bissafety.app faqdetails), matching the current live pattern. No inline answers to author. Curated set of 7 from the ticket.</div>
+        <p><b>Future consideration:</b> product / category-specific FAQ content (Mika to confirm with Sean this matches earlier meetings). The ticket previously floated an FAQ page toggle ("off by default"), which fits a hybrid model — standard links by default, overrides later.</p>
+        <p><b>Owner:</b> Sean to confirm the direction; Erica / Bailey own which FAQ pages are linked.</p>
+
+        <h3>8.5 Own ticket <span class="pill p-ok">Done — TKT-21542</span></h3>
+        <div class="callout"><b>Resolved:</b> the product page redesign now has its own ticket, <b>TKT-21542</b>, separate from TKT-17024 (Phase 1). §8.1 (reviews) and §8.2 (recommendations) are now deferred rather than blocking, which unblocks estimation.</div>
+        <p>New components versus the Phase 1 build: the Buy for control and assignment banner, the split hero and sticky mini card, the course preview video, the mobile buy bar states, and the marketing group page with its one-way door. (The bulk pricing table, Reviews tab, and Recommended Courses were explored in earlier rounds and are not in v3.)</p>
+
+        <h3>8.6 Physical products are unaccounted for <span class="pill p-drop">Gap</span></h3>
+        <div class="callout stop"><b>This design assumes every product is an online course.</b> BIS also sells <b>physical products</b> — the eCommerce FAQ set includes "Physical Products, Getting Started" and "Managing Physical Product Orders" — and none of that was covered in the Sean review or in this design.</div>
+        <p>Almost every element of the purchase card is course-specific and meaningless for a physical item:</p>
+        <ul>
+          <li><b>Duration</b> ("70 minutes"), <b>Certificate Included</b>, <b>OHS Compliant</b> and jurisdiction validity have no physical equivalent.</li>
+          <li><b>"Buy for Myself / For team"</b> and <b>seat</b> language assume assignable licences, not shipped goods.</li>
+          <li><b>Bulk pricing per seat</b> would need to become per unit.</li>
+          <li>Physical goods need <b>shipping, stock and delivery</b> messaging. Sean noted courses are "infinite, no stock" — the opposite is true here.</li>
+          <li>The <b>Certificate tab</b> and much of the About tab do not apply.</li>
+        </ul>
+        <p><b>Decision needed:</b> does the product page need a physical-product variant, or are physical products explicitly out of scope for this redesign? If in scope, this materially changes the purchase card.</p>
+
+        <h3>8.7 Filtering — now working, but tagging-dependent <span class="pill p-new">+ Built</span></h3>
+        <p>Sean was explicit that filtering must drive the list: "when you filter this, some things move, your shopping list should match what your filters are." <b>This now works in the prototype.</b> Also built from review feedback: the filter panel is <b>sticky</b> so a buyer can switch category while scrolling results (Mahi's suggestion), and <b>course length</b> now appears on the group cards, which Sean called out as a missing decision criterion and which matters when courses overlap heavily.</p>
+        <p>Behaviour as implemented, for QA:</p>
+        <ul>
+          <li><b>OR within a group, AND across groups.</b> Selecting CMV and Winter returns courses that are both.</li>
+          <li>Sections with no matching courses <b>hide entirely</b>, so there are no empty headings.</li>
+          <li>A live <b>count</b> ("Showing 3 of 9 courses") and a <b>Clear all filters</b> action appear once any filter is active.</li>
+          <li>A <b>no-results</b> message shows when nothing matches.</li>
+        </ul>
+        <div class="callout warn"><b>This is prototype-only logic.</b> Production filtering depends entirely on the product-level tagging in §6.4, which does not exist yet. The chips here are backed by hand-authored tags on each card.</div>
+
+        <h3>8.8 Course comparison <span class="pill p-new">Idea</span></h3>
+        <p>Raised in the review and received well. Because courses within a group can overlap heavily, a compare view would do real work in helping buyers choose. Not designed and not committed. Parking it here so it is not lost.</p>
+
+        <h3>8.9 Software course list — proposal: leave it as-is <span class="pill p-ok">Position taken</span></h3>
+        <div class="callout"><b>This screen is TKT-17024's delivery, and the proposal is to keep it.</b> It is not far from the current store, and it sits reasonably close to where we want to end up, so it works as a <b>middle ground</b> while the product page redesign is scoped separately.</div>
+        <p>Practically this means:</p>
+        <ul>
+          <li><b>No rework of the course list</b> is requested as part of the product page redesign.</li>
+          <li>17024 can continue to release this screen on its own schedule.</li>
+          <li>Buyers will cross from a redesigned product page into a slightly older-looking list. That is an <b>accepted trade-off</b> for now, not an oversight.</li>
+          <li>The accessibility issues it inherits (§6.6) remain worth fixing whenever the area is next opened, independent of any restyle.</li>
+        </ul>
+        <p>Sean's underlying concern still applies as a guardrail: moving between marketing and the software "shouldn't feel like a radical departure". This page is judged close enough to clear that bar today.</p>
+      </section>
+
+      <footer>
+        Related ticket <a href="https://www.bissafety.app/pm/tickets#!/17024" target="_blank">TKT-17024</a> (Phase 1, separate scope) ·
+        Prototype: <a href="defensive-driving-101-v3.html">defensive-driving-101-v3.html</a> ·
+        <a href="https://www.figma.com/design/l3ywEw1WEdvpbvG7JLhpBY/17024---eCommerce-Redesign?node-id=954-11879" target="_blank">Figma</a> ·
+        <a href="https://bistrainer.testrail.io/index.php?/plans/view/4039" target="_blank">TestRail plan 4039</a> ·
+        Related: #9587 (cart &amp; checkout), #17393 (subtitles)
+        <br><br>Design owner Mikaela Yeo · Generated 20 July 2026
+      </footer>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>
