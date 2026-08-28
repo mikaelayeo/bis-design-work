@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Defensive Driving 101 — BIS Safety</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="page-product opt-b v3 wide">
+  <!-- Prototype-only nav. The Product Page is this ticket's scope; the other
+       pages are reference only. Not part of the shipping design. -->
+  <nav class="proto-nav proto-nav--v3" aria-label="Prototype navigation">
+    <span class="proto-nav__label">Prototype — this ticket's scope is the <b>Product Page</b>. The other pages are reference only.</span>
+    <a class="proto-nav__scope is-here" href="defensive-driving-101-v4-wide.html"><span class="star">&#9733;</span> Product Page</a>
+    <span class="proto-nav__reflabel">Reference</span>
+    <a class="proto-nav__ref" href="store-v3.html">Store</a>
+    <a class="proto-nav__ref" href="defensive-driving-v3.html">Group page</a>
+    <a class="proto-nav__ref" href="course-list-v3.html">Course list</a>
+  </nav>
+
+  <!-- ===== BIS header (Figma 1001:12874) ===== -->
+  <header class="bis-header">
+    <div class="bis-header__logobar">
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="bis-header__burger" aria-label="Menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <a href="course-list-v3.html" aria-label="BIS Safety Software home"><img class="bis-header__logo" src="logo.png" alt="BIS Safety Software"></a>
+      </div>
+      <button class="bis-header__help" aria-label="Help">?</button>
+    </div>
+    <nav class="bis-header__nav">
+      <a href="course-list-v3.html">Online Course Store</a>
+      <a href="#">Learning Management System</a>
+      <a href="#">Course Development</a>
+      <a href="#">Become a Reseller</a>
+      <a href="#">About Us</a>
+      <a href="#">Login</a>
+      <span class="bis-header__info" aria-hidden="true">i</span>
+    </nav>
+    <div class="bis-header__sub">
+      <div class="bis-search">
+        <input type="text" placeholder="Search for product or training course" aria-label="Search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <button class="bis-cart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        Cart
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== Hero ===== -->
+  <div class="hero-bg">
+    <div class="container">
+      <div class="product">
+        <div class="product__left">
+          <!-- One-way door: once in the software there is NO route back to the
+               marketing pages, so the group-page crumb is deliberately absent.
+               Home goes to the software course list. (Figma 1101:3822) -->
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="course-list-v3.html" aria-label="Course list">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </a>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="current">Defensive Driving 101</span>
+          </nav>
+
+          <h1 class="product__title">Defensive Driving 101</h1>
+
+          <p class="product__desc">Defensive driving is the practice of anticipating hazards, controlling speed and space, and making decisions that prevent collisions before they happen, regardless of what other road users do. It matters for everyone behind the wheel on company time, from commercial and fleet drivers to service technicians and everyday operators running errands in a light vehicle.</p>
+
+          <div class="rating">
+            <svg class="star" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span class="score">5.0</span>
+            <span class="muted">(1,240 ratings)</span>
+            <span class="dot"></span>
+            <span class="muted">41,250 completions</span>
+          </div>
+
+          <!-- Option B: course image beside the description, no bulk pricing table -->
+          <div class="bulk-row">
+            <!-- Thumbnail doubles as the course preview video trigger (Figma 1:4756) -->
+            <button class="course-image" id="videoTrigger" aria-label="Play course preview video">
+              <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=500&q=80&auto=format" alt="Driver's hands on the steering wheel">
+              <span class="course-image__play" aria-hidden="true">
+                <i><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 21 12 6 21 6 3"/></svg></i>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Hero purchase card — FIXED (scrolls away) -->
+        <aside class="purchase-card">
+          <div class="purchase-card__pricerow">
+            <span class="purchase-card__price">$29.99</span>
+            <span class="course-id">Course ID: 12345</span>
+          </div>
+          <div class="purchase-card__list">
+            <div class="pc-item">
+              <span class="pc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+              70 minutes
+            </div>
+            <div class="pc-item">
+              <span class="pc-item__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span>
+              Certificate Included
+            </div>
+          </div>
+
+          <div>
+            <div class="buy-label">Buy for</div>
+            <div class="segmented" data-banner="teamBanner">
+              <button class="is-active" type="button">Myself</button>
+              <button type="button">For team</button>
+            </div>
+          </div>
+
+          <div class="stepper">
+            <button type="button" aria-label="Decrease quantity" data-step="-1">−</button>
+            <input type="text" inputmode="numeric" value="1" aria-label="Quantity">
+            <button type="button" aria-label="Increase quantity" data-step="1">+</button>
+          </div>
+
+          <div class="pc-banner" id="teamBanner">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#0078b3"/><path d="M12 11v5.5M12 7.6h.01" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+            <p>You'll assign these seats to team members after checkout</p>
+          </div>
+
+          <button class="btn btn--primary btn--lg btn--full">Add to cart</button>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Tabs (Reviews tab removed in v3 — ratings only) ===== -->
+  <nav class="tabs">
+    <div class="tabs__inner" role="tablist">
+      <button class="is-active" data-tab="about">About</button>
+      <button data-tab="certificate">Certificate</button>
+      <button data-tab="faqs">FAQs</button>
+    </div>
+  </nav>
+
+  <!-- ===== Below the fold: tab content + sticky mini card ===== -->
+  <div class="container">
+    <div class="belowfold">
+      <div class="belowfold__main">
+        <!-- About — renders the course's admin long description (HTML normalized to text, Figma 1301:2485) -->
+        <section class="tabpanel is-active" data-panel="about">
+          <div class="long-desc">
+            <section>
+              <h4>Course Overview</h4>
+              <p>An OSHA-Compliant Training Class Online for defensive driving. This course satisfies OSHA's requirements for the classroom portion of operator safety training. Quiz questions along the way prepare you for the final written exam.</p>
+              <p>Defensive driving is the practice of anticipating hazards, controlling speed and space, and making decisions that prevent collisions before they happen, regardless of what other road users do. It matters for everyone behind the wheel on company time, from commercial and fleet drivers to service technicians and everyday operators running errands in a light vehicle. Strong defensive driving habits cut collision rates, reduce vehicle and insurance costs, and keep your people and the public safe on every trip.</p>
+              <p>Learners complete the course at their own pace and can start, stop, and resume at any time. Progress is saved automatically, and all content is delivered on the BIS Learning Platform with team management, certificate tracking, and compliance reporting built in.</p>
+            </section>
+            <section>
+              <h4>Course Topics</h4>
+              <p>This online Defensive Driving (OSHA) course covers the following topics:</p>
+              <ul>
+                <li>Introduction</li>
+                <li>Care of Your Vehicle</li>
+                <li>Laws / Controls</li>
+                <li>Conditions</li>
+                <li>Preparedness</li>
+                <li>Conclusion</li>
+              </ul>
+            </section>
+            <section>
+              <h4>Who Should Take This Course</h4>
+              <p>This course is designed for anyone who drives on company time, including:</p>
+              <ul>
+                <li>Commercial and fleet drivers</li>
+                <li>Service technicians and mobile workers</li>
+                <li>Sales and field staff who drive between sites</li>
+                <li>Any employee operating a light vehicle for work</li>
+              </ul>
+            </section>
+            <section>
+              <h4>What You'll Learn</h4>
+              <ul>
+                <li>Hazard perception and anticipating other road users</li>
+                <li>Controlling speed, space, and safe following distance</li>
+                <li>Collision-avoidance decision making under pressure</li>
+                <li>Adjusting to road, weather, and traffic conditions</li>
+              </ul>
+            </section>
+            <section>
+              <h4>Online Course Duration</h4>
+              <p>Approximately 60 minutes</p>
+            </section>
+            <section>
+              <h4>Pass Mark</h4>
+              <p>80%</p>
+            </section>
+            <section>
+              <h4>Certificate of Completion</h4>
+              <p>A dated certificate of completion is issued the moment you finish the course, valid for workplace compliance and downloadable from the BIS Learning Platform.</p>
+            </section>
+          </div>
+        </section>
+
+        <!-- Certificate (Figma 1101:3861) -->
+        <section class="tabpanel" data-panel="certificate">
+          <div class="cert-card">
+            <div class="cert-card__heading">Complete This Course &amp; Get Your Certificate</div>
+            <div class="cert-card__body">
+              <!-- Certificate preview -->
+              <div class="cert-preview">
+                <div class="cert-doc">
+                  <div class="cert-doc__top">
+                    <span>Date of issue: 30/04/2025</span>
+                    <span>Certificate ID: 893 987 330</span>
+                  </div>
+                  <div class="cert-doc__main">
+                    <div class="cert-doc__title">DEFENSIVE DRIVING CERTIFICATE</div>
+                    <div>This certifies that</div>
+                    <div class="cert-doc__name">RECIPIENT'S NAME</div>
+                    <div class="cert-doc__desc">Completed [Defensive Driving Course Name] from [Date] to [Date]<br>under the supervision of [Company Name].</div>
+                  </div>
+                  <div class="cert-doc__sigs">
+                    <div class="cert-doc__sig">Katherine Roberts<br>Program Coordinator</div>
+                    <div class="cert-doc__qr" aria-hidden="true"></div>
+                    <div class="cert-doc__sig">Jennifer Collins<br>Supervisor</div>
+                  </div>
+                  <div class="cert-doc__foot"></div>
+                </div>
+              </div>
+
+              <!-- Benefits -->
+              <div class="cert-benefits">
+                <div class="cert-benefit">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zm0 11a6 6 0 0 1-4.5-2c.03-1.5 3-2.3 4.5-2.3s4.47.8 4.5 2.3a6 6 0 0 1-4.5 2z"/></svg>
+                  <div>
+                    <h4>Prove Your Training</h4>
+                    <p>Get an OHS-compliant certificate the moment you finish the course.</p>
+                  </div>
+                </div>
+                <div class="cert-benefit">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 7a2.5 2.5 0 0 1 2.5 2.5c0 1-.6 1.9-1.5 2.3V16h-2v-3.2c-.9-.4-1.5-1.3-1.5-2.3A2.5 2.5 0 0 1 12 8z"/></svg>
+                  <div>
+                    <h4>Stay Audit-Ready</h4>
+                    <p>Keep a dated, verifiable record on file for compliance checks, insurance, or client requirements.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- FAQs — hardcoded links to the existing FAQ pages (matches current live pattern) -->
+        <section class="tabpanel" data-panel="faqs">
+          <div class="panel-title">Frequently Asked Questions</div>
+          <ul class="faq-links">
+            <li><a href="https://www.bissafety.app/v1/index.cfm?action=learner.faqdetails&amp;faqid=_504CD624AFF66AE4D645DCBB9AA1EC60" target="_blank" rel="noopener">
+              <span>Making a Purchase on the Store Page</span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a></li>
+            <li><a href="https://www.bissafety.app/v1/index.cfm?action=learner.faqdetails&amp;faqid=_74ECDC5806355DD7E4C012B21B31D431" target="_blank" rel="noopener">
+              <span>Buying a Course for Someone Else</span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a></li>
+            <li><a href="https://www.bissafety.app/v1/index.cfm?action=learner.faqdetails&amp;faqid=_D63FD68A80B7694CA9F5239C9DFD30EB" target="_blank" rel="noopener">
+              <span>Buying a Course with Virtual Proctoring</span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a></li>
+            <li><a href="https://www.bissafety.app/v1/index.cfm?action=learner.faqdetails&amp;faqid=_46200FDFD9BD902B2CD8AF5B53256957" target="_blank" rel="noopener">
+              <span>Bulk Purchasing Courses</span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a></li>
+            <li><a href="https://www.bissafety.app/v1/index.cfm?action=learner.faqdetails&amp;faqid=_EC16A412A01FA9702377A1660AEAC782" target="_blank" rel="noopener">
+              <span>Purchasing a Course with a Purchase Order</span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a></li>
+            <li><a href="https://www.bissafety.app/v1/index.cfm?action=learner.faqdetails&amp;faqid=_391C9CDF2BF7F93835FCB960D5BCFBC4" target="_blank" rel="noopener">
+              <span>Finding Purchased Course Codes</span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a></li>
+            <li><a href="https://www.bissafety.app/v1/index.cfm?action=learner.faqdetails&amp;faqid=_7067F2E22AA273EA5BCECFEF023B81D7" target="_blank" rel="noopener">
+              <span>Online Course Refunds</span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a></li>
+          </ul>
+        </section>
+      </div>
+
+      <!-- STICKY mini purchase card (Figma 1025:23137) -->
+      <aside class="mini-card">
+        <div class="mini-card__price">$29.99</div>
+        <div>
+          <div class="buy-label">Buy for</div>
+          <div class="segmented" data-banner="teamBannerMini">
+            <button class="is-active" type="button">Myself</button>
+            <button type="button">For team</button>
+          </div>
+        </div>
+        <div class="stepper">
+          <button type="button" aria-label="Decrease quantity" data-step="-1">−</button>
+          <input type="text" inputmode="numeric" value="1" aria-label="Quantity">
+          <button type="button" aria-label="Increase quantity" data-step="1">+</button>
+        </div>
+
+        <!-- Same assignment banner as the hero card (Figma 1101:3865) -->
+        <div class="pc-banner" id="teamBannerMini">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#0078b3"/><path d="M12 11v5.5M12 7.6h.01" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+          <p>You'll assign these seats to team members after checkout</p>
+        </div>
+
+        <button class="btn btn--primary btn--lg btn--full">Add to cart</button>
+      </aside>
+    </div>
+  </div>
+
+
+  <!-- ===== Footer — matches the live store footer (courses.trainanddevelop.ca) ===== -->
+  <footer class="store-footer">
+    <div class="store-footer__inner">
+      <span>Copyright &copy; 2026</span>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Privacy Policy</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Terms and Conditions</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>System Requirements</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Pay Online</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5-3.5 7.5-8.5 9C7.5 19.5 4 17 4 12V6l8-3 8 3z"/></svg>Certificate Verification</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Credit Card Receipt Lookup</a>
+    </div>
+  </footer>
+
+  <!-- ===== Mobile sticky buy bar (Figma 1025:26621, states 1102:7161) ===== -->
+  <div class="mobile-buybar" id="buyBar" data-state="default">
+    <!-- State 1: default -->
+    <div class="mobile-buybar__default">
+      <div class="stepper">
+        <button type="button" aria-label="Decrease quantity" data-step="-1">−</button>
+        <input type="text" inputmode="numeric" value="1" aria-label="Quantity">
+        <button type="button" aria-label="Increase quantity" data-step="1">+</button>
+      </div>
+      <div class="mobile-buybar__price"><span class="maj">$29</span><span class="min">.99</span></div>
+      <button class="btn btn--primary" id="mobileAddToCart">Add to cart</button>
+    </div>
+    <!-- State 2: added confirmation -->
+    <div class="mobile-buybar__added">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#0078b3"/><polyline points="7.5 12.5 10.5 15.5 16.5 9" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Added to Cart
+    </div>
+    <!-- State 3: view cart -->
+    <button class="btn btn--primary mobile-buybar__viewcart">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      View Cart
+    </button>
+  </div>
+
+  <!-- ===== Course preview video lightbox (Figma 1:4756) ===== -->
+  <div class="video-modal" id="videoModal" role="dialog" aria-modal="true" aria-label="Course preview video">
+    <div class="video-modal__box">
+      <button class="video-modal__close" id="videoClose" aria-label="Close video">&times;</button>
+      <div class="video-modal__player">
+        <img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1000&q=80&auto=format" alt="">
+        <span class="bigplay"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 21 12 6 21 6 3"/></svg></span>
+        <div class="video-modal__cap">Defensive Driving 101 &mdash; course preview. In production this embeds the linked product video.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    // ---- Tabs ----
+    function activateTab(tab) {
+      document.querySelectorAll('.tabs__inner button').forEach(function (b) { b.classList.toggle('is-active', b.dataset.tab === tab); });
+      document.querySelectorAll('.tabpanel').forEach(function (p) { p.classList.toggle('is-active', p.dataset.panel === tab); });
+    }
+    document.querySelectorAll('.tabs__inner button').forEach(function (btn) {
+      btn.addEventListener('click', function () { activateTab(btn.dataset.tab); });
+    });
+
+    // ---- Segmented controls ("For team" reveals the assignment banner) ----
+    document.querySelectorAll('.segmented').forEach(function (group) {
+      group.querySelectorAll('button').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          group.querySelectorAll('button').forEach(function (b) { b.classList.toggle('is-active', b === btn); });
+          var bannerId = group.dataset.banner;
+          if (bannerId) {
+            var banner = document.getElementById(bannerId);
+            if (banner) banner.classList.toggle('is-visible', btn.textContent.trim() === 'For team');
+          }
+        });
+      });
+    });
+
+    // ---- Steppers ----
+    document.querySelectorAll('.stepper').forEach(function (s) {
+      var input = s.querySelector('input');
+      s.querySelectorAll('button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = parseInt(input.value, 10) || 0;
+          input.value = Math.max(0, v + parseInt(b.dataset.step, 10));
+        });
+      });
+    });
+
+    // ---- Course preview video lightbox ----
+    (function () {
+      var trigger = document.getElementById('videoTrigger');
+      var modal = document.getElementById('videoModal');
+      var close = document.getElementById('videoClose');
+      if (!trigger || !modal) return;
+
+      function open() { modal.classList.add('is-open'); close.focus(); }
+      function shut() { modal.classList.remove('is-open'); trigger.focus(); }
+
+      trigger.addEventListener('click', open);
+      close.addEventListener('click', shut);
+      // click the scrim (but not the player) to dismiss
+      modal.addEventListener('click', function (e) { if (e.target === modal) shut(); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) shut();
+      });
+    })();
+
+    // ---- Sticky mini card: fade in only once the hero card has scrolled away ----
+    // Avoids showing two purchase cards on screen at the same time.
+    // Scroll-driven rather than IntersectionObserver so it stays predictable.
+    (function () {
+      var heroCard = document.querySelector('.purchase-card');
+      var miniCard = document.querySelector('.mini-card');
+      if (!heroCard || !miniCard) return;
+
+      var header = document.querySelector('.bis-header');
+      function update() {
+        // Reveal as soon as the hero card slides UNDER the sticky header — at that
+        // point it's already visually hidden, so the two cards still never overlap,
+        // but the mini card appears a full header-height earlier in the scroll.
+        var headerH = header ? header.getBoundingClientRect().height : 0;
+        var gone = heroCard.getBoundingClientRect().bottom <= headerH + 8;
+        miniCard.classList.toggle('is-revealed', gone);
+      }
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+      update();
+    })();
+
+    // ---- Mobile buy bar states: default -> added -> cart ----
+    var buyBar = document.getElementById('buyBar');
+    document.getElementById('mobileAddToCart').addEventListener('click', function () {
+      buyBar.dataset.state = 'added';
+      setTimeout(function () { buyBar.dataset.state = 'cart'; }, 1600);
+    });
+  </script>
+</body>
+</html>

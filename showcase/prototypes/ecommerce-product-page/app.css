@@ -624,6 +624,90 @@ body.v3 .store-footer { margin-top: auto; }
 .store-footer svg { width: 13px; height: 13px; opacity: .8; }
 
 /* ============================================================
+   DRAFT: "wide" spacing study (body.wide)
+   Goal: a roomier, closer-to-edge page like esafetyfirst.com, WITHOUT
+   letting prose run past a comfortable reading measure.
+
+   Measured before (v3 @1440): hero description ~52 cpl (too tight),
+   About paragraphs ~94 cpl (too wide — above the 80-char WCAG AAA cap).
+   esafetyfirst.com runs 102–135 cpl in its body copy, which is why we
+   borrow its *page width* but not its *line length*.
+
+   Levers are deliberately separated:
+     page width  -> container gets wider, gutters shrink
+     line length -> prose capped with a max-width in ch units (~65–72)
+   ============================================================ */
+body.wide {
+  --container: 1320px;
+  --gutter: clamp(20px, 3vw, 32px);
+  /* --hdr-inset must be REdeclared here: a custom property substitutes its
+     var()s where it is DECLARED, so the :root copy has 1160px baked in. */
+  --content-max: 1320px;
+  --content-pad: clamp(20px, 3vw, 32px);
+  --hdr-inset: max(clamp(20px, 3vw, 32px), calc((100% - 1320px) / 2 + clamp(20px, 3vw, 32px)));
+}
+
+/* Header aligns to the same content edge as the page below it.
+   (v3 keeps BIS's stock flush-left header; this is a draft-only change.) */
+body.wide .bis-header__logobar,
+body.wide .bis-header__nav { padding-inline: var(--hdr-inset); }
+body.wide .bis-header__nav { padding-right: 48px; }
+body.wide .bis-header__sub { padding-inline: var(--hdr-inset); }
+
+/* Hero: give the description room to reach ~65 cpl (was ~52).
+   Scoped above the compact breakpoint so mobile keeps the base single-column. */
+@media (min-width: 1025px) {
+  body.wide .product { grid-template-columns: minmax(0, 1fr) 350px; gap: 56px; }
+  body.wide.opt-b .product__left { grid-template-columns: minmax(0, 1fr) 300px; column-gap: 48px; }
+}
+body.wide .product__left { max-width: none; }
+body.wide .product__desc { max-width: 65ch; }
+
+/* Below the fold: wider column overall, but prose capped for readability.
+   Only above the compact breakpoint — below 1024 the base rules take over
+   (single column + buy bar), and forcing a 350px sidebar here would
+   collapse the content column to nothing. */
+@media (min-width: 1025px) {
+  /* same gap as the hero so the content column below is exactly as wide as the
+     hero's content column — right edges line up with the course image/video */
+  body.wide .belowfold { grid-template-columns: minmax(0, 1fr) 350px; gap: 56px; }
+}
+body.wide .long-desc { max-width: none; }
+/* Body copy is capped at ~80 characters per line (72ch ≈ 582px at 15px).
+   Rationale: WCAG 2.1 SC 1.4.8 (AAA) sets 80; GOV.UK Design System 75;
+   Baymard 50–75. Udemy caps its course Description at 600px and Coursera
+   at 608px on ~1425px pages, so 80 cpl is conservative next to both.
+   Headings, lists, FAQ links and the certificate card still fill the full
+   column, so the page keeps its wide, aligned edge. */
+body.wide .long-desc p,
+body.wide .long-desc li { max-width: 72ch; }
+body.wide .about-block { max-width: none; }
+body.wide .about-block p { max-width: 72ch; }
+
+/* Competitor-matched alternative (~90 cpl, in line with Udemy/Coursera) */
+body.wide.measure-90 .long-desc p,
+body.wide.measure-90 .long-desc li,
+body.wide.measure-90 .about-block p { max-width: 81ch; }
+/* lists/links can use the full column — they are scanned, not read in prose */
+body.wide .faq-links,
+body.wide .cert-card { max-width: none; }
+
+/* Mid-range: the hero image + 350px card squeeze the description badly
+   (~34 cpl at 1100). Shrink then drop the image so the text keeps its measure. */
+@media (min-width: 1025px) and (max-width: 1240px) {
+  body.wide.opt-b .product__left { grid-template-columns: minmax(0, 1fr) 240px; column-gap: 32px; }
+}
+@media (min-width: 1025px) and (max-width: 1120px) {
+  /* stack the image under the text rather than starving the paragraph */
+  body.wide.opt-b .product__left {
+    grid-template-columns: 1fr;
+    grid-template-areas: "crumb" "title" "desc" "image" "rating";
+  }
+  body.wide.opt-b .course-image { width: 100%; max-width: 320px; aspect-ratio: 16 / 10; }
+  body.wide .product__desc { max-width: 68ch; }
+}
+
+/* ============================================================
    Product page components
    ============================================================ */
 .product { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 48px; padding-top: 52px; padding-bottom: 40px; align-items: start; }

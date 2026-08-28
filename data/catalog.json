@@ -323,44 +323,14 @@
       "date": "2026-07-20",
       "children": [
         {
-          "title": "v2 · PRD",
-          "path": "showcase/prototypes/ecommerce-product-page/Product-Page-PRD-v2.html",
-          "date": "2026-08-12"
-        },
-        {
-          "title": "v3 · PRD ★ current",
-          "path": "showcase/prototypes/ecommerce-product-page/Product-Page-PRD-v3.html",
-          "date": "2026-08-28"
-        },
-        {
-          "title": "v1 · PRD",
-          "path": "showcase/prototypes/ecommerce-product-page/Product-Page-PRD.html",
+          "title": "v1 · 1 · Marketing store",
+          "path": "showcase/prototypes/ecommerce-product-page/store.html",
           "date": "2026-07-20"
         },
         {
-          "title": "v2 · 4 · Software course list",
-          "path": "showcase/prototypes/ecommerce-product-page/course-list-v2.html",
-          "date": "2026-08-12"
-        },
-        {
-          "title": "v3 · 4 · Software course list",
-          "path": "showcase/prototypes/ecommerce-product-page/course-list-v3.html",
-          "date": "2026-08-28"
-        },
-        {
-          "title": "v1 · 4 · Software course list",
-          "path": "showcase/prototypes/ecommerce-product-page/course-list.html",
+          "title": "v1 · 2 · Marketing group page",
+          "path": "showcase/prototypes/ecommerce-product-page/defensive-driving.html",
           "date": "2026-07-20"
-        },
-        {
-          "title": "v2 · 3 · Product page (Option B)",
-          "path": "showcase/prototypes/ecommerce-product-page/defensive-driving-101-v2.html",
-          "date": "2026-08-12"
-        },
-        {
-          "title": "v3 · 3 · Product page ★ current",
-          "path": "showcase/prototypes/ecommerce-product-page/defensive-driving-101-v3.html",
-          "date": "2026-08-28"
         },
         {
           "title": "v1 · 3 · Product page (A/B toggle)",
@@ -368,18 +338,13 @@
           "date": "2026-07-20"
         },
         {
-          "title": "v2 · 2 · Marketing group page",
-          "path": "showcase/prototypes/ecommerce-product-page/defensive-driving-v2.html",
-          "date": "2026-08-12"
+          "title": "v1 · 4 · Software course list",
+          "path": "showcase/prototypes/ecommerce-product-page/course-list.html",
+          "date": "2026-07-20"
         },
         {
-          "title": "v3 · 2 · Marketing group page",
-          "path": "showcase/prototypes/ecommerce-product-page/defensive-driving-v3.html",
-          "date": "2026-08-28"
-        },
-        {
-          "title": "v1 · 2 · Marketing group page",
-          "path": "showcase/prototypes/ecommerce-product-page/defensive-driving.html",
+          "title": "v1 · PRD",
+          "path": "showcase/prototypes/ecommerce-product-page/Product-Page-PRD.html",
           "date": "2026-07-20"
         },
         {
@@ -388,14 +353,54 @@
           "date": "2026-08-12"
         },
         {
+          "title": "v2 · 2 · Marketing group page",
+          "path": "showcase/prototypes/ecommerce-product-page/defensive-driving-v2.html",
+          "date": "2026-08-12"
+        },
+        {
+          "title": "v2 · 3 · Product page (Option B)",
+          "path": "showcase/prototypes/ecommerce-product-page/defensive-driving-101-v2.html",
+          "date": "2026-08-12"
+        },
+        {
+          "title": "v2 · 4 · Software course list",
+          "path": "showcase/prototypes/ecommerce-product-page/course-list-v2.html",
+          "date": "2026-08-12"
+        },
+        {
+          "title": "v2 · PRD",
+          "path": "showcase/prototypes/ecommerce-product-page/Product-Page-PRD-v2.html",
+          "date": "2026-08-12"
+        },
+        {
           "title": "v3 · 1 · Marketing store",
           "path": "showcase/prototypes/ecommerce-product-page/store-v3.html",
           "date": "2026-08-28"
         },
         {
-          "title": "v1 · 1 · Marketing store",
-          "path": "showcase/prototypes/ecommerce-product-page/store.html",
-          "date": "2026-07-20"
+          "title": "v3 · 2 · Marketing group page",
+          "path": "showcase/prototypes/ecommerce-product-page/defensive-driving-v3.html",
+          "date": "2026-08-28"
+        },
+        {
+          "title": "v3 · 3 · Product page ★ current",
+          "path": "showcase/prototypes/ecommerce-product-page/defensive-driving-101-v3.html",
+          "date": "2026-08-28"
+        },
+        {
+          "title": "v3 · 4 · Software course list",
+          "path": "showcase/prototypes/ecommerce-product-page/course-list-v3.html",
+          "date": "2026-08-28"
+        },
+        {
+          "title": "v3 · PRD ★ current",
+          "path": "showcase/prototypes/ecommerce-product-page/Product-Page-PRD-v3.html",
+          "date": "2026-08-28"
+        },
+        {
+          "title": "v4 draft · Product page — wide layout (80 cpl)",
+          "path": "showcase/prototypes/ecommerce-product-page/defensive-driving-101-v4-wide.html",
+          "date": "2026-08-28"
         }
       ]
     },
