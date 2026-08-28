@@ -613,6 +613,14 @@ body.page-store {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end;
   gap: 8px 22px; font-size: 13px; color: rgba(255, 255, 255, .72);
 }
+/* "Powered by BIS Safety Software" lockup, left-aligned; links stay right */
+.store-footer__brand { display: inline-flex; align-items: center; gap: 9px; margin-right: auto; }
+.store-footer__brand img { height: 17px; width: auto; filter: brightness(0) invert(1); opacity: .85; }
+.store-footer__brand span { color: rgba(255, 255, 255, .82); font-size: 13px; }
+@media (max-width: 700px) {
+  .store-footer__inner { justify-content: center; }
+  .store-footer__brand { margin-right: 0; width: 100%; justify-content: center; }
+}
 /* sticky-footer layout: pin to the bottom of the viewport when content is short.
    The width:100% on direct children is required because a flex column would
    otherwise shrink `.container` (margin:0 auto) to its content width. */
@@ -837,6 +845,10 @@ body.wide .cert-card { max-width: none; }
 .pc-item { display: flex; align-items: center; gap: 8px; font-size: 14px; line-height: 20px; }
 .pc-item__icon { width: 24px; height: 24px; border-radius: var(--r-base); background: var(--surface-secondary-lightest); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .pc-item__icon svg { width: 16px; height: 16px; color: var(--icon-default); }
+/* Secondary qualifier on a purchase-card row, e.g. "· Valid for 3 years".
+   Rendered only when the course has an expiry; omitted entirely (dot included)
+   when it does not. (Figma 1301:2698) */
+.pc-item__note { color: var(--text-secondary); margin-left: 6px; }
 
 .buy-label { font-size: 14px; line-height: 18px; font-weight: 600; margin-bottom: 6px; }
 
