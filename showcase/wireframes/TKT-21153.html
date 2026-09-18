@@ -234,7 +234,7 @@
 
       <!-- SECTION A: Trial banner -->
       <div class="section">
-        <div class="section__title">A. Trial Mode Banner <span class="tag done">✓ Approved — using design-system Banner (sharp)</span></div>
+        <div class="section__title">A. Trial Mode Banner</div>
         <div class="section__body">
           <p style="font-size:12px; color:#666; margin-bottom:10px;">Using the design system's <strong>Banner</strong> component, sharp variant, so it sits flush directly under the module header. This is the <strong>info</strong> style (the neutral, most-days-left state):</p>
           <div class="flush-wrap">
@@ -273,7 +273,7 @@
 
       <!-- SECTION A2: Lone Worker special case -->
       <div class="section">
-        <div class="section__title">A2. Lone Worker — Special Case (no admin page) <span class="tag done">✓ New — admins only</span></div>
+        <div class="section__title">A2. Lone Worker — Special Case (no admin page)</div>
         <div class="section__body">
           <p style="font-size:12px; color:#666; margin-bottom:12px;">Lone Worker has no web admin page to host a banner, and on mobile it's an end-user feature. So the trial communication is <strong>admin-only</strong> and takes a different shape on each surface.</p>
 
@@ -363,7 +363,7 @@
 
       <!-- SECTION B: escalating urgency -->
       <div class="section">
-        <div class="section__title">B. Getting Louder As the Deadline Gets Closer <span class="tag done">✓ Approved — info → warning → error</span></div>
+        <div class="section__title">B. Getting Louder As the Deadline Gets Closer</div>
         <div class="section__body">
           <p style="font-size:12px; color:#666; margin-bottom:6px;">Same Banner component, stepping through the design system's semantic colors as the deadline nears — info (blue), then warning (amber), then error (red).</p>
           <p style="font-size:12px; color:#8a6d1a; background:#fffcf2; border:1px solid #eecf85; border-radius:3px; padding:6px 8px; margin-bottom:14px;">Heads up: this escalating-urgency idea is a design suggestion beyond the original ticket, which only asks for a single banner showing the end date. Optional — easy to drop if you'd rather keep to the original scope.</p>
@@ -414,7 +414,7 @@
 
       <!-- SECTION C: Trial expired -->
       <div class="section">
-        <div class="section__title">C. Trial Ended — Pop-ups <span class="tag done">✓ Confirmed + new re-enable pop-up</span></div>
+        <div class="section__title">C. Trial Ended — Pop-ups</div>
         <div class="section__body">
           <p style="font-size:12px; color:#666; margin-bottom:6px;">Two related pop-ups here, both using the design system's <strong>Warning modal</strong> and both closeable (X + Close, with "Notify Account Manager" as the main action).</p>
           <p style="font-size:12px; color:#35507a; background:#e4ecf7; border:1px solid #b3c6e2; border-radius:3px; padding:6px 8px; margin-bottom:14px;">Audience &amp; trigger: both pop-ups display for <strong>all client admins</strong> (not just the admin who enabled the module). Pop-up 1 appears in the <strong>admin page when a client admin clicks an expired module</strong>. Note: after expiry but before purge, admins can still open these modules <strong>as a learner</strong> — only the admin side is locked.</p>
@@ -468,7 +468,7 @@
 
       <!-- SECTION D: confirmation -->
       <div class="section">
-        <div class="section__title">D. "Request Sent" Confirmation <span class="tag done">✓ Approved — Success modal</span></div>
+        <div class="section__title">D. "Request Sent" Confirmation</div>
         <div class="section__body">
           <p style="font-size:12px; color:#666; margin-bottom:10px;">Using the design system's <strong>Success modal</strong> for the "request sent" confirmation:</p>
           <div class="ds-modal-frame">
@@ -484,7 +484,7 @@
                   <svg viewBox="0 0 20 20" width="20" height="20"><path d="M4.5 4.5 L15.5 15.5 M15.5 4.5 L4.5 15.5" stroke="#191919" stroke-width="1.8" stroke-linecap="round"/></svg>
                 </span>
               </div>
-              <div class="ds-modal__body">We've notified your account manager to activate this module. When activated, you'll have access to all your current forms and many more features!</div>
+              <div class="ds-modal__body">We've notified your account manager that you would like to activate this module. Your account manager will follow up with the next steps to enable the module.</div>
               <div class="ds-modal__footer">
                 <button class="ds-btn ds-btn--primary-success">Okay</button>
               </div>
@@ -492,18 +492,19 @@
           </div>
           <ul class="plain" style="margin-top:10px;">
             <li>New behavior to add: the "Notify Account Manager" button disables after the first click, and only re-enables after the page is refreshed — this stops a client from sending the same request multiple times in a row.</li>
-            <li>New: if the account manager on file is no longer active, send the notification to sales@bistraining.ca instead.</li>
+            <li>The notification goes to the <strong>account manager</strong> and the <strong>accounting email in Global Settings</strong> (controller@bistraining.ca). If the account manager on file is no longer active, it also goes to sales@bistraining.ca.</li>
           </ul>
         </div>
       </div>
 
       <!-- SECTION E: purge -->
       <div class="section">
-        <div class="section__title">E. After the Trial Ends — 60-Day Countdown to Purge <span class="tag done">✓ Updated — countdown + email reminders + purge modal</span></div>
+        <div class="section__title">E. After the Trial Ends — 60-Day Countdown to Purge</div>
         <div class="section__body">
           <p style="font-size:12px; color:#666; margin-bottom:12px;">After the trial ends (day 90), the client has 60 more days before their trial data is <strong>purged</strong> (permanently removed). From 30 days before the purge date, an in-app countdown banner appears; we also email the portal's Client Admins at 30, 7, and 1 day out; and a final confirmation shows on the purge day itself.</p>
 
-          <p style="font-size:12px; font-weight:700; color:#444; margin-bottom:8px;">1. In-app countdown banner — counts down daily from 30 days before purge (error banner)</p>
+          <p style="font-size:12px; font-weight:700; color:#444; margin-bottom:8px;">1. In-app countdown banner — a live timer, not fixed checkpoints</p>
+          <p style="font-size:12px; color:#555; margin-bottom:10px;">One banner that shows however many days are left and ticks down by one each day. It appears once the client is within 30 days of purge and updates daily (30 → 29 → … → 1), then reads "tomorrow" on the final day. The number below is just a sample value:</p>
 
           <div class="ds-banner error">
             <div class="ds-banner__main">
@@ -511,40 +512,13 @@
                 <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg>
               </span>
               <span class="ds-banner__text">
-                <span class="ds-banner__label">Your Forms trial data will be purged in 30 days.</span>
+                <span class="ds-banner__label">Your Forms module trial data will be purged in 10 days.</span>
                 <span class="ds-banner__desc">Contact your account manager to keep full access to this module.</span>
               </span>
             </div>
             <button class="ds-btn ds-btn--primary-error">Notify Account Manager</button>
           </div>
-
-          <div class="ds-banner error">
-            <div class="ds-banner__main">
-              <span class="ds-banner__icon">
-                <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg>
-              </span>
-              <span class="ds-banner__text">
-                <span class="ds-banner__label">Your Forms trial data will be purged in 15 days.</span>
-                <span class="ds-banner__desc">Contact your account manager to keep full access to this module.</span>
-              </span>
-            </div>
-            <button class="ds-btn ds-btn--primary-error">Notify Account Manager</button>
-          </div>
-
-          <div class="ds-banner error">
-            <div class="ds-banner__main">
-              <span class="ds-banner__icon">
-                <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg>
-              </span>
-              <span class="ds-banner__text">
-                <span class="ds-banner__label">Your Forms trial data will be purged tomorrow.</span>
-                <span class="ds-banner__desc">Contact your account manager now to keep full access to this module.</span>
-              </span>
-            </div>
-            <button class="ds-btn ds-btn--primary-error">Notify Account Manager</button>
-          </div>
-
-          <p style="font-size:12px; color:#888; margin:8px 0 16px; font-style:italic;">The banner shows the exact number of days remaining and decrements each day — not one-off notices on day 30 and day 7. Three example states shown above.</p>
+          <p style="font-size:12px; color:#888; margin:8px 0 16px; font-style:italic;">"10" here is a live value — it's simply however many days remain (e.g. 30, 22, 10, 3), counting down one per day. It is <strong>not</strong> a one-off notice sent only at 30 or 7 days.</p>
 
           <p style="font-size:12px; font-weight:700; color:#444; margin:16px 0 8px;">2. Purge email reminders (30 / 7 / 1 day)</p>
           <p style="font-size:12px; color:#555; margin-bottom:10px;">Separately from the in-app banner, we email the portal's <strong>Client Admins</strong> at 30, 7, and 1 day before purge. There is no self-serve data export — the only way to keep data is to activate the module via the Account Manager.</p>
@@ -585,7 +559,7 @@ Once the trial data has been purged, it will no longer be recoverable. If you wo
                   <span class="ds-modal__icon">
                     <svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#cc2222"/><path d="M6.5 6.5 L13.5 13.5 M13.5 6.5 L6.5 13.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
                   </span>
-                  <span class="ds-modal__title">Forms data will be purged today</span>
+                  <span class="ds-modal__title">Forms module data will be purged today</span>
                 </div>
               </div>
               <div class="ds-modal__body">All data in this module will be permanently purged today. This cannot be undone. Please confirm, or contact your account manager if you would like to keep access to this module.</div>
@@ -601,7 +575,7 @@ Once the trial data has been purged, it will no longer be recoverable. If you wo
 
       <!-- SECTION F: override toggle -->
       <div class="section">
-        <div class="section__title">F. Trial Override Switch <span class="tag done">✓ Approved — as a System Modules setting</span></div>
+        <div class="section__title">F. Trial Override Switch</div>
         <div class="section__body">
           <p style="font-size:12px; color:#666; margin-bottom:12px;">This lives in <strong>Company Settings &gt; System Modules</strong>, as a new setting at the very end of the module's list — right above the "AI" setting — following the same accordion + description pattern as the existing settings (e.g. Dataset Module). Shown expanded below:</p>
 
@@ -653,7 +627,7 @@ Once the trial data has been purged, it will no longer be recoverable. If you wo
                 </div>
                 <div class="sys-setting__desc">
                   <svg viewBox="0 0 16 16" width="15" height="15"><circle cx="8" cy="8" r="8" fill="#009acb"/><rect x="7.1" y="7" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="4.6" r="1.05" fill="#fff"/></svg>
-                  <span>Extends the client's 90-day trial period, allowing continued access to the module in Trial Mode until this setting is disabled. All trial banners, the Notify Account Manager button, and SAMPLE watermarks stay in place — only the trial end date is removed.</span>
+                  <span>Extends the client's 90-day trial period, allowing continued access to the module in Trial Mode until this setting is disabled.</span>
                 </div>
               </div>
 
@@ -674,7 +648,7 @@ Once the trial data has been purged, it will no longer be recoverable. If you wo
 
       <!-- SECTION G: internal admin -->
       <div class="section">
-        <div class="section__title">G. Internal Company List (BIS staff only) <span class="tag done">✓ Confirmed — two new colors added</span></div>
+        <div class="section__title">G. Internal Company List (BIS staff only)</div>
         <div class="section__body">
           <p style="font-size:12px; color:#666; margin-bottom:4px;">The internal company list that BIS staff use color-codes each module. We're adding two new colors so staff can tell at a glance when a client's trial has been manually extended, or when their data has already been deleted:</p>
           <div class="pill-row">
