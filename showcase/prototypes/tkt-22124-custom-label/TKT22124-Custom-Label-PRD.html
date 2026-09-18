@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Department/Job Label — PRD</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/all.min.css">
+<style>
+  :root{
+    --ink:#1a1d23; --ink-2:#555b66; --ink-3:#8a909a; --line:#e4e7ec; --line-2:#d0d5dd;
+    --bg:#f6f7f9; --surface:#ffffff; --accent:#0078b3; --accent-soft:#eaf6fb;
+    --t-error:#cc2222; --error-lightest:#fff2f2;
+    --t-success:#167b00; --success-lightest:#fafff2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px 120px;}
+  .cover{background:linear-gradient(135deg,#0a3a54,#0078b3);color:#fff;padding:48px 0 40px;}
+  .cover .wrap{padding-bottom:40px;}
+  .eyebrow{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;opacity:.8;font-weight:600;}
+  .cover h1{font-size:38px;font-weight:700;margin:8px 0 6px;letter-spacing:-.5px;}
+  .cover .sub{font-size:18px;opacity:.9;margin-bottom:22px;}
+  .meta{display:flex;flex-wrap:wrap;gap:10px 28px;font-size:13.5px;}
+  .meta b{opacity:.7;font-weight:600;display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+  .pending-banner{margin-top:22px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:12px 16px;font-size:14px;display:flex;gap:10px;align-items:center;}
+  .pending-banner i{font-size:16px;}
+  .doc{display:grid;grid-template-columns:200px 1fr;gap:40px;margin-top:36px;}
+  nav.toc{position:sticky;top:24px;align-self:start;font-size:13.5px;}
+  nav.toc a{display:block;color:var(--ink-2);text-decoration:none;padding:5px 10px;border-left:2px solid transparent;border-radius:0 4px 4px 0;}
+  nav.toc a:hover{color:var(--accent);background:var(--accent-soft);}
+  main{min-width:0;}
+  section{margin-bottom:44px;scroll-margin-top:20px;}
+  h2{font-size:26px;font-weight:700;letter-spacing:-.3px;padding-bottom:8px;border-bottom:2px solid var(--accent);margin-bottom:16px;}
+  h2 .num{color:var(--accent);font-weight:700;margin-right:8px;}
+  h3{font-size:17px;font-weight:700;margin:22px 0 8px;color:var(--ink);}
+  h4{font-size:14px;font-weight:700;margin:16px 0 6px;color:var(--ink-2);text-transform:uppercase;letter-spacing:.4px;}
+  p{margin-bottom:12px;color:var(--ink-2);}
+  ul{margin:0 0 14px 22px;} li{margin-bottom:6px;color:var(--ink-2);}
+  code{font-family:ui-monospace,"Cascadia Code",monospace;font-size:.9em;background:#eef1f4;padding:1px 5px;border-radius:4px;color:#0a3a54;}
+  .lead{font-size:16px;color:var(--ink);}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px;}
+  .callout{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:8px;padding:12px 16px;margin:14px 0;font-size:14px;color:#0a3a54;}
+  .callout.warn{border-color:#d9a300;background:#fff8e8;color:#7a5600;}
+  table{width:100%;border-collapse:collapse;margin:8px 0 18px;font-size:13.5px;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  th{background:#0e3a56;color:#fff;text-align:left;padding:9px 12px;font-size:12px;letter-spacing:.3px;font-weight:600;}
+  td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top;color:var(--ink-2);}
+  tr:nth-child(even) td{background:#fafbfc;} td code{white-space:nowrap;}
+  .qid{font-family:ui-monospace,monospace;font-size:12px;color:var(--accent);font-weight:600;white-space:nowrap;}
+  footer{border-top:1px solid var(--line);margin-top:40px;padding-top:18px;font-size:13px;color:var(--ink-3);}
+
+  /* ── mockup blocks (final copy, built from tokens — not screenshots) ── */
+  .mock-area{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+  @media(max-width:700px){.mock-area{grid-template-columns:1fr;}}
+  .mockcap{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-3);font-weight:700;margin-bottom:8px;}
+  .mockform{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
+  .mockform label{display:block;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:5px;}
+  .mockform input.f{width:100%;border:1px solid var(--line-2);border-radius:6px;padding:8px 10px;font-size:14px;color:var(--ink);background:#fbfbfc;}
+  .mockform input.f.editing{background:#fff;border-color:var(--accent);}
+  .mockform input.f.bad{border-color:var(--t-error);background:#fff;}
+  .mockrow{display:flex;gap:8px;align-items:center;margin-top:8px;}
+  .mockbtn{font:600 12.5px "Segoe UI";border-radius:6px;padding:7px 14px;border:1px solid var(--line-2);background:#fff;color:var(--ink);cursor:default;}
+  .mockbtn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .mockcounter{font-size:11.5px;color:var(--ink-3);margin-top:5px;}
+  .mockerr{font-size:12.5px;color:var(--t-error);margin-top:5px;font-weight:600;}
+  .mockhelp{font-size:13px;color:var(--ink-2);margin-top:10px;}
+  .mockhelp b{color:var(--ink);}
+  .mocktoast{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;text-align:center;}
+  .mocktoast .ic{width:34px;height:34px;border-radius:50%;background:var(--success-lightest);color:var(--t-success);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:16px;}
+  .mocktoast h4{margin:0 0 4px;text-transform:none;letter-spacing:0;font-size:15px;color:var(--ink);}
+  .mocktoast p{font-size:13px;margin:0;}
+  .mockmodal{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;text-align:center;}
+  .mockmodal .ic{width:34px;height:34px;border-radius:50%;background:#fff8e8;color:#c37900;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:16px;}
+  .mockmodal h4{margin:0 0 6px;text-transform:none;letter-spacing:0;font-size:15px;color:var(--ink);}
+  .mockmodal p{font-size:13px;margin:0 0 12px;}
+  .mocktooltip{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;}
+  .ttlabel{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:13px;color:var(--ink);}
+  .ttlabel i{font-size:12px;color:var(--ink-3);}
+  .ttbubble{display:inline-block;margin-top:10px;background:#1a1d23;color:#fff;font-size:12.5px;padding:6px 10px;border-radius:6px;}
+
+  /* ── image placeholder (swap in real mockups: images/<file>) ── */
+  .shot{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#eef0f3;min-height:130px;display:flex;align-items:center;justify-content:center;}
+  .shot img{width:100%;display:block;}
+  .shot .ph{font-size:12px;color:var(--ink-3);text-align:center;padding:20px;}
+  .shot .ph i{display:block;font-size:20px;margin-bottom:6px;opacity:.6;}
+  .shot img{display:none;}
+  .shot img.loaded{display:block;}
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="wrap">
+    <div class="eyebrow">Product Requirements · Admin &amp; Training</div>
+    <h1>Custom Department/Job Label</h1>
+    <div class="sub">Lets an admin rename the platform's "Department" field to any custom word (e.g. "Job", "Team", "Site") &mdash; with validation, revert, and cross-screen context so the change doesn't get lost.</div>
+    <div class="meta">
+      <div><b>Ticket</b>TKT-22124</div>
+      <div><b>Status</b>Design complete &middot; ready for dev</div>
+      <div><b>Audience</b>Dev &middot; PM &middot; QA</div>
+      <div><b>Updated</b>Sep 18, 2026</div>
+      <div><b>Owner</b>Mika Yeo &middot; Product Design</div>
+    </div>
+    <div class="pending-banner"><i class="fa-solid fa-circle-info"></i>
+      <span><b>Pending:</b> real design mockups are being dropped into <code>images/</code> &mdash; placeholders are shown below in the meantime.</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="doc">
+    <nav class="toc">
+      <div class="toc-h" style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-3);font-weight:700;margin:0 0 4px 10px;">Contents</div>
+      <a href="#scope">1 &middot; Scope</a>
+      <a href="#decisions">2 &middot; Key decisions</a>
+      <a href="#anatomy">3 &middot; Anatomy</a>
+      <a href="#visuals">4 &middot; Screens &amp; states</a>
+      <a href="#behaviour">5 &middot; Behaviour (QA)</a>
+      <a href="#tech">6 &middot; Technical</a>
+      <a href="#copy">7 &middot; Copy</a>
+      <a href="#open">8 &middot; Open questions</a>
+    </nav>
+
+    <main>
+      <section id="scope"><h2><span class="num">1</span>Scope</h2>
+        <p class="lead">Today, the field used to group users (shown everywhere as "Department") is a fixed, hardcoded word. This feature lets an admin rename it to whatever term fits their organization &mdash; "Job," "Team," "Site," etc. &mdash; and have that word propagate consistently across the admin settings screen, the user-assignment screen, and shared filter views, without breaking the surrounding sentences or losing track of what the field originally was.</p>
+        <h3>In scope</h3>
+        <ul>
+          <li><b>Admin &middot; Edit Label</b> &mdash; rename flow on the Training Categories settings screen: default view, edit state, 3 inline validation errors, live character counter, save, and revert (with confirmation modal and 2 success toasts).</li>
+          <li><b>Admin &middot; User Profile Select</b> &mdash; when assigning departments/jobs to a user, an info icon + tooltip shows the field's original default label so admins don't lose context after a rename.</li>
+          <li><b>End User / shared &middot; Training Matrix</b> &mdash; the "Filter View" dropdown label reflects the custom name dynamically. This is the only change on this screen.</li>
+        </ul>
+        <h3>Out of scope</h3>
+        <ul>
+          <li>The <b>"Roles | Topics | Departments | Filters"</b> tab/list header on the Training Categories screen. It's a fixed section title, not fed by the custom label value, and stays "Departments" (plural) regardless of what the admin names the field.</li>
+          <li>Any other screen in the platform that references "Department" in copy but isn't listed above &mdash; not audited as part of this ticket. See <a href="#open">Open questions</a>.</li>
+        </ul>
+      </section>
+
+      <section id="decisions"><h2><span class="num">2</span>Key decisions</h2>
+        <p>This spec went through a full copy/UX pass before build. The table below is the paper trail &mdash; useful context for dev and QA on <i>why</i> the copy reads the way it does, not just what it says.</p>
+        <table>
+          <tr><th style="width:32%">Decision</th><th>Resolution</th></tr>
+          <tr><td>Edit placeholder</td><td>"Type alternate label" &rarr; <b>"Enter a custom label"</b>. "Alternate" was vague; "custom" matches how the feature is described everywhere else.</td></tr>
+          <tr><td>Empty-field error</td><td>"Type something to save" &rarr; <b>"Please enter a label."</b> Matches the "Please enter&hellip;" voice already used elsewhere on this screen.</td></tr>
+          <tr><td>Too-long error</td><td>"Label should be less than 20 characters" &rarr; <b>"Label must be 20 characters or fewer."</b> "Should" read as a suggestion, not a rule; "less than 20" was ambiguous about whether 20 itself is allowed.</td></tr>
+          <tr><td>Duplicate-default error</td><td>"You can't use the default label. Please use another." &rarr; <b>"This is already the default label. Choose a different name."</b> Fixed the tone mismatch (contraction + formal clause stitched together).</td></tr>
+          <tr><td>Body copy grammar</td><td>Rewritten so the custom label never has to carry plural/grammatical weight &mdash; "one or more <b>[Label]</b> <i>entries</i>," "to <i>each</i> [Label]," "<i>more than one</i> [Label]." Previously the label was pluralized inline ("Jobs Name:", "different Jobs"), which broke for any word that isn't naturally plural-friendly.</td></tr>
+          <tr><td>Sub-field label</td><td>"[Label] Name:" &rarr; <b>"Name:"</b>. Drops the label from the string entirely so it can never read wrong, regardless of what word the admin picks.</td></tr>
+          <tr><td>Default label stays singular</td><td>The seed value for the Label field is <b>"Department"</b> / <b>"Job"</b> (singular) everywhere in the templated copy. This is what keeps the "each &hellip;" / "one &hellip;" sentence slots grammatical. The one exception is the tab/list header, which is a static string and always reads "Departments" (plural) &mdash; see Scope.</td></tr>
+          <tr><td>Duplicate "Original Label" indicator</td><td>An early draft showed "Original Label: Departments" twice &mdash; once as a badge in the top nav bar, once under the Label field. The top-nav badge was a build mistake and has been removed; the inline one under the field is the single source of truth.</td></tr>
+          <tr><td>Modal &amp; toast wording</td><td>Unified all three (update toast, revert toast, revert confirm) to the same "Label [past-tense verb]" heading pattern, and dropped the redundant "back" from every instance of "revert back to&hellip;" (revert already means "go back").</td></tr>
+          <tr><td>User Profile Select tooltip</td><td>Reuses the exact <b>"Original Label: [default]"</b> phrase from the settings screen, surfaced via an info icon + tooltip next to the field, so admins recognize a renamed field without leaving the page.</td></tr>
+        </table>
+        <div class="callout warn"><b>Accepted limitation, not a bug:</b> the grammar-safe template only holds up if the admin's custom label is a singular noun. If an admin types a plural word as their custom label (e.g. names the field "Departments"), sentences like "assign training to each Departments" will read slightly awkward. This depends entirely on admin word choice and is out of our control &mdash; documented here rather than tracked as an open defect.</div>
+      </section>
+
+      <section id="anatomy"><h2><span class="num">3</span>Anatomy</h2>
+        <table>
+          <tr><th style="width:26%">Zone</th><th>Contents</th></tr>
+          <tr><td>Label field</td><td>Read-only by default (shows current label + Edit button); becomes an editable input with a live character counter, Cancel, and Save once Edit is clicked.</td></tr>
+          <tr><td>Manage [Label] panel</td><td>Heading + two lines of instructional copy + the entry list's "Name:" input + Add button. All text dynamically reflects the current label.</td></tr>
+          <tr><td>Revert control</td><td>Appears in place of Edit once a label has been customized. Opens a confirmation modal before reverting (destructive-ish action, so it's gated).</td></tr>
+          <tr><td>Success toasts</td><td>Two variants &mdash; label updated, label reverted &mdash; same heading/body pattern, single Ok button.</td></tr>
+          <tr><td>User Profile Select</td><td>Department/Job multi-select field. When the label has been customized, an (i) icon appears next to the field name; hover/focus reveals the original default label.</td></tr>
+          <tr><td>Training Matrix filter</td><td>"Filter View" dropdown label text is bound to the custom label. No other copy on this screen changes.</td></tr>
+          <tr><td>Tab/list header <span style="color:var(--ink-3);font-weight:400">(out of scope)</span></td><td>"Roles | Topics | Departments | Filters" &mdash; static, always plural, not bound to the custom label.</td></tr>
+        </table>
+      </section>
+
+      <section id="visuals"><h2><span class="num">4</span>Screens &amp; states</h2>
+        <p>Each block below is built from the final, agreed copy (not a screenshot, so it can't go stale). The panel underneath each one is a slot for the real mockup &mdash; drop a file at the path shown into <code>images/</code> and it'll render automatically.</p>
+
+        <h3>4.1 Edit Label &mdash; default &amp; editing</h3>
+        <div class="mock-area">
+          <div>
+            <div class="mockcap">Default view</div>
+            <div class="mockform">
+              <label>Label</label>
+              <input class="f" value="Department" readonly>
+              <div class="mockrow"><span class="mockbtn primary">Edit</span></div>
+              <div class="mockhelp"><b>Manage Department</b><br>Please enter one or more <b>Department</b> entries into the field below and click Add. Separate multiple entries with a comma.</div>
+            </div>
+            <div class="shot"><img src="images/edit-label-default.png" alt="Edit Label — default view" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/edit-label-default.png</div></div>
+          </div>
+          <div>
+            <div class="mockcap">Editing (valid)</div>
+            <div class="mockform">
+              <label>Label</label>
+              <input class="f editing" placeholder="Enter a custom label" value="Job">
+              <div class="mockcounter">3/20 characters</div>
+              <div class="mockrow"><span class="mockbtn">Cancel</span><span class="mockbtn primary">Save</span></div>
+            </div>
+            <div class="shot"><img src="images/edit-label-editing.png" alt="Edit Label — editing state" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/edit-label-editing.png</div></div>
+          </div>
+        </div>
+
+        <h3>4.2 Validation errors</h3>
+        <div class="mock-area">
+          <div>
+            <div class="mockcap">Empty field</div>
+            <div class="mockform">
+              <label>Label</label>
+              <input class="f bad" placeholder="Enter a custom label" value="">
+              <div class="mockerr">Please enter a label.</div>
+            </div>
+            <div class="shot"><img src="images/error-empty.png" alt="Error — empty field" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/error-empty.png</div></div>
+          </div>
+          <div>
+            <div class="mockcap">Over 20 characters</div>
+            <div class="mockform">
+              <label>Label</label>
+              <input class="f bad" value="This is a really long department label">
+              <div class="mockerr">Label must be 20 characters or fewer.</div>
+            </div>
+            <div class="shot"><img src="images/error-toolong.png" alt="Error — over 20 characters" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/error-toolong.png</div></div>
+          </div>
+          <div>
+            <div class="mockcap">Re-entering the default</div>
+            <div class="mockform">
+              <label>Label</label>
+              <input class="f bad" value="Department">
+              <div class="mockerr">This is already the default label. Choose a different name.</div>
+            </div>
+            <div class="shot"><img src="images/error-duplicate.png" alt="Error — duplicate default label" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/error-duplicate.png</div></div>
+          </div>
+          <div>
+            <div class="mockcap">Counter, on refocus</div>
+            <div class="mockform">
+              <label>Label</label>
+              <input class="f editing" value="Job">
+              <div class="mockcounter">3/20 characters</div>
+              <p style="font-size:12px;color:var(--ink-3);margin:6px 0 0;">Any inline error is replaced by the live counter as soon as the field regains focus.</p>
+            </div>
+          </div>
+        </div>
+
+        <h3>4.3 Success &amp; revert</h3>
+        <div class="mock-area">
+          <div>
+            <div class="mockcap">Toast &mdash; label updated</div>
+            <div class="mocktoast"><div class="ic"><i class="fa-solid fa-check"></i></div><h4>Label updated</h4><p>The label has been updated to <b>Job</b>.</p></div>
+            <div class="shot"><img src="images/toast-updated.png" alt="Toast — label updated" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/toast-updated.png</div></div>
+          </div>
+          <div>
+            <div class="mockcap">Toast &mdash; label reverted</div>
+            <div class="mocktoast"><div class="ic"><i class="fa-solid fa-check"></i></div><h4>Label reverted</h4><p>The label has been reverted to <b>Department</b>.</p></div>
+            <div class="shot"><img src="images/toast-reverted.png" alt="Toast — label reverted" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/toast-reverted.png</div></div>
+          </div>
+          <div>
+            <div class="mockcap">Revert confirmation modal</div>
+            <div class="mockmodal"><div class="ic"><i class="fa-solid fa-triangle-exclamation"></i></div><h4>Revert to Department?</h4><p>Are you sure you want to revert the label from <b>Job</b> to <b>Department</b>?</p><div class="mockrow" style="justify-content:center"><span class="mockbtn">Cancel</span><span class="mockbtn primary">Revert</span></div></div>
+            <div class="shot"><img src="images/revert-confirm-modal.png" alt="Revert confirmation modal" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/revert-confirm-modal.png</div></div>
+          </div>
+        </div>
+
+        <h3>4.4 User Profile Select</h3>
+        <div class="mock-area">
+          <div>
+            <div class="mockcap">Renamed field + info icon</div>
+            <div class="mocktooltip">
+              <span class="ttlabel">Job <i class="fa-solid fa-circle-info"></i></span>
+              <div class="ttbubble">Original Label: Department</div>
+              <p style="font-size:12px;color:var(--ink-3);margin-top:10px;">Tooltip appears on hover/focus of the info icon.</p>
+            </div>
+            <div class="shot"><img src="images/user-profile-tooltip.png" alt="User Profile Select — tooltip" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/user-profile-tooltip.png</div></div>
+          </div>
+          <div>
+            <div class="mockcap">Training Matrix filter (End User / shared)</div>
+            <div class="mockform">
+              <label>Filter View</label>
+              <input class="f" value="Job" readonly>
+              <p style="font-size:12px;color:var(--ink-3);margin-top:8px;">Only the filter label text changes here &mdash; no other copy on this screen is affected.</p>
+            </div>
+            <div class="shot"><img src="images/training-matrix-filter.png" alt="Training Matrix — filter label" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/training-matrix-filter.png</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="behaviour"><h2><span class="num">5</span>Behaviour <span style="font-size:14px;font-weight:500;color:var(--ink-3)">&mdash; QA reference</span></h2>
+        <p>Stable IDs so QA and dev can cite scenarios directly in tickets and test plans.</p>
+
+        <h3>5.1 Edit Label &mdash; field &amp; validation</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:38%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-1</td><td>Screen loads, label has never been customized</td><td>Field shows "Department" (read-only), Edit button visible.</td></tr>
+          <tr><td class="qid">B-2</td><td>Admin clicks Edit</td><td>Field becomes editable with placeholder "Enter a custom label"; "0/20 characters" counter appears; Cancel/Save replace Edit.</td></tr>
+          <tr><td class="qid">B-3</td><td>Admin clicks Save with an empty field</td><td>Inline error "Please enter a label." appears in place of the counter; Save is blocked.</td></tr>
+          <tr><td class="qid">B-4</td><td>Admin types &gt;20 characters and clicks Save</td><td>Inline error "Label must be 20 characters or fewer." appears; Save is blocked.</td></tr>
+          <tr><td class="qid">B-5</td><td>Admin types the exact current default ("Department") and clicks Save</td><td>Inline error "This is already the default label. Choose a different name." appears; Save is blocked.</td></tr>
+          <tr><td class="qid">B-6</td><td>Admin refocuses the field after any of B-3&ndash;B-5</td><td>Error message is replaced by the live "X/20 characters" counter.</td></tr>
+          <tr><td class="qid">B-7</td><td>Admin enters a valid, unique label (e.g. "Job") and clicks Save</td><td>Toast "Label updated" / "The label has been updated to Job." Field returns to read-only showing "Job." "Manage [Label]" heading, body copy, and "Name:" sub-field all update. Tab/list header is unaffected (still "Departments").</td></tr>
+        </table>
+
+        <h3>5.2 Revert</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:38%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-8</td><td>Label has been customized; admin clicks Revert</td><td>Confirmation modal: "Revert to Department?" / "Are you sure you want to revert the label from Job to Department?" &mdash; Cancel / Revert.</td></tr>
+          <tr><td class="qid">B-9</td><td>Admin clicks Cancel in the modal</td><td>Modal closes, no change; label remains the customized value.</td></tr>
+          <tr><td class="qid">B-10</td><td>Admin clicks Revert (confirm)</td><td>Toast "Label reverted" / "The label has been reverted to Department." Field and panel return to default state.</td></tr>
+        </table>
+
+        <h3>5.3 User Profile Select</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:38%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-11</td><td>Label has been customized; admin opens a user's profile to assign departments/jobs</td><td>Field shows the custom label (e.g. "Jobs") with an (i) info icon beside it.</td></tr>
+          <tr><td class="qid">B-12</td><td>Admin hovers or focuses the (i) icon</td><td>Tooltip reads "Original Label: Department" (or "Departments" if that's the tenant's literal stored default &mdash; see Open Questions).</td></tr>
+          <tr><td class="qid">B-13</td><td>Label has never been customized</td><td><i>Assumption &mdash; not yet confirmed in design:</i> no (i) icon/tooltip shown, since there's no rename to disambiguate. Flagged in Open Questions.</td></tr>
+        </table>
+
+        <h3>5.4 Training Matrix (End User / shared)</h3>
+        <table>
+          <tr><th style="width:8%">ID</th><th style="width:38%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-14</td><td>Label has been customized</td><td>"Filter View" dropdown shows the custom label (e.g. "Job") in place of "Department." No other copy on this screen changes.</td></tr>
+          <tr><td class="qid">B-15</td><td>Any state, any label</td><td>The "Roles | Topics | Departments | Filters" tab/list header always reads "Departments" &mdash; confirms this element is out of scope for this feature.</td></tr>
+        </table>
+      </section>
+
+      <section id="tech"><h2><span class="num">6</span>Technical</h2>
+        <h3>Where the custom label is substituted</h3>
+        <table>
+          <tr><th style="width:34%">Location</th><th>Bound to custom label?</th></tr>
+          <tr><td>Label field (Edit Label screen)</td><td>Yes &mdash; this is the field being edited.</td></tr>
+          <tr><td>"Manage [Label]" heading + 2 lines of body copy</td><td>Yes &mdash; templated, see &sect;2 for the grammar-safe construction.</td></tr>
+          <tr><td>"Name:" sub-field label</td><td>No &mdash; deliberately static so it can never read wrong (&sect;2).</td></tr>
+          <tr><td>User Profile Select field label</td><td>Yes.</td></tr>
+          <tr><td>User Profile Select tooltip ("Original Label: &hellip;")</td><td>Shows the pre-rename default, not the current label.</td></tr>
+          <tr><td>Training Matrix "Filter View" label</td><td>Yes.</td></tr>
+          <tr><td>"Roles | Topics | Departments | Filters" tab header</td><td>No &mdash; static, always "Departments."</td></tr>
+        </table>
+
+        <h3>Validation rules</h3>
+        <ul>
+          <li>Required: non-empty after trim (B-3).</li>
+          <li>Max length: 20 characters (B-4). Confirm with dev whether this is enforced as a hard <code>maxlength</code> on the input (can't type past it) or a soft check on Save &mdash; the live counter design assumes the admin can type past 20 and see the count, then gets blocked on Save.</li>
+          <li>Must not exactly match the system default string for this field, case-sensitivity to be confirmed by dev (B-5).</li>
+          <li>Client-side validation should mirror server-side &mdash; don't rely on the inline error alone.</li>
+        </ul>
+
+        <h3>Edge cases &amp; migration</h3>
+        <ul>
+          <li><b>Backward compatibility:</b> accounts that never customize the label should see "Department" everywhere exactly as they do today &mdash; this feature is additive, no migration needed for existing data.</li>
+          <li><b>Concurrent edits:</b> not covered in current designs &mdash; if two admins have the settings page open and one saves a rename, does the other see a stale label until refresh? See Open Questions.</li>
+          <li><b>Permissions:</b> assume Edit Label is gated behind the same admin permission that already governs department/job management; dev to confirm no new permission is needed.</li>
+          <li><b>Plural admin-entered labels:</b> accepted limitation, not a defect &mdash; see the callout in &sect;2.</li>
+        </ul>
+      </section>
+
+      <section id="copy"><h2><span class="num">7</span>Copy</h2>
+        <div class="callout"><i class="fa-solid fa-pen-nib"></i>&nbsp; Finalized copy &mdash; every user-visible string is below, ready to build against. <b>No em-dashes in UI copy.</b></div>
+
+        <h3>Label field</h3>
+        <table>
+          <tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Default value (read-only)</td><td>Department / Job (singular, per default)</td></tr>
+          <tr><td>Edit placeholder</td><td>Enter a custom label</td></tr>
+          <tr><td>Live counter</td><td>X/20 characters</td></tr>
+          <tr><td>Buttons</td><td>Edit &middot; Cancel &middot; Save &middot; Revert</td></tr>
+        </table>
+
+        <h3>Validation errors</h3>
+        <table>
+          <tr><th style="width:34%">Trigger</th><th>Copy</th></tr>
+          <tr><td>Empty field</td><td>Please enter a label.</td></tr>
+          <tr><td>Over 20 characters</td><td>Label must be 20 characters or fewer.</td></tr>
+          <tr><td>Re-entering the default</td><td>This is already the default label. Choose a different name.</td></tr>
+        </table>
+
+        <h3>Manage [Label] panel</h3>
+        <table>
+          <tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Heading</td><td>Manage [Label]</td></tr>
+          <tr><td>Body line 1</td><td>Please enter one or more [Label] entries into the field below and click Add. Separate multiple entries with a comma.</td></tr>
+          <tr><td>Body line 2</td><td>You can assign different required and optional training to each [Label], and users can be assigned to more than one [Label] in their account.</td></tr>
+          <tr><td>Sub-field label</td><td>Name:</td></tr>
+        </table>
+
+        <h3>System messages</h3>
+        <table>
+          <tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Update toast &mdash; heading</td><td>Label updated</td></tr>
+          <tr><td>Update toast &mdash; body</td><td>The label has been updated to [Label].</td></tr>
+          <tr><td>Revert toast &mdash; heading</td><td>Label reverted</td></tr>
+          <tr><td>Revert toast &mdash; body</td><td>The label has been reverted to [Default].</td></tr>
+          <tr><td>Revert confirm modal &mdash; heading</td><td>Revert to [Default]?</td></tr>
+          <tr><td>Revert confirm modal &mdash; body</td><td>Are you sure you want to revert the label from [Label] to [Default]?</td></tr>
+        </table>
+
+        <h3>User Profile Select</h3>
+        <table>
+          <tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Tooltip (on info icon)</td><td>Original Label: [Default]</td></tr>
+        </table>
+      </section>
+
+      <section id="open"><h2><span class="num">8</span>Open questions</h2>
+        <ul>
+          <li>The User Profile Select tooltip is hover-only (via the info icon). Does it also need to fire on keyboard focus, and does this page need a tap-to-reveal fallback for touch/tablet admins? Not yet resolved in design.</li>
+          <li>Does the (i) icon/tooltip on User Profile Select appear only once a label has been customized, or always (with the tooltip just repeating the default when unchanged)? Current design only shows the customized case (B-13).</li>
+          <li>Is "Department" the true universal default across every existing BIS account, or do some tenants already have a different stored default? This affects whether "revert to Department" is always the correct destination copy.</li>
+          <li>Is the 20-character limit enforced as a hard input cap or a soft Save-time check? Affects whether the live counter can ever show a number greater than 20.</li>
+          <li>Concurrent edits: if two admins have the settings page open simultaneously, what happens when one saves a rename? Not covered in current designs.</li>
+          <li>During review, a separate "Manage Departments" panel was spotted elsewhere with older, unrelated copy (pre-dating this ticket's fixes). Is that a different screen/module outside this ticket's scope, or a stale duplicate that should be cleaned up? Needs a decision before dev estimates full reach.</li>
+        </ul>
+      </section>
+
+      <footer>
+        Ticket TKT-22124 &middot;
+        Figma &mdash; Edit Label: <a href="https://www.figma.com/design/qUnRjzU6RgTBt5kzYO7aTX/BIStrainer_Board-20?node-id=206-384" target="_blank">link</a> &middot;
+        Figma &mdash; User Profile Select: <a href="https://www.figma.com/design/qUnRjzU6RgTBt5kzYO7aTX/BIStrainer_Board-20?node-id=211-2371" target="_blank">link</a>
+      </footer>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

@@ -257,6 +257,22 @@
       "kind": "folder",
       "audience": "showcase",
       "category": "prototypes",
+      "id": "tkt-22124-custom-label",
+      "title": "Custom label",
+      "date": "2026-09-18",
+      "children": [
+        {
+          "title": "Custom Label PRD",
+          "path": "showcase/prototypes/tkt-22124-custom-label/TKT22124-Custom-Label-PRD.html",
+          "date": "2026-09-18"
+        }
+      ],
+      "ticket": "TKT-22124"
+    },
+    {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "prototypes",
       "id": "custom metrics",
       "title": "Custom Metrics",
       "date": "2026-06-15",
