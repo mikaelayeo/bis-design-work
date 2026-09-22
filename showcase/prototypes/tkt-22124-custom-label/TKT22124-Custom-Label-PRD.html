@@ -84,6 +84,7 @@
   .shot .ph i{display:block;font-size:20px;margin-bottom:6px;opacity:.6;}
   .shot img{display:none;}
   .shot img.loaded{display:block;}
+  .pend-note{font-size:10.5px;font-weight:600;text-transform:none;letter-spacing:0;color:#9a6400;background:#fff4e0;padding:2px 6px;border-radius:20px;margin-left:6px;vertical-align:middle;}
 </style>
 </head>
 <body>
@@ -97,11 +98,11 @@
       <div><b>Ticket</b>TKT-22124</div>
       <div><b>Status</b>Design complete &middot; ready for dev</div>
       <div><b>Audience</b>Dev &middot; PM &middot; QA</div>
-      <div><b>Updated</b>Sep 18, 2026</div>
+      <div><b>Updated</b>Sep 22, 2026</div>
       <div><b>Owner</b>Mika Yeo &middot; Product Design</div>
     </div>
     <div class="pending-banner"><i class="fa-solid fa-circle-info"></i>
-      <span><b>Pending:</b> real design mockups are being dropped into <code>images/</code> &mdash; placeholders are shown below in the meantime.</span>
+      <span><b>Pending:</b> the Edit Label flow moved behind a button since the last pass (see &sect;2). Real screenshots are in for every state except the revert confirmation and revert-success toast in their new modal-nested form &mdash; see &sect;8.</span>
     </div>
   </div>
 </header>
@@ -125,7 +126,7 @@
         <p class="lead">Today, the field used to group users (shown everywhere as "Department") is a fixed, hardcoded word. This feature lets an admin rename it to whatever term fits their organization &mdash; "Job," "Team," "Site," etc. &mdash; and have that word propagate consistently across the admin settings screen, the user-assignment screen, and shared filter views, without breaking the surrounding sentences or losing track of what the field originally was.</p>
         <h3>In scope</h3>
         <ul>
-          <li><b>Admin &middot; Edit Label</b> &mdash; rename flow on the Training Categories settings screen: default view, edit state, 3 inline validation errors, live character counter, save, and revert (with confirmation modal and 2 success toasts).</li>
+          <li><b>Admin &middot; Edit Label</b> &mdash; rename flow on the Training Categories settings screen, tucked behind an "Edit Label" button: opens a modal with the field, 3 inline validation errors, live character counter, save, and revert (with confirmation modal and 2 success toasts).</li>
           <li><b>Admin &middot; User Profile Select</b> &mdash; when assigning departments/jobs to a user, an info icon + tooltip shows the field's original default label so admins don't lose context after a rename.</li>
           <li><b>End User / shared &middot; Training Matrix</b> &mdash; the "Filter View" dropdown label reflects the custom name dynamically. This is the only change on this screen.</li>
         </ul>
@@ -144,22 +145,24 @@
           <tr><td>Empty-field error</td><td>"Type something to save" &rarr; <b>"Please enter a label."</b> Matches the "Please enter&hellip;" voice already used elsewhere on this screen.</td></tr>
           <tr><td>Too-long error</td><td>"Label should be less than 20 characters" &rarr; <b>"Label must be 20 characters or fewer."</b> "Should" read as a suggestion, not a rule; "less than 20" was ambiguous about whether 20 itself is allowed.</td></tr>
           <tr><td>Duplicate-default error</td><td>"You can't use the default label. Please use another." &rarr; <b>"This is already the default label. Choose a different name."</b> Fixed the tone mismatch (contraction + formal clause stitched together).</td></tr>
-          <tr><td>Body copy grammar</td><td>Rewritten so the custom label never has to carry plural/grammatical weight &mdash; "one or more <b>[Label]</b> <i>entries</i>," "to <i>each</i> [Label]," "<i>more than one</i> [Label]." Previously the label was pluralized inline ("Jobs Name:", "different Jobs"), which broke for any word that isn't naturally plural-friendly.</td></tr>
           <tr><td>Sub-field label</td><td>"[Label] Name:" &rarr; <b>"Name:"</b>. Drops the label from the string entirely so it can never read wrong, regardless of what word the admin picks.</td></tr>
-          <tr><td>Default label stays singular</td><td>The seed value for the Label field is <b>"Department"</b> / <b>"Job"</b> (singular) everywhere in the templated copy. This is what keeps the "each &hellip;" / "one &hellip;" sentence slots grammatical. The one exception is the tab/list header, which is a static string and always reads "Departments" (plural) &mdash; see Scope.</td></tr>
+          <tr><td>Default label stays singular</td><td>The seed value for the Label field is <b>"Department"</b> / <b>"Job"</b> (singular). The one exception is the tab/list header, which is a static string and always reads "Departments" (plural) &mdash; see Scope.</td></tr>
           <tr><td>Duplicate "Original Label" indicator</td><td>An early draft showed "Original Label: Departments" twice &mdash; once as a badge in the top nav bar, once under the Label field. The top-nav badge was a build mistake and has been removed; the inline one under the field is the single source of truth.</td></tr>
           <tr><td>Modal &amp; toast wording</td><td>Unified all three (update toast, revert toast, revert confirm) to the same "Label [past-tense verb]" heading pattern, and dropped the redundant "back" from every instance of "revert back to&hellip;" (revert already means "go back").</td></tr>
           <tr><td>User Profile Select tooltip</td><td>Reuses the exact <b>"Original Label: [default]"</b> phrase from the settings screen, surfaced via an info icon + tooltip next to the field, so admins recognize a renamed field without leaving the page.</td></tr>
+          <tr><td>Edit Label moved behind a button</td><td><b>New this pass.</b> The field is no longer edited inline on the Manage panel. Default state: the panel heading reads "Manage Department" with an <b>"Edit Label"</b> button (pencil icon) in its top-right corner. Clicking it opens an <b>"Edit Label" modal</b> with the field, live counter, Cancel/Save (and Revert, once a custom label already exists). Once a label is customized, the trigger relocates to a small "Label: Jobs" strip with its own "Edit Label" button, positioned above the panel.</td></tr>
+          <tr><td>"Manage [Label]" panel copy no longer tracks the rename</td><td><b>Change, confirmed across both the default and renamed screenshots:</b> the panel heading, its two lines of body copy, and the "Name:" sub-field now always read the system default ("Department") &mdash; they do not switch to "Jobs" after a rename. Only the small "Label: Jobs" strip above the panel, the User Profile Select field, and the Training Matrix filter reflect the custom name. This supersedes the earlier "grammar-safe template" decision below, which is no longer load-bearing on this panel (nothing here substitutes the label anymore) &mdash; see &sect;8 to confirm this is intentional.</td></tr>
+          <tr><td><i>Superseded &mdash; grammar-safe body copy template</i></td><td><i>Previously: rewrote the panel's body copy so the custom label never carries plural/grammatical weight ("one or more [Label] entries," "each [Label]," "more than one [Label]"), since the label used to be substituted inline and broke for words like "Jobs" ("Jobs Name:", "different Jobs"). Now moot on this panel per the row above &mdash; kept here for history since the same principle would apply again if any screen resumes substituting the label into a sentence.</i></td></tr>
         </table>
-        <div class="callout warn"><b>Accepted limitation, not a bug:</b> the grammar-safe template only holds up if the admin's custom label is a singular noun. If an admin types a plural word as their custom label (e.g. names the field "Departments"), sentences like "assign training to each Departments" will read slightly awkward. This depends entirely on admin word choice and is out of our control &mdash; documented here rather than tracked as an open defect.</div>
       </section>
 
       <section id="anatomy"><h2><span class="num">3</span>Anatomy</h2>
         <table>
           <tr><th style="width:26%">Zone</th><th>Contents</th></tr>
-          <tr><td>Label field</td><td>Read-only by default (shows current label + Edit button); becomes an editable input with a live character counter, Cancel, and Save once Edit is clicked.</td></tr>
-          <tr><td>Manage [Label] panel</td><td>Heading + two lines of instructional copy + the entry list's "Name:" input + Add button. All text dynamically reflects the current label.</td></tr>
-          <tr><td>Revert control</td><td>Appears in place of Edit once a label has been customized. Opens a confirmation modal before reverting (destructive-ish action, so it's gated).</td></tr>
+          <tr><td>Edit Label trigger</td><td>Default state: an "Edit Label" button (pencil icon) in the top-right of the "Manage Department" panel. Once customized: relocates to a small "Label: [current]" strip with its own "Edit Label" button, above the panel.</td></tr>
+          <tr><td>Edit Label modal</td><td>Opens on trigger click. Contains the "Label" field, placeholder, live "X/20 characters" counter, inline validation errors, and Cancel/Save. Revert is a third button (bottom-left) &mdash; only present when editing an already-customized label.</td></tr>
+          <tr><td>Manage [Label] panel</td><td>Heading + two lines of instructional copy + the entry list's "Name:" input + Add button. Always reads the system default ("Department") regardless of customization &mdash; see &sect;2.</td></tr>
+          <tr><td>Revert confirmation modal</td><td>Opens from the Revert button inside the Edit Label modal (destructive-ish action, so it's gated). Screenshot of this exact nested state is still pending &mdash; see &sect;8.</td></tr>
           <tr><td>Success toasts</td><td>Two variants &mdash; label updated, label reverted &mdash; same heading/body pattern, single Ok button.</td></tr>
           <tr><td>User Profile Select</td><td>Department/Job multi-select field. When the label has been customized, an (i) icon appears next to the field name; hover/focus reveals the original default label.</td></tr>
           <tr><td>Training Matrix filter</td><td>"Filter View" dropdown label text is bound to the custom label. No other copy on this screen changes.</td></tr>
@@ -168,42 +171,48 @@
       </section>
 
       <section id="visuals"><h2><span class="num">4</span>Screens &amp; states</h2>
-        <p>Each block below is built from the final, agreed copy (not a screenshot, so it can't go stale). The panel underneath each one is a slot for the real mockup &mdash; drop a file at the path shown into <code>images/</code> and it'll render automatically.</p>
+        <p>Real screenshots below, straight from the working mockup. <b>Ignore the small floating "Label: Department" text near the top-right of each screenshot</b> &mdash; that's an annotation left over from the mockup tool, not part of the actual UI. Where no current screenshot exists yet, a built mock (from the agreed copy) fills in &mdash; flagged as such and listed in &sect;8.</p>
 
-        <h3>4.1 Edit Label &mdash; default &amp; editing</h3>
+        <h3>4.1 Trigger &amp; default view</h3>
         <div class="mock-area">
           <div>
-            <div class="mockcap">Default view</div>
-            <div class="mockform">
-              <label>Label</label>
-              <input class="f" value="Department" readonly>
-              <div class="mockrow"><span class="mockbtn primary">Edit</span></div>
-              <div class="mockhelp"><b>Manage Department</b><br>Please enter one or more <b>Department</b> entries into the field below and click Add. Separate multiple entries with a comma.</div>
-            </div>
-            <div class="shot"><img src="images/edit-label-default.png" alt="Edit Label — default view" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/edit-label-default.png</div></div>
+            <div class="mockcap">Default &mdash; never customized</div>
+            <div class="shot"><img src="images/edit-label-default.png" class="loaded" alt="Manage Department panel with Edit Label button, default state"></div>
+            <p style="font-size:12px;color:var(--ink-3);margin-top:6px;">"Edit Label" button lives in the "Manage Department" panel header.</p>
           </div>
           <div>
-            <div class="mockcap">Editing (valid)</div>
-            <div class="mockform">
-              <label>Label</label>
-              <input class="f editing" placeholder="Enter a custom label" value="Job">
-              <div class="mockcounter">3/20 characters</div>
-              <div class="mockrow"><span class="mockbtn">Cancel</span><span class="mockbtn primary">Save</span></div>
-            </div>
-            <div class="shot"><img src="images/edit-label-editing.png" alt="Edit Label — editing state" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/edit-label-editing.png</div></div>
+            <div class="mockcap">Renamed &mdash; "Jobs"</div>
+            <div class="shot"><img src="images/edit-label-renamed.png" class="loaded" alt="Page state after renaming to Jobs — Label: Jobs strip with Edit Label button, Manage Department panel unchanged"></div>
+            <p style="font-size:12px;color:var(--ink-3);margin-top:6px;">Trigger relocates to a "Label: Jobs" strip. Note the panel heading/body still read "Department" &mdash; confirmed, see &sect;2 and &sect;8.</p>
           </div>
         </div>
 
-        <h3>4.2 Validation errors</h3>
+        <h3>4.2 Edit Label modal</h3>
         <div class="mock-area">
           <div>
-            <div class="mockcap">Empty field</div>
+            <div class="mockcap">Empty</div>
+            <div class="shot"><img src="images/edit-label-modal-empty.png" class="loaded" alt="Edit Label modal, empty field, 0/20 characters"></div>
+          </div>
+          <div>
+            <div class="mockcap">Valid input</div>
+            <div class="shot"><img src="images/edit-label-modal-filled.png" class="loaded" alt="Edit Label modal with Jobs typed, 4/20 characters"></div>
+          </div>
+          <div>
+            <div class="mockcap">Editing an existing custom label</div>
+            <div class="shot"><img src="images/edit-label-modal-revert.png" class="loaded" alt="Edit Label modal reopened on Jobs, with a Revert button now present"></div>
+            <p style="font-size:12px;color:var(--ink-3);margin-top:6px;">Revert only appears here &mdash; not on a first-time edit.</p>
+          </div>
+        </div>
+
+        <h3>4.3 Validation errors <span style="font-size:13px;font-weight:500;color:var(--ink-3)">&mdash; inside the modal</span></h3>
+        <div class="mock-area">
+          <div>
+            <div class="mockcap">Empty field, Save clicked</div>
             <div class="mockform">
               <label>Label</label>
               <input class="f bad" placeholder="Enter a custom label" value="">
               <div class="mockerr">Please enter a label.</div>
             </div>
-            <div class="shot"><img src="images/error-empty.png" alt="Error — empty field" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/error-empty.png</div></div>
           </div>
           <div>
             <div class="mockcap">Over 20 characters</div>
@@ -212,7 +221,6 @@
               <input class="f bad" value="This is a really long department label">
               <div class="mockerr">Label must be 20 characters or fewer.</div>
             </div>
-            <div class="shot"><img src="images/error-toolong.png" alt="Error — over 20 characters" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/error-toolong.png</div></div>
           </div>
           <div>
             <div class="mockcap">Re-entering the default</div>
@@ -221,7 +229,6 @@
               <input class="f bad" value="Department">
               <div class="mockerr">This is already the default label. Choose a different name.</div>
             </div>
-            <div class="shot"><img src="images/error-duplicate.png" alt="Error — duplicate default label" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/error-duplicate.png</div></div>
           </div>
           <div>
             <div class="mockcap">Counter, on refocus</div>
@@ -234,44 +241,32 @@
           </div>
         </div>
 
-        <h3>4.3 Success &amp; revert</h3>
+        <h3>4.4 Save success &amp; revert</h3>
         <div class="mock-area">
           <div>
             <div class="mockcap">Toast &mdash; label updated</div>
-            <div class="mocktoast"><div class="ic"><i class="fa-solid fa-check"></i></div><h4>Label updated</h4><p>The label has been updated to <b>Job</b>.</p></div>
-            <div class="shot"><img src="images/toast-updated.png" alt="Toast — label updated" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/toast-updated.png</div></div>
+            <div class="shot"><img src="images/toast-updated.png" class="loaded" alt="Toast: Label updated, the label has been updated to Jobs"></div>
           </div>
           <div>
-            <div class="mockcap">Toast &mdash; label reverted</div>
+            <div class="mockcap">Toast &mdash; label reverted <span class="pend-note">built mock, real screenshot pending</span></div>
             <div class="mocktoast"><div class="ic"><i class="fa-solid fa-check"></i></div><h4>Label reverted</h4><p>The label has been reverted to <b>Department</b>.</p></div>
-            <div class="shot"><img src="images/toast-reverted.png" alt="Toast — label reverted" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/toast-reverted.png</div></div>
           </div>
           <div>
-            <div class="mockcap">Revert confirmation modal</div>
+            <div class="mockcap">Revert confirmation modal <span class="pend-note">built mock, real screenshot pending</span></div>
             <div class="mockmodal"><div class="ic"><i class="fa-solid fa-triangle-exclamation"></i></div><h4>Revert to Department?</h4><p>Are you sure you want to revert the label from <b>Job</b> to <b>Department</b>?</p><div class="mockrow" style="justify-content:center"><span class="mockbtn">Cancel</span><span class="mockbtn primary">Revert</span></div></div>
-            <div class="shot"><img src="images/revert-confirm-modal.png" alt="Revert confirmation modal" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/revert-confirm-modal.png</div></div>
           </div>
         </div>
+        <p style="font-size:12.5px;color:var(--ink-3)">The copy in the two "pending" mocks above is confirmed (matches earlier reviewed screenshots) &mdash; what's missing is confirmation that they nest correctly inside/after the new Edit Label modal rather than the old standalone Revert button. See &sect;8.</p>
 
-        <h3>4.4 User Profile Select</h3>
+        <h3>4.5 User Profile Select &amp; Training Matrix</h3>
         <div class="mock-area">
           <div>
-            <div class="mockcap">Renamed field + info icon</div>
-            <div class="mocktooltip">
-              <span class="ttlabel">Job <i class="fa-solid fa-circle-info"></i></span>
-              <div class="ttbubble">Original Label: Department</div>
-              <p style="font-size:12px;color:var(--ink-3);margin-top:10px;">Tooltip appears on hover/focus of the info icon.</p>
-            </div>
-            <div class="shot"><img src="images/user-profile-tooltip.png" alt="User Profile Select — tooltip" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/user-profile-tooltip.png</div></div>
+            <div class="mockcap">User Profile Select &mdash; tooltip</div>
+            <div class="shot"><img src="images/user-profile-tooltip.png" class="loaded" alt="User Profile Select, Jobs field with info icon and Original Label: Department tooltip"></div>
           </div>
           <div>
-            <div class="mockcap">Training Matrix filter (End User / shared)</div>
-            <div class="mockform">
-              <label>Filter View</label>
-              <input class="f" value="Job" readonly>
-              <p style="font-size:12px;color:var(--ink-3);margin-top:8px;">Only the filter label text changes here &mdash; no other copy on this screen is affected.</p>
-            </div>
-            <div class="shot"><img src="images/training-matrix-filter.png" alt="Training Matrix — filter label" onload="this.classList.add('loaded')"><div class="ph"><i class="fa-regular fa-image"></i>images/training-matrix-filter.png</div></div>
+            <div class="mockcap">Training Matrix &mdash; filter (End User / shared)</div>
+            <div class="shot"><img src="images/training-matrix-filter.png" class="loaded" alt="Training Matrix, Jobs filter with info icon and Original Label: Department tooltip"></div>
           </div>
         </div>
       </section>
@@ -279,24 +274,25 @@
       <section id="behaviour"><h2><span class="num">5</span>Behaviour <span style="font-size:14px;font-weight:500;color:var(--ink-3)">&mdash; QA reference</span></h2>
         <p>Stable IDs so QA and dev can cite scenarios directly in tickets and test plans.</p>
 
-        <h3>5.1 Edit Label &mdash; field &amp; validation</h3>
+        <h3>5.1 Trigger &amp; modal &mdash; field &amp; validation</h3>
         <table>
           <tr><th style="width:8%">ID</th><th style="width:38%">Scenario</th><th>Expected</th></tr>
-          <tr><td class="qid">B-1</td><td>Screen loads, label has never been customized</td><td>Field shows "Department" (read-only), Edit button visible.</td></tr>
-          <tr><td class="qid">B-2</td><td>Admin clicks Edit</td><td>Field becomes editable with placeholder "Enter a custom label"; "0/20 characters" counter appears; Cancel/Save replace Edit.</td></tr>
-          <tr><td class="qid">B-3</td><td>Admin clicks Save with an empty field</td><td>Inline error "Please enter a label." appears in place of the counter; Save is blocked.</td></tr>
+          <tr><td class="qid">B-1</td><td>Screen loads, label has never been customized</td><td>"Manage Department" panel shows an "Edit Label" button in its header. No separate label-summary strip.</td></tr>
+          <tr><td class="qid">B-2</td><td>Admin clicks Edit Label</td><td>"Edit Label" modal opens: field with placeholder "Enter a custom label", "0/20 characters" counter, Cancel/Save. No Revert button (nothing to revert yet).</td></tr>
+          <tr><td class="qid">B-3</td><td>Admin clicks Save with an empty field</td><td>Inline error "Please enter a label." appears in place of the counter; Save is blocked; modal stays open.</td></tr>
           <tr><td class="qid">B-4</td><td>Admin types &gt;20 characters and clicks Save</td><td>Inline error "Label must be 20 characters or fewer." appears; Save is blocked.</td></tr>
           <tr><td class="qid">B-5</td><td>Admin types the exact current default ("Department") and clicks Save</td><td>Inline error "This is already the default label. Choose a different name." appears; Save is blocked.</td></tr>
           <tr><td class="qid">B-6</td><td>Admin refocuses the field after any of B-3&ndash;B-5</td><td>Error message is replaced by the live "X/20 characters" counter.</td></tr>
-          <tr><td class="qid">B-7</td><td>Admin enters a valid, unique label (e.g. "Job") and clicks Save</td><td>Toast "Label updated" / "The label has been updated to Job." Field returns to read-only showing "Job." "Manage [Label]" heading, body copy, and "Name:" sub-field all update. Tab/list header is unaffected (still "Departments").</td></tr>
+          <tr><td class="qid">B-7</td><td>Admin enters a valid, unique label (e.g. "Job") and clicks Save</td><td>Modal closes; toast "Label updated" / "The label has been updated to Job." Trigger relocates to a "Label: Job" strip above the panel. "Manage Department" heading, body copy, and "Name:" sub-field are <b>unchanged</b> (still say "Department" &mdash; confirmed behavior, see &sect;2). Tab/list header is unaffected (still "Departments").</td></tr>
+          <tr><td class="qid">B-7a</td><td>Admin reopens Edit Label on an already-customized label</td><td>Modal pre-fills the current value (e.g. "Job", "3/20 characters") and now shows a <b>Revert</b> button (bottom-left) alongside Cancel/Save.</td></tr>
         </table>
 
         <h3>5.2 Revert</h3>
         <table>
           <tr><th style="width:8%">ID</th><th style="width:38%">Scenario</th><th>Expected</th></tr>
-          <tr><td class="qid">B-8</td><td>Label has been customized; admin clicks Revert</td><td>Confirmation modal: "Revert to Department?" / "Are you sure you want to revert the label from Job to Department?" &mdash; Cancel / Revert.</td></tr>
-          <tr><td class="qid">B-9</td><td>Admin clicks Cancel in the modal</td><td>Modal closes, no change; label remains the customized value.</td></tr>
-          <tr><td class="qid">B-10</td><td>Admin clicks Revert (confirm)</td><td>Toast "Label reverted" / "The label has been reverted to Department." Field and panel return to default state.</td></tr>
+          <tr><td class="qid">B-8</td><td>Inside the Edit Label modal (B-7a state), admin clicks Revert</td><td>Confirmation modal: "Revert to Department?" / "Are you sure you want to revert the label from Job to Department?" &mdash; Cancel / Revert. <i>Exact nesting/transition from the Edit Label modal not yet confirmed in a current screenshot &mdash; see &sect;8.</i></td></tr>
+          <tr><td class="qid">B-9</td><td>Admin clicks Cancel in the confirmation modal</td><td>Confirmation modal closes; back to the Edit Label modal (or closed entirely &mdash; to confirm), no change made; label remains the customized value.</td></tr>
+          <tr><td class="qid">B-10</td><td>Admin clicks Revert (confirm)</td><td>Toast "Label reverted" / "The label has been reverted to Department." Trigger returns to an "Edit Label" button on the panel header (B-1 state).</td></tr>
         </table>
 
         <h3>5.3 User Profile Select</h3>
@@ -319,8 +315,9 @@
         <h3>Where the custom label is substituted</h3>
         <table>
           <tr><th style="width:34%">Location</th><th>Bound to custom label?</th></tr>
-          <tr><td>Label field (Edit Label screen)</td><td>Yes &mdash; this is the field being edited.</td></tr>
-          <tr><td>"Manage [Label]" heading + 2 lines of body copy</td><td>Yes &mdash; templated, see &sect;2 for the grammar-safe construction.</td></tr>
+          <tr><td>Label field (Edit Label modal)</td><td>Yes &mdash; this is the field being edited.</td></tr>
+          <tr><td>"Label: [current]" trigger strip</td><td>Yes &mdash; only element on this screen besides the modal itself that shows the custom name.</td></tr>
+          <tr><td>"Manage [Label]" heading + 2 lines of body copy</td><td>No &mdash; always shows the system default. Changed this pass, see &sect;2.</td></tr>
           <tr><td>"Name:" sub-field label</td><td>No &mdash; deliberately static so it can never read wrong (&sect;2).</td></tr>
           <tr><td>User Profile Select field label</td><td>Yes.</td></tr>
           <tr><td>User Profile Select tooltip ("Original Label: &hellip;")</td><td>Shows the pre-rename default, not the current label.</td></tr>
@@ -341,20 +338,23 @@
           <li><b>Backward compatibility:</b> accounts that never customize the label should see "Department" everywhere exactly as they do today &mdash; this feature is additive, no migration needed for existing data.</li>
           <li><b>Concurrent edits:</b> not covered in current designs &mdash; if two admins have the settings page open and one saves a rename, does the other see a stale label until refresh? See Open Questions.</li>
           <li><b>Permissions:</b> assume Edit Label is gated behind the same admin permission that already governs department/job management; dev to confirm no new permission is needed.</li>
-          <li><b>Plural admin-entered labels:</b> accepted limitation, not a defect &mdash; see the callout in &sect;2.</li>
+          <li><b>Plural admin-entered labels:</b> no longer a risk on this panel &mdash; now that "Manage [Label]" body copy stays static (&sect;2), nothing here substitutes the label into a sentence anymore. Re-check this if any future screen goes back to templating the label into copy.</li>
         </ul>
       </section>
 
       <section id="copy"><h2><span class="num">7</span>Copy</h2>
         <div class="callout"><i class="fa-solid fa-pen-nib"></i>&nbsp; Finalized copy &mdash; every user-visible string is below, ready to build against. <b>No em-dashes in UI copy.</b></div>
 
-        <h3>Label field</h3>
+        <h3>Trigger &amp; modal</h3>
         <table>
           <tr><th style="width:34%">Element</th><th>Copy</th></tr>
-          <tr><td>Default value (read-only)</td><td>Department / Job (singular, per default)</td></tr>
+          <tr><td>Trigger button (default state, on the panel header)</td><td>Edit Label</td></tr>
+          <tr><td>Trigger strip (once customized)</td><td>Label: [Label] &nbsp;&middot;&nbsp; Edit Label (button)</td></tr>
+          <tr><td>Modal title</td><td>Edit Label</td></tr>
+          <tr><td>Field sub-label</td><td>Label</td></tr>
           <tr><td>Edit placeholder</td><td>Enter a custom label</td></tr>
           <tr><td>Live counter</td><td>X/20 characters</td></tr>
-          <tr><td>Buttons</td><td>Edit &middot; Cancel &middot; Save &middot; Revert</td></tr>
+          <tr><td>Modal buttons</td><td>Cancel &middot; Save &middot; Revert (Revert only shown when editing an existing custom label)</td></tr>
         </table>
 
         <h3>Validation errors</h3>
@@ -394,6 +394,8 @@
 
       <section id="open"><h2><span class="num">8</span>Open questions</h2>
         <ul>
+          <li><b>Highest priority:</b> the revert confirmation modal and revert-success toast screenshots on file still show the pre-modal UI (standalone Revert/Edit buttons next to the field, tab renamed to match the custom label, "Manage [Label]" body copy dynamically substituted). That layout has since been superseded by the Edit-Label-modal flow (&sect;2, &sect;4.4). Need fresh screenshots of these two states nested in/after the new modal to confirm B-8&ndash;B-10 are still accurate.</li>
+          <li>Confirm "Manage [Label]" heading/body copy staying static (no longer tracking the rename) is an intentional simplification and not an oversight in the newest mockup &mdash; it was consistent across both screenshots checked, but it's a real behavior change from the prior pass worth an explicit sign-off.</li>
           <li>The User Profile Select tooltip is hover-only (via the info icon). Does it also need to fire on keyboard focus, and does this page need a tap-to-reveal fallback for touch/tablet admins? Not yet resolved in design.</li>
           <li>Does the (i) icon/tooltip on User Profile Select appear only once a label has been customized, or always (with the tooltip just repeating the default when unchanged)? Current design only shows the customized case (B-13).</li>
           <li>Is "Department" the true universal default across every existing BIS account, or do some tenants already have a different stored default? This affects whether "revert to Department" is always the correct destination copy.</li>
