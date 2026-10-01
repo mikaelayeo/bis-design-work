@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<!--
+  FIELD MANAGEMENT — CLICKABLE PROTOTYPE (lo-fi, greyscale)
+  Built 2026-10-01 from the Field Management flows and Figma wireframes
+  (Field Management file: Overview, Sites list, Site A — Submissions / People / Rituals / Crews).
+  Web + mobile in one file. All state is in memory; Reset starts over. Sample data is invented.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Management Prototype</title>
+<style>
+  :root{--paper:#EDEDEB;--s:#fff;--sunk:#F5F5F3;--fill:#E4E4E1;--ink:#1C1C1C;--ink2:#4D4D4D;--ink3:#7B7B7B;--line:#BEBEB9;--rule:#DDDDD9;--sel:#D9D9D5}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font:14px/1.45 "Segoe UI",system-ui,-apple-system,Arial,sans-serif;color:var(--ink);background:var(--paper)}
+  button,input,select{font:inherit;color:inherit}
+  button{cursor:pointer}
+  button:disabled{opacity:.4;cursor:default}
+  .top{display:flex;align-items:center;gap:12px;padding:8px 16px;background:var(--s);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:5;flex-wrap:wrap}
+  .top b{font-size:15px}
+  .muted{color:var(--ink3);font-size:12px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--s)}
+  .seg button{border:none;background:none;padding:6px 14px;border-left:1px solid var(--line);font-size:13px}
+  .seg button:first-child{border-left:none}
+  .seg button.on{background:var(--ink);color:#fff;font-weight:600}
+  .btn{border:1px solid var(--line);background:var(--s);border-radius:6px;padding:7px 14px;font-size:13px}
+  .btn:hover:not(:disabled){background:var(--sunk)}
+  .btn.pri{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+  .btn.sm{padding:4px 10px;font-size:12px}
+  .btn.ghost{border-style:dashed}
+  .wrap{padding:18px;display:flex;justify-content:center}
+
+  /* web shell — mirrors the Figma frames */
+  .app{width:100%;max-width:1360px;background:var(--s);border:1px solid var(--line)}
+  .app__band{height:44px;background:var(--fill);border-bottom:1px solid var(--line)}
+  .app__title{padding:10px 14px;font-size:17px;color:var(--ink2);background:var(--fill);border-bottom:1px solid var(--line)}
+  .app__main{display:grid;grid-template-columns:200px minmax(0,1fr);min-height:640px}
+  .nav{background:var(--sunk);border-right:1px solid var(--line);padding:12px 10px}
+  .nav button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:var(--fill);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:9px;color:var(--ink2)}
+  .nav button.on{background:var(--s);color:var(--ink);font-weight:600}
+  .nav hr{border:none;border-top:1px solid var(--line);margin:4px 0 12px}
+  .nav .ic{width:16px;text-align:center;color:var(--ink3)}
+  .page{padding:16px 18px 30px;min-width:0}
+  .head{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .crumb{font-size:15px}
+  .crumb a{color:var(--ink2);text-decoration:none;cursor:pointer}
+  .crumb a:hover{text-decoration:underline}
+  .head .r{margin-left:auto;display:flex;gap:8px}
+  .card{border:1px solid var(--line);border-radius:8px;padding:14px 16px;margin-bottom:14px;background:var(--s)}
+  .card h3{font-size:15px;margin-bottom:8px}
+  .h1{font-size:19px;font-weight:600}
+  .chip{display:inline-block;background:var(--fill);border-radius:3px;padding:1px 7px;font-size:12px;color:var(--ink2);margin-right:4px;white-space:nowrap}
+  .chip.dark{background:var(--ink);color:#fff}
+  .chip.line{background:none;border:1px solid var(--line)}
+  .counts{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .counts div{padding:8px 12px;font-size:12.5px}
+  .counts div+div{border-left:1px solid var(--line)}
+  .counts b{font-size:17px;margin-right:4px}
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--rule);margin-bottom:14px}
+  .tabs button{background:none;border:none;border-bottom:3px solid transparent;padding:8px 14px;color:var(--ink2)}
+  .tabs button.on{border-bottom-color:var(--ink);color:var(--ink);font-weight:600}
+  .bar{height:8px;background:var(--fill);border-radius:4px;overflow:hidden;display:flex}
+  .bar i{display:block;background:var(--ink)}
+  .bar i.p{background:#9A9A95}
+  .bar.big{height:14px}
+  .tools{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .datec{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:6px;background:var(--s)}
+  .datec button{border:none;background:none;padding:6px 10px;font-size:15px}
+  .datec span{min-width:150px;text-align:center;font-size:13.5px}
+  table{width:100%;border-collapse:collapse;border:1px solid var(--line)}
+  th{font-weight:600;text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);font-size:13px;background:var(--sunk)}
+  td{padding:9px 12px;border-bottom:1px solid var(--rule);font-size:13.5px;vertical-align:middle}
+  tr.click{cursor:pointer}
+  tr.click:hover td{background:var(--sunk)}
+  tr.new td{background:#F0F0EC;font-weight:600}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:900px){.grid3,.grid2{grid-template-columns:1fr}.app__main{grid-template-columns:1fr}.nav{display:flex;flex-wrap:wrap;gap:6px}.nav button{width:auto;margin:0}}
+  .lbl{display:block;font-size:12px;color:var(--ink3);margin:10px 0 4px}
+  input[type=text],select{width:100%;border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--s)}
+  .checks{display:flex;flex-wrap:wrap;gap:6px}
+  .ck{border:1px solid var(--line);border-radius:6px;padding:6px 10px;background:var(--s);font-size:13px}
+  .ck.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .pick{border:1px solid var(--line);border-radius:8px;padding:16px;text-align:left;background:var(--s)}
+  .pick.on{border:2px solid var(--ink);padding:15px}
+  .pick h4{font-size:16px;margin-bottom:4px}
+  .pick p{font-size:13px;color:var(--ink2)}
+  .steps{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+  .steps span{font-size:12px;border:1px solid var(--line);border-radius:20px;padding:3px 10px;color:var(--ink3)}
+  .steps span.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .steps span.done{color:var(--ink);border-color:var(--ink2)}
+  .list .row{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:6px;padding:9px 12px;margin-bottom:7px}
+  .row .r{margin-left:auto;display:flex;gap:6px;align-items:center}
+  .note{border:1px dashed var(--line);border-radius:6px;padding:9px 12px;font-size:12.5px;color:var(--ink2);margin:10px 0}
+  .chart{display:flex;align-items:flex-end;gap:16px;height:150px;padding:10px 6px 0;border-bottom:1px solid var(--line)}
+  .chart div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--ink3)}
+  .chart i{display:block;width:70%;background:#C9C9C4;border-radius:3px 3px 0 0}
+  .chart div.today i{background:var(--ink)}
+  .live{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2)}
+  .live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink);animation:pulse 1.6s infinite}
+  @keyframes pulse{50%{opacity:.25}}
+
+  /* mobile */
+  .phone{width:370px;border:1px solid var(--line);border-radius:28px;background:var(--s);overflow:hidden;box-shadow:0 2px 0 rgba(0,0,0,.05)}
+  .ph__bar{background:var(--fill);padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);font-size:13px}
+  .ph__bar button{background:none;border:none;font-size:18px;padding:0 4px 0 0}
+  .ph__body{padding:14px;min-height:560px}
+  .ph__tabs{display:flex;border-top:1px solid var(--line);background:var(--fill)}
+  .ph__tabs span{flex:1;text-align:center;font-size:11px;padding:9px 2px 13px;color:var(--ink3)}
+  .ph__tabs span.on{color:var(--ink);font-weight:600;box-shadow:inset 0 2px 0 var(--ink)}
+  .task{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+  .task small{display:block;color:var(--ink3);font-size:11.5px}
+  .task .r{margin-left:auto}
+  .mobwrap{display:flex;gap:30px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+  .side{max-width:330px;font-size:13px;color:var(--ink2)}
+  .side h4{color:var(--ink);margin:12px 0 4px}
+</style>
+</head>
+<body>
+<div class="top">
+  <b>Field Management</b><span class="muted">clickable prototype · lo-fi</span>
+  <div class="seg" id="modeSeg"></div>
+  <span class="muted" id="topNote"></span>
+  <span style="margin-left:auto"></span>
+  <button class="btn sm" onclick="loadSample()">Skip setup — load sample</button>
+  <button class="btn sm" onclick="resetAll()">↺ Reset</button>
+</div>
+<div class="wrap" id="root"></div>
+
+<script>
+/* ===================== DATA ===================== */
+const PEOPLE=['J. Alvarez','K. Bennett','L. Cortez','P. Fontaine','R. Gill','S. Haddad','Mika Yeo','T. Nguyen','W. Park','Y. Santos'];
+const EXPIRED={'K. Bennett':'WHMIS expired 12 Aug'};
+const FORMS=['FLHA','Equipment Pre-Op','Yard walk','Vehicle inspection','Fire extinguisher check','Eyewash check'];
+const SCHEDULES={daily:'Daily · working days',weekly:'Weekly · Friday',visit:'Per visit',rotation:'Rotation · 4 on, 4 off'};
+const COUNTS={person:'Per person',crew:'Per crew',place:'Once for the place'};
+const TODAY=new Date(2026,9,1); // Thu 1 Oct 2026
+const DAYS=60;
+
+function fresh(){ return {
+  mode:'web', setupDone:false, step:0, kind:null,
+  places:[], crews:[], rituals:[],
+  draft:{place:{name:'Site A',addr:'',desc:'',days:[1,2,3,4,5,6]}, crew:{name:'Paving Crew 2',members:['J. Alvarez','K. Bennett','L. Cortez','P. Fontaine','R. Gill','S. Haddad','Mika Yeo'],sup:'J. Alvarez'}, ritual:{name:'Start of Day',forms:['FLHA','Equipment Pre-Op'],sched:'daily',per:'person'}},
+  view:'overview', placeId:null, tab:'subs', per:{unit:'day',off:0}, newIds:[],
+  subs:[], att:{}, addRitual:'', addCrew:'',
+  mRole:'worker', mPlace:null, mScreen:'home', mPer:'today', mSupPlace:null, progress:{}
+}; }
+let S=fresh();
+const L=()=>S.kind==='job'?{one:'Job',many:'Jobs',kindWord:'engagement'}:{one:'Site',many:'Sites',kindWord:'place'};
+const byId=(arr,id)=>arr.find(x=>x.id===id);
+let uid=1; const nid=p=>p+(uid++);
+
+/* ===================== DATES & PERIODS ===================== */
+const dateOf=d=>new Date(2026,9,1-d);
+const isWorking=(d,place)=>place.days.includes(dateOf(d).getDay());
+const fmt=d=>dateOf(d).toLocaleDateString('en-CA',{weekday:'short',day:'numeric',month:'short'});
+function range(p){
+  const dow=(TODAY.getDay()+6)%7; // days since Monday (Thu = 3)
+  if(p.unit==='day') return [p.off,p.off];
+  if(p.unit==='week') return p.off===0?[0,dow]:[dow+1+7*(p.off-1), dow+7*p.off];
+  if(p.unit==='month') return p.off===0?[0,TODAY.getDate()-1]:[TODAY.getDate()+30*(p.off-1), TODAY.getDate()-1+30*p.off];
+  return [0,DAYS-1];
+}
+function perLabel(p){
+  if(p.unit==='day') return p.off===0?'Today':p.off===1?'Yesterday':fmt(p.off);
+  if(p.unit==='week') return p.off===0?'This week':p.off===1?'Last week':p.off+' weeks ago';
+  if(p.unit==='month') return p.off===0?'This month':p.off===1?'Last month':p.off+' months ago';
+  return 'All time';
+}
+function dateControl(){
+  const p=S.per;
+  return `<div class="datec"><button onclick="shift(1)" ${p.unit==='all'?'disabled':''}>‹</button><span>📅 ${perLabel(p)}</span><button onclick="shift(-1)" ${p.off===0||p.unit==='all'?'disabled':''}>›</button></div>
+  <div class="seg">${[['day','Day'],['week','Week'],['month','Month'],['all','All']].map(([u,n])=>`<button class="${p.unit===u?'on':''}" onclick="setUnit('${u}')">${n}</button>`).join('')}</div>
+  <button class="btn sm" onclick="S.per={unit:'day',off:1};render()">Yesterday</button>`;
+}
+function shift(k){ S.per.off=Math.max(0,S.per.off+k); render(); }
+function setUnit(u){ S.per={unit:u,off:0}; render(); }
+
+/* ===================== OBLIGATIONS ===================== */
+function membersOf(place){ const s=new Set(); place.crews.forEach(cid=>{const c=byId(S.crews,cid); c&&c.members.forEach(m=>s.add(m));}); return [...s]; }
+function owedOnDay(place,d){ // list of {ritual,form,who}
+  if(!isWorking(d,place)) return [];
+  const out=[];
+  place.rituals.forEach(rid=>{ const r=byId(S.rituals,rid); if(!r) return;
+    if(r.sched==='weekly' && dateOf(d).getDay()!==5) return;
+    if(r.sched==='rotation' && Math.floor(d/4)%2===1) return;
+    let units = r.per==='person'?membersOf(place) : r.per==='crew'?place.crews.map(c=>byId(S.crews,c).name) : [place.name];
+    if(r.sched==='visit' && r.per==='person') units = units.filter(u=>presentOn(place,u,d));
+    units.forEach(u=>r.forms.forEach(f=>out.push({ritual:r.name,rid,form:f,who:u})));
+  });
+  return out;
+}
+function presentOn(place,u,d){ if(d>0) return hash(place.id+u+d)%10<8; const a=(S.att[place.id]||{})[u]; return a? a!=='absent' : hash(place.id+u)%10<7; }
+function subFor(place,o,d){ return S.subs.find(s=>s.place===place.id&&s.day===d&&s.form===o.form&&s.who===o.who&&s.rid===o.rid); }
+function stats(place,p){
+  const [a,b]=range(p); let owed=0,done=0,prog=0;
+  for(let d=a;d<=b;d++) owedOnDay(place,d).forEach(o=>{ owed++; const s=subFor(place,o,d); if(s){ if(s.status==='In progress') prog++; else done++; } });
+  return {owed,done,prog,miss:owed-done-prog,pct:owed?Math.round(done/owed*100):100};
+}
+function peopleLeftToday(place){ const left={}; owedOnDay(place,0).forEach(o=>{ const s=subFor(place,o,0); if(!s||s.status==='In progress') left[o.who]=(left[o.who]||0)+1; }); return left; }
+function expiredOn(place){ return membersOf(place).filter(m=>EXPIRED[m]); }
+
+/* ===================== SAMPLE HISTORY ===================== */
+function hash(str){ let h=0; for(const c of String(str)) h=(h*31+c.charCodeAt(0))>>>0; return h; }
+function genHistory(){
+  S.subs=[];
+  S.places.forEach(pl=>{ for(let d=0; d<DAYS; d++) owedOnDay(pl,d).forEach(o=>{
+    const h=hash(pl.id+o.form+o.who+d), roll=h%100;
+    const rate = d===0 ? 55 : 86;
+    if(roll<rate){
+      const hr=6+(h%4), mn=(h>>3)%60;
+      S.subs.push({id:nid('s'),place:pl.id,rid:o.rid,ritual:o.ritual,form:o.form,who:o.who,by:PEOPLE.includes(o.who)?o.who:(byId(S.crews,pl.crews[0])||{}).sup,day:d,time:`${hr}:${String(mn).padStart(2,'0')}`,status: d===0&&roll<8?'In progress': h%9===0?'Late':'On time'});
+    }
+  }); });
+}
+
+/* ===================== SETUP ===================== */
+const STEPS=['Place or engagement','Create '+'site','Create crew','Create ritual','Assign'];
+function stepNames(){ return ['Place or engagement','Create '+L().one.toLowerCase(),'Create crew','Create ritual','Assign']; }
+function setup(){
+  const st=S.step, names=stepNames();
+  let body='';
+  if(st===0) body=`
+    <div class="h1" style="margin-bottom:4px">What does your compliance hang off?</div>
+    <p class="muted" style="margin-bottom:14px">Pick one to start. You can’t pick both here — the other kind can be added later.</p>
+    <div class="grid2">
+      <button class="pick ${S.kind==='site'?'on':''}" onclick="S.kind='site';render()"><h4>${S.kind==='site'?'◉':'○'} A place</h4><p>Somewhere people are present, that keeps going. Working days, people on it today. It never finishes — it archives.</p><p class="muted" style="margin-top:8px">e.g. a branch, a yard, a plant · shows up as <b>Sites</b></p></button>
+      <button class="pick ${S.kind==='job'?'on':''}" onclick="S.kind='job';render()"><h4>${S.kind==='job'?'◉':'○'} An engagement</h4><p>A piece of work that finishes. A start, an expected end and a close-out. People pick the one they’re on each day.</p><p class="muted" style="margin-top:8px">e.g. a restoration job, a work order · shows up as <b>Jobs</b></p></button>
+    </div>
+    <div class="note">Not your org chart (Locations), your equipment (Assets) or who does the work (Crews) — those keep their own jobs.</div>
+    <button class="btn pri" ${S.kind?'':'disabled'} onclick="S.step=1;if(S.kind==='job')S.draft.place.name='Job 4471 — Riverbend';render()">Continue</button>`;
+  if(st===1){ const d=S.draft.place;
+    body=`<div class="h1">Create a ${L().one.toLowerCase()}</div>
+    <div class="grid2"><div>
+      <span class="lbl">Name</span><input type="text" value="${d.name}" oninput="S.draft.place.name=this.value">
+      <span class="lbl">Description</span><input type="text" value="${d.desc}" placeholder="optional" oninput="S.draft.place.desc=this.value">
+      <span class="lbl">Address</span><input type="text" value="${d.addr}" placeholder="${S.kind==='job'?'optional — a point, an area, or none':'Street, city'}" oninput="S.draft.place.addr=this.value">
+      <span class="lbl">Working days</span><div class="checks">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((n,i)=>`<button class="ck ${d.days.includes(i)?'on':''}" onclick="togDay(${i})">${n}</button>`).join('')}</div>
+      <div style="margin-top:12px;display:flex;gap:8px"><button class="btn" onclick="addPlace()">+ Add ${L().one.toLowerCase()}</button><button class="btn ghost" onclick="importNote()">Bring in from Locations / Assets…</button></div>
+    </div><div>
+      <span class="lbl">${L().many} created (${S.places.length})</span>
+      <div class="list">${S.places.map(p=>`<div class="row"><b>${p.name}</b><span class="muted">${p.days.length}-day week</span><span class="r"><button class="btn sm" onclick="S.places=S.places.filter(x=>x.id!=='${p.id}');render()">Remove</button></span></div>`).join('')||'<div class="note">None yet — add at least one.</div>'}</div>
+    </div></div>
+    <div style="margin-top:16px;display:flex;gap:8px"><button class="btn" onclick="S.step=0;render()">Back</button><button class="btn pri" ${S.places.length?'':'disabled'} onclick="S.step=2;render()">Next — crews</button></div>`; }
+  if(st===2){ const d=S.draft.crew;
+    body=`<div class="h1">Create a crew</div><p class="muted">Who’s answerable. A crew moves between ${L().many.toLowerCase()} and keeps dated membership.</p>
+    <div class="grid2"><div>
+      <span class="lbl">Name</span><input type="text" value="${d.name}" oninput="S.draft.crew.name=this.value">
+      <span class="lbl">Members</span><div class="checks">${PEOPLE.map(p=>`<button class="ck ${d.members.includes(p)?'on':''}" onclick="togMember('${p}')">${p}</button>`).join('')}</div>
+      <span class="lbl">Supervisor (optional)</span><select onchange="S.draft.crew.sup=this.value"><option value="">No supervisor</option>${d.members.map(m=>`<option ${m===d.sup?'selected':''}>${m}</option>`).join('')}</select>
+      <div style="margin-top:12px"><button class="btn" onclick="addCrew()">+ Add crew</button></div>
+    </div><div>
+      <span class="lbl">Crews created (${S.crews.length})</span>
+      <div class="list">${S.crews.map(c=>`<div class="row"><b>${c.name}</b><span class="muted">${c.members.length} people${c.sup?' · sup. '+c.sup:''}</span></div>`).join('')||'<div class="note">None yet.</div>'}</div>
+    </div></div>
+    <div style="margin-top:16px;display:flex;gap:8px"><button class="btn" onclick="S.step=1;render()">Back</button><button class="btn pri" ${S.crews.length?'':'disabled'} onclick="S.step=3;render()">Next — rituals</button></div>`; }
+  if(st===3){ const d=S.draft.ritual;
+    body=`<div class="h1">Create a ritual</div><p class="muted">What’s owed. Defined once, attached to many ${L().many.toLowerCase()}.</p>
+    <div class="grid2"><div>
+      <span class="lbl">Name</span><input type="text" value="${d.name}" oninput="S.draft.ritual.name=this.value">
+      <span class="lbl">Forms in it</span><div class="checks">${FORMS.map(f=>`<button class="ck ${d.forms.includes(f)?'on':''}" onclick="togForm('${f}')">${f}</button>`).join('')}</div>
+      <span class="lbl">Schedule (suggested — each ${L().one.toLowerCase()} can change it)</span><select onchange="S.draft.ritual.sched=this.value">${Object.entries(SCHEDULES).map(([k,v])=>`<option value="${k}" ${k===d.sched?'selected':''}>${v}</option>`).join('')}</select>
+      <span class="lbl">Counts per</span><select onchange="S.draft.ritual.per=this.value">${Object.entries(COUNTS).map(([k,v])=>`<option value="${k}" ${k===d.per?'selected':''}>${v==='Once for the place'?'Once for the '+L().one.toLowerCase():v}</option>`).join('')}</select>
+      <div style="margin-top:12px"><button class="btn" onclick="addRitual()">+ Add ritual</button></div>
+    </div><div>
+      <span class="lbl">Rituals created (${S.rituals.length})</span>
+      <div class="list">${S.rituals.map(r=>`<div class="row"><b>${r.name}</b><span class="muted">${r.forms.join(', ')} · ${SCHEDULES[r.sched]} · ${COUNTS[r.per]}</span></div>`).join('')||'<div class="note">None yet.</div>'}</div>
+    </div></div>
+    <div style="margin-top:16px;display:flex;gap:8px"><button class="btn" onclick="S.step=2;render()">Back</button><button class="btn pri" ${S.rituals.length?'':'disabled'} onclick="S.step=4;render()">Next — assign</button></div>`; }
+  if(st===4){
+    body=`<div class="h1">Assign crews and rituals</div><p class="muted">Tick what each ${L().one.toLowerCase()} gets. You can change it later from the ${L().one.toLowerCase()} page.</p>
+    <table><tr><th>${L().one}</th><th>Crews</th><th>Rituals</th></tr>
+    ${S.places.map(p=>`<tr><td><b>${p.name}</b></td><td><div class="checks">${S.crews.map(c=>`<button class="ck ${p.crews.includes(c.id)?'on':''}" onclick="togAssign('${p.id}','crews','${c.id}')">${c.name}</button>`).join('')}</div></td><td><div class="checks">${S.rituals.map(r=>`<button class="ck ${p.rituals.includes(r.id)?'on':''}" onclick="togAssign('${p.id}','rituals','${r.id}')">${r.name}</button>`).join('')}</div></td></tr>`).join('')}
+    </table>
+    <div style="margin-top:16px;display:flex;gap:8px"><button class="btn" onclick="S.step=3;render()">Back</button><button class="btn pri" ${S.places.every(p=>p.crews.length&&p.rituals.length)?'':'disabled'} onclick="finishSetup()">Finish setup</button><span class="muted" style="align-self:center">Every ${L().one.toLowerCase()} needs at least one crew and one ritual.</span></div>`;
+  }
+  return shell('setup',`<div class="steps">${names.map((n,i)=>`<span class="${i===st?'on':i<st?'done':''}">${i+1}. ${n}</span>`).join('')}</div><div class="card">${body}</div>`);
+}
+function togDay(i){ const a=S.draft.place.days,k=a.indexOf(i); k<0?a.push(i):a.splice(k,1); render(); }
+function togMember(p){ const d=S.draft.crew,k=d.members.indexOf(p); k<0?d.members.push(p):d.members.splice(k,1); if(!d.members.includes(d.sup)) d.sup=d.members[0]||''; render(); }
+function togForm(f){ const a=S.draft.ritual.forms,k=a.indexOf(f); k<0?a.push(f):a.splice(k,1); render(); }
+function addPlace(){ const d=S.draft.place; if(!d.name.trim()) return; S.places.push({id:nid('p'),name:d.name.trim(),desc:d.desc||'Description',addr:d.addr,days:[...d.days],crews:[],rituals:[]}); const n=S.places.length; S.draft.place={...d,name:(S.kind==='job'?'Job 44'+(71+n)+' — ':'Site ')+(S.kind==='job'?['Oakridge','Sherwood','Elm St'][n-1]||'New':String.fromCharCode(65+n)),desc:'',addr:''}; render(); }
+function addCrew(){ const d=S.draft.crew; if(!d.name.trim()||!d.members.length) return; S.crews.push({id:nid('c'),name:d.name.trim(),members:[...d.members],sup:d.sup}); S.draft.crew={name:'Underground Crew',members:['T. Nguyen','W. Park','Y. Santos'],sup:'T. Nguyen'}; render(); }
+function addRitual(){ const d=S.draft.ritual; if(!d.name.trim()||!d.forms.length) return; S.rituals.push({id:nid('r'),name:d.name.trim(),forms:[...d.forms],sched:d.sched,per:d.per}); S.draft.ritual={name:'Equipment Check',forms:['Fire extinguisher check','Eyewash check'],sched:'weekly',per:'place'}; render(); }
+function togAssign(pid,key,id){ const p=byId(S.places,pid),a=p[key],k=a.indexOf(id); k<0?a.push(id):a.splice(k,1); if(!S.setupDone){render();return;} render(); }
+function importNote(){ alert('Bringing in from Locations or Assets copies the name only — the original is left untouched.'); }
+function finishSetup(){ S.setupDone=true; genHistory(); S.view='overview'; render(); }
+function loadSample(){
+  const keep=S.mode; S=fresh(); S.mode=keep; S.kind='site';
+  S.places=[{id:'pA',name:'Site A',desc:'North Yard — main depot',addr:'1200 Yard Rd',days:[1,2,3,4,5,6],crews:[],rituals:[]},{id:'pB',name:'Site B',desc:'West Depot',addr:'',days:[1,2,3,4,5],crews:[],rituals:[]},{id:'pC',name:'Site C',desc:'Lakeside Branch',addr:'',days:[1,2,3,4,5],crews:[],rituals:[]}];
+  S.crews=[{id:'c1',name:'Paving Crew 2',members:['J. Alvarez','K. Bennett','L. Cortez','P. Fontaine','R. Gill','S. Haddad','Mika Yeo'],sup:'J. Alvarez'},{id:'c2',name:'Underground Crew',members:['T. Nguyen','W. Park','Y. Santos'],sup:'T. Nguyen'}];
+  S.rituals=[{id:'r1',name:'Start of Day',forms:['FLHA','Equipment Pre-Op'],sched:'daily',per:'person'},{id:'r2',name:'Equipment Check',forms:['Fire extinguisher check','Eyewash check'],sched:'weekly',per:'place'},{id:'r3',name:'Safety Walkaround',forms:['Yard walk'],sched:'daily',per:'crew'}];
+  S.places[0].crews=['c1'];S.places[0].rituals=['r1','r2','r3'];
+  S.places[1].crews=['c2'];S.places[1].rituals=['r1','r3'];
+  S.places[2].crews=['c2'];S.places[2].rituals=['r2'];
+  finishSetup();
+}
+
+/* ===================== WEB SHELL ===================== */
+function shell(active,content){
+  const ready=S.setupDone;
+  const items=[['overview','⌂','Overview'],['places','⌖',S.kind?L().many:'Sites'],['crews','☺','Crews'],['rituals','✎','Rituals']];
+  return `<div class="app"><div class="app__band"></div><div class="app__title">Field Management</div><div class="app__main">
+    <nav class="nav">${items.map(([id,ic,n])=>`<button class="${active===id?'on':''}" ${ready?`onclick="go('${id}')"`:'disabled'}><span class="ic">${ic}</span>${n}</button>`).join('')}
+      <hr><button disabled><span class="ic">⚿</span>Access</button>
+      <button class="${active==='setup'?'on':''}" onclick="S.setupDone?go('setup'):0"><span class="ic">⚙</span>Set up</button></nav>
+    <section class="page">${content}</section></div></div>`;
+}
+function go(v,pid){ S.view=v; if(pid) {S.placeId=pid; S.tab='subs';} render(); }
+
+/* ===================== WEB — OVERVIEW ===================== */
+function overview(){
+  const week=[0,1,2,3].map(off=>({d:3-off,lab:fmt(3-off).split(',')[0]})).reverse();
+  const dow=(TODAY.getDay()+6)%7, days=[]; for(let d=dow; d>=0; d--) days.push(d);
+  const bars=days.map(d=>{ let o=0,dn=0; S.places.forEach(p=>{const s=stats(p,{unit:'day',off:d}); o+=s.owed; dn+=s.done;}); return {d,pct:o?Math.round(dn/o*100):0,lab:fmt(d).split(',')[0]}; });
+  const all=S.places.map(p=>({p,s:stats(p,S.per)}));
+  const tot=all.reduce((t,x)=>({owed:t.owed+x.s.owed,done:t.done+x.s.done}),{owed:0,done:0});
+  return shell('overview',`<div class="head"><span class="crumb"><b>Overview</b></span><div class="r">${dateControl()}</div></div>
+    <div class="grid2" style="grid-template-columns:2fr 1fr">
+      <div class="card"><h3>${L().one} completion · this week</h3><div class="chart">${bars.map(b=>`<div class="${b.d===0?'today':''}"><span>${b.pct}%</span><i style="height:${Math.max(4,b.pct)}%"></i>${b.lab}</div>`).join('')}</div></div>
+      <div class="card"><h3>${perLabel(S.per)}</h3><div class="h1">${tot.owed?Math.round(tot.done/tot.owed*100):100}% <span class="muted">completed</span></div><p class="muted">${tot.done} of ${tot.owed} owed across ${S.places.length} ${L().many.toLowerCase()}</p>
+        <div class="note">${S.places.reduce((t,p)=>t+expiredOn(p).length,0)} people with expired training — a separate count, never merged.</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><h3>${L().many}</h3>${all.sort((a,b)=>a.s.pct-b.s.pct).map(x=>`<div style="margin-bottom:10px;cursor:pointer" onclick="go('place','${x.p.id}')"><div style="display:flex;font-size:13px"><b>${x.p.name}</b><span style="margin-left:auto">${x.s.pct}% · ${x.s.miss} missing</span></div><div class="bar"><i style="width:${x.s.pct}%"></i><i class="p" style="width:${x.s.owed?x.s.prog/x.s.owed*100:0}%"></i></div></div>`).join('')}</div>
+      <div class="card"><h3>Crews</h3>${S.crews.map(c=>{ const pls=S.places.filter(p=>p.crews.includes(c.id)); let o=0,d=0; pls.forEach(p=>{const s=stats(p,S.per);o+=s.owed;d+=s.done;}); const pct=o?Math.round(d/o*100):100; return `<div style="margin-bottom:10px"><div style="display:flex;font-size:13px"><b>${c.name}</b><span style="margin-left:auto">${pct}% · ${pls.map(p=>p.name).join(', ')||'unassigned'}</span></div><div class="bar"><i style="width:${pct}%"></i></div></div>`; }).join('')}</div>
+    </div>`);
+}
+
+/* ===================== WEB — PLACES LIST ===================== */
+function placesList(){
+  const rows=S.places.map(p=>({p,s:stats(p,S.per)}));
+  const tot=rows.reduce((t,x)=>({o:t.o+x.s.owed,d:t.d+x.s.done}),{o:0,d:0});
+  return shell('places',`<div class="head"><span class="crumb"><b>${L().many}</b></span><div class="r"><button class="btn sm" onclick="S.setupDone=false;S.step=1;render()">+ New ${L().one.toLowerCase()}</button></div></div>
+    <div class="card" style="display:flex;gap:24px;align-items:center"><div><b style="font-size:20px">${tot.o?Math.round(tot.d/tot.o*100):100}%</b> completed</div><div><b style="font-size:20px">${rows.filter(x=>x.s.miss).length}</b> ${L().many.toLowerCase()} with missing items</div><div><b style="font-size:20px">${S.places.reduce((t,p)=>t+expiredOn(p).length,0)}</b> people with expired training</div></div>
+    <div class="tools">${dateControl()}<button class="btn sm">⛉ Filters</button></div>
+    <table><tr><th>${L().one}</th><th>Completed</th><th>Missing</th><th>Training</th><th>Supervisor</th><th>Attendance today</th></tr>
+    ${rows.sort((a,b)=>b.s.miss-a.s.miss).map(({p,s})=>{ const m=membersOf(p), pres=m.filter(u=>presentOn(p,u,0)).length;
+      return `<tr class="click" onclick="go('place','${p.id}')"><td><b>${p.name}</b><br><span class="muted">${p.desc}</span></td><td style="width:180px">${s.done} of ${s.owed} · ${s.pct}%<div class="bar"><i style="width:${s.pct}%"></i></div></td><td>${s.miss?`<b>${s.miss}</b>${s.prog?` <span class="chip">${s.prog} in progress</span>`:''}`:'<span class="chip">current</span>'}</td><td>${expiredOn(p).length?`<span class="chip dark">${expiredOn(p).length} expired</span>`:'—'}</td><td>${p.crews.map(c=>byId(S.crews,c).sup).filter(Boolean).join(', ')||'—'}</td><td>${pres} / ${m.length}</td></tr>`; }).join('')}</table>`);
+}
+
+/* ===================== WEB — INSIDE A PLACE ===================== */
+function placePage(){
+  const p=byId(S.places,S.placeId); if(!p){ S.view='places'; return placesList(); }
+  const s=stats(p,S.per), left=peopleLeftToday(p), exp=expiredOn(p);
+  const nLeft=Object.keys(left).length;
+  const tabs=[['subs','Submissions'],['people','People'],['rituals','Rituals'],['crews','Crews']];
+  let body='';
+  if(S.tab==='subs'){
+    const [a,b]=range(S.per);
+    const list=S.subs.filter(x=>x.place===p.id&&x.day>=a&&x.day<=b).sort((x,y)=>x.day-y.day||y.time.localeCompare(x.time));
+    body=`<div class="tools">${dateControl()}<button class="btn sm">⛉ Filters</button><span class="live">Live — newest first</span><span style="margin-left:auto"></span><button class="btn sm" onclick="simulate('${p.id}')">⚡ Simulate a new submission</button></div>
+    <table><tr><th>Submission</th><th>Ritual</th><th>Submitted by</th><th>Submitted date/time</th><th>Type</th><th>Status</th></tr>
+    ${list.slice(0,40).map(x=>`<tr class="${S.newIds.includes(x.id)?'new':''}"><td>${x.form}</td><td>${x.ritual}</td><td>${x.by}</td><td>${x.day===0?'Today':x.day===1?'Yesterday':fmt(x.day)} ${x.time}</td><td>Form</td><td><span class="chip${x.status==='Late'?' line':''}">${x.status}</span></td></tr>`).join('')||`<tr><td colspan="6" class="muted">No submissions in this period.</td></tr>`}</table>
+    ${list.length>40?`<p class="muted" style="margin-top:6px">Showing 40 of ${list.length}.</p>`:''}`;
+  }
+  if(S.tab==='people'){
+    const m=membersOf(p), [a,b]=range(S.per);
+    body=`<div class="tools">${dateControl()}<button class="btn sm">⛉ Filters</button></div>
+    <table><tr><th>Member</th><th>Status today</th><th>Training</th><th>Presence today</th><th>Last active</th></tr>
+    ${m.map(u=>{ const last=S.subs.filter(x=>x.place===p.id&&x.who===u).sort((x,y)=>x.day-y.day||y.time.localeCompare(x.time))[0];
+      const att=(S.att[p.id]||{})[u];
+      return `<tr><td><b>${u}</b></td><td>${left[u]?`<span class="chip dark">${left[u]} left</span>`:'<span class="chip">All done</span>'}</td><td>${EXPIRED[u]?`<span class="chip dark">${EXPIRED[u]}</span>`:'<span class="chip">Current</span>'}</td><td>${att==='present'?'Marked present by supervisor':att==='absent'?'Absent':att==='signed'?'Signed in on the app':presentOn(p,u,0)?'Signed in':'<span class="muted">Not yet recorded</span>'}</td><td>${last?(last.day===0?'Today ':last.day===1?'Yesterday ':fmt(last.day)+' ')+last.time:'—'}</td></tr>`; }).join('')}</table>`;
+  }
+  if(S.tab==='rituals'){
+    const avail=S.rituals.filter(r=>!p.rituals.includes(r.id));
+    body=`<div class="tools">${dateControl()}<span style="margin-left:auto"></span>${avail.length?`<select style="width:auto" onchange="S.addRitual=this.value"><option value="">Choose a ritual…</option>${avail.map(r=>`<option value="${r.id}">${r.name}</option>`).join('')}</select><button class="btn sm pri" onclick="assignFrom('${p.id}','rituals','addRitual')">+ Add ritual</button>`:'<span class="muted">All rituals attached</span>'}</div>
+    <table><tr><th>Ritual</th><th>Forms</th><th>Schedule</th><th>Counts per</th><th>${perLabel(S.per)}</th><th></th></tr>
+    ${p.rituals.map(rid=>{ const r=byId(S.rituals,rid); const [a,b]=range(S.per); let o=0,d=0; for(let k=a;k<=b;k++) owedOnDay(p,k).filter(x=>x.rid===rid).forEach(x=>{o++; const sb=subFor(p,x,k); if(sb&&sb.status!=='In progress') d++;});
+      return `<tr><td><b>${r.name}</b></td><td>${r.forms.join(', ')}</td><td>${SCHEDULES[r.sched]}</td><td>${COUNTS[r.per]}</td><td>${o?`${d} of ${o}${o-d?` · <b>${o-d} missing</b>`:''}`:'<span class="muted">not owed</span>'}</td><td><button class="btn sm" onclick="unassign('${p.id}','rituals','${rid}')">Remove</button></td></tr>`; }).join('')}</table>`;
+  }
+  if(S.tab==='crews'){
+    const avail=S.crews.filter(c=>!p.crews.includes(c.id));
+    body=`<div class="tools"><span class="muted">Crews say who’s answerable. They can be on several ${L().many.toLowerCase()} at once.</span><span style="margin-left:auto"></span>${avail.length?`<select style="width:auto" onchange="S.addCrew=this.value"><option value="">Choose a crew…</option>${avail.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select><button class="btn sm pri" onclick="assignFrom('${p.id}','crews','addCrew')">+ Assign crew</button>`:'<span class="muted">All crews assigned</span>'}</div>
+    <table><tr><th>Crew</th><th>Supervisor</th><th>Members</th><th>Also on</th><th></th></tr>
+    ${p.crews.map(cid=>{ const c=byId(S.crews,cid); return `<tr><td><b>${c.name}</b></td><td>${c.sup||'—'}</td><td>${c.members.join(', ')}</td><td>${S.places.filter(x=>x.id!==p.id&&x.crews.includes(cid)).map(x=>x.name).join(', ')||'—'}</td><td><button class="btn sm" onclick="unassign('${p.id}','crews','${cid}')">Remove</button></td></tr>`; }).join('')}</table>`;
+  }
+  return shell('places',`<div class="head"><span class="crumb"><a onclick="go('places')">${L().many}</a> › <b>${p.name}</b></span><div class="r"><button class="btn sm">Settings</button><button class="btn sm">Export</button></div></div>
+    <div class="card" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div><span class="h1">${p.name}</span> <span class="chip">Active</span><div class="muted">${p.desc}</div></div>
+      <div class="counts" style="margin-left:auto"><div><b>${nLeft}</b>${nLeft===1?'member has':'members have'} incomplete rituals today</div><div><b>${exp.length}</b>${exp.length===1?'member has':'members have'} expired training</div></div></div>
+    <div class="card"><div style="display:flex;align-items:baseline;gap:10px;margin-bottom:8px"><b>Progress · ${perLabel(S.per)}</b><span class="h1">${s.pct}%</span><span class="muted">${s.done} done · ${s.prog} in progress · ${s.miss} missing · of ${s.owed} owed</span></div>
+      <div class="bar big"><i style="width:${s.owed?s.done/s.owed*100:100}%"></i><i class="p" style="width:${s.owed?s.prog/s.owed*100:0}%"></i></div>
+      <p class="muted" style="margin-top:6px">A draft counts as outstanding, labelled “in progress”. Non-working days aren’t owed.</p></div>
+    <div class="tabs">${tabs.map(([id,n])=>`<button class="${S.tab===id?'on':''}" onclick="S.tab='${id}';render()">${n}</button>`).join('')}</div>
+    ${body}`);
+}
+function assignFrom(pid,key,field){ const id=S[field]; if(!id) return; byId(S.places,pid)[key].push(id); S[field]=''; render(); }
+function unassign(pid,key,id){ const p=byId(S.places,pid); p[key]=p[key].filter(x=>x!==id); render(); }
+function simulate(pid){
+  const p=byId(S.places,pid), open=owedOnDay(p,0).filter(o=>{const s=subFor(p,o,0); return !s||s.status==='In progress';});
+  if(!open.length){ alert('Everything owed today is already in.'); return; }
+  const o=open[0], now=new Date(); const ex=subFor(p,o,0); if(ex) S.subs=S.subs.filter(x=>x!==ex);
+  const id=nid('s'); S.subs.push({id,place:pid,rid:o.rid,ritual:o.ritual,form:o.form,who:o.who,by:PEOPLE.includes(o.who)?o.who:(byId(S.crews,p.crews[0])||{}).sup,day:0,time:`${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`,status:'On time'});
+  S.newIds=[id]; S.per={unit:'day',off:0}; render();
+}
+
+/* ===================== WEB — CREWS / RITUALS PAGES ===================== */
+function crewsPage(){
+  return shell('crews',`<div class="head"><span class="crumb"><b>Crews</b></span><div class="r"><button class="btn sm" onclick="S.setupDone=false;S.step=2;render()">+ New crew</button></div></div>
+  <table><tr><th>Crew</th><th>Supervisor</th><th>Members</th><th>Assigned to</th></tr>${S.crews.map(c=>`<tr><td><b>${c.name}</b></td><td>${c.sup||'—'}</td><td>${c.members.length}</td><td>${S.places.filter(p=>p.crews.includes(c.id)).map(p=>`<a style="cursor:pointer;text-decoration:underline" onclick="go('place','${p.id}')">${p.name}</a>`).join(', ')||'—'}</td></tr>`).join('')}</table>`);
+}
+function ritualsPage(){
+  return shell('rituals',`<div class="head"><span class="crumb"><b>Rituals</b></span><div class="r"><button class="btn sm" onclick="S.setupDone=false;S.step=3;render()">+ New ritual</button></div></div>
+  <table><tr><th>Ritual</th><th>Forms</th><th>Suggested schedule</th><th>Counts per</th><th>Attached to</th></tr>${S.rituals.map(r=>`<tr><td><b>${r.name}</b></td><td>${r.forms.join(', ')}</td><td>${SCHEDULES[r.sched]}</td><td>${COUNTS[r.per]}</td><td>${S.places.filter(p=>p.rituals.includes(r.id)).map(p=>p.name).join(', ')||'—'}</td></tr>`).join('')}</table>
+  <div class="note">Defined once, attached many times. Changing one ${L().one.toLowerCase()}’s schedule never changes another’s.</div>`);
+}
+function setupDonePage(){
+  return shell('setup',`<div class="head"><span class="crumb"><b>Set up</b></span></div><div class="card"><p>You’re tracking <b>${L().many}</b> (${L().kindWord}s). Add more from here.</p><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" onclick="S.setupDone=false;S.step=1;render()">+ ${L().one}</button><button class="btn" onclick="S.setupDone=false;S.step=2;render()">+ Crew</button><button class="btn" onclick="S.setupDone=false;S.step=3;render()">+ Ritual</button><button class="btn" onclick="S.setupDone=false;S.step=4;render()">Assign</button></div></div>`);
+}
+
+/* ===================== MOBILE ===================== */
+const WORKER='L. Cortez';
+function phone(title,body,back,tab){
+  return `<div class="phone"><div class="ph__bar">${back?`<button onclick="${back}">‹</button>`:''}<b>${title}</b></div><div class="ph__body">${body}</div>
+  <div class="ph__tabs">${['Today',L().many,'My forms','More'].map(n=>`<span class="${n===tab?'on':''}">${n}</span>`).join('')}</div></div>`;
+}
+function mobile(){
+  if(!S.setupDone) return `<div class="card" style="max-width:520px"><b>Finish setup on the web first</b><p class="muted" style="margin:6px 0 10px">Mobile shows what the web set up. Or load the sample.</p><button class="btn pri" onclick="loadSample()">Load sample setup</button> <button class="btn" onclick="S.mode='web';render()">Go to web</button></div>`;
+  const role=`<div class="seg" style="margin-bottom:14px">${[['worker','Worker · '+WORKER],['sup','Supervisor']].map(([r,n])=>`<button class="${S.mRole===r?'on':''}" onclick="S.mRole='${r}';S.mScreen='home';render()">${n}</button>`).join('')}</div>`;
+  const screen = S.mRole==='worker' ? workerScreen() : supScreen();
+  const side = S.mRole==='worker'
+    ? `<div class="side"><h4>Worker — today's tasks</h4><p>Pick the ${L().one.toLowerCase()} you’re on. That pick is your visit: it signs you in, and makes that ${L().one.toLowerCase()}’s rituals owed by you today.</p><h4>Try it</h4><p>Start, then submit a form. Switch to <b>Web</b> → ${L().many} → the same ${L().one.toLowerCase()} → Submissions: it’s at the top.</p><p>No push notifications, no dispatch. Training gaps warn, never block.</p></div>`
+    : `<div class="side"><h4>Supervisor</h4><p>Sees the ${L().many.toLowerCase()} their crew is assigned to. State first, names second, grouped by ritual like the web.</p><h4>Try it</h4><p>Mark someone present — “he’s driving”. That’s recorded as <i>marked by supervisor</i>, and the web’s People tab shows it.</p><p>Edit, don’t create: new ${L().many.toLowerCase()}, crews and rituals stay on the web.</p></div>`;
+  return `<div><div style="text-align:center">${role}</div><div class="mobwrap">${screen}${side}</div></div>`;
+}
+function myPlaces(person){ return S.places.filter(p=>membersOf(p).includes(person)); }
+function workerScreen(){
+  if(S.mScreen==='home' || !S.mPlace){
+    const list=myPlaces(WORKER);
+    return phone('Where are you today?',`<p class="muted" style="margin-bottom:10px">Pick the ${L().one.toLowerCase()} you’re on. Nobody dispatches you.</p>
+      ${list.map(p=>{ const sw=EXPIRED[WORKER]; return `<button class="task" style="width:100%;text-align:left;background:${S.mPlace===p.id?'var(--sel)':'var(--s)'}" onclick="pickPlace('${p.id}')"><span><b>${p.name}</b><small>${p.desc}</small></span><span class="r">›</span></button>`; }).join('')||'<div class="note">Your crew isn’t assigned anywhere yet.</div>'}`,'', L().many);
+  }
+  const p=byId(S.places,S.mPlace);
+  const per=S.mPer, days=per==='today'?[0]:per==='yday'?[1]:[0,1,2,3];
+  let tasks=[]; days.forEach(d=>owedOnDay(p,d).filter(o=>o.who===WORKER||o.who===p.name||(byId(S.crews,p.crews[0])||{}).name===o.who).forEach(o=>tasks.push({o,d,s:subFor(p,o,d)})));
+  const left=tasks.filter(t=>!t.s||t.s.status==='In progress').length;
+  return phone(p.name,`<div class="note" style="margin-top:0">✓ Signed in on ${p.name} · ${new Date().getHours()}:${String(new Date().getMinutes()).padStart(2,'0')}</div>
+    <div class="seg" style="display:flex;margin-bottom:12px">${[['today','Today'],['yday','Yesterday'],['week','This week']].map(([k,n])=>`<button style="flex:1" class="${per===k?'on':''}" onclick="S.mPer='${k}';render()">${n}</button>`).join('')}</div>
+    <b>${left} to do</b> <span class="muted">· ${tasks.length-left} done</span>
+    <div style="margin-top:10px">${tasks.map(t=>{ const st=!t.s?'todo':t.s.status==='In progress'?'prog':'done';
+      return `<div class="task"><span><b>${t.o.form}</b><small>${t.o.ritual}${t.d?' · '+(t.d===1?'yesterday':fmt(t.d)):''}${t.o.who!==WORKER?' · anyone on the '+L().one.toLowerCase():''}</small></span><span class="r">${st==='done'?`<span class="chip">✓ ${t.s.time}</span>`:st==='prog'?`<button class="btn sm pri" onclick="submitTask('${t.o.rid}','${t.o.form}','${t.o.who}',${t.d})">Submit</button>`:`<button class="btn sm" onclick="startTask('${t.o.rid}','${t.o.form}','${t.o.who}',${t.d})">Start</button>`}</span></div>`; }).join('')||'<div class="note">Nothing owed here in this period.</div>'}</div>
+    <button class="btn" style="width:100%;margin-top:8px" onclick="S.mScreen='home';render()">Moving on? Pick another ${L().one.toLowerCase()}</button>`,"S.mScreen='home';render()",'Today');
+}
+function pickPlace(pid){ S.mPlace=pid; S.mScreen='tasks'; (S.att[pid]=S.att[pid]||{})[WORKER]='signed'; render(); }
+function taskSub(rid,form,who,d){ return S.subs.find(s=>s.place===S.mPlace&&s.rid===rid&&s.form===form&&s.who===who&&s.day===d); }
+function startTask(rid,form,who,d){ const r=byId(S.rituals,rid); S.subs.push({id:nid('s'),place:S.mPlace,rid,ritual:r.name,form,who,by:WORKER,day:d,time:'—',status:'In progress'}); render(); }
+function submitTask(rid,form,who,d){ const s=taskSub(rid,form,who,d), n=new Date(); s.status=d?'Late':'On time'; s.time=`${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`; s.by=WORKER; S.newIds=[s.id]; render(); }
+function supScreen(){
+  const crew=S.crews.find(c=>c.sup)||S.crews[0], sup=crew.sup||crew.members[0];
+  const list=S.places.filter(p=>p.crews.includes(crew.id));
+  if(!S.mSupPlace || !byId(S.places,S.mSupPlace)){
+    return phone('My crew’s '+L().many,`<p class="muted" style="margin-bottom:10px">${sup} · ${crew.name}</p>
+      ${list.map(p=>{ const s=stats(p,{unit:'day',off:0}); return `<button class="task" style="width:100%;text-align:left;background:var(--s)" onclick="S.mSupPlace='${p.id}';render()"><span><b>${p.name}</b><small>${s.pct}% today · ${s.miss} missing · ${expiredOn(p).length} expired training</small></span><span class="r">›</span></button>`; }).join('')}
+      <div class="note">Last synced just now. Offline behaviour is still undecided.</div>`,'',L().many);
+  }
+  const p=byId(S.places,S.mSupPlace), s=stats(p,{unit:'day',off:0}), m=membersOf(p);
+  const byRitual={}; owedOnDay(p,0).forEach(o=>{ const k=o.ritual; byRitual[k]=byRitual[k]||{o:0,d:0}; byRitual[k].o++; const sb=subFor(p,o,0); if(sb&&sb.status!=='In progress') byRitual[k].d++; });
+  const left=peopleLeftToday(p);
+  return phone(p.name,`<div style="display:flex;gap:8px;margin-bottom:10px"><div class="card" style="flex:1;margin:0;padding:8px 10px"><b>${s.owed-s.done}</b> <span class="muted">forms outstanding</span></div><div class="card" style="flex:1;margin:0;padding:8px 10px"><b>${expiredOn(p).length}</b> <span class="muted">training not current</span></div></div>
+    <b style="font-size:13px">Today, by ritual</b>
+    ${Object.entries(byRitual).map(([k,v])=>`<div class="task"><span><b>${k}</b><small>${v.d} of ${v.o} done</small></span><span class="r">${v.o-v.d?`<b>${v.o-v.d}</b>`:'✓'}</span></div>`).join('')||'<div class="note">Nothing owed today.</div>'}
+    <b style="font-size:13px;display:block;margin-top:12px">Who’s on the ${L().one.toLowerCase()}</b>
+    ${m.map(u=>{ const a=(S.att[p.id]||{})[u]; const st=a==='present'?'Marked present by you':a==='absent'?'Absent':a==='signed'?'Signed in on the app':presentOn(p,u,0)?'Signed in':'Not yet recorded';
+      return `<div class="task"><span><b>${u}</b><small>${st}${left[u]?' · '+left[u]+' left':''}${EXPIRED[u]?' · '+EXPIRED[u]:''}</small></span><span class="r">${a||presentOn(p,u,0)?'':`<button class="btn sm" onclick="mark('${p.id}','${u}','present')">Present</button><button class="btn sm" onclick="mark('${p.id}','${u}','absent')">Absent</button>`}</span></div>`; }).join('')}`,"S.mSupPlace=null;render()",L().many);
+}
+function mark(pid,u,v){ (S.att[pid]=S.att[pid]||{})[u]=v; render(); }
+
+/* ===================== RENDER ===================== */
+function render(){
+  document.getElementById('modeSeg').innerHTML=[['web','Web — admin'],['mobile','Mobile — worker & supervisor']].map(([m,n])=>`<button class="${S.mode===m?'on':''}" onclick="S.mode='${m}';render()">${n}</button>`).join('');
+  document.getElementById('topNote').textContent = S.setupDone ? `Tracking ${L().many} · ${S.places.length} ${L().many.toLowerCase()} · ${S.crews.length} crews · ${S.rituals.length} rituals` : 'Start with setup';
+  let html;
+  if(S.mode==='mobile') html=mobile();
+  else if(!S.setupDone) html=setup();
+  else html = S.view==='overview'?overview() : S.view==='places'?placesList() : S.view==='place'?placePage() : S.view==='crews'?crewsPage() : S.view==='rituals'?ritualsPage() : setupDonePage();
+  document.getElementById('root').innerHTML=html;
+}
+function resetAll(){ S=fresh(); render(); }
+render();
+</script>
+</body>
+</html>
