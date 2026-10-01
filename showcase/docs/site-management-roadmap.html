@@ -46,13 +46,16 @@
     Tier D  backlog · nothing sits here in v2
 
   ── SPLIT TICKETS ─────────────────────────────────────────────────────────────
-  Three tickets have parts that land at different times, and edges point at
+  Two tickets have parts that land at different times, and edges point at
   specific parts rather than at the whole ticket. So the data model carries ONE
   NODE PER SLICE, on a shared key stem with a lowercase suffix:
 
     S-04  Attendance          -> S-04a (Tier A) · S-04b (Tier B) · S-04c (Tier C)
-    SM-06 Training reqs       -> SM-06a the signal (A) · SM-06b the gate (C)
     S-02  Scoped permissions  -> S-02a "Can view" (A) · S-02b full model (B)
+
+  SM-06 was a third of these until the Oct 1 check-in. Its two slices collapsed
+  back into one node when the entry gate was dropped and training became a badge
+  read from the training matrix, so SM-06 now carries no slice fields at all.
 
   The suffix is a SLICE letter, never a tier letter — lowercase precisely so it
   can't be misread as one. Each slice card carries a band repeating the shared
@@ -61,14 +64,17 @@
   split ticket is still ONE ticket: the same number goes on every slice node.
 
   ── ⏳ PENDING, AND WHY NOTHING HERE ANSWERS IT ───────────────────────────────
-  Eight questions are deliberately unresolved and waiting on product leadership.
+  Seven questions are deliberately unresolved and waiting on product leadership.
   They live in a top-level `pending` array, surface as an amber chip on every
   card they land on, and are stated in full in the About view. They are NOT
   conflicts — a conflict is the plan disagreeing with itself; these are questions
-  nobody has answered yet. This page must never look like it picked an answer,
-  and that includes the one that makes a Tier A placement provisional: the
-  training signal is shown in Tier A because the register puts it there, and
-  whether it stays in the MVP at all is one of the eight.
+  nobody has answered yet, and this page must never look like it picked one.
+
+  The Oct 1 check-in answered three of the previous eight outright — what happens
+  to the access feature, where training comes from, and whether a group level is
+  built — and narrowed a fourth to its timing. Two of the seven that remain are
+  company decisions rather than product calls, and they are carried here all the
+  same: a question nobody has answered is a question nobody has answered.
 
   Tier owns the colour coding — the card's top stripe, the key chip, the matrix
   cells. Ownership deliberately gets NO colour: it is a muted mono mark on the
@@ -95,7 +101,7 @@
                             Esc, the × button, or a click on empty canvas closes
                             it; Esc returns focus to the card it came from.
                             Dependency rows inside the panel jump to that ticket.
-    the "#nnnnn" chip     → once a ticket exists in BIS PM the chip is a real
+    the "#nnnnn" chip     → were a number ever filled in, the chip would be a real
                             link straight to it, and the panel grows an "Open in
                             BIS PM" button. While pmUrl is null the chip is a
                             muted "#—" and the panel says so plainly.
@@ -141,7 +147,7 @@
   has no sibling .json file to keep in step.
 
   Its column keys must exist in the roadmap data, which means a SPLIT ticket is
-  referenced by its slice key — SM-06a, not SM-06 — because a scope item is gated
+  referenced by its slice key — S-04a, not S-04 — because a scope item is gated
   by one slice, not by the whole ticket.
 
   ── HOW A REFRESH WORKS (Claude does this, the page never does) ───────────────
@@ -156,12 +162,11 @@
     4. meta.lastRefreshed is set to an ISO-8601 timestamp.
     5. Claude rewrites the .json file AND replaces the mirror below. Both.
 
-  Right now no child ticket exists in BIS PM and the parent's live half is held
-  back on purpose, so every live field is null: cards show a muted "#—"
-  placeholder chip, the panel shows a "not created yet" note, and the register
-  table's PM columns read "—". That empty state is the intended day-one view,
-  and this page is published to a PUBLIC repository, which is why filling in
-  real numbers and URLs is a separate decision nobody has made.
+  Every live field is null on purpose: cards show a muted "#—" placeholder chip,
+  the panel says there is nothing to link to, and the register table's PM columns
+  read "—". That empty state is deliberate, not a gap waiting to be filled. This
+  page is published to a PUBLIC repository, so putting internal ticket numbers
+  and links on the open web is a separate decision nobody has made.
 
   See REFRESH.md in this folder for the same instructions in prose.
 ================================================================================
@@ -848,15 +853,15 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
 <script type="application/json" id="roadmap-data">
 {
   "_about": {
-    "what": "Data behind site-management-roadmap.html. Every ticket object has two halves: STATIC fields authored from the ticket scope files, and LIVE fields (pmTicketNumber / pmStatus / pmAssignee / pmUrl) that stay null until the tickets exist in BIS PM.",
-    "naming": "RENAMED IN THE v2 SCOPE PASS. The initiative is FIELD MANAGEMENT, and every piece of content here says so. The filenames, the source folder and the published URL deliberately keep their original spelling so no link breaks — the same call the source folder made about its own name. Content renames; paths do not. The SM- and S- key prefixes stay too, and they are no longer an abbreviation of the module's name: SM- means Field-Management-specific, S- means it serves the whole platform. Where 'Site Access' appears, that is the existing licensed feature this module reuses the site object from, not the old module name.",
+    "what": "Data behind site-management-roadmap.html. Every ticket object has two halves: STATIC fields authored from the ticket scope files, and LIVE fields (pmTicketNumber / pmStatus / pmAssignee / pmUrl) pmTicketNumber is filled in; pmUrl is deliberately left null because this page is public.",
+    "naming": "RENAMED IN THE v2 SCOPE PASS. The initiative is FIELD MANAGEMENT, and every piece of content here says so. The filenames, the source folder and the published URL deliberately keep their original spelling so no link breaks — the same call the source folder made about its own name. Content renames; paths do not. The SM- and S- key prefixes stay too, and they are no longer an abbreviation of the module's name: SM- means Field-Management-specific, S- means it serves the whole platform. Where \"Site Access\" appears, that is the existing licensed feature this module absorbs: it becomes an \"Access\" option on a Site rather than a module of its own, and the site object it already owns is the one the work-context engine reuses.",
     "source": "_notes/scope/Site Managment/scope/parent-site-management-mvp.md (folder spelling is legacy, see `naming`)",
     "authority": "parent-site-management-mvp.md and the per-ticket files in the same folder are the source of truth for every STATIC field. Do not invent tickets or dependencies here.",
     "axes": "TWO INDEPENDENT AXES, and conflating them is the mistake the old tier system made. TIER is timing — A ships with MVP, B builds in parallel, C comes after, D is backlog. PREFIX is ownership — SM- is Field-Management-specific, S- serves the whole platform. A ticket's prefix does not determine its tier: S-01 and S-06 are S-tickets in Tier A, SM-05 is an SM-ticket in Tier C. Prefix is derived from the key in the page; it is not a stored field.",
-    "slices": "Three tickets are SPLIT across tiers, because their parts land at different times and edges point at specific parts. A split ticket appears once per slice, as its own node, with a lowercase suffix on a shared key stem — S-04a / S-04b / S-04c, SM-06a / SM-06b, S-02a / S-02b. `sliceGroup` is the stem, `sliceGroupTitle` the ticket's own name, and `sliceLabel` what that slice is called in the scope files. The page groups the siblings visually and lists them in each other's panels. The suffix is a slice letter, never a tier letter.",
+    "slices": "Two tickets are SPLIT across tiers, because their parts land at different times and edges point at specific parts. A split ticket appears once per slice, as its own node, with a lowercase suffix on a shared key stem — S-04a / S-04b / S-04c, S-02a / S-02b. `sliceGroup` is the stem, `sliceGroupTitle` the ticket's own name, and `sliceLabel` what that slice is called in the scope files. The page groups the siblings visually and lists them in each other's panels. The suffix is a slice letter, never a tier letter. SM-06 was a third until the Oct 1 check-in: its two slices collapsed back into one node when the entry gate was dropped, so SM-06 now carries no slice fields.",
     "structure": "Graph structure comes from each ticket's dependsOn (hard prerequisites) and relatedTo (relationships that do not gate the target). edgeMeta only decorates those edges with a kind + note; an edge with no edgeMeta entry defaults to kind 'required'. Stage/layer position is computed in the page by longest-path layering, so adding a dependency re-lays-out the graph automatically.",
     "nonTicketFields": "Four fields carry things the edge model cannot. `blockedByAlso` is an array of non-ticket blockers (a pending decision, a pre-build confirmation) — real gates with no card to draw an arrow from. `blocksNote` qualifies an empty Blocks list. `related` is a display-only relationship list that deliberately draws NO edge, so a ticket that blocks nothing still reads as connected to the tickets it touches. `mergedFrom` records a ticket that was folded into this one and no longer has a card.",
-    "conflicts": "Top-level `conflicts` records cross-ticket disagreements that are flagged and NOT fixed. Each names the tickets it sits between; the page derives a warning chip on each of those cards and lists the conflict in full in the About view. Nothing here is a decision. The array is currently EMPTY — the one conflict on record, over who owned the competency gate, was resolved: attendance shows training status, and SM-06 owns the gate. The feature stays in place because the next disagreement will want it.",
+    "conflicts": "Top-level `conflicts` records cross-ticket disagreements that are flagged and NOT fixed. Each names the tickets it sits between; the page derives a warning chip on each of those cards and lists the conflict in full in the About view. Nothing here is a decision. The array is currently EMPTY — the one conflict on record, over who owned the competency gate, was resolved and then the gate itself was dropped: training is read from the training matrix and shown as a badge, and nothing in Field Management blocks on it. The feature stays in place because the next disagreement will want it.",
     "pending": "Top-level `pending` records questions that are deliberately UNRESOLVED and waiting on product leadership. They are not conflicts — nobody disagrees, the answer simply has not been given. Each names the tickets it lands on; the page derives a pending chip on those cards and states each item in full in the About view. NOTHING HERE IS A DECISION, and nothing in this file should be edited to pre-empt one.",
     "order": "Within a stage, cards render in the order tickets appear in this array. That order is chosen to minimise connector crossings — reorder deliberately. The register groups by tier and preserves the same order inside each group."
   },
@@ -872,16 +877,16 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "7. CRITICAL — also rewrite the inline mirror inside site-management-roadmap.html, between the ROADMAP-DATA:BEGIN and ROADMAP-DATA:END comment markers. The two must stay byte-identical, or a double-clicked page will show stale data. The page footer reports which source it actually used."
     ],
     "notes": [
-      "No child tickets exist in BIS PM yet, so every LIVE field starts null and every card shows the muted '#—' placeholder chip. This page is published to a public repo, so live BIS PM URLs are a separate decision — do not fill these in without being asked.",
-      "A split ticket is ONE ticket in BIS PM, not three. When S-04, SM-06 or S-02 gets a number, the same number goes on every slice node of that ticket.",
-      "The parent exists in BIS PM already, and its live fields are still deliberately null for the same public-repo reason.",
+      "Every LIVE field is null on purpose, so every card shows the muted \"#—\" placeholder chip. This page is published to a public repo. Ticket numbers are shown; the ticket URLs are deliberately left null, so no card links into BIS PM from the open web. Do not add pmUrl without being asked.",
+      "A split ticket is ONE ticket in BIS PM, not three. When S-04 or S-02 gets a number, the same number goes on every slice node of that ticket.",
+      "Every ticket in the initiative now exists in BIS PM and carries its number here. pmUrl stays null on all of them for the public-repo reason above.",
       "Nothing in the HTML fetches anything at runtime except Google Fonts. There is no build step."
     ]
   },
   "meta": {
     "title": "Field Management — build order and dependencies",
-    "standfirst": "Twelve child tickets and the MVP parent, on two independent axes. Tier is timing; the SM- / S- prefix is ownership. Three of the twelve are split across tiers and appear once per slice, so the map carries seventeen cards. This is the dependency spine: what has to land first, what builds alongside it, and what explicitly does not gate the MVP.",
-    "generated": "2026-09-30",
+    "standfirst": "Twelve child tickets and the MVP parent, on two independent axes. Tier is timing; the SM- / S- prefix is ownership. Two of the twelve are split across tiers and appear once per slice, so the map carries sixteen cards. This is the dependency spine: what has to land first, what builds alongside it, and what explicitly does not gate the MVP.",
+    "generated": "2026-10-01",
     "lastRefreshed": null,
     "parentKey": "SM-MVP",
     "layerLabels": [
@@ -977,25 +982,6 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
   "conflicts": [],
   "pending": [
     {
-      "id": "site-access",
-      "title": "Site Access — merged in, or retired?",
-      "affects": [
-        "SM-01"
-      ],
-      "what": "Field Management reuses the existing Site Access site object rather than creating a second one, so existing sites and visitors arrive on day one. What is not decided is where Site Access ends up: folded in as a feature you switch on, or phased out. A phase-out plan matters, because no job should be doable in two places.",
-      "state": "The MVP is scoped on the reuse either way. The answer changes what happens to Site Access afterwards, and it is also what the real-time event view is waiting on."
-    },
-    {
-      "id": "training-in-mvp",
-      "title": "Training requirements — in the MVP, and set up where?",
-      "affects": [
-        "SM-06a",
-        "SM-06b"
-      ],
-      "what": "Two questions in one. Whether the training signal ships with the MVP at all — taking it out was offered in the room — and where required topics get set up: inside Field Management per work context, visibility only; or in a new section of the training matrix that assigns first and then tracks, so admins do not set things up twice.",
-      "state": "SM-06a is shown in Tier A because that is where the scope register currently puts it. That placement is provisional, not settled — read the Tier A slot on the signal as pending, not as an answer."
-    },
-    {
       "id": "locations",
       "title": "Locations — import names, import with people, or a live link?",
       "affects": [
@@ -1003,15 +989,6 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       ],
       "what": "The MVP has no Location import: a Site is deliberately a place that is not a Location, and copying Locations in would duplicate every one of them once a live link lands. The room then leaned back towards importing Location names, optionally with their people, and possibly a live link instead.",
       "state": "This is the known day-one gap. A client whose places are all Locations — one has 52 branches — gets less on day one until live-linked Locations land, and they cannot slip far behind the MVP."
-    },
-    {
-      "id": "group-level",
-      "title": "A group level — client, or division?",
-      "affects": [
-        "SM-01"
-      ],
-      "what": "Whether to build a basic container above Sites and Jobs now — a region, a division, a client — or at least tell the backend it is coming. Region and division would come from linked Locations; client belongs to contractor management, which integrates after about six months.",
-      "state": "The engine is built for at most three levels so a group kind can sit on top later without a redesign. Whether anything is built now is not decided."
     },
     {
       "id": "external-platform-wide",
@@ -1024,33 +1001,51 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     },
     {
       "id": "permissions-pilot",
-      "title": "Scoped permissions as the pilot for replacing system roles",
+      "title": "Scoped permissions in the rest of the platform — alongside system roles, not replacing them",
       "affects": [
         "S-02a",
         "S-02b"
       ],
-      "what": "Field Management's permissions are a clean sheet — they do not read from or change today's system roles. The open question is whether that clean sheet becomes the pilot for replacing system roles across the rest of the platform, with folders, forms and assets next.",
+      "what": "Field Management's permissions are a clean sheet — they do not read from or change today's system roles. The open question is whether that clean sheet is then offered in other modules alongside the system roles that already exist, rather than as a replacement for them, with folders, forms and assets next.",
       "state": "The build is the same either way, which is why it is not blocking. What changes is how much else is designed against it, and how carefully."
     },
     {
-      "id": "order-of-work",
-      "title": "Order of work — reviewer sign-off now, and signatures in the MVP",
+      "id": "offline",
+      "title": "Offline — sync, or degrade?",
       "affects": [
-        "S-05",
-        "S-04a"
+        "SM-04"
       ],
-      "what": "Two decisions that both add effort. Reviewer sign-off starts now, separately from the MVP, because a client is waiting. Signatures moved into the MVP's attendance slice, which made that slice materially bigger than when it was first sized.",
-      "state": "Both are reflected here as the current plan. Whether the initiative can carry both at once is the question, and it is the one the sequencing hangs on."
+      "what": "Either the obligation set syncs to the device, or the mobile surface degrades to something that works with no signal. One client runs 50–80% no-signal sites; at another, operators go days without connectivity. Both answers are real products and they are not the same build.",
+      "state": "This is the blocking decision on the mobile ticket, and the object-scan ticket is held by it too. It needs its own working session — roughly half an hour — closer to build."
     },
     {
       "id": "real-time-view",
-      "title": "The real-time event view — keep it, or cut it?",
+      "title": "The who's-on-site list — in the MVP, or just after?",
       "affects": [
         "SM-MVP",
         "SM-04"
       ],
-      "what": "A read-only, auto-refreshing list of who is on site, for emergencies. It was discussed as Site Access's sign-in and sign-out carried over, with a flag for overdue sign-outs. Only one client of fifteen asked for live presence, for muster, and it needs sign-in data most clients do not have.",
-      "state": "It follows the Site Access answer, so it cannot be settled before that one is. It is the tenth interface item in the parent and is carried as undecided rather than dropped."
+      "what": "A read-only, auto-refreshing list of who is on site, for emergencies, with a flag for overdue sign-outs. Where it lives is now settled: sign-in and sign-out, the list itself, timers and notifications are Field Management's, moved over from the existing access feature with their history migrated. What is not settled is whether it ships in the MVP or immediately after it.",
+      "state": "Only the timing is open. The earlier version of this question — keep it or cut it — was answered by folding the access feature in, and it stays the tenth interface item in the parent either way. Only one client of fifteen asked for live presence, for muster, which is the argument for \"just after\" rather than for cutting it."
+    },
+    {
+      "id": "one-off-work",
+      "title": "One-off work — build it in Field Management, or link to Folders?",
+      "affects": [
+        "SM-03",
+        "SM-MVP"
+      ],
+      "what": "Rituals are set once and left to run, so one-off work is a task added or a form assigned inside a Site or Job. The objection raised is commercial rather than technical: on-demand forms inside Field Management remove the reason a client pays for Folders. Either Field Management builds the one-off path, or it links out to the module that already owns it.",
+      "state": "Not decided, and it needs a company decision rather than a product one — it sits with the Folders and Assets overlap below. What is needed either way is assigning to a whole Site, to individuals, and from a supervisor to their crew."
+    },
+    {
+      "id": "folders-assets-overlap",
+      "title": "The overlap with Folders and Assets, now that the module is paid",
+      "affects": [
+        "SM-MVP"
+      ],
+      "what": "Field Management is a paid module with a free trial period. For some clients it may make Folders redundant — on-demand forms — and Assets too, where Assets is used only to hold sites. Which of those overlapping parts Field Management builds is a company decision, not a design one.",
+      "state": "Needed before the overlapping parts are built. It is the same decision the one-off-work question above is waiting on, which is why the two are carried separately rather than merged: one is a scope question, the other is a pricing one."
     }
   ],
   "edgeMeta": [
@@ -1088,7 +1083,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "from": "SM-01",
       "to": "S-04a",
       "kind": "required",
-      "note": "Attendance attaches to Sites and Jobs, and selecting one from the list is how a visit gets recorded."
+      "note": "Attendance attaches to Sites and Jobs, and picking one from the list is the sign-in that records the visit."
     },
     {
       "from": "SM-01",
@@ -1104,9 +1099,9 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     },
     {
       "from": "SM-01",
-      "to": "SM-06a",
+      "to": "SM-06",
       "kind": "required",
-      "note": "Training requirements belong to the work-context engine, so any kind carries them."
+      "note": "The badge hangs off the people on a Site or a Job, so there is nothing to show it against until the work-context engine exists."
     },
     {
       "from": "SM-01",
@@ -1141,8 +1136,8 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     {
       "from": "SM-02",
       "to": "S-04a",
-      "kind": "required",
-      "note": "Crew supplies the name list the checklist opens pre-filled with."
+      "kind": "partial",
+      "note": "Crew pre-fill only. People can be added to a Site or a Job directly and never need a crew to sign in, so Crew gates the pre-filled list rather than the slice."
     },
     {
       "from": "SM-02",
@@ -1208,7 +1203,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "from": "S-04a",
       "to": "SM-03",
       "kind": "partial",
-      "note": "Per-visit scheduling only — selecting a Job is what triggers that day's obligations, and counts-per-person reads presence. A ritual on a fixed calendar is not blocked by it."
+      "note": "Per-person obligations on any Site or Job. Signing in is what makes that day's rituals owed — Sites as well as Jobs, not just Jobs — and counts-per-person reads presence. A ritual counted per work context, on its own calendar, is not blocked by it."
     },
     {
       "from": "S-04a",
@@ -1220,7 +1215,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "from": "S-04a",
       "to": "S-04c",
       "kind": "required",
-      "note": "More ways in all write to the presence record this slice builds."
+      "note": "The later attachment points — meetings, form witnesses, tasks — all write to the presence record this slice builds."
     },
     {
       "from": "S-04a",
@@ -1232,7 +1227,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "from": "S-04a",
       "to": "S-05",
       "kind": "shared",
-      "note": "The same signing component, built once. Whichever of the two ships first builds it and the other reuses it — so this line is a shared piece, not a gate in either direction."
+      "note": "The same signing component, built once. It is already being designed through another ticket, reusing the existing mobile signature component, so neither of these two builds it from scratch — which is why this line is a shared piece, not a gate in either direction."
     },
     {
       "from": "S-04a",
@@ -1259,22 +1254,22 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "note": "The minimal external-person record is in the MVP — it is where the visitors carried over from Site Access land."
     },
     {
-      "from": "SM-06a",
+      "from": "SM-06",
       "to": "SM-04",
       "kind": "required",
-      "note": "The training indicator beside missing forms, and the warning when someone selects a work context their training has a gap for."
+      "note": "The compliance badge beside the missing-forms count, and the per-person badge on the supervisor surface — informational, and it links out to that person's own training page rather than copying it."
     },
     {
-      "from": "SM-06a",
-      "to": "SM-06b",
-      "kind": "required",
-      "note": "The signal and the gate are the same check — given a person and a set of topics, what is the state of each and why. The gate enforces the result the signal shows, which is why it is a switch rather than a rebuild."
-    },
-    {
-      "from": "SM-06a",
+      "from": "SM-06",
       "to": "SM-MVP",
       "kind": "required",
-      "note": "The training count sits beside the missing-forms count on the index and the work-context view. ⏳ Its place in the MVP is itself waiting on product leadership."
+      "note": "The compliance count sits beside the missing-forms count on the index and the work-context view, as a separate number that never merges into it."
+    },
+    {
+      "from": "SM-02",
+      "to": "SM-06",
+      "kind": "required",
+      "note": "A badge beside each name on the crew list — one of the three places people are listed, and the one Crew owns."
     }
   ],
   "tickets": [
@@ -1286,7 +1281,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "sliceGroup": null,
       "sliceGroupTitle": null,
       "sliceLabel": null,
-      "summary": "The thing an admin watches — one engine, two kinds. A Site is a place that keeps going and archives; a Job is a piece of work with a start, a stage and a close-out. A Job can sit at a Site, inheriting its address and working days while keeping its own dates and rituals, or span several. Each holds people, what they owe and what came in, and answers one question: current, or N outstanding? Built on the existing Site Access site object rather than a second one, so existing sites and their visitors are there on day one.",
+      "summary": "The thing an admin watches — one engine, two kinds. A Site is a place that keeps going and archives; a Job is a piece of work with a start, a stage and a close-out. A Job can sit at a Site, inheriting its address and working days while keeping its own dates and rituals, or span several. Each holds people, what they owe and what came in, and answers one question: current, or N outstanding? Built on the existing Site Access site object rather than a second one, so existing sites and their visitors are there on day one — and that feature stops being a module of its own: an Access option on a Site opens its screens, unchanged.",
       "slice": null,
       "dependsOn": [],
       "relatedTo": [],
@@ -1297,13 +1292,12 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "maturity": null,
       "mvpBlocking": true,
       "mvpNote": "MVP-blocking. Nothing else in the initiative functions without it.",
-      "boundary": "Assets keep things — vehicles, equipment, properties. A work context keeps place, work and who owes what. Sites never nest, and a Job never owns a Site. Dispatch and scheduling stay out: people pick the Site or Job they are on from a list, and that choice is the visit.",
+      "boundary": "Assets keep things — vehicles, equipment, properties. A work context keeps place, work and who owes what. Sites never nest, and a Job never owns a Site. Dispatch and scheduling stay out: people pick the Site or Job they are on from a list, and that choice is the visit. Improving the access feature's screens stays out too — they move behind the Access option exactly as they are. A group above Sites and Jobs is not built in the MVP either; the engine only has to leave room for one.",
       "openQuestions": [
         "What goes in the close-out evidence pack, and in what format — one PDF per Job, an export, or both?",
         "Can a client change their engagement label after setup — Job to Project, say — once data exists?",
         "Setup: Sites and Jobs in one pass, or one kind at a time? Answered provisionally as one kind at a time; confirm before build.",
         "One person, several Jobs in a day. The admin sees gaps per Job, and the tentative rule is that anyone assigned to Jobs picks at least one per working day. Parked.",
-        "A Site or Job supervisor — someone who oversees a whole work context, not just a crew. Leaning towards adding it; a field on the work context, or a permission grant?",
         "Dev, before estimating: what does the Site Access site object carry today, and can it gain working days, a lifecycle and a parent link without changing anything for existing Site Access clients?",
         "Dev: import-from-Assets picker usability at 172 rows, duplicate names, the same Asset imported twice, and whether the copy is one-time or keeps a reference to its source.",
         "Dev: can counting at the most specific context and rolling up be computed on read without a performance problem at 52-branch scale?",
@@ -1311,16 +1305,20 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       ],
       "scope": [
         "The engine — two kinds, one label per kind from a short list written by BIS, and navigation that follows the labels a client picked",
+        "One shared base that each kind extends, with room above it for a group level later — neither needs a redesign to add",
         "Site — name, exact address, working days set as a company default and overridden only where a site differs, presence, archive",
         "Job — name, optional address, start date, optional expected end, stage, close-out and the exportable evidence pack",
-        "A Job at a Site inherits its address, working days and Site Access, and keeps its own dates, stage, close-out and rituals; a ritual both carry is owed once",
+        "A Job at a Site inherits its address, working days and its Access setting, and keeps its own dates, stage, close-out and rituals; a ritual both carry is owed once",
+        "Access — the existing access feature becomes an option on a Site that opens its own screens, with nothing done to them: off by default, on for anyone who has it today, and its compliance requirements untouched",
+        "Sign-in on any Site or Job — picking one from the list is the sign-in, and it is what makes that day's rituals owed",
+        "Owner, manager and supervisor as information-only fields — nothing is assigned, permitted or routed through them",
         "Counting — a form counts toward the most specific work context and rolls up; a Job spanning Sites counts toward the Job only",
         "Setup — create from scratch, or import from Assets by name only, leaving the original Asset untouched. Sites and Jobs are created on the web in the MVP",
         "No archiving a Site or closing a Job while anything is outstanding — the admin cleans up first"
       ],
       "actionFlag": null,
       "evidence": "There is no single replacement for \"site\" — there are six, and no majority. Compliance attaches to a job at 4 of 14 companies, to a place at 3, and to a person, an asset, a crew or a document at the rest. Four clients tried Assets as an organisational construct and abandoned it; product leadership's decisive point is that an asset can only have one assigned person, and an asset used as a site cannot say who is on it or what is owed. Job is the largest single anchor in the corpus, and renaming a Site gives you a job that cannot end.",
-      "pmTicketNumber": null,
+      "pmTicketNumber": 22308,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
@@ -1333,7 +1331,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "sliceGroup": null,
       "sliceGroupTitle": null,
       "sliceLabel": null,
-      "summary": "Who is answerable for a work context, as distinct from who happened to do the work. A crew exists on its own, is assigned to Sites and Jobs — several Jobs at once — and remembers who was in it on any given day. Assignment is standing; presence is daily. Membership is dated, because a record layer that shows last month's crew as today's crew is quietly falsifying the thing it exists to prove. Permissions stay deliberately coarse: none, read-only, full edit.",
+      "summary": "Who is answerable for a work context, as distinct from who happened to do the work. A crew exists on its own, is assigned to Sites and Jobs — several Jobs at once — and remembers who was in it on any given day. Assignment is standing; presence is daily. Membership is dated, because a record layer that shows last month's crew as today's crew is quietly falsifying the thing it exists to prove. A crew is never a condition of anything: people can be added to a Site or a Job directly, and nobody needs a crew to sign in. Permissions stay deliberately coarse: none, read-only, full edit.",
       "slice": null,
       "dependsOn": [
         "SM-01"
@@ -1345,28 +1343,30 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "mergedFrom": null,
       "maturity": null,
       "mvpBlocking": true,
-      "mvpNote": "MVP-blocking. It is also the stopgap that keeps the supervisor view out of the permissions ticket's way — a supervisor sees the work contexts their crew is assigned to, built entirely from here.",
-      "boundary": "Not dispatch and not an org chart. Crew says who is answerable, not who does what today — presence decides the day. Crews that include external people, and crew as a universal assignment target across forms, folders and shared tasks, are real and evidenced but come after the MVP.",
+      "mvpNote": "MVP-blocking. It is also the stopgap that keeps the supervisor view out of the permissions ticket's way — a supervisor sees the work contexts their crew is assigned to, built entirely from here, and access starts crew-based for the same reason.",
+      "boundary": "Not dispatch and not an org chart. Crew says who is answerable, not who does what today — presence decides the day. Owner, manager and supervisor on a work context are information-only fields and belong to the work-context ticket, not here. Crews that include external people, and crew as a universal assignment target across forms, folders and shared tasks, are real and evidenced but come after the MVP.",
       "openQuestions": [
         "Can a person be in more than one crew at once? Someone covering two crews in a day is plausible.",
         "Who can edit crew membership, and is that different from today's attendance? A supervisor adjusting who is here today is attendance; permanently changing who is in the crew is this ticket.",
         "Where does Crew live — inside this module, in Users, or on its own? The existing Permission Group machinery is built for stable admin bundles while Crew has to tolerate daily churn, so reuse may cost more than it saves.",
         "Does universal assignability make this a system-wide ticket after the MVP? The build is the same either way; the question is who owns it afterwards, and whether the forms and folders owners should be in the room at design rather than after it.",
-        "A Site or Job supervisor, not just a crew supervisor — a field on the work context, or a permission grant?",
+        "Who manages a crew with no supervisor? The crew supervisor stays optional, and the proposed fallback is the Site or Job supervisor field — which is information-only, so it carries no authority of its own.",
         "If Location import goes ahead, offer to create crews from the people already in each Location."
       ],
       "scope": [
         "A crew has a name, members and an optional designated supervisor",
         "Assigned to Sites and Jobs — a Site can hold several crews, and a crew can hold several Jobs at once",
+        "People can be added to a Site or a Job without a crew; a crew is how work is grouped, never a condition of being on site or signing in",
         "Membership can be filled by rule at setup and is then saved; a live query would re-run against today's data and silently rewrite last month's record",
         "Dated membership history",
         "Coarse permissions on crew members — none, read-only, full edit — and grants only ever add",
+        "Access starts crew-based — on a crew, you see that crew; a site-wide view across every crew comes later",
         "Pre-fills attendance, both the new component and the existing form field",
         "Created on the web; people and crews can be moved between work contexts on mobile"
       ],
       "actionFlag": null,
       "evidence": "7 of 15 clients have no crew object and bend Location into one — three say so outright, and one invented a pseudo-asset purely to hold a crew's toolbox talk. A static roster fails on day one: crews are transient and move from project to project. Named Crew, not Group — decided, because Group collides with the existing Permission Group / Company Group feature in BIS Admin.",
-      "pmTicketNumber": null,
+      "pmTicketNumber": 22309,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
@@ -1405,74 +1405,72 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
         "Saving partway through becomes a real need the moment form filling is switched on — today's external links cannot save at all."
       ],
       "scope": [
-        "A minimal record — name and company — visibly marked as external wherever it appears",
+        "A minimal record — name and company — visibly marked as external wherever it appears, and addable for a single day where that is all that is needed",
         "It can go on an attendance list and on a work context; the visitors carried over from Site Access land here",
         "Training added by hand, by an admin on the web or from the app on mobile — a topic, an expiry date and optionally a photo of the ticket, stored in this portal only",
         "Stored as a record, not free text: adding the same person again on another day can point to the same record"
       ],
       "actionFlag": null,
       "evidence": "External or no-login access is one of the four needs the research found that no internal framing had — about 5 companies in the corpus. At one client, other trades must sign and will never be users. At another, the workaround breaks two ways: someone logged into a different company's portal is refused access to the external form link, and external users cannot save, so half-finished submissions pile up. There is no memory between projects, so a contractor is asked to re-verify what he just filled out. On one shared project, 25 of about 50 of that client's people had to register in the other company's portal as well, and the client pays for half of them.",
-      "pmTicketNumber": null,
+      "pmTicketNumber": 22315,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
     },
     {
-      "key": "SM-06a",
-      "title": "Training requirements — the signal",
+      "key": "SM-06",
+      "title": "Training status",
       "tier": "A",
       "role": "child",
-      "sliceGroup": "SM-06",
-      "sliceGroupTitle": "Training requirements",
-      "sliceLabel": "the signal",
-      "summary": "A work context can require training topics, and Field Management shows who on it is not current, and why — current, expiring soon, expired, or no record. Read-only: nothing in the MVP blocks anyone. The count sits beside the missing-forms count and never merges into one number, because they are different problems with different owners. The copy says training not current, never not competent — training is only a third of competency, and it is the only third the platform holds.",
-      "slice": "The first of two slices, and the read-only one. The signal shows the state; the gate, which enforces it, comes after the MVP and runs on the same check.",
+      "sliceGroup": null,
+      "sliceGroupTitle": null,
+      "sliceLabel": null,
+      "summary": "A compliance badge, read from the training matrix. Wherever people are listed on a Site, a Job or a crew, each person carries a small badge — \"3 outdated\" — that links to their own training page, where the detail already lives. Field Management shows what the matrix already says and copies none of it. Nothing is set up here: no training requirements are attached to a Site or a Job, and the badge never blocks anyone from signing in, picking a Job or doing the work. The copy says training not current, never not competent — training is only a third of competency, and it is the only third the platform holds.",
+      "slice": null,
       "dependsOn": [
-        "SM-01"
+        "SM-01",
+        "SM-02"
       ],
       "relatedTo": [],
       "related": [
         {
           "key": "S-04a",
-          "note": "Training status shows beside each name as the supervisor marks presence. It shows; it never blocks. Exactly where it sits on the checklist is an open placement."
-        },
-        {
-          "key": "SM-02",
-          "note": "A status beside each name on the crew list — also an open placement."
+          "note": "The badge shows beside each name as the supervisor marks presence. It shows; it never blocks — that is how the old conflict between these two was resolved. Exactly where it sits on the checklist is an open placement."
         },
         {
           "key": "S-06",
-          "note": "An external person has no training record of their own, so theirs is added by hand in this portal and the signal reads it exactly as it reads a user's."
+          "note": "An external person has no training record of their own, so theirs is added by hand in this portal and the badge reads it exactly as it reads a user's."
         }
       ],
       "blockedByAlso": [
-        "Read access to LMS training records and to the LMS's existing expiry-reminder windows."
+        "Read access to the training matrix's compliance data, and to the existing expiry-reminder windows it already runs on."
       ],
       "blocksNote": null,
       "mergedFrom": null,
       "maturity": null,
-      "mvpBlocking": "open",
-      "mvpNote": "Shown in Tier A because that is where the scope register currently puts it — and that placement is itself pending. Whether training requirements stay in the MVP at all, and where required topics get set up, is waiting on product leadership. Read the Tier A slot as provisional.",
-      "boundary": "Field Management checks training; it does not assign it. Assigning through the training matrix is a later LMS-integration question. Fixing the LMS's own expiry rules belongs to whoever owns the LMS and must not be silently absorbed here — the signal is only ever as good as those rules.",
+      "mvpBlocking": true,
+      "mvpNote": "MVP-blocking, and far smaller than it was. Off hold since the Oct 1 check-in: the badge ships with the MVP, the requirements engine and the entry gate are both gone, and assigning training by crew or job is a later matrix question — that matrix work alone was put at over 150 hours.",
+      "boundary": "Field Management shows training; it neither assigns it nor holds requirements. Required topics stay in the training matrix, and assigning by crew or job comes later. The detail page is not rebuilt here — this is a badge and a link out, not a copy. Fixing the matrix's own expiry rules belongs to whoever owns it and must not be silently absorbed here: the badge is only ever as good as those rules. Nothing here gates entry; the existing access check stays behind the Access feature, untouched.",
       "openQuestions": [
-        "Placement beyond the indicator — crew list, attendance checklist, work-context selection, supervisor mobile per person. Which of those are in the MVP?",
-        "Who owns the LMS expiry-rules problem? Non-expiring courses against refresh cycles, and third-party courses whose rules cannot be changed.",
-        "Data fitness — a short spike before trusting the signal. At one client expiry is wrong in both directions: one topic never flags and another falsely flags. A false pass is a safety failure and a false block is an adoption failure, and both live in the same data.",
+        "Which training the badge counts — required training only, or everything expired? A badge that surfaces training nobody needs for this work makes the list long and the signal weak.",
+        "Exactly where the badge appears: the crew list, the attendance checklist, the Site or Job people tab, and per person on supervisor mobile.",
+        "Who owns the expiry-rules problem in the matrix? Non-expiring courses against refresh cycles, and third-party courses whose rules cannot be changed.",
+        "Data fitness — a short spike before trusting the badge. At one client expiry is wrong in both directions: one topic never flags and another falsely flags. Nothing blocks any more, so a false flag costs attention rather than access — but it still costs trust.",
         "Who adds an external person's training on mobile? External people have no login in the MVP, so it presumably means a supervisor photographing their ticket.",
         "Dev: can this reuse the existing upload-certificate mechanism users already have on mobile, pointed at the external-person record instead of a user?"
       ],
       "scope": [
-        "Required topics set once as a company default and overridden per work context — N work contexts must not need N setups",
-        "Existing Site Access requirements carry over as a Site's requirements",
-        "A Job at a Site requires the Site's topics plus its own, and a topic required by both counts once",
-        "Four states per person per topic — current, expiring soon, expired, no record — always naming the topic and the date, with no record shown differently from expired",
-        "\"Expiring soon\" reuses the LMS's existing reminder windows; no new setting here",
-        "An external person's hand-entered training reads exactly like a user's record, so \"no record\" becomes actionable",
-        "Built as a service — given a person and a set of topics, what is the state of each and why — so the gate later is a switch rather than a rebuild"
+        "A small badge per person — \"3 outdated\" — wherever people are listed on a Site, a Job or a crew",
+        "A count beside the missing-forms count, as its own number that never merges into it",
+        "The badge links to that person's own training page, which already holds the detail; Field Management copies none of it",
+        "Informational only — it never blocks a sign-in, a Job pick, or anything else",
+        "Read from the training matrix as it stands: no requirements are set on a Site or a Job, and no new training data model",
+        "\"Expiring soon\" follows the reminder windows the matrix already runs on; no new setting here",
+        "An external person's hand-entered training reads exactly like a user's record, so \"no record\" becomes actionable"
       ],
       "actionFlag": null,
-      "evidence": "7 of 14 companies need to know who is cleared, and none of them is served at the point of work — they all find out late, and by hand. The two that gate hard do it in another system, so BIS is the evidence, not the gate. One client wants visibility rather than a gate, with warnings at 90, 60 and 30 days; another is against gating outright. Four clients did not raise it, and one did not discuss it at all — a hole in the data, not evidence against.",
-      "pmTicketNumber": null,
+      "evidence": "7 of 14 companies need to know who is cleared, and none of them is served at the point of work — they all find out late, and by hand. The two that gate hard do it in another system, so BIS is the evidence, not the gate. One client wants visibility rather than a gate, with warnings at 90, 60 and 30 days; another is against gating outright. Four clients did not raise it, and one did not discuss it at all — a hole in the data, not evidence against. What the badge answers is the seeing, which is the part nobody has. What it deliberately does not answer is the assigning, which is where the cost sits.",
+      "pmTicketNumber": 22343,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
@@ -1521,7 +1519,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       ],
       "actionFlag": null,
       "evidence": "Six clients across two corpora describe the same failure. This is the form-to-job link the six-anchors analysis names as the blocker for the job anchor — 4 of 15, the largest single anchor group — and now that Job sits inside the work-context engine, this is the ticket that makes those clients' numbers true. At one client the only link between a form and a job is a job number typed into the form's content, which is the structural defect that produces the retrieval pain. The biggest coverage lever in the backlog.",
-      "pmTicketNumber": null,
+      "pmTicketNumber": 22312,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
@@ -1534,7 +1532,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "sliceGroup": null,
       "sliceGroupTitle": null,
       "sliceLabel": null,
-      "summary": "Scan the thing you are about to work on — a code on equipment, a vehicle, an extinguisher — and its form, task or folder opens with the context filled in. A context mechanism, not a presence mechanism: scanning yourself onto a site stays Site Access's job. It extends something that already works; the unblock is removing the requirement that the scanned thing be an owned asset.",
+      "summary": "Scan the thing you are about to work on — a code on equipment, a vehicle, an extinguisher — and its form, task or folder opens with the context filled in. A context mechanism, not a presence mechanism: scanning yourself onto a site is the sign-in, and attendance owns that. It extends something that already works; the unblock is removing the requirement that the scanned thing be an owned asset.",
       "slice": null,
       "dependsOn": [
         "SM-01"
@@ -1546,8 +1544,8 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
           "note": "Per-asset counting — the same asset link approached from the other direction."
         },
         {
-          "key": "S-04c",
-          "note": "Scanning into a place, and the attendance field's existing QR option. Check what that option actually does before building a second mechanism."
+          "key": "S-04a",
+          "note": "Scanning into a place is a way into the sign-in that slice now owns, and the attendance form field has an existing QR option. Check what that option actually does before building a second mechanism."
         }
       ],
       "blockedByAlso": [
@@ -1559,7 +1557,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "maturity": null,
       "mvpBlocking": false,
       "mvpNote": "Tier C — after the MVP, scheduled and not urgent. It makes the worker-facing entry point better; nothing critical waits on it.",
-      "boundary": "Scanning yourself into a Site is Site Access's job, not this ticket's. Geolocation and geofencing belong to the mobile ticket. Printing and sticking labels is client operations, and a customer object belongs to contractor management.",
+      "boundary": "Scanning yourself into a Site is attendance's job, not this ticket's — sign-in moved into Field Management when the access feature folded in. Geolocation and geofencing belong to the mobile ticket. Printing and sticking labels is client operations, and a customer object belongs to contractor management.",
       "openQuestions": [
         "Where is the owned-asset requirement enforced, and what does a scan resolve against? The pre-build check — nobody has looked, and it is the cheapest unblocking action on the ticket.",
         "Does BIS create the code, or read someone else's?",
@@ -1585,8 +1583,8 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "sliceGroup": "S-04",
       "sliceGroupTitle": "Attendance",
       "sliceLabel": "Slice A",
-      "summary": "One presence record, and the supervisor checklist that fills it. It opens pre-filled from the crews assigned to a Site or a Job, and one supervisor marks people present or absent — no per-person device or login, which is the whole argument. Every entry stores who, where, when, status, proof level and who recorded it. Signatures are in: where a client requires them, each person signs for themselves, on a passed-around device or on their own.",
-      "slice": "Slice A of three. The presence record, the supervisor checklist on Sites and Jobs, and the \"signed\" proof level — which moved in from the last slice, because clients compare this with the form attendance field everyone already uses for signatures, and a tool that cannot collect one is useless to them.",
+      "summary": "One presence record, and the supervisor checklist that fills it. It opens pre-filled from the crews assigned to a Site or a Job, and one supervisor marks people present or absent — no per-person device or login, which is the whole argument. Nobody needs a crew to be on the list. Sign-in and sign-out come in with it: they move out of the existing access feature and become this component, on any Site or Job, with their history migrated so past sign-ins still report. Every entry stores who, where, when, status, proof level and who recorded it. Signatures are in: where a client requires them, each person signs for themselves, on a passed-around device or on their own.",
+      "slice": "Slice A of three, and the slice that keeps growing. The presence record, the supervisor checklist on Sites and Jobs, the \"signed\" proof level — which moved in from the last slice, because clients compare this with the form attendance field everyone already uses for signatures — and now sign-in and sign-out themselves, which came in with the access feature rather than waiting for Slice C.",
       "dependsOn": [
         "SM-01",
         "SM-02",
@@ -1595,8 +1593,12 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "relatedTo": [],
       "related": [
         {
-          "key": "SM-06a",
-          "note": "Training status shows beside each name as presence is marked. It shows; it never blocks — that is how the old conflict between these two was resolved."
+          "key": "SM-06",
+          "note": "The compliance badge shows beside each name as presence is marked. It shows; it never blocks — that is how the old conflict between these two was resolved. Exactly where it sits on the checklist is an open placement."
+        },
+        {
+          "key": "SM-05",
+          "note": "Scanning into a place is a way into the sign-in this slice now owns, and the existing attendance form field has a QR option of its own. Check what that option actually does before a second mechanism gets built."
         }
       ],
       "blockedByAlso": [],
@@ -1604,11 +1606,10 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "mergedFrom": null,
       "maturity": null,
       "mvpBlocking": true,
-      "mvpNote": "MVP-blocking. The one supervisor action the research evidences — mark present, he's driving — is this checklist. Materially bigger than when it was first sized, now that signing is in.",
-      "boundary": "Attendance capture only. The meeting object is its own ticket and reviewer sign-off is another. The new component and the existing attendance form field share no data path — deliberately and permanently, because bridging them means maintaining a route into something clients will leave on their own once the new one works better.",
+      "mvpNote": "MVP-blocking. The one supervisor action the research evidences — mark present, he's driving — is this checklist. Materially bigger than when it was first sized: signing moved in, and then sign-in and sign-out moved in on top of it.",
+      "boundary": "Attendance capture only. The meeting object is its own ticket and reviewer sign-off is another. The access feature's own compliance check is not this ticket either — it stays behind the Access option, untouched. The new component and the existing attendance form field share no data path — deliberately and permanently, because bridging them means maintaining a route into something clients will leave on their own once the new one works better.",
       "openQuestions": [
         "What do users actually see instead of \"attendance\"? Who's on site on a Site, who's on the job on a Job, attendees on a Meeting — the component is never named to users.",
-        "Should existing Site Access sign-ins count as \"signed in\" attendance from day one? It is close to free once the site object is shared.",
         "Why is the existing per-person signing not reaching clients — discoverability, defaults, scale, or a mobile gap? If a shipped capability is not being adopted, shipping more configurable capability does not fix it, and this initiative is about to ship a lot of it.",
         "Does a regulator accept a sign-in as a signature, and are saved signatures legally acceptable? Both are compliance questions, and a supervisor must never be able to apply someone else's saved signature.",
         "Dev, about ten minutes: is the attendee user-id on the existing per-attendee table nullable? It decides whether the old form field can hold external people; the new component holds them either way.",
@@ -1618,14 +1619,17 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "scope": [
         "One presence record with the proof level stored from day one — marked by supervisor, signed in, signed — even though the minimum is set per use",
         "The supervisor checklist, pre-filled from the crews on a Site or a Job, with add and remove; it is a starting point, not a lock",
+        "People can be added directly, with or without a crew — nobody needs a crew to sign in",
+        "Sign-in and sign-out, the who's-on-site list, timers and notifications move out of the existing access feature into this component, on any Site or Job",
+        "Existing sign-in history is migrated, so past sign-ins still report",
         "People not yet recorded show as a gap, grouped by crew, so the gap is attributable — never as a blank",
         "\"Mark all present\" is recorded as the supervisor's observation, never as an attestation on anyone's behalf",
         "Selecting a Job or Site writes a presence entry, which is what makes that person owe that day's rituals there",
-        "Signatures — pass the device, or each person signs on their own; every signature stores who signed, when and on which device"
+        "Signatures — pass the device, or each person signs on their own; every signature stores who signed, when and on which device, reusing the existing mobile signature component rather than a new one"
       ],
       "actionFlag": null,
       "evidence": "One person needs the app, not the whole crew, and the corpus makes that decisive: personal devices are banned in roughly 75% of areas at one client, field workers never reopen the app at another, 15 of 49 projects refuse it at a third, and a fourth will not install it at all. Per-attendee signing already exists in code — a dedicated attendee table, signature writes, outstanding-signature tracking, remote and deferred signing — so the capability is not missing. What is missing is recording presence without a form, filling the list without typing, and one record every way in writes to. One client rejects bulk-attest outright on legal grounds; another's loudest single ask is to stop making foremen retype 20–30 names, and that same client had no timestamps on its hazard-assessment entries, which the safety regulator flagged after an accident. 11 of 15 run safety meetings and 7 report specific pain.",
-      "pmTicketNumber": null,
+      "pmTicketNumber": 22313,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
@@ -1666,7 +1670,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       ],
       "actionFlag": null,
       "evidence": "One client's loudest single ask is to stop making foremen retype 20–30 names. The capability the field already has is per-person signing; what it lacks is any way to fill the list that is not typing, and the one filter that exists is scoped by location.",
-      "pmTicketNumber": null,
+      "pmTicketNumber": 22313,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
@@ -1692,7 +1696,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "mergedFrom": null,
       "maturity": null,
       "mvpBlocking": true,
-      "mvpNote": "MVP-blocking. In the MVP only a client admin has full access and only a client admin grants \"Can view\", and a grant sends a notification, like sharing a file.",
+      "mvpNote": "MVP-blocking. In the MVP only a client admin has full access and only a client admin grants \"Can view\", and a grant sends a notification, like sharing a file. Access starts crew-based alongside it: on a crew, you see that crew.",
       "boundary": "Sites and Jobs are the only scope type. Field Management's permissions are a clean sheet — they do not read from or change today's system roles, so the build must not lean on them. The coarse none / read-only / full edit on crew members belongs to the crew ticket, not here.",
       "openQuestions": [
         "Is the additive union always safe? Grants only ever add, which avoids a precedence engine, but nobody has checked for a case where the union over-grants in a way a client would object to.",
@@ -1705,57 +1709,12 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
         "A read-only user can open everything in scope and change nothing; someone with no grant cannot see its records",
         "A grant never reduces access a person already holds",
         "Only a client admin grants it in the MVP, and the person or crew is notified",
-        "Regression: system roles behave exactly as today for anyone with no Field Management grant"
+        "Regression: system roles behave exactly as today for anyone with no Field Management grant",
+        "A site-wide view — everything on a Site, across every crew — is deliberately not in this slice; access starts crew-based and that view comes with the full model"
       ],
       "actionFlag": null,
       "evidence": "6 clients, ranked number one by two of them. One client's record-validator is forced into full admin because there is nothing between learner and admin, and is now doing things she should not be doing. At another, the people who can view training can also edit it, which they call a big risk, and not seeing across locations is in their words by far their biggest problem right now. At a third the only available workaround breaks their payroll-system integration, so \"they can already do this\" is not true in practice.",
-      "pmTicketNumber": null,
-      "pmStatus": null,
-      "pmAssignee": null,
-      "pmUrl": null
-    },
-    {
-      "key": "SM-06b",
-      "title": "Training requirements — the gate",
-      "tier": "C",
-      "role": "child",
-      "sliceGroup": "SM-06",
-      "sliceGroupTitle": "Training requirements",
-      "sliceLabel": "the gate",
-      "summary": "Entry can require several competency topics at once, on Sites with Site Access switched on. Today's gate checks one topic, which is how a contractor with a valid induction and an expired licence walks straight through it. Failure is legible — it names which topic failed and why — and the result is consumable by a client's own gate hardware rather than only shown in BIS.",
-      "slice": "The second of two slices. It is the same check as the signal, enforcing the result instead of showing it, which is why it is a switch rather than a rebuild.",
-      "dependsOn": [
-        "SM-06a"
-      ],
-      "relatedTo": [],
-      "related": [
-        {
-          "key": "SM-01",
-          "note": "It only applies to Sites with Site Access switched on, so what happens to Site Access decides what this gate eventually attaches to."
-        }
-      ],
-      "blockedByAlso": [],
-      "blocksNote": "Nothing waits on it. Today's single-topic gate keeps working until this lands.",
-      "mergedFrom": null,
-      "maturity": null,
-      "mvpBlocking": false,
-      "mvpNote": "Tier C — after the MVP, and deliberately so. The data is not fit to block people with yet, and the clients who gate hard already gate somewhere else.",
-      "boundary": "Jobs warn and never block — a standalone Job has no entry gate at all. Gate hardware integration is not this ticket: the check is exposed, whose turnstile consumes it is not.",
-      "openQuestions": [
-        "Site entry and work authorisation are easy to conflate — different features, different data. Resolve that before building.",
-        "What happens when training expires mid-shift? The signal updates; whether anything happens to someone already inside is open.",
-        "Who is the failure message for — the operator, the contractor, or their employer? The blocked person may not be holding a phone, and at two clients a personal device is banned or refused.",
-        "Where required topics are set up is still open, and it is the same question the signal is waiting on."
-      ],
-      "scope": [
-        "On a Site with Site Access switched on, entry can require several topics; one expired topic denies entry",
-        "A denied entry names which topic failed and why, so the person blocked can act on it",
-        "The result is consumable by client hardware, not only shown in BIS",
-        "Regression: today's single-topic gate behaves exactly as it does now"
-      ],
-      "actionFlag": null,
-      "evidence": "One client's number one ask, raised unprompted: an electrical contractor with a valid induction but an expired licence walks straight through the gate. State the base honestly — one client and one scenario, and only one or two clients use Site Access at all. That is a reason to build it, not a reason to size it as if it had corpus-wide backing.",
-      "pmTicketNumber": null,
+      "pmTicketNumber": 22314,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
@@ -1768,7 +1727,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "sliceGroup": null,
       "sliceGroupTitle": null,
       "sliceLabel": null,
-      "summary": "What is owed. Two layers: the ritual is the bundle — forms, tasks, files linked from Folders, and forms that belong to an asset — defined once centrally; the attachment is which work context does it, on what schedule, and who owes it. Cadence lives on the attachment, so one ritual runs daily at one site and weekly at another. A ritual is set once and left to run; one-off work is a task added or a form assigned inside the Site or Job, never a ritual.",
+      "summary": "What is owed. The model reads as what, applies to, trigger: the ritual is the bundle — forms, tasks and files linked from Folders — defined once centrally; it applies to a work context; and the trigger says when. In the MVP the only trigger is the schedule, built so sign-in, a set time or an incident can be added later. Cadence lives on the attachment, so one ritual runs daily at one site and weekly at another. A ritual is set once and left to run; one-off work is a task added or a form assigned inside the Site or Job, never a ritual.",
       "slice": null,
       "dependsOn": [
         "SM-01",
@@ -1788,51 +1747,49 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "maturity": null,
       "mvpBlocking": true,
       "mvpNote": "MVP-blocking. It is what the gap view compares against.",
-      "boundary": "Sites and Jobs only. Only recurring rituals can be outstanding; triggered ones like Incident have no cadence and never appear in the gap view. Assets themselves are never bundle content — link the asset's form instead. One-off work is not a ritual: a random form on a Wednesday would make the ritual's reporting meaningless.",
+      "boundary": "Sites and Jobs only. Only recurring rituals can be outstanding; triggered ones like Incident have no cadence and never appear in the gap view. Assets themselves are never bundle content — link the asset's form instead, and that has moved out of the first phase anyway. One-off work is not a ritual: a random form on a Wednesday would make the ritual's reporting meaningless. Where one-off work is built — here, or as a link out to Folders — is now a company decision rather than this ticket's to make. Ritual sequencing and time windows are later.",
       "openQuestions": [
         "The name. Product leadership dislikes \"ritual\" but offered no alternative — task and job are taken, and requirement implies something pre-existing. Worth revisiting alongside the module rename.",
         "Uploading a standalone file with no Folders link is still open, and so is how clients without the Folders module reuse a file without storing copies.",
         "Per arrival. One client does 1–10 per shift, per access point, and the MVP owes once per day per Job. Is per-arrival needed at launch, or is on-demand with no obligation honest for now?",
-        "Counting per asset is in scope but open — is listing assets on the attachment the right mechanism, or does it need a general asset-to-work-context link? The agreed priority order is forms, then files, then assets.",
+        "Counting per asset is in scope but open — is listing assets on the attachment the right mechanism, or does it need a general asset-to-work-context link? The agreed priority order is forms, then files, then assets, and linking a form that belongs to an asset has now moved out of the MVP's first phase.",
         "Do loose items modelled as a ritual of one cause any visible oddity in reporting?",
         "A \"duplicate this ritual\" action, so one Site can have its own variation without changing everyone's — keep it, or leave it to the ritual page?",
         "A meeting on both a Site and a Job at that Site — one meeting or two? Double counting has to be avoided either way.",
-        "Dev, about 25 minutes before estimating: what columns the existing form-frequency settings table carries, whether any working-days or operating-calendar table exists anywhere, and whether in-progress drafts can be read for a given obligation."
+        "Dev, about 25 minutes before estimating: what columns the existing form-frequency settings table carries, whether any working-days or operating-calendar table exists anywhere, and whether in-progress drafts can be read for a given obligation.",
+        "Required and optional items in a bundle — a proposal, not a decision. An optional item would work as on-demand: there if you need it, never counted as missing. It ties directly to where one-off work ends up living."
       ],
       "scope": [
+        "The model — what, applies to, trigger. In the MVP the only trigger is the schedule, built so sign-in, a set time or an incident can be added later",
         "Cadence vocabulary: fixed interval, working-days-only, use-triggered, metered, sub-day or shift-based",
         "Freeform scheduling with exceptions",
         "A starter ritual library so day one is not blank",
         "Counts per person, per crew or per work context — set on the attachment, not on the bundle",
-        "Files linked from Folders, and forms that belong to an asset, alongside forms and tasks",
-        "A trigger that assigns once a person is confirmed on the work context — not the clock, and not a scan"
+        "Per-person obligations are owed by whoever signed in that day, on Sites as well as Jobs; a ritual counted per work context follows that work context's own calendar",
+        "Files linked from Folders, alongside forms and tasks. Forms that belong to an asset have moved out of the MVP's first phase"
       ],
       "actionFlag": null,
       "evidence": "Cadence is not a recurrence rule. A daily check at a site that works 27 days in a 31-day month would count 31 days owed against 27 worked — 4 phantom misses per site, every month. The client was plain that the engine gets discarded if it does that.",
-      "pmTicketNumber": null,
+      "pmTicketNumber": 22310,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
     },
     {
       "key": "S-04c",
-      "title": "Attendance — more ways in",
+      "title": "Attendance — more places to attach",
       "tier": "C",
       "role": "child",
       "sliceGroup": "S-04",
       "sliceGroupTitle": "Attendance",
       "sliceLabel": "Slice C",
-      "summary": "More ways to establish presence — sign-in at the gate, a QR scan — and more places the component attaches: meetings, form witnesses, tasks. All of it writes to the same presence record the first slice builds, which is exactly why that record stores a proof level from day one rather than having one backfilled later.",
-      "slice": "Slice C of three, and the one that grew smaller: the \"signed\" proof level used to live here and moved into Slice A, taking meetings and reviewer sign-off with it.",
+      "summary": "More places the attendance component attaches: meetings, form witnesses, tasks. All of it writes to the same presence record the first slice builds, which is exactly why that record stores a proof level from day one rather than having one backfilled later.",
+      "slice": "Slice C of three, and the one that keeps shrinking. The \"signed\" proof level used to live here and moved into Slice A, taking meetings and reviewer sign-off with it; sign-in and QR followed when the access feature folded into Field Management, so what is left is the attachment points.",
       "dependsOn": [
         "S-04a"
       ],
       "relatedTo": [],
       "related": [
-        {
-          "key": "SM-05",
-          "note": "The attendance field's existing QR option may be this same mechanism approached from the other end. Check it before building a second one."
-        },
         {
           "key": "SM-07",
           "note": "A later place the component attaches. Meetings' own attendance no longer waits on this slice — it comes through the signed level in Slice A."
@@ -1846,17 +1803,15 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "mvpNote": "Tier C — after the MVP, scheduled and not urgent.",
       "boundary": "Geolocation as a way in stays out: it asserts presence with no human action, needs an always-on permission that app-hostile crews will not grant, and fails for accuracy exactly where it is needed. The salvageable version is geo as corroboration — stamp the location when someone taps \"I'm here\".",
       "openQuestions": [
-        "Site Access sign-in and QR pull a licensed, toggled service into scope. The likely blocker is commercial rather than technical: if presence has to work for every client, that constraint decides it.",
-        "Four candidate modes — supervisor checklist, self sign-in, QR scan, geotag — are not equally good. Treat them as one presence record with four sources rather than four features.",
+        "Which attachment point is worth building first. Meetings is the only one with a ticket of its own, and it reads the presence record rather than this slice.",
         "Are free-text guest attendees allowed anywhere outside the external-person record? If they are, \"everyone signs beside their own name\" has an unresolvable subset."
       ],
       "scope": [
-        "Site Access sign-in and QR scan as additional ways into the same presence record",
         "The component attaching to meetings, to forms as witnesses, and to tasks"
       ],
       "actionFlag": null,
-      "evidence": "Site Access already records presence — sign-in, sign-out, QR capture and visitors. With the site object shared, that becomes a natural second way in rather than a new build.",
-      "pmTicketNumber": null,
+      "evidence": "The attendance component only pays for itself once the same record is behind every place people are counted — a meeting, a witnessed form, a task. The ways in all landed earlier than planned: sign-in, sign-out and QR capture came into Slice A with the access feature, so what is left here is reach rather than capture.",
+      "pmTicketNumber": 22313,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
@@ -1954,7 +1909,8 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
         "Validate the ask before counting a client. Sometimes what a client calls a permissions problem is really a reporting problem; one example turned out to need a dashboard, not a grant. That costs one question per client and could shrink the ticket materially.",
         "Who hands out grants after the MVP — can a supervisor share read-only access themselves?",
         "A Site or Job supervisor — a grant, or a field on the work context?",
-        "The three-level ceiling on the share-sheet option: a client who needs a fourth level has nowhere to go until the system-wide version exists. Say that out loud, or the first client to hit it reads it as a bug."
+        "The three-level ceiling on the share-sheet option: a client who needs a fourth level has nowhere to go until the system-wide version exists. Say that out loud, or the first client to hit it reads it as a bug.",
+        "What shape the site-wide manager view takes — everything on a Site, across every crew. It was deferred to this model when access was set to start crew-based, and nobody has drawn it."
       ],
       "scope": [
         "Option A — a share sheet: full access, can edit, can view, granted to a subject over a scope",
@@ -1964,7 +1920,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       ],
       "actionFlag": null,
       "evidence": "The pattern clients want already exists elsewhere — one client demoed another platform mid-interview, picking exactly what people could and could not see rather than accepting pre-canned roles. Contractor management needs the same thing on contractor sites, for roughly half of the clients interviewed for it. Building segmentation into a module that has no pages yet costs a fraction of retrofitting it into pages that do — an argument, not a measurement: nobody has estimated either half.",
-      "pmTicketNumber": null,
+      "pmTicketNumber": 22314,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
@@ -1984,7 +1940,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
         "SM-02",
         "SM-03",
         "S-04a",
-        "SM-06a"
+        "SM-06"
       ],
       "relatedTo": [],
       "related": [
@@ -2001,7 +1957,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "mergedFrom": null,
       "maturity": "No end user or supervisor was interviewed. All 15 interviews were with admins, so every claim here about what a supervisor or worker wants is a safe bet, not evidence. Say so every time this ticket is presented.",
       "mvpBlocking": true,
-      "mvpNote": "MVP-blocking — the supervisor surface in full, and the worker surface as a small slice. It no longer waits on scoped permissions: a supervisor sees the work contexts their crew is assigned to, built entirely from Crew.",
+      "mvpNote": "MVP-blocking — the supervisor surface in full, and the worker surface as a small slice. It no longer waits on scoped permissions: a supervisor sees the work contexts their crew is assigned to, built entirely from Crew. The gap view is in the MVP on the app as well as the web, so this ticket carries it too.",
       "boundary": "Not work dispatch. No time-of-day push, never delivered as assignments, and it has to tolerate late and backdated submissions. Fixing things is on both platforms; creating things is web-only, so Sites and Jobs are not created on mobile in the MVP.",
       "openQuestions": [
         "Offline: sync or degrade? Either the obligation set syncs to the device or the mobile surface degrades to something that works offline. One client runs 50–80% no-signal sites; at another, operators go days without connectivity. This is the blocking decision and it needs its own working session.",
@@ -2013,16 +1969,17 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
         "Which team and repo own this? The app is a different codebase from the backend, so this may need splitting by repo even though it is one product surface."
       ],
       "scope": [
-        "A. Supervisor — state first and names second, grouped by ritual, with three states on every obligation and the training count beside missing forms",
+        "A. Supervisor — state first and names second, grouped by ritual, with three states on every obligation and the compliance badge beside missing forms, read from the training matrix and linking out to each person's own training page",
         "A. Supervisor actions, edit but not create — mark present, collect signatures, add or remove people for today, move a ritual for this work context only, move people and crews",
-        "B. Worker — a \"today\" filter over the lists they already use, and the list of Sites and Jobs to pick from; selecting one starts their day on it",
+        "B. Worker — a \"today\" filter over the lists they already use, and the list of Sites and Jobs to pick from; picking one is the sign-in, and it starts their day on it",
         "B. Direction, not locked: a \"your day\" home screen woven into the app rather than a separate page",
         "C. Working out where someone is — scan and geolocation stay nice-to-have; geolocation suggests, it never transforms",
-        "D. Web against mobile decided deliberately rather than inherited — fixing on both, creating on the web"
+        "D. Web against mobile decided deliberately rather than inherited — fixing on both, creating on the web",
+        "E. Who's on the field — sign-in and sign-out, the live list, timers and notifications, moved over from the existing access feature. ⏳ In the MVP, or just after?"
       ],
       "actionFlag": null,
       "evidence": "One client's number one ask is explicitly mobile. A field-facing admin at another has to leave the app for mobile web to read a colleague's submission. At a third, bulk-adding attendees is web-only — the highest-volume, most time-critical task sits on the platform the foreman is not holding. The reliable mobile user is the supervisor, not the worker, and the worker surface is deliberately small because the demand is real while the reach is not: devices banned in roughly 75% of areas at one client, workers who never reopen the app at another, 15 of 49 projects refusing it at a third, and an outright install refusal at a fourth.",
-      "pmTicketNumber": null,
+      "pmTicketNumber": 22311,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
@@ -2061,7 +2018,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "mergedFrom": null,
       "maturity": "The evidence is thinner than for the rest of the initiative. The two strongest asks came through client services and through one interview outside the 15-interview study, and the details of the strongest one are relayed second-hand rather than in the client's own words. Enough to justify a ticket; not enough to size it big.",
       "mvpBlocking": false,
-      "mvpNote": "Tier B — start now, independently of the MVP, because a client is waiting. It is not part of the Field Management release: it does not wait for it, and Field Management does not wait for it. It works on any completed form.",
+      "mvpNote": "Tier B — start now, independently of the MVP, because a client is waiting. It is not part of the Field Management release: it does not wait for it, and Field Management does not wait for it. It works on any completed form. The sign-off component it shares with attendance is already being designed through another ticket, reusing the existing mobile signature component, so the order-of-work worry that hung over this has largely answered itself.",
       "boundary": "Not editing completed forms, and not a replacement for form stages — stages keep working for clients who want the form to wait. Required sign-off sequences would turn this back into a workflow. Documents that are not forms, and approving training records, are separate questions.",
       "openQuestions": [
         "Who may sign off, before the full permission model exists? A setting on the form template — \"these roles can sign off\" — or a crew. The template setting is closest to what exists today.",
@@ -2081,8 +2038,8 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
         "Reporting: signed off or not, by whom and when, plus a list of completed forms still waiting"
       ],
       "actionFlag": "Start now — a client is waiting",
-      "evidence": "Two direct asks — one relayed through a sprint meeting, one from an interview outside the 15-client study — plus one more through client services, one direct corpus case, one client who does it outside BIS entirely, and three adjacent cases. The sharpest shape: a supervisor makes unannounced visits and needs to sign off the daily hazard assessment after arriving, because the crew completed it before they got there and the only company tablet on site belongs to the foreperson. What is missing is a signature that sits beside a finished form, from someone who was not pre-assigned.",
-      "pmTicketNumber": null,
+      "evidence": "Two direct asks — one relayed through a sprint meeting, one from an interview outside the 15-client study — plus one more through client services, one direct corpus case, one client who does it outside BIS entirely, and three adjacent cases. The sharpest shape: a supervisor makes unannounced visits and needs to sign off the daily hazard assessment after arriving, because the crew completed it before they got there and the only company tablet on site belongs to the foreperson. What is missing is a signature that sits beside a finished form, from someone who was not pre-assigned. The newest ask is a client wanting to sign off compliance on procedures held in Folders, and that is the ticket the shared component is being designed through.",
+      "pmTicketNumber": 22316,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
@@ -2104,7 +2061,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
         "SM-04",
         "S-01",
         "S-04a",
-        "SM-06a",
+        "SM-06",
         "S-02a",
         "S-06"
       ],
@@ -2115,13 +2072,12 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "mergedFrom": null,
       "maturity": null,
       "mvpBlocking": true,
-      "mvpNote": "This is the MVP. It ships when its nine Tier A blockers ship — and one of those, the training signal, is itself waiting on product leadership, so the count is nine today rather than nine for certain.",
-      "boundary": "A record and omission layer, not a work-dispatch tool. Don't build a place to work; build a place that proves work happened and says what's missing. The honest limit: a client whose places are all Locations gets less on day one until live-linked Locations land, and those cannot slip far behind the MVP.",
+      "mvpNote": "This is the MVP. It ships when its nine Tier A blockers ship. The training badge came off hold at the Oct 1 check-in and was cut down to a badge read from the training matrix, so the nine is now nine rather than eight and a question.",
+      "boundary": "A record and omission layer, not a work-dispatch tool. Don't build a place to work; build a place that proves work happened and says what's missing. It is a paid module with a free trial period, which is what makes the overlap with Folders and Assets a company decision rather than a scoping one. The honest limit: a client whose places are all Locations gets less on day one until live-linked Locations land, and those cannot slip far behind the MVP.",
       "openQuestions": [
         "Offline — sync or degrade? The blocking decision for mobile, and a roughly 30-minute working session closer to build.",
         "Uploading a standalone file to a ritual, without Folders — in or out? Files linked from Folders are in.",
-        "Rituals counting per asset — in scope, still open. Linking a form that belongs to an asset is in.",
-        "A Site or Job supervisor — someone who oversees a whole work context, not just a crew.",
+        "Rituals counting per asset — in scope, still open. Linking a form that belongs to an asset has moved out of the MVP's first phase.",
         "Saved signatures — check with compliance before build.",
         "Setup — Sites and Jobs in one pass, or one kind at a time?",
         "Who adds a visitor's training on mobile?",
@@ -2129,28 +2085,28 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
         "The name \"Ritual\" — still a working name."
       ],
       "scope": [
-        "1. Work contexts index — one row per Site or Job, state as the leftmost visual, with the training count beside it as a separate number",
+        "1. Work contexts index — one row per Site or Job, state as the leftmost visual, with the compliance count beside it as a separate number",
         "2. Single work-context view — this period's obligations grouped by ritual, broken down by job and by crew",
-        "3. Day one — pick the kinds and their labels, existing Site Access sites already there, import from Assets, attach a starter ritual",
-        "4. Surfacing what's outstanding — a ranking rule, not a screen; a draft counts as outstanding, labelled in progress",
+        "3. Day one — pick the kinds and their labels, existing sites already there, import from Assets, attach a starter ritual",
+        "4. Surfacing what's outstanding — the gap view, on the web and in the app, in the MVP. A ranking rule, not a screen; a draft counts as outstanding, labelled in progress. It may become a platform-wide pattern",
         "5. Why it counted — who submitted it, their home location, the work context it counts toward, and how that was decided",
         "6. Job close-out — awaiting close, confirm, close-out, then the exportable evidence pack",
         "7. Notification triggers — on the existing email and text rails, conservative defaults, no time-of-day push",
         "8. Calendar view and past-day lookup — low priority",
-        "9. One-off assignment — add a task or assign a form inside a Site or Job, counting toward it",
-        "10. Real-time event view — undecided, and it follows the Site Access answer",
-        "Release materials, agreed but not a ticket: documentation and an FAQ, a webinar, onboarding videos, and an in-product tour"
+        "9. One-off assignment — add a task or assign a form inside a Site or Job, counting toward it. ⏳ Whether that is built here or linked out to Folders is a company decision",
+        "10. Who's on the field — sign-in and sign-out, the live list, timers and notifications, Field Management's own now and moved over from the access feature with their history migrated. ⏳ In the MVP, or just after?",
+        "Commercial — a paid module with a free trial period. ⏳ The overlap with Folders and with Assets needs a company decision before those parts are built",
+        "Release materials, agreed but not a ticket: documentation and a knowledge base, a webinar, onboarding videos, and an in-product tour"
       ],
       "actionFlag": null,
       "evidence": "The risk that outranks every ticket is setup burden. A safety lead with 52 branches was handed a working setup path for her own number one pain and never did it — it was simply too much. If the best-case user will not set it up, nobody will, so every decision is measured against what a client gets on day one with zero setup. Around 7 independent clients describe the same core need, which makes it the best-corroborated finding in the study. And every interview was with an admin: no supervisors, no field workers, so everything about what they want is a safe bet rather than evidence.",
-      "pmTicketNumber": null,
+      "pmTicketNumber": 21851,
       "pmStatus": null,
       "pmAssignee": null,
       "pmUrl": null
     }
   ]
-}
-</script>
+}</script>
 <!-- ROADMAP-DATA:END -->
 
 <!-- SCOPE-DATA:BEGIN ───────────────────────────────────────────────────────────
@@ -2173,7 +2129,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
      hand-written total is a total that can contradict the grid.
 
      A column key must exist in the roadmap data. Where a ticket is SPLIT, the
-     key is the SLICE — SM-06a, not SM-06 — because a scope item is gated by one
+     key is the SLICE — S-04a, not S-04 — because a scope item is gated by one
      slice of that ticket, not by all of it.
      ─────────────────────────────────────────────────────────────────────── -->
 <script type="application/json" id="scope-data">
@@ -2184,18 +2140,18 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     "authority": "The parent ticket file is the source of truth. Do not invent scope items or dependencies here, and do not hand-write a total.",
     "columns": "Every key in `columns` must also exist in the roadmap data's tickets array — the view reads tier and title from there, which is what keeps the matrix colour-matched to the Map instead of carrying a second copy of the palette. A split ticket is referenced by its slice key.",
     "zeroColumns": "Four Tier A tickets are carried as columns with nothing in them, on purpose: SM-04 Mobile, S-04a Attendance, S-02a scoped view access and S-06 External people. The parent's scope is the WEB interface, and none of those four gates a piece of it — mobile is its own surface with its own scope list, attendance and the external-person record are consumed by the interface rather than gating it, and read-only access decides who may open the module rather than what gets built. All four still block the release. A rendered zero reads as a measured finding; a missing column reads as an oversight.",
-    "pending": "Item 10 has no dependency list and is NOT independent — it is undecided, and it follows the Site Access question waiting on product leadership. `pending` on an item suppresses the 'buildable now' reading that an empty dependency list would otherwise get."
+    "pending": "Item 10 has no dependency list and is NOT independent — where it lives is settled, and only its timing is undecided. `pending` on an item suppresses the 'buildable now' reading that an empty dependency list would otherwise get."
   },
 
   "parentKey": "SM-MVP",
-  "columns": ["SM-01", "SM-03", "S-01", "SM-02", "SM-06a", "SM-04", "S-04a", "S-02a", "S-06"],
+  "columns": ["SM-01", "SM-03", "S-01", "SM-02", "SM-06", "SM-04", "S-04a", "S-02a", "S-06"],
 
   "items": [
     {
       "n": 1,
       "name": "Work contexts index",
-      "built": "One row per Site or Job, state as the leftmost visual — current or N outstanding — with the training count beside it as a separate number that never merges into the first. Jobs show their dates and can show awaiting close. Most outstanding first by default.",
-      "dependsOn": ["SM-01", "S-01", "SM-06a"],
+      "built": "One row per Site or Job, state as the leftmost visual — current or N outstanding — with the compliance count beside it as a separate number that never merges into the first. Jobs show their dates and can show awaiting close. Most outstanding first by default.",
+      "dependsOn": ["SM-01", "S-01", "SM-06"],
       "priority": null,
       "pending": false,
       "flag": null
@@ -2204,7 +2160,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "n": 2,
       "name": "Single work-context view",
       "built": "This period's obligations grouped by ritual; missing on top, completed collapsed beneath, each one not started, in progress or completed. The header states the period and the cutoff. A Site's view breaks its gaps down by job, and any view can break them down by crew.",
-      "dependsOn": ["SM-01", "SM-02", "SM-03", "S-01", "SM-06a"],
+      "dependsOn": ["SM-01", "SM-02", "SM-03", "S-01", "SM-06"],
       "priority": null,
       "pending": false,
       "flag": null
@@ -2221,7 +2177,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     {
       "n": 4,
       "name": "Surfacing what's outstanding",
-      "built": "A ranking rule, not a screen: incomplete above complete everywhere, and complete collapses to a count. A draft counts as outstanding, labelled \"in progress\", so nobody chases someone halfway through a form. Calculated on read, snapshotted at period close.",
+      "built": "The gap view, and it is in the MVP on the web and in the app. A ranking rule, not a screen: incomplete above complete everywhere, and complete collapses to a count. A draft counts as outstanding, labelled \"in progress\", so nobody chases someone halfway through a form. Calculated on read, snapshotted at period close. It may become a platform-wide pattern.",
       "dependsOn": ["SM-01", "SM-03", "S-01"],
       "priority": null,
       "pending": false,
@@ -2266,20 +2222,20 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     {
       "n": 9,
       "name": "One-off assignment — add task, assign form",
-      "built": "Rituals are set once and never used for one-off work. Instead, inside a Site or Job, an admin can add a task or assign a form to people or a crew. It counts toward that work context, shows in its view, and is owed once.",
+      "built": "Rituals are set once and never used for one-off work. Instead, inside a Site or Job, an admin can add a task or assign a form to people or a crew. It counts toward that work context, shows in its view, and is owed once. Whether that is built here or linked out to Folders is now a company decision, and clients will look for it on the Forms page first either way.",
       "dependsOn": ["SM-01", "SM-02"],
       "priority": null,
       "pending": false,
-      "flag": "Onboarding matters — clients will try Forms first"
+      "flag": "Reopened — built here, or linked to Folders?"
     },
     {
       "n": 10,
-      "name": "Real-time event view",
-      "built": "A read-only, auto-refreshing list of who's on site, for emergencies — discussed as Site Access's sign-in and sign-out carried over, with a flag for overdue sign-outs. Only one client of fifteen asked for live presence, for muster, and it needs sign-in data most clients don't have. Keep it read-only, or cut it.",
+      "name": "Who's on the field",
+      "built": "Sign-in and sign-out, the live who's-on-site list, timers and notifications — Field Management's own now, moved over from the existing access feature with their history migrated so past sign-ins still report. A read-only, auto-refreshing list for emergencies, with a flag for overdue sign-outs. Only one client of fifteen asked for live presence, for muster, which is the argument for landing it just after the MVP rather than for cutting it.",
       "dependsOn": [],
       "priority": null,
       "pending": true,
-      "flag": "⏳ Undecided — follows the Site Access answer"
+      "flag": "⏳ In the MVP, or just after?"
     }
   ],
 
@@ -2287,9 +2243,9 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     "SM-01 is the floor. It gates every scope item that has a gate at all — nothing in the interface starts before the work-context engine exists, and it is the only ticket that gates the majority of the list.",
     "Four Tier A tickets gate nothing on this matrix, and that is the answer rather than a gap. SM-04 Mobile is its own surface with its own scope list. S-04a Attendance and S-06 External people are consumed by the interface — the index renders presence and holds a guest row — rather than gating what gets built. S-02a decides who may open Field Management, not what is in it. All four still block the release, which is exactly why the zeros are worth rendering: MVP-blocking and interface-gating are different questions, and the matrix only answers the second.",
     "Notification triggers is the only scope item that is genuinely independent. It ships on the existing email and text rails and needs no new object, so it is buildable now, in parallel with the foundations — the one piece of the MVP that does not have to wait.",
-    "The real-time event view has an empty row for a completely different reason, and the page marks it separately rather than letting it read as \"buildable now.\" It is undecided, and it follows the Site Access question waiting on product leadership. It is carried here rather than dropped, because dropping it would quietly make the decision.",
+    "Who's on the field has an empty row for a completely different reason, and the page marks it separately rather than letting it read as \"buildable now.\" It is no longer undecided in substance — sign-in, sign-out and the live list are Field Management's, moved over from the access feature — but it carries no dependency line in the parent and its MVP timing is still open, so it is marked pending rather than independent.",
     "Day one is decided in approach but not in mechanics. The approach is user-picks, not auto-derive: a client chooses which Assets become Sites or Jobs, because deriving them automatically would mint nonsense work contexts wherever that data is bent, and rows that look bent get flagged in the picker. What still needs dev input is the import itself — picker usability at 172 rows, duplicate names, the same asset imported twice, whether the copy is one-time or keeps a reference to its source, and a practical ceiling on one bulk run. Import creates work contexts flat, and no data is ever lost. Whether Locations can be imported at all is ⏳ pending.",
-    "The training count sits beside the missing-forms count at every level and the two never merge into one number — they are different problems with different owners, and combining them would make both unactionable. Its place in the MVP is itself ⏳ pending, so items 1 and 2 may lose a gate."
+    "The compliance count sits beside the missing-forms count at every level and the two never merge into one number — they are different problems with different owners, and combining them would make both unactionable. It came off hold on Oct 1 and shrank to a badge read from the training matrix, so items 1 and 2 keep that gate rather than standing to lose it."
   ]
 }
 </script>
@@ -2372,7 +2328,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
           <h4>Split tickets</h4>
           <div id="leg-slices"></div>
           <p class="leg-foot"><span class="chip pending">&#9203; Pending</span><span>A question waiting on product leadership. Stated in full in About.</span></p>
-          <p class="leg-foot"><span class="pm">#&mdash;</span><span>No BIS PM ticket yet. Hover a card to trace it; click for detail.</span></p>
+          <p class="leg-foot"><span class="pm">#&mdash;</span><span>Ticket number shown; no link out from this page. Hover a card to trace it; click for detail.</span></p>
         </div>
       </div>
 
@@ -2433,7 +2389,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
           <hr class="rule">
           <div class="tscroll">
             <table>
-              <caption class="sr-only">Every Field Management ticket with its tier, MVP status, dependencies, and BIS PM fields. Rows are grouped by tier, which is timing; the SM- or S- prefix in the key is ownership, and the two are independent. Three tickets are split across tiers and appear once per slice, with the slice named beside the title. BIS PM columns are empty until the tickets are created. Selecting a key opens that ticket on the map.</caption>
+              <caption class="sr-only">Every Field Management ticket with its tier, MVP status, dependencies, and BIS PM fields. Rows are grouped by tier, which is timing; the SM- or S- prefix in the key is ownership, and the two are independent. Two tickets are split across tiers and appear once per slice, with the slice named beside the title. Ticket numbers are shown; the link column is deliberately empty on a public page. Selecting a key opens that ticket on the map.</caption>
               <thead>
                 <tr>
                   <th scope="col">Key</th>
@@ -2458,15 +2414,15 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
             abbreviation of the module&rsquo;s name.
           </p>
           <p class="tnote" style="margin-bottom:9px">
-            A key with a lowercase suffix &mdash; <code>S-04a</code>, <code>SM-06a</code>,
+            A key with a lowercase suffix &mdash; <code>S-04a</code> or
             <code>S-02a</code> &mdash; is one <b style="color:var(--ink-2);font-weight:500">slice</b>
             of a split ticket, listed once in each tier it touches. The suffix is a slice letter, not
             a tier letter. In BIS PM it is still one ticket, so the same number will appear on every
             slice of it.
           </p>
           <p class="tnote">
-            The three right-hand columns are the live half. They read &ldquo;&mdash;&rdquo; because no
-            ticket in this initiative exists in BIS PM yet. Selecting a key takes you to that card on
+            The three right-hand columns are the live half. They read &ldquo;&mdash;&rdquo; because
+            the live half is held back on purpose. Selecting a key takes you to that card on
             the map with its detail panel open.
           </p>
         </section>
@@ -2507,7 +2463,9 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
             <code>S-</code> key prefixes stay for the same reason, and they are no longer an
             abbreviation of anything: <code>SM-</code> means module-specific, <code>S-</code> means
             system-wide. Where <em>Site Access</em> appears, that is the existing licensed feature
-            this module reuses the site object from.
+            this module absorbs: it becomes an <b>Access</b> option on a Site rather than a module
+            of its own, and the site object it already owns is the one the work-context engine
+            reuses.
           </p>
         </section>
 
@@ -2562,7 +2520,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
             landing dates</b>
           </p>
           <p>
-            Three tickets have parts that land at different times, and the dependency edges point at
+            Two tickets have parts that land at different times, and the dependency edges point at
             <em>specific parts</em> rather than at the whole ticket. So each slice is its own card, on
             a shared key stem with a lowercase suffix. A card carries a band repeating the stem and
             the ticket&rsquo;s own name, identical on every slice, and each panel lists its siblings
@@ -2582,17 +2540,19 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
           <h2>&#9203; Waiting on product leadership</h2>
           <hr class="rule">
           <p class="standfirst">
-            Eight questions are deliberately open. They are not oversights and they are not
+            Seven questions are deliberately open. They are not oversights and they are not
             disagreements &mdash; each one needs a call that hasn&rsquo;t been made, and the core of
             the plan is locked for prototyping around them. <b>Nothing on this page answers any of
             them</b>, and a pending chip appears on every card a question lands on so the map
             can&rsquo;t be read as if it had.
           </p>
           <p class="tnote" style="margin-bottom:18px">
-            One of these makes a tier placement provisional: the training signal is shown in
-            Tier&nbsp;A because that is where the scope register currently puts it, and whether
-            training requirements stay in the MVP at all is one of the eight. Read that Tier&nbsp;A
-            slot as pending, not as an answer.
+            The Oct&nbsp;1 check-in answered three of the previous eight outright &mdash; what
+            happens to the access feature, where training comes from, and whether a group level
+            gets built &mdash; and narrowed a fourth to its timing. It also took the provisional
+            flag off a tier placement: the training ticket is in Tier&nbsp;A for real now, as a
+            compliance badge read from the training matrix. Two of the seven below are company
+            decisions rather than product calls, and they are carried here all the same.
           </p>
           <div id="about-pending"></div>
         </section>
@@ -2625,7 +2585,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
             <div class="di"><span class="chip flag">Start now</span><span class="dd">Flagged in the scope files as one to get moving on immediately, ahead of its tier.</span></div>
             <div class="di"><span class="chip">Merged in</span><span class="dd">A ticket that was folded into this one and no longer has a card of its own.</span></div>
             <div class="di"><span class="own" style="margin-left:0">System-wide</span><span class="dd">The ownership mark, on the right of every card. Deliberately colourless &mdash; colour is the tier&rsquo;s job.</span></div>
-            <div class="di"><span class="pm">#&mdash;</span><span class="dd">No BIS PM ticket yet. Becomes a real number and a working link once created and refreshed.</span></div>
+            <div class="di"><span class="pm">#&mdash;</span><span class="dd">No BIS PM link on this page. The live half is held back on purpose &mdash; see &ldquo;Keeping it current&rdquo;.</span></div>
           </div>
         </section>
 
@@ -2848,9 +2808,9 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
   }
   function tierVar(tier) { return "var(--tier-" + String(tier).toLowerCase() + ")"; }
 
-  // The "#—" chip is the day-one state: no ticket exists in BIS PM yet. Once
-  // pmUrl is filled in by a refresh the chip becomes a real link out, which is
-  // the only place a card click does anything other than open the panel.
+  // The "#—" chip is the published state: this page carries no BIS PM numbers.
+  // If pmUrl is ever filled in by a refresh the chip becomes a real link out,
+  // which is the only place a card click does anything but open the panel.
   function pmChipHTML(t) {
     if (t.pmUrl) {
       return '<a class="pm live" href="' + esc(t.pmUrl) + '" target="_blank" rel="noopener noreferrer" ' +
@@ -2858,7 +2818,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
         esc(t.pmTicketNumber || "?") + "</a>";
     }
     if (t.pmTicketNumber) return '<span class="pm live">#' + esc(t.pmTicketNumber) + "</span>";
-    return '<span class="pm" title="No BIS PM ticket yet">#—</span>';
+    return '<span class="pm" title="No BIS PM link on this page">#—</span>';
   }
 
   function cardHTML(t) {
@@ -2917,7 +2877,8 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
                 : "No blocking dependencies.",
       bk.length ? "Blocks " + bk.map(function (e) { return e.to; }).join(", ") + "." : "",
       t.pmUrl ? "In BIS PM as ticket " + t.pmTicketNumber + "."
-              : "Not yet created in BIS PM.",
+              : t.pmTicketNumber ? "BIS PM ticket " + t.pmTicketNumber + ". No link from this page."
+              : "Not in BIS PM yet.",
       "Activate for the full detail panel."
     ].filter(Boolean).join(" ");
 
@@ -3363,10 +3324,11 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     if (!list.length) {
       host.innerHTML = '<p class="tnote" style="margin-bottom:9px"><b style="color:var(--ok);' +
         'font-weight:600">Nothing flagged.</b> Every cross-ticket disagreement on record has been ' +
-        "resolved. The last one was over who owned the competency gate: attendance now " +
-        "<em>shows</em> training status beside each name and never blocks, and the training " +
-        "ticket owns the requirements and, after the MVP, the gate — which only applies to Sites " +
-        "with Site Access switched on.</p>" +
+        "resolved. The last one was over who owned the competency gate: attendance " +
+        "<em>shows</em> training status beside each name and never blocks — and then the gate " +
+        "itself was dropped. Training is read from the training matrix and shown as a badge, " +
+        "the existing access check stays where it is, and nothing in Field Management blocks " +
+        "anyone on training grounds.</p>" +
         '<p class="tnote">This section stays because the next disagreement will want it. It is not ' +
         "the same thing as the pending list above: a conflict is the plan contradicting itself, " +
         "and a pending item is a question nobody has answered yet.</p>";
@@ -3621,7 +3583,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       ? '<span class="val">#' + esc(t.pmTicketNumber) + "</span>" +
         '<span class="val">' + esc(t.pmStatus || "status unknown") + "</span>" +
         (t.pmAssignee ? '<span class="val">' + esc(t.pmAssignee) + "</span>" : "")
-      : '<span class="val empty">not created yet</span>';
+      : '<span class="val empty">not linked here</span>';
 
     return '<div class="panel-top">' +
         '<span class="k" style="--tier:' + tierVar(t.tier) + ';--tier-soft:var(--tier-' +
@@ -3761,9 +3723,9 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
     return t.pmUrl
       ? '<a class="btn-pm" href="' + esc(t.pmUrl) + '" target="_blank" rel="noopener noreferrer">' +
         "Open BIS PM #" + esc(t.pmTicketNumber) + " ↗</a>"
-      : '<p class="pm-empty"><b>Not in BIS PM yet.</b> ' + esc(t.key) +
-        " has no ticket number, so there is nothing to link to. This becomes a live " +
-        "button the moment the ticket is created and the roadmap is refreshed.</p>";
+      : '<p class="pm-empty"><b>No BIS PM link here.</b> ' + esc(t.key) +
+        " carries no ticket number on this page, so there is nothing to link to. The live " +
+        "half is held back on purpose: this page is published to a public repository.</p>";
   }
 
   function scrollCardIntoView(key) {
