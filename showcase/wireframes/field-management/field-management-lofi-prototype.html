@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  FIELD MANAGEMENT MVP — CLICKABLE LO-FI WIREFRAME PROTOTYPE  (v1 · 2026-10-01)
+  ----------------------------------------------------------------------------
+  House format: conjurer's Interactive Prototype chrome (topbar · perspective
+  control · flow tabs · scrolling stage · step-details footer · Reset) wearing
+  the Lo-Fi Wireframe skin (greyscale ramp, device frames, "→" notes, the
+  neutral "Wireframe - v1" pill). Light mode only — BIS has no dark theme.
+
+  INPUTS (read, never edited)
+    _notes/scope/Site Managment/scope/parent-site-management-mvp.md (v2, 2026-09-30)
+    + child tickets SM-01, SM-02, SM-03, SM-04, S-01, S-04, SM-06, S-06, S-02
+    _notes/research/field-management-competitors/field-management-competitor-ui-reference.html
+
+  RULES THIS FILE KEEPS
+    • Greyscale only. --action red = "needs attention". --accent blue = annotation.
+    • Sample data is invented. No BIS client is named anywhere.
+    • Open decisions from the scope are shown as ⚑ callouts — never resolved here.
+    • One shared data set: what you do as a worker or supervisor shows up on
+      the admin's web view (and the other way round).
+
+  HOW IT'S BUILT
+    PERSP / FLOWS  → the perspective control and flow tabs
+    SCREENS        → per-screen rail: tickets covered, pattern, notes, decisions
+    render*()      → one renderer per screen; render() repaints everything
+    Reset          → freshState()
+  ============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Management — Lo-Fi Prototype</title>
+<style>
+  :root {
+    /* wireframe paper — neutrals biased slightly cool (from lofi-wireframe-template) */
+    --paper: #f7f8fa;
+    --card: #ffffff;
+    --line: #d4d8de;
+    --line-strong: #aeb4bd;
+    --ink: #2b2f36;
+    --ink-soft: #6b7280;
+    --ink-faint: #9aa1ab;
+    --fill: #eceef1;
+    --fill-2: #e2e5e9;
+    --action: #d64545;      /* the ONLY state colour: needs attention */
+    --action-soft: #fbe9e9;
+    --update-line: #9aa1ab;
+    --accent: #3d6ae0;      /* structural accent: annotations, entry points */
+    --accent-soft: #eef2fd;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { font-family: var(--sans); font-size: 14px; line-height: 1.45; color: var(--ink); background: var(--paper);
+         display: flex; flex-direction: column; overflow: hidden; -webkit-font-smoothing: antialiased; }
+  button { font-family: inherit; cursor: pointer; color: inherit; }
+  input, select, textarea { font-family: inherit; font-size: 12.5px; color: var(--ink); border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 8px; background: var(--card); }
+  p { margin: 0; }
+
+  /* ===== template chrome ===== */
+  .topbar { background: var(--card); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; padding: 7px 16px; flex-wrap: wrap; flex-shrink: 0; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .t-ticket { font-size: 16px; font-weight: 600; }
+  .t-project { font-size: 14px; }
+  .t-date { font-size: 12px; color: var(--ink-soft); }
+  .badge-pill { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 12px; font-size: 12px; font-weight: 600;
+                box-shadow: 0 0 4px rgba(0,0,0,.15); white-space: nowrap; }
+  .badge-pill.wire { background: var(--fill); color: var(--ink-soft); border: 1px solid var(--line-strong); }
+  .btn-reset { background: var(--card); border: 1px solid var(--ink-soft); border-radius: 4px; padding: 5px 12px; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  .btn-reset:hover { background: var(--paper); }
+
+  .page { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 10px 20px 14px; }
+  .navrow { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; flex-wrap: wrap; flex-shrink: 0; }
+  .seg-control { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 80px; overflow: hidden; background: var(--card); }
+  .seg-opt { background: transparent; border: none; border-left: 1px solid var(--line-strong); padding: 5px 13px; font-size: 13px; }
+  .seg-opt:first-child { border-left: none; }
+  .seg-opt.active { background: var(--ink); color: #fff; font-weight: 600; }
+  .flow-tabs { display: flex; gap: 3px; flex-wrap: wrap; }
+  .flow-tab { padding: 5px 11px; font-size: 13px; font-weight: 600; color: var(--ink-soft); border-radius: 4px; border: 1px solid transparent; background: transparent; }
+  .flow-tab:hover { color: var(--ink); }
+  .flow-tab.active { background: var(--card); border-color: var(--line); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+
+  .proto-card { background: var(--card); border: 1px solid var(--line-strong); border-radius: 8px; display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+  .proto-stage { flex: 1; min-height: 0; overflow-y: auto; padding: 20px 22px 28px; background: var(--paper); }
+  .step-details { background: var(--card); border-top: 1px solid var(--line); padding: 10px 18px 12px; flex-shrink: 0; }
+  .sd-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .sd-list { list-style: disc; padding-left: 18px; margin: 0; font-size: 12px; line-height: 1.6; color: var(--ink); }
+
+  /* ===== stage layout: device + annotation rail ===== */
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 28px; align-items: start; max-width: 1480px; margin: 0 auto; }
+  .layout.mob { grid-template-columns: minmax(0, 1fr) 340px; max-width: 1100px; }
+  @media (max-width: 1080px) { .layout, .layout.mob { grid-template-columns: 1fr; } }
+  .dev { min-width: 0; }
+  .frame-tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 10px 2px; }
+  .rail { display: flex; flex-direction: column; gap: 16px; }
+  .rsec h4 { margin: 0 0 7px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); font-weight: 600; }
+  .rsec .pat { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+  .tk { display: inline-flex; align-items: center; font-family: var(--mono); font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 5px;
+        border: 1px solid var(--ink); color: var(--ink); background: var(--card); white-space: nowrap; }
+  .tk-name { font-size: 11px; color: var(--ink-soft); }
+  .covers { display: flex; flex-direction: column; gap: 5px; }
+  .covers div { display: flex; gap: 8px; align-items: center; }
+  .notes { border-top: 1px solid var(--line); padding-top: 14px; }
+  .notes ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .notes li { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; padding-left: 18px; position: relative; }
+  .notes li::before { content: "→"; position: absolute; left: 0; color: var(--accent); font-family: var(--mono); }
+  .notes b { color: var(--ink); font-weight: 650; }
+  .decision { border: 1.5px dashed var(--ink-soft); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--ink-soft); line-height: 1.5;
+              background: repeating-linear-gradient(135deg, var(--card) 0 9px, #f2f3f5 9px 10px); }
+  .decision .dl { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); font-weight: 700; margin-bottom: 4px; }
+  .decision b { color: var(--ink); display: block; margin-bottom: 2px; font-size: 12.5px; }
+  .flag { display: inline-flex; align-items: center; gap: 3px; font-family: var(--mono); font-size: 9.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+          color: var(--ink); border: 1.2px dashed var(--ink-soft); border-radius: 4px; padding: 1px 5px; background: var(--card); white-space: nowrap; vertical-align: middle; }
+
+  /* ===== shared lo-fi UI bits ===== */
+  .btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line-strong); background: var(--card); border-radius: 6px;
+         padding: 6px 11px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .btn:hover { border-color: var(--ink-soft); }
+  .btn.pri { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .btn.sm { padding: 3px 8px; font-size: 11px; border-radius: 5px; }
+  .btn.ghost { border-color: transparent; background: transparent; color: var(--ink-soft); }
+  .btn.link { border: 0; background: none; padding: 0; color: var(--accent); font-weight: 600; font-size: inherit; }
+  .btn[disabled] { opacity: .4; cursor: not-allowed; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
+  .sub { font-size: 11px; color: var(--ink-faint); }
+  .muted { color: var(--ink-soft); }
+  .mono { font-family: var(--mono); }
+  .row-flex { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .spacer { flex: 1; }
+  .st { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
+  .st-out { background: var(--action); color: #fff; }
+  .st-ok { border: 1.5px solid var(--update-line); color: var(--ink-soft); padding: 2px 9px; }
+  .st-closed { border: 1.5px solid var(--ink); color: var(--ink); background: var(--fill); padding: 2px 9px; }
+  .st.big { font-size: 15px; padding: 5px 13px; }
+  .tn { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 650; white-space: nowrap; }
+  .tn .pi { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--ink); position: relative; }
+  .tn.zero { color: var(--ink-faint); font-weight: 400; }
+  .tn.zero .pi { border-color: var(--ink-faint); }
+  .kind { font-family: var(--mono); font-size: 9.5px; letter-spacing: .05em; text-transform: uppercase; border: 1px solid var(--line-strong); border-radius: 4px;
+          padding: 1px 5px; color: var(--ink-soft); white-space: nowrap; vertical-align: middle; }
+  .aw { display: inline-block; font-size: 10.5px; font-weight: 700; border: 1.5px solid var(--ink); border-radius: 4px; padding: 0 6px; background: var(--fill); white-space: nowrap; }
+  .ext { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; border: 1px dashed var(--ink-soft);
+         border-radius: 4px; padding: 0 4px; color: var(--ink-soft); white-space: nowrap; }
+  .fchip { border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 11.5px; background: var(--card); font-weight: 600; }
+  .fchip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .seg2 { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 7px; overflow: hidden; background: var(--card); }
+  .seg2 button { border: 0; border-left: 1px solid var(--line-strong); background: transparent; padding: 5px 10px; font-size: 11.5px; font-weight: 650; }
+  .seg2 button:first-child { border-left: 0; }
+  .seg2 button.on { background: var(--ink); color: #fff; }
+  .info { font-size: 11.5px; color: var(--ink-soft); border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 7px 10px; border-radius: 0 6px 6px 0; line-height: 1.45; }
+  .ph { display: block; height: 8px; border-radius: 4px; background: var(--fill); }
+  .kv { display: grid; grid-template-columns: 120px 1fr; gap: 7px 10px; font-size: 12px; margin: 0; }
+  .kv dt { color: var(--ink-faint); }
+  .kv dd { margin: 0; }
+
+  /* ===== web (browser) frame ===== */
+  .browser { width: 100%; border: 1.5px solid var(--ink); border-radius: 12px; overflow: hidden; background: var(--card); box-shadow: 0 12px 34px rgba(0,0,0,.10); }
+  .chrome { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--fill); border-bottom: 1px solid var(--line); }
+  .chrome .tl { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); }
+  .chrome .url { flex: 1; margin-left: 10px; height: 18px; border-radius: 9px; background: var(--card); border: 1px solid var(--line); font-family: var(--mono);
+                 font-size: 10px; color: var(--ink-faint); padding: 0 10px; display: flex; align-items: center; overflow: hidden; white-space: nowrap; }
+  .app-nav { display: flex; align-items: center; gap: 16px; padding: 9px 16px; border-bottom: 1px solid var(--line); background: var(--card); overflow-x: auto; }
+  .app-nav .logo { width: 20px; height: 20px; border-radius: 5px; background: var(--ink); flex: none; }
+  .app-nav .ni { font-size: 12.5px; color: var(--ink-faint); white-space: nowrap; padding: 2px 0; }
+  .app-nav .ni.on { color: var(--ink); font-weight: 700; border-bottom: 2px solid var(--ink); }
+  .app-nav .nsp { flex: 1; }
+  .avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--fill-2); font-size: 9.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none; }
+  .web { position: relative; min-height: 600px; background: var(--paper); }
+  .wpage { padding: 18px 20px 28px; }
+  .wh { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .wh h2 { font-size: 19px; margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .crumb { font-size: 11.5px; color: var(--ink-faint); margin-bottom: 4px; }
+  .crumb a { color: var(--accent); cursor: pointer; }
+  .viewer-banner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 20px; background: var(--fill); border-bottom: 1px solid var(--line-strong); font-size: 12px; }
+  .tbl-wrap { overflow-x: auto; }
+  table.t { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .t th { text-align: left; font-size: 10px; font-family: var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600;
+          padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .t td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  .t tr:last-child td { border-bottom: 0; }
+  .t tr.click:hover td { background: #fafbfc; cursor: pointer; }
+  .t .first { width: 150px; }
+  .tabs-w { display: flex; gap: 18px; border-bottom: 1px solid var(--line); margin: 14px 0 14px; overflow-x: auto; }
+  .tab-w { font-size: 12.5px; font-weight: 650; padding: 8px 0 9px; color: var(--ink-soft); border: 0; border-bottom: 2px solid transparent; background: none; white-space: nowrap; }
+  .tab-w.on { color: var(--ink); border-bottom-color: var(--ink); }
+  .cnt { font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 0 5px; border-radius: 8px; margin-left: 4px; border: 1.2px solid var(--update-line); color: var(--ink-soft); }
+  .cnt.act { background: var(--action); color: #fff; border-color: var(--action); }
+  .statrow { display: flex; gap: 12px; flex-wrap: wrap; align-items: stretch; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; min-width: 150px; }
+  .stat .k { font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px; }
+  .stepper { display: flex; gap: 0; align-items: center; flex-wrap: wrap; font-size: 11px; }
+  .stepper span { padding: 3px 9px; border: 1px solid var(--line-strong); margin-right: -1px; color: var(--ink-faint); background: var(--card); }
+  .stepper span.done { color: var(--ink-soft); background: var(--fill); }
+  .stepper span.now { color: #fff; background: var(--ink); border-color: var(--ink); font-weight: 700; }
+  .stepper span:first-child { border-radius: 5px 0 0 5px; }
+  .stepper span:last-child { border-radius: 0 5px 5px 0; }
+
+  /* obligations */
+  .bd { padding: 10px 12px; margin-bottom: 12px; }
+  .bd-items { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .bdi { border: 1px solid var(--line); background: var(--paper); border-radius: 6px; padding: 5px 9px; font-size: 11.5px; }
+  .bdi b { font-family: var(--mono); margin-right: 4px; }
+  .bdi.hot b { color: var(--action); }
+  .bdi.on { border-color: var(--ink); background: var(--card); box-shadow: inset 0 0 0 1px var(--ink); }
+  .rgroup { background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 10px; }
+  .rg-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .rg-title { font-weight: 700; font-size: 13px; }
+  .rg-meta { font-size: 10.5px; color: var(--ink-faint); font-family: var(--mono); }
+  .rg-count { font-size: 11.5px; font-weight: 700; font-family: var(--mono); }
+  .ob { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-top: 1px solid var(--line); }
+  .rg-head + .ob { border-top: 0; }
+  .sdot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .ob.not .sdot, .sdot.not { background: var(--action); }
+  .ob.prog .sdot, .sdot.prog { border: 1.5px dashed var(--action); }
+  .ob.done .sdot, .sdot.done { background: var(--ink-faint); }
+  .ob.didnt .sdot, .sdot.didnt { border: 1.5px solid var(--ink-faint); }
+  .ob-main { flex: 1; min-width: 0; cursor: pointer; }
+  .ob-t { font-size: 12.5px; font-weight: 600; }
+  .ob-m { font-size: 11px; color: var(--ink-faint); }
+  .ob.done .ob-t, .ob.didnt .ob-t { color: var(--ink-soft); font-weight: 500; }
+  .ob-acts { display: flex; gap: 5px; position: relative; flex: none; }
+  .collapsed { padding: 8px 12px; font-size: 11.5px; color: var(--ink-soft); border-top: 1px dashed var(--line); cursor: pointer; }
+  .collapsed:hover { color: var(--ink); }
+  .pop { position: absolute; right: 0; top: 30px; width: 270px; z-index: 6; background: var(--card); border: 1.5px solid var(--ink); border-radius: 8px;
+         box-shadow: 0 10px 28px rgba(0,0,0,.14); padding: 11px; text-align: left; }
+  .pop-t { font-weight: 700; font-size: 12.5px; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .radio { display: flex; gap: 7px; align-items: flex-start; font-size: 12px; padding: 4px 0; cursor: pointer; }
+  .radio .rb { width: 13px; height: 13px; border-radius: 50%; border: 1.5px solid var(--ink-soft); flex: none; margin-top: 2px; }
+  .radio.on .rb { border: 4px solid var(--ink); }
+  .radio.dis { opacity: .45; cursor: not-allowed; }
+  .check { display: flex; gap: 7px; align-items: flex-start; font-size: 12px; padding: 4px 0; cursor: pointer; }
+  .check .cb { width: 13px; height: 13px; border-radius: 3px; border: 1.5px solid var(--ink-soft); flex: none; margin-top: 2px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #fff; }
+  .check.on .cb { background: var(--ink); border-color: var(--ink); }
+  .check.on .cb::after { content: "✓"; }
+  .check.dis { opacity: .55; cursor: default; }
+
+  /* overlays inside the web frame */
+  .overlay { position: absolute; inset: 0; display: flex; z-index: 10; }
+  .overlay .scrim { flex: 1; background: repeating-linear-gradient(135deg, rgba(43,47,54,.06) 0 11px, rgba(43,47,54,.12) 11px 12px); }
+  .spanel { width: 360px; max-width: 92%; background: var(--card); border-left: 1.5px solid var(--ink); box-shadow: -8px 0 26px rgba(0,0,0,.08); overflow-y: auto; padding: 16px; }
+  .overlay.center { background: rgba(43,47,54,.22); align-items: flex-start; justify-content: center; padding: 50px 16px; }
+  .sheet { width: min(500px, 100%); background: var(--card); border: 1.5px solid var(--ink); border-radius: 10px; padding: 16px; box-shadow: 0 16px 40px rgba(0,0,0,.18); }
+  .sheet h3, .spanel h3 { margin: 0 0 4px; font-size: 15px; }
+  .sheet-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .close-x { width: 24px; height: 24px; border: 1px solid var(--line); border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; color: var(--ink-soft); background: var(--card); font-size: 12px; flex: none; }
+  .sec-h { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); margin: 16px 0 8px; font-weight: 600; }
+  .chain { margin: 0; padding: 0; list-style: none; counter-reset: c; }
+  .chain li { counter-increment: c; position: relative; padding: 0 0 10px 26px; font-size: 12px; line-height: 1.45; }
+  .chain li::before { content: counter(c); position: absolute; left: 0; top: 0; width: 17px; height: 17px; border-radius: 50%; border: 1.5px solid var(--ink);
+                      font-family: var(--mono); font-size: 9.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .chain li:not(:last-child)::after { content: ""; position: absolute; left: 8px; top: 19px; bottom: 2px; border-left: 1.5px dotted var(--line-strong); }
+  .blocker { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--line); flex-wrap: wrap; }
+  .blocker .bt { flex: 1; min-width: 180px; }
+
+  /* wizard / forms on web */
+  .wiz { display: grid; grid-template-columns: 190px minmax(0,1fr); gap: 22px; }
+  @media (max-width: 760px) { .wiz { grid-template-columns: 1fr; } }
+  .wsteps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .wsteps li { font-size: 12px; padding: 7px 10px; border-radius: 6px; color: var(--ink-faint); display: flex; gap: 8px; align-items: center; cursor: pointer; }
+  .wsteps li .n { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid currentColor; font-family: var(--mono); font-size: 10px; display: flex; align-items: center; justify-content: center; flex: none; }
+  .wsteps li.done { color: var(--ink-soft); }
+  .wsteps li.now { color: var(--ink); background: var(--card); border: 1px solid var(--line); font-weight: 700; }
+  .opt { border: 1.5px solid var(--line); border-radius: 8px; padding: 11px 12px; background: var(--card); cursor: pointer; }
+  .opt.on { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .opt .ot { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 7px; }
+  .opt .od { font-size: 11.5px; color: var(--ink-soft); margin-top: 3px; line-height: 1.45; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; }
+  .fsec { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+  .fsec-h { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; flex-wrap: wrap; }
+  .fsec-h .num { width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font-family: var(--mono); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none; }
+  .fsec-h .ft { font-weight: 700; font-size: 14px; }
+  .fsec-h .fq { font-size: 11.5px; color: var(--ink-faint); }
+  .inline-field { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; flex-wrap: wrap; }
+  .inline-field input, .inline-field select { padding: 4px 6px; font-size: 12px; }
+  .summary { background: var(--ink); color: #fff; border-radius: 8px; padding: 12px 14px; font-size: 12.5px; line-height: 1.5; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .summary .btn { border-color: #fff; }
+
+  /* ===== mobile (phone) frame ===== */
+  .phones { display: flex; gap: 26px; flex-wrap: wrap; align-items: flex-start; justify-content: center; }
+  .phone { width: 320px; max-width: 100%; border: 2px solid var(--ink); border-radius: 30px; background: var(--card); padding: 9px; box-shadow: 0 12px 34px rgba(0,0,0,.10); }
+  .phone .notch { width: 70px; height: 5px; border-radius: 5px; background: var(--line-strong); margin: 2px auto 8px; }
+  .screen { border: 1px solid var(--line); border-radius: 20px; overflow: hidden; background: var(--paper); height: 640px; display: flex; flex-direction: column; position: relative; }
+  .statusbar { display: flex; justify-content: space-between; align-items: center; padding: 6px 14px; font-size: 10px; color: var(--ink-soft); font-family: var(--mono); background: var(--card); flex: none; }
+  .pbar { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: var(--card); border-bottom: 1px solid var(--line); flex: none; }
+  .pbar .back { border: 0; background: none; font-size: 18px; line-height: 1; padding: 0 4px 0 0; color: var(--ink-soft); }
+  .pt { font-size: 14px; font-weight: 700; }
+  .pscroll { flex: 1; overflow-y: auto; min-height: 0; }
+  .pbody { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .pcard { background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+  .pcard-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 11px; border-bottom: 1px solid var(--line); }
+  .prow { display: flex; align-items: center; gap: 9px; padding: 9px 11px; border-top: 1px solid var(--line); }
+  .pcard-h + .prow { border-top: 0; }
+  .prow .tx { flex: 1; min-width: 0; }
+  .prow .t1 { font-size: 12px; font-weight: 650; line-height: 1.3; }
+  .prow .t2 { font-size: 10.5px; color: var(--ink-faint); line-height: 1.35; }
+  .prow.tap { cursor: pointer; }
+  .prow.tap:hover { background: #fafbfc; }
+  .widget { border: 1.5px solid var(--accent); border-radius: 12px; background: var(--card); position: relative; }
+  .widget[data-tag]::after { content: attr(data-tag); position: absolute; top: -9px; left: 12px; background: var(--accent); color: #fff; font-family: var(--mono);
+                             font-size: 8.5px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 6px; border-radius: 5px; }
+  .ctx-chip { position: sticky; top: 0; z-index: 4; display: flex; align-items: center; gap: 8px; background: var(--ink); color: #fff; padding: 8px 12px; font-size: 11.5px; }
+  .ctx-chip .dotl { width: 8px; height: 8px; border-radius: 50%; background: #fff; flex: none; }
+  .ctx-chip .sw { margin-left: auto; border: 1px solid #fff; border-radius: 999px; padding: 3px 10px; font-weight: 700; font-size: 10.5px; background: transparent; color: #fff; flex: none; }
+  .big-btn { width: 100%; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 700; border: 1.5px solid var(--ink); background: var(--card); }
+  .big-btn.pri { background: var(--ink); color: #fff; }
+  .big-btn[disabled] { opacity: .4; cursor: not-allowed; }
+  .pscrim { position: absolute; inset: 0; background: rgba(43,47,54,.32); z-index: 7; }
+  .psheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1.5px solid var(--ink); border-radius: 16px 16px 0 0; padding: 14px; z-index: 8;
+            box-shadow: 0 -8px 26px rgba(0,0,0,.14); max-height: 82%; overflow-y: auto; }
+  .psheet .grab { width: 36px; height: 4px; border-radius: 3px; background: var(--line-strong); margin: 0 auto 10px; }
+  .sigpad { height: 120px; border: 1.5px dashed var(--line-strong); border-radius: 8px; background: var(--card); display: flex; align-items: center; justify-content: center;
+            color: var(--ink-faint); cursor: pointer; font-size: 12px; position: relative; }
+  .sigpad::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 26px; border-bottom: 1px solid var(--line-strong); }
+  .camera { height: 150px; border-radius: 8px; background: repeating-linear-gradient(45deg, var(--fill) 0 10px, var(--fill-2) 10px 20px); display: flex; align-items: center;
+            justify-content: center; font-family: var(--mono); font-size: 11px; color: var(--ink-soft); border: 1px solid var(--line-strong); }
+  .tabbar { display: flex; justify-content: space-around; padding: 7px 4px 9px; border-top: 1px solid var(--line); background: var(--card); flex: none; }
+  .tabbar .ti { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 9.5px; color: var(--ink-faint); cursor: pointer; }
+  .tabbar .ti .c { width: 15px; height: 15px; border-radius: 4px; background: var(--fill-2); }
+  .tabbar .ti.active { color: var(--ink); font-weight: 700; }
+  .tabbar .ti.active .c { background: var(--ink); }
+  .search { display: flex; align-items: center; gap: 7px; border: 1px solid var(--line-strong); border-radius: 9px; background: var(--card); padding: 7px 10px; }
+  .search input { border: 0; padding: 0; flex: 1; min-width: 0; outline: none; font-size: 12.5px; background: transparent; }
+  .glabel { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); padding: 2px 2px 0; }
+  .field { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--ink-soft); }
+  .field input, .field select { font-size: 12.5px; padding: 8px; border-radius: 8px; }
+  .formline { height: 30px; border-radius: 7px; border: 1px solid var(--line); background: var(--card); }
+
+  /* ===== overview (read-me) page ===== */
+  .ov { max-width: 1180px; margin: 0 auto; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 10px; }
+  .ov h1 { font-size: clamp(26px, 4vw, 38px); line-height: 1.1; margin: 0 0 12px; letter-spacing: -.02em; font-weight: 650; text-wrap: balance; }
+  .lede { max-width: 70ch; color: var(--ink-soft); font-size: 15px; line-height: 1.6; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 20px; margin: 20px 0 6px; }
+  .legend .item { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-soft); }
+  .ov h2 { font-size: 13px; font-family: var(--mono); letter-spacing: .08em; text-transform: uppercase; margin: 34px 0 10px; font-weight: 600; }
+  .ov .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .cov th.tc { text-align: center; }
+  .cov td.tc { text-align: center; font-size: 13px; }
+  .cov .dotc { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--ink); }
+  .cov td a { color: var(--accent); cursor: pointer; font-weight: 600; }
+  .cov .persp-row td { background: var(--fill); font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); padding: 6px 10px; }
+  .dlist { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; }
+  .footer-note { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-faint); line-height: 1.6; font-family: var(--mono); }
+
+  .toast { position: fixed; left: 50%; bottom: 110px; transform: translateX(-50%) translateY(10px); background: var(--ink); color: #fff; padding: 9px 14px; border-radius: 8px;
+           font-size: 12.5px; max-width: min(520px, 92vw); box-shadow: 0 10px 30px rgba(0,0,0,.25); opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; z-index: 100; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 640px) {
+    .page { padding: 8px 10px 10px; }
+    .proto-stage { padding: 14px 12px 22px; }
+    .wpage { padding: 14px 12px 22px; }
+    .flow-tab { font-size: 12px; padding: 4px 8px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="t-ticket">TKT-21851</span>
+      <span class="t-project">Field Management MVP</span>
+      <span class="badge-pill wire">Wireframe - v1</span>
+      <span class="t-date">October 1, 2026 Generated</span>
+    </div>
+    <button class="btn-reset" onclick="resetAll()">↺ Reset Prototype</button>
+  </div>
+
+  <div class="page">
+    <div class="navrow">
+      <div class="seg-control" id="seg"></div>
+      <div class="flow-tabs" id="flowTabs"></div>
+    </div>
+    <div class="proto-card">
+      <div class="proto-stage" id="stage"></div>
+      <div class="step-details">
+        <p class="sd-title" id="sdTitle"></p>
+        <ul class="sd-list" id="sdList"></ul>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================================
+   1. NAVIGATION — perspectives and their flow tabs
+   ========================================================================= */
+var PERSP = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'admin',    label: 'Admin · web' },
+  { id: 'sup',      label: 'Supervisor · mobile' },
+  { id: 'worker',   label: 'Worker · mobile' }
+];
+var FLOWS = {
+  overview: [ { id: 'ov', label: 'Read me' } ],
+  admin: [
+    { id: 'a-setup',  label: '1 · Day one' },
+    { id: 'a-index',  label: '2 · Index' },
+    { id: 'a-view',   label: '3 · Work context' },
+    { id: 'a-why',    label: '4 · Why it counted' },
+    { id: 'a-attach', label: '5 · Attach a ritual' },
+    { id: 'a-people', label: '6 · People & training' },
+    { id: 'a-close',  label: '7 · Job close-out' },
+    { id: 'a-access', label: '8 · Can view access' }
+  ],
+  sup: [
+    { id: 's-home',    label: '1 · Your field' },
+    { id: 's-view',    label: '2 · Site view' },
+    { id: 's-att',     label: '3 · Who’s on site' },
+    { id: 's-sign',    label: '4 · Signatures' },
+    { id: 's-visitor', label: '5 · Add someone' },
+    { id: 's-move',    label: '6 · Move' }
+  ],
+  worker: [
+    { id: 'w-pick',  label: '1 · Pick where you are' },
+    { id: 'w-day',   label: '2 · Your day' },
+    { id: 'w-forms', label: '3 · Forms count here' }
+  ]
+};
+
+var TICKETS = ['SM-01','SM-02','SM-03','SM-04','S-01','S-04','SM-06','S-06','S-02'];
+var TNAMES = {
+  'SM-01': 'Work contexts: Site + Job',
+  'SM-02': 'Crew',
+  'SM-03': 'Ritual',
+  'SM-04': 'Mobile',
+  'S-01':  'Forms report to the right work context',
+  'S-04':  'Attendance (Slice A)',
+  'SM-06': 'Training requirements (the signal)',
+  'S-06':  'External people (minimal record)',
+  'S-02':  'Scoped permissions ("Can view" slice)'
+};
+
+/* =========================================================================
+   2. SCREEN META — what each screen covers, its precedent, notes, decisions
+   ========================================================================= */
+var SCREENS = {
+  'a-setup': {
+    title: 'Day one — no blank screen',
+    covers: ['SM-01','SM-03','S-06'],
+    pattern: 'Raken’s starter library (day one isn’t empty) and Mitti’s labels-you-choose — but from a short BIS-written list. "Import, not convert" from Assets.',
+    notes: [
+      '<b>Pick kinds and labels from a preset list.</b> Navigation reads the chosen labels — try "Work order" and watch the nav change.',
+      '<b>Site Access sites are already here</b>, visitors included — they land as external-person records (S-06), not free text.',
+      '<b>Import from Assets copies the name only.</b> The admin picks; rows that look bent (a container, not a job) are flagged rather than auto-derived.',
+      '<b>A starter ritual gives real state on day one.</b> Attaching to "All Sites" means Sites added later join automatically.',
+      'Set up on the <b>web only</b> in the MVP — no creating Sites or Jobs on mobile.'
+    ],
+    decisions: [
+      { t: 'Setup: Sites and Jobs in one pass, or one kind at a time?', d: 'Drawn here as one pass with both kinds ticked so the whole path is visible. The Sep 28 lean was one kind per pass, the other added afterwards (SM-01 §11 Q7).' },
+      { t: 'Importing Locations', d: 'Not offered. Clients whose places are Locations get less on day one until live-linked Locations land.', wait: true }
+    ]
+  },
+  'a-index': {
+    title: 'Index of work contexts',
+    covers: ['SM-01','SM-03','S-01','SM-06','S-02'],
+    pattern: 'Avoids Mitti’s stateless site list and Salus’s percentages. Training number beside state: Procore’s per-project bar, Salus’s site tile. "Awaiting close" modelled on Jobber’s "Action required".',
+    notes: [
+      '<b>State is the leftmost element</b> — "Current" or "N outstanding". A count, never a %.',
+      '<b>Training is a separate number beside it</b> (people with training issues for topics this Site or Job requires). The two never merge.',
+      '<b>Most outstanding first</b> by default. Jobs show dates; an ended Job nobody confirmed shows <b>Awaiting close</b>.',
+      'A Job <b>at</b> a Site rolls into the Site’s count, so rows are never summed into a grand total.',
+      '"Can view" people get this same index, scoped to their Sites and Jobs, with every create/edit action gone (see tab 8).'
+    ],
+    decisions: []
+  },
+  'a-view': {
+    title: 'Single work-context view',
+    covers: ['SM-01','SM-02','SM-03','S-01','SM-06'],
+    pattern: 'Raken’s missed-dailies page: the count in the header, the misses listed below, and fix-it actions on each miss. Mitti’s "Won’t do" / Raken’s "No Work Done" for honest closure.',
+    notes: [
+      '<b>Header states the period and the cutoff.</b> At cutoff the period is snapshotted — its misses are frozen.',
+      '<b>Grouped by ritual; missing on top; completed collapsed to a count.</b> A draft counts as outstanding, labelled "in progress" — and can’t be chased.',
+      '<b>Break down by job</b> (on a Site) and <b>by crew</b> (anywhere). Crew slices the count; forms never count toward a crew.',
+      '<b>Row actions:</b> Open · Remind (existing email/text rails, no time-of-day push) · ⋯ Didn’t happen, with a reason.',
+      '<b>Archive is gated</b> — a Site with outstanding items can’t archive. One-off work is "Add task / Assign form", never a ritual.'
+    ],
+    decisions: [
+      { t: 'Mark "didn’t happen" with a reason — in the MVP?', d: 'Shown on every outstanding row as ⋯ → Didn’t happen. Raised by the competitor research (honest omission); not in the scope yet.' },
+      { t: 'A Site or Job supervisor?', d: 'Someone who oversees a whole Site or Job, not just a crew. Shown as an empty "Site supervisor" field — a field on the work context, or an S-02 grant? Undecided.' }
+    ]
+  },
+  'a-why': {
+    title: 'Why it counted',
+    covers: ['S-01','SM-03','SM-02','S-04'],
+    pattern: 'Mitti’s Schedule Activity side panel — it explains the rule behind the status (late window, completion rule) and who did what.',
+    notes: [
+      '<b>For a completed item:</b> who submitted, their home location (not used for counting), what it counts toward, and <b>how that was decided</b> — from the ritual, from the Job they picked, or picked on the form.',
+      '<b>For an outstanding item:</b> the chain that made it owed — ritual → attachment → working day → counts per → presence → lead time and due.',
+      'A form started outside Field Management while on a Job <b>counts here and stays in location reports</b> (decision 58).',
+      'Without this panel a wrong count can’t be diagnosed in the field.'
+    ],
+    decisions: []
+  },
+  'a-attach': {
+    title: 'Attach a ritual',
+    covers: ['SM-03','SM-01','SM-02'],
+    pattern: 'Mitti’s create-schedule form shape: what → where → who counts → when. Procore’s "days created before due" lead time and working-days due dates. Avoids Mitti’s region gotcha.',
+    notes: [
+      '<b>The ritual carries a suggested schedule</b>; this attachment can override it. Changing one attachment never touches another.',
+      '<b>"All Sites" is a live group</b> — Sites added later inherit the ritual without anyone re-saving.',
+      '<b>Site + Job carrying the same ritual counts once.</b> Shown as a quiet note, not a warning.',
+      '<b>Who counts:</b> person · crew · the Site or Job · asset. <b>When:</b> working days, rotation, per visit, weekly, metered, triggered only — plus runs per day, how long it stays open and lead time.',
+      'Creating a new form hands off to Forms. <b>No schedule sends a push notification on its own.</b>'
+    ],
+    decisions: [
+      { t: 'Counting per asset', d: 'In scope as an open item: the admin lists the assets on the attachment. Choose "Each asset" to see it.' },
+      { t: 'Uploading a standalone file to a ritual', d: 'Files linked from Folders are in. A file uploaded straight into the ritual, without Folders — in or out?' },
+      { t: 'The name "Ritual"', d: 'Still a working name. Used throughout this prototype so the screens match the scope.' }
+    ]
+  },
+  'a-people': {
+    title: 'People & training on a work context',
+    covers: ['SM-06','S-06','S-04','SM-02'],
+    pattern: 'Mitti’s training matrix (a person × topic grid ending in a gap), scoped to one Site or Job. Warn, don’t block — the Assignar precedent.',
+    notes: [
+      '<b>The headline counts only topics this Site or Job requires.</b> Other expiring training is a smaller line you can open.',
+      'Four states, each with the topic and date: <b>current · expiring soon · expired · no record</b>. Copy says "training not current", never "not competent".',
+      '<b>External people</b> are records, visibly marked. Their training is added by hand, in this portal only. "No record" is actionable: <b>Add ticket</b>.',
+      'Grouped by crew, with today’s presence and how it was recorded (marked by supervisor · signed in · signed).'
+    ],
+    decisions: [
+      { t: 'Training requirements — in the MVP, and where are they set up?', d: 'In Field Management per Site or Job (shown), or a new section of the training matrix that assigns first.', wait: true },
+      { t: 'Real-time event view', d: 'A live, auto-refreshing "who’s here now" list. Cut it or keep it read-only — follows the Site Access decision.', wait: true },
+      { t: 'Next step, not MVP: QR self-registration', d: 'The market norm is QR + phone number, no app, a profile that follows the person. Named here as the follow-up to S-06’s minimal record.' }
+    ]
+  },
+  'a-close': {
+    title: 'Job close-out · Site archive',
+    covers: ['SM-01','S-01','S-04'],
+    pattern: 'Jobber’s "close job with incomplete visits" sheet (blockers listed, each resolvable in place) and ServiceTitan’s close-out checklist. HammerTech’s archive: read-only, still viewable.',
+    notes: [
+      '<b>Awaiting close</b> appears when the expected end passes and nobody confirmed. <b>A Job never closes on its own.</b>',
+      '<b>Close is always available, but it surfaces blockers</b> — each with its own resolve action. Nothing closes while anything is outstanding.',
+      'What counts as done is set per Job: <b>a deadline</b> by default, or <b>a close-out checklist</b> (a sign-off, for example).',
+      'Close-out produces <b>the evidence pack</b>, exportable. History never changes.',
+      '<b>Gate the Job, archive the Site.</b> An archived Site is read-only, still viewable, and can be unarchived without calling support.'
+    ],
+    decisions: [
+      { t: 'What goes in the evidence pack, and in what format?', d: 'One PDF per Job, an export, or both (SM-01 §11 Q3). Both buttons shown.' },
+      { t: 'Mark "didn’t happen" with a reason', d: 'Offered here as one way to clear a blocker. Same open decision as the work-context view.' }
+    ]
+  },
+  'a-access': {
+    title: '"Can view" access',
+    covers: ['S-02','SM-02'],
+    pattern: 'A share sheet over a chosen set of contexts: Salus (full / site / own access), HammerTech and Procore (company-wide vs per-project permission sets).',
+    notes: [
+      '<b>Only client admins have full access</b> in the MVP, and only they hand out grants.',
+      'A grant has two halves: <b>who</b> (a person or a crew) and <b>what</b> (a named set of Sites and Jobs). Never a home location.',
+      '<b>Grants only ever add</b> — they never remove access someone already has.',
+      'The person or crew is <b>notified</b>, like a shared file. Preview shows exactly what they’ll see: read-only, nothing to change.',
+      'Supervisors don’t need a grant: they see their crew’s Sites and Jobs automatically (the stopgap).'
+    ],
+    decisions: [
+      { t: 'After the MVP: share sheet or custom roles?', d: 'Option A (three levels) vs Option B (named roles with a per-object checklist). Only "Can view" ships now; "Can edit" is shown disabled.' }
+    ]
+  },
+  's-home': {
+    title: 'Supervisor — your field',
+    covers: ['SM-04','SM-02','SM-06'],
+    pattern: 'A layer on the app’s existing Home, not a new section. State first, names second.',
+    notes: [
+      '<b>A supervisor sees the Sites and Jobs their crew is assigned to</b>, and no others (the S-02 stopgap).',
+      'Each row: state first, the training number beside it as its own count — <b>the same numbers as the web</b>.',
+      '<b>"Last synced"</b> shows wherever a number could be stale. A stale number shown as current is worse than none.',
+      'Labels say "on the field" and use the client’s chosen kind labels.'
+    ],
+    decisions: [
+      { t: 'Offline — sync or degrade?', d: 'The blocking decision for mobile. The owed-vs-done comparison is calculated on the server. A ~30-minute working session, closer to build.' },
+      { t: 'One person on up to ten work contexts a day', d: 'Every mobile screen must work for one and for ten. Unsolved.' }
+    ]
+  },
+  's-view': {
+    title: 'Supervisor — a Site, grouped by ritual',
+    covers: ['SM-04','SM-03','S-01','SM-06'],
+    pattern: 'Same grouping as the web on purpose: two groupings of one dataset is how people stop trusting the number.',
+    notes: [
+      '<b>"Start of Day · 1 of 3 done"</b> before any list of names.',
+      'Three states on every row: not started · in progress · completed. Drafts can’t be chased.',
+      '<b>Edit, don’t create:</b> remind, mark people present, move a ritual for this Site only.',
+      'Shared data with the web — mark something on the admin view and it shows here.'
+    ],
+    decisions: [
+      { t: 'A Site or Job supervisor?', d: 'This supervisor runs one crew. Someone who oversees the whole Site would see every crew’s rows here.' }
+    ]
+  },
+  's-att': {
+    title: 'Who’s on site — the attendance checklist',
+    covers: ['S-04','SM-02','SM-06','S-06'],
+    pattern: 'Dashpivot’s attendee table on the supervisor’s phone; SiteDocs’ no-access workers signing on the supervisor’s device.',
+    notes: [
+      '<b>Pre-filled from the crews</b> on this Site — a starting point, not a lock. Add or remove anyone.',
+      '<b>One supervisor marks present or absent.</b> Present without a signature is allowed ("he’s driving") and stays distinct from absent.',
+      'Unrecorded people show as a <b>gap</b> — "2 unaccounted" — grouped by crew, not as blanks.',
+      '<b>"Mark all present" is the supervisor’s observation</b>, never an attestation on anyone’s behalf.',
+      'Training status <b>shows beside each name and never blocks</b>. Every entry stores who, where, when, status, proof level and who recorded it.'
+    ],
+    decisions: [
+      { t: 'What do users call it?', d: '"Who’s on site" on a Site, "Who’s on the job" on a Job — copy still open (S-04 Q1).' },
+      { t: 'Real-time event view', d: 'This is a checklist for today, not a live muster list. Whether a live view ships follows the Site Access decision.', wait: true }
+    ]
+  },
+  's-sign': {
+    title: 'Signatures — pass the device, own device, or photo',
+    covers: ['S-04'],
+    pattern: 'HammerTech’s attestation sentence (names the signer and who recorded it) and Raken’s pass-the-phone talk sign-off with a photo-of-sheet fallback.',
+    notes: [
+      '<b>Two ways to sign, the supervisor’s choice:</b> pass this phone round, or send it to each person’s own phone.',
+      '<b>A plain attestation sentence</b> makes it a record, not a scribble.',
+      '<b>A supervisor never signs for someone else.</b> Skipped people can sign later on their own phone.',
+      '<b>Photo of the paper sheet</b> is a legitimate fallback, not a workaround.',
+      'Every signature stores <b>who signed, when, and on which device</b>.'
+    ],
+    decisions: [
+      { t: 'Saved signatures', d: 'Sign once, apply later. Pending a compliance check — does a saved signature defeat the purpose?' }
+    ]
+  },
+  's-visitor': {
+    title: 'Add someone — including external people',
+    covers: ['S-06','S-04','SM-06'],
+    pattern: 'A minimal record today; HammerTech’s no-login orientation (visitor registers before arriving, reviewer approves) is the market norm to grow into.',
+    notes: [
+      '<b>A record, not free text</b> — name and company, so the same person is recognised next time.',
+      'A <b>time-limited link</b> to this Site or Job.',
+      '<b>Training added by hand</b>: photo of the ticket, topic, expiry. Stored in this portal only; the signal reads it like anyone’s.',
+      'Not in the slice: login, self-managed profile, cross-portal training, form filling.'
+    ],
+    decisions: [
+      { t: 'Who adds a visitor’s training on mobile?', d: 'Presumably the supervisor, photographing the ticket — external people have no login in the MVP.' },
+      { t: 'Next step, not MVP: QR self-registration', d: 'Visitor scans a QR code, gives a phone number, uploads their own tickets before arriving.' }
+    ]
+  },
+  's-move': {
+    title: 'Move a ritual, move people',
+    covers: ['SM-04','SM-03','SM-02'],
+    pattern: '"A supervisor shouldn’t have to phone someone at a desk to move a ritual to tomorrow."',
+    notes: [
+      '<b>Moving a ritual changes this Site’s attachment only.</b> Every other Site keeps its schedule.',
+      '<b>Move people and crews</b> between Sites and Jobs — today only, or from now on.',
+      '<b>Fixing is on both; creating is web-only.</b> New Sites, Jobs, rituals and crews stay on the web.'
+    ],
+    decisions: []
+  },
+  'w-pick': {
+    title: 'Worker — pick where you are',
+    covers: ['SM-04','SM-01','S-04','SM-06'],
+    pattern: 'Connecteam’s job picker minus its qualification and geofence gating (which causes "No jobs found"). Search and recents added.',
+    notes: [
+      '<b>No dispatch.</b> The worker picks the Job or Site they’re on. <b>The selection is the visit</b> — a "signed in" presence entry for today.',
+      '<b>Ungated:</b> every Site and Job their crew is assigned to, with search and recents.',
+      '<b>A training gap warns and still lets them pick.</b> Nothing in the MVP blocks on training.',
+      '<b>One at a time.</b> Picking another moves them.'
+    ],
+    decisions: [
+      { t: 'Offline — sync or degrade?', d: 'Picking a Job offline: queue the visit, or degrade? Part of the offline working session.' }
+    ]
+  },
+  'w-day': {
+    title: 'Worker — your day, with the chosen context as a chip',
+    covers: ['SM-04','S-01','SM-03'],
+    pattern: 'Connecteam keeps the chosen job visible all shift with "Switch job". Here: a persistent chip with Switch.',
+    notes: [
+      '<b>The chip stays on every screen</b> while they’re on a Site or Job. Switch goes back to the picker.',
+      'What this Site or Job owes them today, <b>also in their normal To-do and Assigned forms</b> — both places, always.',
+      'A <b>"today" filter</b> over lists they already use: no new object, nothing new assigned.',
+      '<b>No time-of-day push.</b> Late and backdated entries still count toward the day they were owed.'
+    ],
+    decisions: []
+  },
+  'w-forms': {
+    title: 'Worker — forms started anywhere count here',
+    covers: ['S-01','SM-04'],
+    pattern: 'Fixes the research’s most corroborated reporting failure: forms counting toward the worker’s home location.',
+    notes: [
+      'A form opened from the Forms tab while on a Job <b>counts toward that Job</b> (path b, zero setup)...',
+      '...<b>and stays in the existing location reports</b>, unchanged (decision 58).',
+      '<b>Today / Yesterday / Next / All</b> filter over the forms list they already use.',
+      'Never the home location: the submitter’s home is shown, but not used for counting.'
+    ],
+    decisions: [
+      { t: 'Picking a context on the form (path c) — required or optional?', d: 'When neither a ritual nor a Job selection applies. Required keeps counts honest; optional keeps forms quick (S-01 Q5).' }
+    ]
+  }
+};
+
+/* =========================================================================
+   3. SAMPLE DATA — invented. No BIS client is named anywhere.
+   ========================================================================= */
+var CTX = [
+  { id: 'ny',     kind: 'site', name: 'North Yard',          code: 'NY-01', addr: '14 King Rd',            crews: ['Paving Crew 2','Underground Crew'], train: 2, src: 'Site Access', last: '8 min ago', days: 'Mon–Sat' },
+  { id: 'p118',   kind: 'job',  name: 'Substation upgrade',  code: 'P-118', spans: ['Riverside Plant','Depot East','Quarry Road'], crews: ['Crew E','Electrical Crew'], out: 4, train: 3, dates: 'Sep 1 – Dec 15', last: '25 min ago' },
+  { id: 'de',     kind: 'site', name: 'Depot East',          addr: '2 Harbour Way',  crews: ['Yard Crew'], out: 3, train: 0, src: 'Site Access', last: '1 h ago', days: 'Mon–Fri' },
+  { id: 'wo4471', kind: 'job',  name: 'Pump replacement',    code: 'WO-4471', at: 'ny', crews: ['Underground Crew'], train: 1, dates: 'Sep 22 – Oct 3', last: '12 min ago' },
+  { id: 'j2210',  kind: 'job',  name: 'Fibre splice, Elm Ave', code: 'J-2210', addr: 'Elm Ave (5 streets)', crews: ['Splice Crew A'], out: 1, train: 0, dates: 'Sep 30 · one night', awaiting: true, last: 'yesterday' },
+  { id: 'qr',     kind: 'site', name: 'Quarry Road',         addr: '880 Quarry Rd',  crews: ['Crew E'], out: 1, inprog: true, train: 0, last: '40 min ago', days: 'Mon–Fri' },
+  { id: 'rp',     kind: 'site', name: 'Riverside Plant',     addr: '5 Mill Lane',    crews: ['Electrical Crew'], out: 0, train: 1, src: 'Site Access', last: '2 h ago', days: '4 on · 4 off' },
+  { id: 'wo4502', kind: 'job',  name: 'Drainage tie-in',     code: 'WO-4502', at: 'ny', crews: ['Paving Crew 2'], out: 0, train: 0, dates: 'Sep 29 – Oct 10', last: '3 h ago' },
+  { id: 'mso',    kind: 'site', name: 'Main St Office',      addr: '200 Main St',    crews: [], out: 0, train: 0, src: 'Site Access', last: 'Sep 29', days: 'Mon–Fri' }
+];
+function byId(id) { for (var i = 0; i < CTX.length; i++) if (CTX[i].id === id) return CTX[i]; return null; }
+
+var HOME = { 'L. Park': 'West Branch', 'A. Chen': 'West Branch', 'M. Haddad': 'Head Office', 'K. Diaz': 'West Branch',
+             'J. Okafor': 'East Branch', 'R. Singh': 'East Branch', 'T. Nguyen': 'East Branch' };
+
+var RMETA = {
+  'Start of Day':          'Daily · working days · counts per crew',
+  'Equipment Pre-Op':      'Daily · working days · counts per asset',
+  'Permit to Work':        'WO-4471 · per visit · counts per person',
+  'Pump Tooling Check':    'WO-4471 · per visit · counts per Job',
+  'Weekly Site Inspection':'Weekly · Friday · counts per Site or Job',
+  'One-off':               'Assigned here · owed once · not a ritual'
+};
+
+/* North Yard obligations, today. Jobs at the Site (WO-4471) roll up into it. */
+function obNorthYard() {
+  return [
+    { id: 'o1', ritual: 'Start of Day', item: 'FLHA', who: 'Paving Crew 2', crew: 'Paving Crew 2', state: 'not', presentBy: 'marked by L. Park, 6:52 AM' },
+    { id: 'o2', ritual: 'Start of Day', item: 'FLHA', who: 'Underground Crew', crew: 'Underground Crew', state: 'prog', draft: 'J. Okafor started a draft at 10:12 AM', presentBy: 'J. Okafor picked WO-4471 at 6:41 AM' },
+    { id: 'o3', ritual: 'Start of Day', item: 'Daily site inspection', who: 'North Yard (anyone)', state: 'done', by: 'L. Park', time: '7:41 AM', src: 'ritual' },
+    { id: 'o4', ritual: 'Equipment Pre-Op', item: 'Pre-op inspection', who: 'Excavator EX-07', asset: true, state: 'not' },
+    { id: 'o5', ritual: 'Equipment Pre-Op', item: 'Pre-op inspection', who: 'Skid steer SS-02', asset: true, state: 'done', by: 'M. Haddad', time: '7:05 AM', src: 'ritual' },
+    { id: 'o6', ritual: 'Equipment Pre-Op', item: 'Pre-op inspection', who: 'Loader LD-03', asset: true, state: 'done', by: 'A. Chen', time: '7:12 AM', src: 'ritual' },
+    { id: 'o7', ritual: 'Permit to Work', job: 'wo4471', item: 'Confined space permit', who: 'R. Singh', crew: 'Underground Crew', state: 'not', presentBy: 'R. Singh picked WO-4471 at 6:58 AM' },
+    { id: 'o8', ritual: 'Permit to Work', job: 'wo4471', item: 'Confined space permit', who: 'T. Nguyen', crew: 'Underground Crew', state: 'done', by: 'T. Nguyen', time: '8:20 AM', src: 'ritual' },
+    { id: 'o9', ritual: 'Pump Tooling Check', job: 'wo4471', item: 'Tooling checklist', who: 'WO-4471 (anyone)', state: 'not' },
+    { id: 'o10', ritual: 'One-off', oneoff: true, item: 'Spill kit audit', who: 'Paving Crew 2', crew: 'Paving Crew 2', state: 'done', by: 'K. Diaz', time: '9:30 AM', src: 'oneoff' },
+    { id: 'e1', evidence: true, ritual: 'Not owed', item: 'Hazard report (unprompted)', who: 'T. Nguyen', crew: 'Underground Crew', job: 'wo4471', state: 'done', by: 'T. Nguyen', time: '9:02 AM', src: 'selection' }
+  ];
+}
+/* Generic obligations for the other contexts */
+function genOb(c) {
+  if (c.id === 'j2210') return [
+    { id: 'j1', ritual: 'Start of Day', item: 'FLHA', who: 'Splice Crew A', crew: 'Splice Crew A', state: 'not', day: 'Sep 30', presentBy: '4 people picked J-2210 on Sep 30' },
+    { id: 'j2', ritual: 'Start of Day', item: 'Traffic control plan check', who: 'J-2210 (anyone)', state: 'done', by: 'A. Chen', time: 'Sep 30, 9:14 PM', src: 'selection' },
+    { id: 'j3', ritual: 'Start of Day', item: 'FLHA', who: 'Splice Crew A (Sep 29)', crew: 'Splice Crew A', state: 'done', by: 'M. Haddad', time: 'Sep 29, 8:40 PM', src: 'ritual' }
+  ];
+  var crews = (c.crews && c.crews.length) ? c.crews : ['Site team'];
+  var tpl = [['Start of Day','FLHA'], ['Equipment Pre-Op','Pre-op inspection'], ['Start of Day','Daily site inspection'], ['Weekly Site Inspection','Site inspection']];
+  var list = [], n = c.out || 0, i;
+  for (i = 0; i < n; i++) {
+    var t = tpl[i % tpl.length], cr = crews[i % crews.length];
+    list.push({ id: c.id + 'o' + i, ritual: t[0], item: t[1], who: t[0] === 'Equipment Pre-Op' ? 'Generator GN-1' + i : cr, crew: t[0] === 'Equipment Pre-Op' ? null : cr, asset: t[0] === 'Equipment Pre-Op', state: (c.inprog && i === 0) ? 'prog' : 'not', draft: (c.inprog && i === 0) ? 'Draft started at 9:48 AM' : null });
+  }
+  var names = ['A. Chen','M. Haddad','L. Park'], times = ['7:02 AM','7:15 AM','7:40 AM'];
+  for (i = 0; i < 3; i++) {
+    var cr2 = crews[i % crews.length];
+    list.push({ id: c.id + 'd' + i, ritual: 'Start of Day', item: i ? 'Daily site inspection' : 'FLHA', who: i ? c.name + ' (anyone)' : cr2, crew: i ? null : cr2, state: 'done', by: names[i], time: times[i], src: 'ritual' });
+  }
+  return list;
+}
+
+/* People on North Yard today. tr: whmis / fall / conf → cur | exp | expd | none | na */
+function buildPeople() {
+  return [
+    { id: 'p1', name: 'L. Park',   crew: 'Paving Crew 2', role: 'Crew supervisor', tr: { whmis: 'cur', fall: 'cur', conf: 'na' }, pres: 'in', proof: 'signin', at: '6:40 AM', how: 'picked North Yard' },
+    { id: 'p2', name: 'A. Chen',   crew: 'Paving Crew 2', tr: { whmis: 'cur', fall: 'cur', conf: 'na' }, other: 'First Aid expires Oct 28', pres: 'in', proof: 'sup', at: '6:52 AM', how: 'marked by L. Park' },
+    { id: 'p3', name: 'M. Haddad', crew: 'Paving Crew 2', tr: { whmis: 'cur', fall: 'cur', conf: 'na' }, other: 'H2S expires Nov 2', pres: 'in', proof: 'signed', at: '7:01 AM', how: 'signed on L. Park’s phone' },
+    { id: 'p4', name: 'K. Diaz',   crew: 'Paving Crew 2', tr: { whmis: 'cur', fall: 'cur', conf: 'na' }, other: 'Forklift expires Oct 15', pres: null },
+    { id: 'p5', name: 'J. Okafor', crew: 'Underground Crew', role: 'Crew supervisor', tr: { whmis: 'cur', fall: 'cur', conf: 'cur' }, pres: 'in', proof: 'signin', at: '6:41 AM', how: 'picked WO-4471' },
+    { id: 'p6', name: 'R. Singh',  crew: 'Underground Crew', tr: { whmis: 'cur', fall: 'cur', conf: 'expd' }, pres: 'in', proof: 'signin', at: '6:58 AM', how: 'picked WO-4471' },
+    { id: 'p7', name: 'T. Nguyen', crew: 'Underground Crew', tr: { whmis: 'cur', fall: 'cur', conf: 'cur' }, pres: 'in', proof: 'signin', at: '7:03 AM', how: 'picked WO-4471' },
+    { id: 'p8', name: 'S. Ortiz',  crew: null, ext: 'Contractor · Brightline Electrical', tr: { whmis: 'cur', fall: 'none', conf: 'na' }, pres: 'in', proof: 'sup', at: '7:20 AM', how: 'marked by L. Park' },
+    { id: 'p9', name: 'P. Ferreira', crew: null, ext: 'Visitor · from Site Access', tr: { whmis: 'na', fall: 'na', conf: 'na' }, pres: null }
+  ];
+}
+var TOPICS = [ { k: 'whmis', n: 'WHMIS', why: 'company default' }, { k: 'fall', n: 'Fall Protection', why: 'company default' }, { k: 'conf', n: 'Confined Space', why: 'added by WO-4471' } ];
+var TDATES = { exp: 'expires Oct 20', expd: 'expired Aug 12', none: 'no record', cur: 'current', na: 'not required' };
+
+var RITUALS = [
+  { id: 'sod', name: 'Start of Day', items: ['FLHA · form','Daily site inspection · form','Site rules.pdf · file from Folders'], def: 'Daily · working days · per crew', per: 'crew', when: 'working' },
+  { id: 'pre', name: 'Equipment Pre-Op', items: ['Pre-op inspection · form from asset'], def: 'Daily · working days · per asset', per: 'asset', when: 'working' },
+  { id: 'wsi', name: 'Weekly Site Inspection', items: ['Site inspection · form','Fix-it list · task'], def: 'Weekly · Friday · per Site or Job', per: 'ctx', when: 'weekly' },
+  { id: 'eod', name: 'End of Day', items: ['Site secure checklist · form'], def: 'Daily · working days · per Site or Job', per: 'ctx', when: 'working' },
+  { id: 'ptw', name: 'Permit to Work', items: ['Confined space permit · form'], def: 'Per visit · per person', per: 'person', when: 'visit' },
+  { id: 'inc', name: 'Incident', items: ['Incident report · form'], def: 'Triggered only — never outstanding', per: 'ctx', when: 'trigger' }
+];
+var ASSETS = [
+  { id: 'a1', name: 'WO-4471 Pump replacement', cat: 'Work orders', as: 'job' },
+  { id: 'a2', name: 'WO-4502 Drainage tie-in', cat: 'Work orders', as: 'job' },
+  { id: 'a3', name: 'P-118 Substation upgrade', cat: 'Projects', as: 'job' },
+  { id: 'a4', name: 'J-2210 Fibre splice, Elm Ave', cat: 'Work orders', as: 'job' },
+  { id: 'a5', name: 'Quarry Road', cat: 'Yards', as: 'site' },
+  { id: 'a6', name: 'Toolbox Talk Holder', cat: 'Misc', as: 'job', flag: 'Looks like a container for a talk, not a place or a job' },
+  { id: 'a7', name: 'Excavator EX-07', cat: 'Heavy equipment', as: 'none', flag: 'Real equipment — leave as an asset' }
+];
+
+/* =========================================================================
+   4. STATE
+   ========================================================================= */
+var S;
+function freshState() {
+  var ob = { ny: obNorthYard() };
+  CTX.forEach(function (c) { if (c.id !== 'ny' && c.id !== 'wo4471') ob[c.id] = genOb(c); });
+  return {
+    persp: 'overview', flow: 'ov',
+    ctx: 'ny', panel: null, vtab: 'out', bd: 'job', bdKey: null, showDone: {}, menu: null, reason: 'No work done today', sheet: null, oneoff: { kind: 'form', form: 'Spill kit audit', to: 'Paving Crew 2' },
+    viewer: false, idxFilter: 'all', idxQ: '',
+    ob: ob,
+    people: buildPeople(), showOther: false, ext: null,
+    setup: { step: 1, site: true, job: true, jobLabel: 'Job', imp: { a1: true, a2: true, a3: true, a4: true }, as: { a1: 'job', a2: 'job', a3: 'job', a4: 'job', a5: 'site', a6: 'job' }, mode: 'import', starter: 'sod', allSites: true, done: false },
+    att: { rit: 'sod', loose: false, allSites: true, where: { wo4471: true }, per: 'crew', when: 'working', shifts: '1', lead: '1', open: 'Start of shift', assets: { ex07: true, ss02: true, ld03: true } },
+    close: { step: 'job', res: {}, view: 'job', siteArchived: false, confirmTick: false, mode: 'checklist' },
+    access: { who: 'D. Moreau · Regional Safety Manager', scope: { ny: true, p118: true, rp: true }, granted: false },
+    sup: { ctx: 'ny', sheet: null, sigMode: null, sigIdx: 0, drawn: false, signed: {}, ownSent: false, photo: false, addTab: 'ext', vis: { name: 'Sam Patel', company: 'Northline Scaffold', type: 'Contractor', until: 'Today only', photo: false, topic: 'Fall Protection', exp: '2027-03-14' }, ritMoved: false, crewMoved: false, moveTo: 'Thu Oct 2', crewTo: 'WO-4502', crewWhen: 'Today only' },
+    w: { ctx: null, since: null, q: '', warn: null, filter: 'today', ffilter: 'today', form: null, formSrc: null, history: ['wo4471','ny'] }
+  };
+}
+S = freshState();
+
+/* =========================================================================
+   5. HELPERS
+   ========================================================================= */
+function JL()  { return S.setup.jobLabel; }
+function JLs() { return S.setup.jobLabel === 'Work order' ? 'Work orders' : S.setup.jobLabel + 's'; }
+function navLabel() { var s = S.setup; if (s.site && s.job) return 'Sites & ' + JLs(); if (s.site) return 'Sites'; return JLs(); }
+function kindLabel(c) { return c.kind === 'site' ? 'Site' : JL(); }
+function cname(c) { return (c.code ? c.code + ' · ' : '') + c.name; }
+function isOut(o) { return o.state === 'not' || o.state === 'prog'; }
+function obsFor(id) {
+  if (id === 'wo4471') return S.ob.ny.filter(function (o) { return o.job === 'wo4471'; });
+  if (id === 'ny') return S.ob.ny;
+  return S.ob[id] || [];
+}
+function owed(id) { return obsFor(id).filter(function (o) { return !o.evidence; }); }
+function outCount(id) { return owed(id).filter(isOut).length; }
+function findOb(obId) {
+  for (var k in S.ob) { var l = S.ob[k]; for (var i = 0; i < l.length; i++) if (l[i].id === obId) return l[i]; }
+  return null;
+}
+function hasIssue(p) { return ['whmis','fall','conf'].some(function (k) { return p.tr[k] === 'exp' || p.tr[k] === 'expd' || p.tr[k] === 'none'; }); }
+function trainCount(id) {
+  if (id === 'ny') return S.people.filter(hasIssue).length;
+  if (id === 'wo4471') return S.people.filter(function (p) { return p.crew === 'Underground Crew' && hasIssue(p); }).length;
+  return byId(id).train;
+}
+function isClosed(c) { return c.id === 'j2210' && S.close.step === 'pack'; }
+function isArchived(c) { return c.id === 'mso' && S.close.siteArchived; }
+
+function statePill(id, big) {
+  var n = outCount(id), c = byId(id);
+  if (c && isClosed(c)) return '<span class="st st-closed' + (big ? ' big' : '') + '">Closed</span>';
+  if (c && isArchived(c)) return '<span class="st st-closed' + (big ? ' big' : '') + '">Archived</span>';
+  return n > 0 ? '<span class="st st-out' + (big ? ' big' : '') + '">' + n + ' outstanding</span>' : '<span class="st st-ok' + (big ? ' big' : '') + '">Current</span>';
+}
+function trainCell(id) {
+  var n = trainCount(id);
+  return '<span class="tn' + (n ? '' : ' zero') + '"><span class="pi"></span>' + (n ? n + (n === 1 ? ' person' : ' people') : 'None') + '</span>';
+}
+function whereText(c) {
+  if (c.at) return 'at ' + byId(c.at).name;
+  if (c.spans) return 'spans ' + c.spans.length + ' Sites';
+  return c.addr || '';
+}
+function datesCell(c) {
+  if (c.kind !== 'job') return '<span class="sub">' + (c.days || '') + '</span>';
+  var aw = c.awaiting && !isClosed(c) ? ' <span class="aw">Awaiting close</span>' : '';
+  return '<span style="white-space:nowrap">' + c.dates + '</span>' + aw;
+}
+function stateText(o) {
+  if (o.state === 'not') return 'Not started' + (o.day ? ' · owed ' + o.day : ' · due 11:59 PM');
+  if (o.state === 'prog') return 'In progress · ' + (o.draft || 'draft saved');
+  if (o.state === 'done') return 'Completed by ' + o.by + ' · ' + o.time;
+  if (o.state === 'didnt') return 'Didn’t happen · ' + o.reason;
+  if (o.state === 'removed') return 'Removed';
+  return '';
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function tk(t) { return '<span class="tk" title="' + esc(TNAMES[t]) + '">' + t + '</span>'; }
+function flag(t) { return '<span class="flag">⚑ ' + (t || 'open decision') + '</span>'; }
+function radio(on, label, fn, dis, desc) {
+  return '<div class="radio' + (on ? ' on' : '') + (dis ? ' dis' : '') + '"' + (dis ? '' : ' onclick="' + fn + '"') + '><span class="rb"></span><span>' + label + (desc ? '<div class="sub">' + desc + '</div>' : '') + '</span></div>';
+}
+function check(on, label, fn, dis, desc) {
+  return '<div class="check' + (on ? ' on' : '') + (dis ? ' dis' : '') + '"' + (dis ? '' : ' onclick="' + fn + '"') + '><span class="cb"></span><span>' + label + (desc ? '<div class="sub">' + desc + '</div>' : '') + '</span></div>';
+}
+function toast(msg) {
+  var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 3400);
+}
+
+/* =========================================================================
+   6. FRAMES — browser, phone, annotation rail
+   ========================================================================= */
+function web(url, inner, overlay) {
+  var nav = ['Home','Forms','Training','Assets'].map(function (n) { return '<span class="ni">' + n + '</span>'; }).join('');
+  return '<p class="frame-tag">Web · admin' + (S.viewer ? ' · previewing a "Can view" user' : '') + '</p>' +
+    '<div class="browser"><div class="chrome"><span class="tl"></span><span class="tl"></span><span class="tl"></span><span class="url">app.bis.example/field/' + url + '</span></div>' +
+    '<div class="app-nav"><span class="logo"></span>' + nav + '<span class="ni on" onclick="go(\'a-index\')" style="cursor:pointer">' + navLabel() + '</span><span class="ni">Reports</span><span class="nsp"></span><span class="avatar">' + (S.viewer ? 'DM' : 'YOU') + '</span></div>' +
+    '<div class="web">' + viewerBanner() + inner + (overlay || '') + '</div></div>';
+}
+function viewerBanner() {
+  if (!S.viewer) return '';
+  return '<div class="viewer-banner"><b>Previewing as D. Moreau</b><span class="kind">Can view</span><span class="muted">3 Sites &amp; ' + JLs() + ' · read-only — nothing to create, change or remind</span><span class="spacer"></span><button class="btn sm" onclick="exitPreview()">Exit preview</button></div>';
+}
+function phone(inner, opts) {
+  opts = opts || {};
+  return '<div class="phone"><div class="notch"></div><div class="screen"><div class="statusbar"><span>10:42</span><span>▮▮▮ 82%</span></div>' +
+    inner + (opts.tab === false ? '' : tabbar(opts.tab || 'home')) + (opts.sheet || '') + '</div></div>';
+}
+function tabbar(on) {
+  var t = [['home','Home'],['forms','Forms'],['todo','To-do'],['training','Training']];
+  return '<div class="tabbar">' + t.map(function (x) {
+    var fn = x[0] === 'home' ? 'goHome()' : (x[0] === 'forms' && S.persp === 'worker' ? 'go(\'w-forms\')' : 'toast(\'Existing app tab — unchanged by Field Management\')');
+    return '<span class="ti' + (x[0] === on ? ' active' : '') + '" onclick="' + fn + '"><span class="c"></span><span>' + x[1] + '</span></span>';
+  }).join('') + '</div>';
+}
+function rail(id) {
+  var m = SCREENS[id];
+  return '<aside class="rail">' +
+    '<div class="rsec"><h4>Scope tickets on this screen</h4><div class="covers">' + m.covers.map(function (t) { return '<div>' + tk(t) + '<span class="tk-name">' + TNAMES[t] + '</span></div>'; }).join('') + '</div></div>' +
+    '<div class="rsec"><h4>Pattern from the research</h4><p class="pat">' + m.pattern + '</p></div>' +
+    '<div class="rsec notes"><h4>Design notes</h4><ul>' + m.notes.map(function (n) { return '<li>' + n + '</li>'; }).join('') + '</ul></div>' +
+    m.decisions.map(function (d) { return '<div class="decision"><div class="dl">⚑ Open decision' + (d.wait ? ' · ⏳ waiting on Luke' : '') + '</div><b>' + d.t + '</b>' + d.d + '</div>'; }).join('') +
+    '</aside>';
+}
+function layout(device, id, mobile) { return '<div class="layout' + (mobile ? ' mob' : '') + '"><div class="dev">' + device + '</div>' + rail(id) + '</div>'; }
+
+/* =========================================================================
+   7. OVERVIEW — read-me, coverage matrix, open decisions
+   ========================================================================= */
+function renderOverview() {
+  var rows = '';
+  ['admin','sup','worker'].forEach(function (p) {
+    var pl = PERSP.filter(function (x) { return x.id === p; })[0].label;
+    rows += '<tr class="persp-row"><td colspan="' + (TICKETS.length + 1) + '">' + pl + '</td></tr>';
+    FLOWS[p].forEach(function (f) {
+      var m = SCREENS[f.id];
+      rows += '<tr><td><a onclick="selectFlow(\'' + f.id + '\')">' + f.label + '</a><div class="sub">' + m.title + '</div></td>' +
+        TICKETS.map(function (t) { return '<td class="tc">' + (m.covers.indexOf(t) > -1 ? '<span class="dotc" title="' + t + '"></span>' : '') + '</td>'; }).join('') + '</tr>';
+    });
+  });
+  var dec = [
+    ['Offline — sync or degrade?', 'The blocking decision for mobile. ~30-minute working session, closer to build.', 's-home', 'Supervisor · Your field'],
+    ['A Site or Job supervisor?', 'Someone over a whole Site or Job, not just a crew. A field on the work context, or a grant?', 'a-view', 'Admin · Work context'],
+    ['Setup in one pass, or one kind at a time?', 'Drawn as one pass so the full path is visible. Sep 28 lean: one kind per pass.', 'a-setup', 'Admin · Day one'],
+    ['Real-time event view ⏳', 'Live "who’s here now". Cut, or keep read-only — follows the Site Access decision with Luke.', 'a-people', 'Admin · People & training'],
+    ['"Didn’t happen" with a reason', 'Honest omission on an outstanding row. Raised by the research; not yet in scope.', 'a-view', 'Admin · Work context'],
+    ['Counting per asset', 'In scope as an open item — assets listed on the attachment.', 'a-attach', 'Admin · Attach a ritual'],
+    ['Saved signatures', 'Pending a compliance check.', 's-sign', 'Supervisor · Signatures'],
+    ['Who adds a visitor’s training on mobile?', 'Presumably the supervisor, photographing the ticket.', 's-visitor', 'Supervisor · Add someone'],
+    ['Training requirements in the MVP, and where set up ⏳', 'In Field Management per Site/Job, or in the training matrix. Waiting on Luke.', 'a-people', 'Admin · People & training'],
+    ['Importing Locations ⏳', 'Not offered on day one. Waiting on Luke.', 'a-setup', 'Admin · Day one'],
+    ['Evidence pack format', 'One PDF per Job, an export, or both.', 'a-close', 'Admin · Job close-out'],
+    ['Standalone file upload to a ritual', 'Files from Folders are in; uploading without Folders is open.', 'a-attach', 'Admin · Attach a ritual'],
+    ['The name "Ritual"', 'Still a working name.', 'a-attach', 'Admin · Attach a ritual'],
+    ['Path (c) pick on the form — required or optional?', 'When neither a ritual nor a Job selection applies.', 'w-forms', 'Worker · Forms count here']
+  ];
+  var html = '<div class="ov">' +
+    '<p class="eyebrow">BIS · Field Management (formerly Site Management) · Clickable lo-fi wireframe</p>' +
+    '<h1>Show what’s missing, not what’s done.</h1>' +
+    '<p class="lede">A record and omission layer, not a work-dispatch tool. An admin watches <b>work contexts</b> — a <b>Site</b> (a place that keeps going) and a <b>Job</b> (work that finishes) — and each one answers a single question: <b>current, or N outstanding?</b> This prototype walks the MVP across the admin’s web view and the supervisor’s and worker’s phones, with the open decisions from the v2 scope flagged where they bite. Greys are placeholders, not visual design.</p>' +
+    '<div class="legend">' +
+      '<span class="item"><span class="st st-out">5 outstanding</span> needs attention — always a count</span>' +
+      '<span class="item"><span class="st st-ok">Current</span> nothing owed right now</span>' +
+      '<span class="item"><span class="tn"><span class="pi"></span>2 people</span> training issues — a separate number</span>' +
+      '<span class="item"><span class="aw">Awaiting close</span> ended, not confirmed</span>' +
+      '<span class="item"><span class="ext">External</span> not a BIS user</span>' +
+      '<span class="item">' + flag() + ' from the scope — not resolved here</span>' +
+      '<span class="item">' + tk('SM-01') + ' scope ticket covered</span>' +
+    '</div>' +
+    '<h2>How to use it</h2><div class="two">' +
+      '<div class="card" style="padding:14px"><b>Pick a perspective, then a flow tab.</b><p class="muted" style="font-size:12.5px;margin-top:6px">Admin is on the web; Supervisor and Worker are on a phone. Every button, row and tab inside the frames works. The footer says what’s on screen and what to try next.</p></div>' +
+      '<div class="card" style="padding:14px"><b>One shared set of sample data.</b><p class="muted" style="font-size:12.5px;margin-top:6px">Submit a permit as the worker and the admin’s North Yard count drops. Mark someone present as the supervisor and the web People tab updates. ↺ Reset Prototype puts everything back.</p></div>' +
+      '<div class="card" style="padding:14px"><b>The right-hand rail is the documentation.</b><p class="muted" style="font-size:12.5px;margin-top:6px">Each screen lists the scope tickets it covers, the competitor pattern it borrows, the design decisions, and any ⚑ open decision from the scope.</p></div>' +
+    '</div>' +
+    '<h2>Screens × scope tickets</h2>' +
+    '<div class="card tbl-wrap"><table class="t cov"><thead><tr><th>Screen</th>' + TICKETS.map(function (t) { return '<th class="tc" title="' + esc(TNAMES[t]) + '">' + t + '</th>'; }).join('') + '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
+    '<p class="sub" style="margin-top:8px">' + TICKETS.map(function (t) { return '<b>' + t + '</b> ' + TNAMES[t]; }).join(' · ') + '</p>' +
+    '<h2>Open decisions shown as callouts</h2><div class="dlist">' + dec.map(function (d) {
+      return '<div class="decision"><div class="dl">⚑ Open decision</div><b>' + d[0] + '</b>' + d[1] + '<div style="margin-top:6px"><button class="btn link" onclick="selectFlow(\'' + d[2] + '\')">See it in ' + d[3] + ' →</button></div></div>';
+    }).join('') + '</div>' +
+    '<h2>Not in this prototype</h2><div class="card muted" style="padding:14px;font-size:12.5px;line-height:1.6">' +
+      '<b>Notification triggers</b> admin panel (parent item 7) · <b>Calendar view and past-day lookup</b> (item 8, low priority) · Tier B/C tickets: S-05 Reviewer sign-off, S-04 Slice B/C, SM-06 gate, SM-07 Meetings, SM-05 Object scan · the full S-02 permissions model · a Group kind (region, division) · dispatch of any kind.' +
+    '</div>' +
+    '<p class="footer-note">Sample data is invented — no BIS client is named. Inputs: parent-site-management-mvp.md v2 (updated 2026-09-30) and its child tickets; field-management-competitor-ui-reference.html (Oct 2026). Wireframe only — greys are placeholders, not final visual design. Every interview in the research was with an admin: anything here about supervisors and workers is a safe bet, not evidence.</p>' +
+    '</div>';
+  return html;
+}
+
+/* =========================================================================
+   8. ADMIN · DAY ONE
+   ========================================================================= */
+function renderSetup() {
+  var s = S.setup;
+  var steps = ['What you manage', 'Sites already here', 'Bring in ' + JLs(), 'A starter ritual', 'Day one'];
+  var nav = '<ol class="wsteps">' + steps.map(function (t, i) {
+    var n = i + 1; return '<li class="' + (n === s.step ? 'now' : (n < s.step ? 'done' : '')) + '" onclick="setStep(' + n + ')"><span class="n">' + (n < s.step ? '✓' : n) + '</span>' + t + '</li>';
+  }).join('') + '</ol>';
+  var body = '';
+  if (s.step === 1) {
+    body = '<h3 style="margin:0 0 4px;font-size:17px">What do you manage?</h3><p class="muted" style="font-size:12.5px;margin-bottom:14px">Pick the kinds you use. You can add the other later.</p>' +
+      '<div class="grid2">' +
+        '<div class="opt' + (s.site ? ' on' : '') + '" onclick="S.setup.site=!S.setup.site;render()"><div class="ot">' + check(s.site, 'Sites', '') + '</div><div class="od">Places people are present at, with working days. They keep going — and archive, never end.</div></div>' +
+        '<div class="opt' + (s.job ? ' on' : '') + '" onclick="S.setup.job=!S.setup.job;render()"><div class="ot">' + check(s.job, JLs(), '') + '</div><div class="od">Work that finishes: a start, an expected end, a close-out. Can sit at a Site or span several.</div></div>' +
+      '</div>' +
+      '<div class="fsec" style="margin-top:12px"><div class="fsec-h"><span class="ft" style="font-size:13px">What do you call work that finishes?</span><span class="fq">One label, used everywhere. Written by BIS — no free text.</span></div>' +
+        '<div class="row-flex">' + ['Job','Project','Work order'].map(function (l) { return '<button class="fchip' + (s.jobLabel === l ? ' on' : '') + '" onclick="S.setup.jobLabel=\'' + l + '\';render()">' + l + '</button>'; }).join('') + '</div>' +
+        '<p class="sub" style="margin-top:8px">"Site" is fixed (it’s the Site Access object).</p></div>' +
+      '<div class="info">Your navigation will read <b>' + navLabel() + '</b>. The product is called Field Management.</div>' +
+      '<div style="margin-top:10px">' + flag('one pass or one kind at a time?') + '</div>';
+  } else if (s.step === 2) {
+    var sites = CTX.filter(function (c) { return c.src === 'Site Access'; });
+    body = '<h3 style="margin:0 0 4px;font-size:17px">Your sites are already here</h3><p class="muted" style="font-size:12.5px;margin-bottom:14px">These came from Site Access. Nothing to re-enter, and Site Access keeps working exactly as it does today.</p>' +
+      '<div class="card tbl-wrap"><table class="t"><thead><tr><th>Site</th><th>Address</th><th>Working days</th><th>From</th></tr></thead><tbody>' +
+      sites.map(function (c) { return '<tr><td><b>' + c.name + '</b></td><td class="sub">' + c.addr + '</td><td class="sub">' + c.days + '</td><td><span class="kind">Site Access</span></td></tr>'; }).join('') +
+      '</tbody></table></div>' +
+      '<div class="info" style="margin-top:10px"><b>7 visitors came with them</b> — now external-person records (name + company), not free text.</div>' +
+      '<div class="row-flex" style="margin-top:10px"><button class="btn" onclick="toast(\'Create a Site: name, optional code, address, working days (company default unless overridden)\')">+ Create a site from scratch</button><button class="btn" onclick="setStep(3)">Import from Assets</button></div>' +
+      '<div class="decision" style="margin-top:12px"><div class="dl">⚑ Open decision · ⏳ waiting on Luke</div><b>Importing Locations</b>Not offered in the MVP. If your places are Locations, day one is thinner until live-linked Locations land.</div>';
+  } else if (s.step === 3) {
+    var nSel = Object.keys(s.imp).filter(function (k) { return s.imp[k]; }).length;
+    body = '<h3 style="margin:0 0 4px;font-size:17px">Bring in ' + JLs() + '</h3><p class="muted" style="font-size:12.5px;margin-bottom:12px">Many teams bent Assets into jobs and places. Pick the ones that really are — we copy <b>the name only</b>, and the asset stays exactly as it is.</p>' +
+      '<div class="row-flex" style="margin-bottom:10px"><span class="seg2"><button class="' + (s.mode === 'import' ? 'on' : '') + '" onclick="S.setup.mode=\'import\';render()">Import from Assets</button><button class="' + (s.mode === 'scratch' ? 'on' : '') + '" onclick="S.setup.mode=\'scratch\';render()">Create from scratch</button></span></div>';
+    if (s.mode === 'scratch') {
+      body += '<div class="fsec"><div class="grid2"><label class="field">Name<input value="Hydrant flush, Ward 3"></label><label class="field">Code (optional)<input value="J-2231"></label><label class="field">Start<input value="2026-10-06"></label><label class="field">Expected end (optional)<input value="2026-10-08"></label><label class="field">Where<select><option>At a Site — North Yard</option><option>Spans several Sites</option><option>Its own address or area</option><option>No address</option></select></label></div><p class="sub" style="margin-top:8px">A ' + JL() + ' at a Site inherits its address, working days and Site Access.</p></div>';
+    } else {
+      body += '<div class="search" style="margin-bottom:8px"><span class="muted">⌕</span><input placeholder="Search 64 assets"></div>' +
+        '<div class="card tbl-wrap"><table class="t"><thead><tr><th></th><th>Asset</th><th>Category</th><th>Create as</th></tr></thead><tbody>' +
+        ASSETS.map(function (a) {
+          var on = !!s.imp[a.id];
+          return '<tr><td style="width:30px">' + check(on, '', 'toggleImp(\'' + a.id + '\')') + '</td><td><b>' + a.name + '</b>' + (a.flag ? '<div class="sub">⚑ ' + a.flag + '</div>' : '') + '</td><td class="sub">' + a.cat + '</td><td>' +
+            (on ? '<span class="seg2"><button class="' + (s.as[a.id] === 'site' ? 'on' : '') + '" onclick="S.setup.as[\'' + a.id + '\']=\'site\';render()">Site</button><button class="' + (s.as[a.id] !== 'site' ? 'on' : '') + '" onclick="S.setup.as[\'' + a.id + '\']=\'job\';render()">' + JL() + '</button></span>' : '<span class="sub">—</span>') + '</td></tr>';
+        }).join('') + '</tbody></table></div>' +
+        '<div class="info" style="margin-top:10px"><b>Import, not convert.</b> ' + nSel + ' selected. Flat — no hierarchy, permissions or reporting baggage comes across. ' + JLs() + ' import from Assets only, never Locations.</div>';
+    }
+  } else if (s.step === 4) {
+    body = '<h3 style="margin:0 0 4px;font-size:17px">Give day one some state</h3><p class="muted" style="font-size:12.5px;margin-bottom:12px">Attach a starter ritual so today already shows what’s owed and what’s done. You can change it any time.</p>' +
+      '<div class="grid2">' + RITUALS.filter(function (r) { return r.id !== 'ptw' && r.id !== 'inc'; }).map(function (r) {
+        return '<div class="opt' + (s.starter === r.id ? ' on' : '') + '" onclick="S.setup.starter=\'' + r.id + '\';render()"><div class="ot">' + r.name + '</div><div class="od">' + r.items.join('<br>') + '</div><div class="sub" style="margin-top:6px">Suggested: ' + r.def + '</div></div>';
+      }).join('') +
+      '<div class="opt' + (s.starter === 'loose' ? ' on' : '') + '" onclick="S.setup.starter=\'loose\';render()"><div class="ot">Just loose forms</div><div class="od">Attach a form or two on their own. Bundle them into a ritual later, once you’ve seen how a day runs.</div></div>' +
+      '</div>' +
+      '<div class="fsec" style="margin-top:12px"><div class="fsec-h"><span class="ft" style="font-size:13px">Attach to</span></div>' +
+        radio(s.allSites, 'All Sites (' + CTX.filter(function (c) { return c.kind === 'site'; }).length + ')', 'S.setup.allSites=true;render()', false, 'Sites added later join automatically — nobody has to re-save.') +
+        radio(!s.allSites, 'Choose Sites and ' + JLs() + '…', 'S.setup.allSites=false;render()') + '</div>';
+  } else {
+    body = '<h3 style="margin:0 0 4px;font-size:17px">You’re set.</h3><p class="muted" style="font-size:12.5px;margin-bottom:14px">Here’s what day one looks like — built almost entirely from what was already in BIS.</p>' +
+      '<div class="statrow">' +
+        '<div class="stat"><div class="k">Sites</div><b style="font-size:20px">5</b><div class="sub">4 from Site Access, 1 imported</div></div>' +
+        '<div class="stat"><div class="k">' + JLs() + '</div><b style="font-size:20px">4</b><div class="sub">imported from Assets</div></div>' +
+        '<div class="stat"><div class="k">Ritual</div><b style="font-size:20px">' + (s.starter === 'loose' ? 'Loose forms' : RITUALS.filter(function (r) { return r.id === s.starter; })[0].name) + '</b><div class="sub">' + (s.allSites ? 'on all Sites' : 'on chosen Sites') + '</div></div>' +
+        '<div class="stat"><div class="k">External people</div><b style="font-size:20px">7</b><div class="sub">visitors from Site Access</div></div>' +
+      '</div>' +
+      '<div class="info" style="margin-top:12px">State appears straight away: what was owed today, Wed Oct 1, against what’s come in. Next, add crews and anyone else on the field.</div>';
+  }
+  var foot = '<div class="row-flex" style="margin-top:18px;border-top:1px solid var(--line);padding-top:12px">' +
+    (s.step > 1 ? '<button class="btn" onclick="setStep(' + (s.step - 1) + ')">Back</button>' : '') + '<span class="spacer"></span>' +
+    (s.step < 5 ? '<button class="btn pri" onclick="setStep(' + (s.step + 1) + ')"' + (!s.site && !s.job ? ' disabled' : '') + '>Continue</button>' : '<button class="btn pri" onclick="S.setup.done=true;go(\'a-index\')">Open ' + navLabel() + ' →</button>') + '</div>';
+  var inner = '<div class="wpage"><div class="crumb">Field Management · setup</div><div class="wh"><h2>Set up Field Management</h2><span class="sub">Web only in the MVP</span></div>' +
+    '<div class="wiz">' + nav + '<div>' + body + foot + '</div></div></div>';
+  return layout(web('setup', inner), 'a-setup');
+}
+
+/* =========================================================================
+   9. ADMIN · INDEX
+   ========================================================================= */
+function idxRows() {
+  var f = S.idxFilter, q = S.idxQ.toLowerCase();
+  var rows = CTX.filter(function (c) {
+    var gone = isClosed(c) || isArchived(c);
+    if (f === 'closed') return gone;
+    if (gone) return false;
+    if (S.viewer && !S.access.scope[c.id]) return false;
+    if (f === 'site' && c.kind !== 'site') return false;
+    if (f === 'job' && c.kind !== 'job') return false;
+    if (f === 'await' && !c.awaiting) return false;
+    if (q && (cname(c) + ' ' + whereText(c)).toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+  rows.sort(function (a, b) { return outCount(b.id) - outCount(a.id) || ((b.awaiting ? 1 : 0) - (a.awaiting ? 1 : 0)) || a.name.localeCompare(b.name); });
+  return rows;
+}
+function idxBody() {
+  var rows = idxRows();
+  if (!rows.length) return '<tr><td colspan="7" class="sub" style="padding:24px;text-align:center">Nothing here.</td></tr>';
+  return rows.map(function (c) {
+    var split = '';
+    if (c.id === 'ny') {
+      var all = owed('ny').filter(isOut), site = all.filter(function (o) { return !o.job; }).length;
+      if (all.length) split = '<div class="sub" style="margin-top:3px">' + site + ' site · ' + (all.length - site) + ' across ' + JLs().toLowerCase() + '</div>';
+    }
+    var prog = owed(c.id).filter(function (o) { return o.state === 'prog'; }).length;
+    if (!split && prog) split = '<div class="sub" style="margin-top:3px">' + prog + ' in progress</div>';
+    return '<tr class="click" onclick="openCtx(\'' + c.id + '\')"><td class="first">' + statePill(c.id) + split + '</td><td>' + trainCell(c.id) + '</td>' +
+      '<td><b>' + cname(c) + '</b></td><td><span class="kind">' + kindLabel(c) + '</span> <span class="sub">' + whereText(c) + '</span></td>' +
+      '<td>' + datesCell(c) + '</td><td class="sub">' + (c.crews.length ? c.crews.join(', ') : '—') + '</td><td class="sub" style="white-space:nowrap">' + c.last + '</td></tr>';
+  }).join('');
+}
+function renderIndex() {
+  var base = CTX.filter(function (c) { return !isClosed(c) && !isArchived(c) && (!S.viewer || S.access.scope[c.id]); });
+  var withOut = base.filter(function (c) { return outCount(c.id) > 0; }).length;
+  var cnt = { all: base.length, site: base.filter(function (c) { return c.kind === 'site'; }).length, job: base.filter(function (c) { return c.kind === 'job'; }).length,
+              await: base.filter(function (c) { return c.awaiting; }).length, closed: CTX.filter(function (c) { return isClosed(c) || isArchived(c); }).length };
+  var chips = [['all','All'],['site','Sites'],['job',JLs()],['await','Awaiting close']];
+  if (!S.viewer) chips.push(['closed','Closed & archived']);
+  var actions = S.viewer ? '' : '<div class="row-flex"><button class="btn" onclick="go(\'a-access\')">Access</button><button class="btn" onclick="go(\'a-attach\')">Attach a ritual</button><button class="btn pri" onclick="toast(\'New Site · New ' + JL() + ' · Import from Assets — web only\')">+ New ▾</button></div>';
+  var inner = '<div class="wpage"><div class="wh"><div><h2>' + navLabel() + '</h2><div class="sub" style="margin-top:3px">Today, Wed Oct 1 · ' + withOut + ' of ' + base.length + ' have outstanding items</div></div>' + actions + '</div>' +
+    '<div class="row-flex" style="margin-bottom:10px">' + chips.map(function (c) { return '<button class="fchip' + (S.idxFilter === c[0] ? ' on' : '') + '" onclick="S.idxFilter=\'' + c[0] + '\';render()">' + c[1] + ' <span class="mono" style="opacity:.7">' + cnt[c[0]] + '</span></button>'; }).join('') +
+      '<span class="spacer"></span><div class="search" style="padding:5px 9px;min-width:180px"><span class="muted">⌕</span><input id="idxQ" placeholder="Search" value="' + esc(S.idxQ) + '" oninput="idxSearch(this.value)"></div>' +
+      '<select style="font-size:12px"><option>Most outstanding first</option><option>Most training issues</option><option>Name</option><option>Ending soonest</option></select></div>' +
+    '<div class="card tbl-wrap"><table class="t"><thead><tr><th>State</th><th>Training</th><th>Site or ' + JL() + '</th><th>Kind · where</th><th>Dates</th><th>Crews</th><th>Last activity</th></tr></thead><tbody id="idxBody">' + idxBody() + '</tbody></table></div>' +
+    '<p class="sub" style="margin-top:8px">State is a count, never a %. Training counts people whose required training here isn’t current. A ' + JL() + ' at a Site rolls into the Site’s count, so rows aren’t summed.</p></div>';
+  return layout(web('', inner), 'a-index');
+}
+
+/* =========================================================================
+   10. ADMIN · SINGLE WORK-CONTEXT VIEW (+ why-it-counted panel, people tab)
+   ========================================================================= */
+function groupObs(list) {
+  var groups = {}, order = [];
+  list.forEach(function (o) { if (!groups[o.ritual]) { groups[o.ritual] = []; order.push(o.ritual); } groups[o.ritual].push(o); });
+  order.sort(function (a, b) {
+    var oa = groups[a].filter(isOut).length, ob = groups[b].filter(isOut).length;
+    return ob - oa;
+  });
+  return order.map(function (r) { return { ritual: r, items: groups[r] }; });
+}
+function obRow(o, c) {
+  var acts = '';
+  var viewer = S.viewer;
+  if (isOut(o)) {
+    acts = '<button class="btn sm" onclick="openPanel(\'' + o.id + '\')">Open</button>';
+    if (!viewer) {
+      if (o.state === 'prog') acts += '<span class="sub" style="align-self:center;padding:0 4px">draft — no chasing</span>';
+      else acts += o.reminded ? '<span class="sub" style="align-self:center;padding:0 4px">Reminded ✓</span>' : '<button class="btn sm" onclick="remind(\'' + o.id + '\')">Remind</button>';
+      acts += '<button class="btn sm" onclick="toggleMenu(\'' + o.id + '\')" title="More">⋯</button>';
+    }
+  } else {
+    acts = '<button class="btn sm ghost" onclick="openPanel(\'' + o.id + '\')">Why</button>';
+  }
+  var pop = '';
+  if (S.menu === o.id) {
+    var reasons = ['No work done today', 'Equipment not used', 'Weather or site shutdown', 'Other — add a note'];
+    pop = '<div class="pop" onclick="event.stopPropagation()"><div class="pop-t">Mark “didn’t happen” ' + flag() + '</div>' +
+      '<p class="sub" style="margin-bottom:6px">Closes the gap honestly — “nothing happened”, not “nothing was recorded”. Kept in the record with the reason.</p>' +
+      reasons.map(function (r) { return radio(S.reason === r, r, 'S.reason=\'' + r.replace(/'/g, '') + '\';render()'); }).join('') +
+      '<div class="row-flex" style="margin-top:8px"><button class="btn sm" onclick="S.menu=null;render()">Cancel</button><span class="spacer"></span><button class="btn sm pri" onclick="didnt(\'' + o.id + '\')">Save</button></div>' +
+      (o.oneoff ? '<div style="border-top:1px solid var(--line);margin-top:8px;padding-top:8px"><button class="btn sm" onclick="removeOb(\'' + o.id + '\')">Remove this one-off</button></div>' : '') + '</div>';
+  }
+  var jobTag = (c.kind === 'site' && o.job) ? ' · on ' + byId(o.job).code : '';
+  var assetTag = o.asset ? ' · asset' : '';
+  return '<div class="ob ' + o.state + '"><span class="sdot"></span><div class="ob-main" onclick="openPanel(\'' + o.id + '\')"><div class="ob-t">' + o.item + ' — ' + o.who + '</div><div class="ob-m">' + stateText(o) + jobTag + assetTag + '</div></div><div class="ob-acts">' + acts + pop + '</div></div>';
+}
+function bdStrip(c, list) {
+  var outs = list.filter(isOut), items = [];
+  if (S.bd === 'job' && c.kind === 'site') {
+    items.push({ k: 'site', n: outs.filter(function (o) { return !o.job; }).length, l: c.name + ' (site)' });
+    CTX.filter(function (x) { return x.at === c.id; }).forEach(function (j) { items.push({ k: j.id, n: outs.filter(function (o) { return o.job === j.id; }).length, l: j.code }); });
+  } else {
+    var crews = (c.crews || []).slice();
+    crews.forEach(function (cr) { items.push({ k: cr, n: outs.filter(function (o) { return o.crew === cr; }).length, l: cr }); });
+    items.push({ k: 'none', n: outs.filter(function (o) { return !o.crew; }).length, l: 'No crew (asset or anyone)' });
+  }
+  var seg = c.kind === 'site' ? '<span class="seg2"><button class="' + (S.bd === 'job' ? 'on' : '') + '" onclick="S.bd=\'job\';S.bdKey=null;render()">By ' + JL().toLowerCase() + '</button><button class="' + (S.bd === 'crew' ? 'on' : '') + '" onclick="S.bd=\'crew\';S.bdKey=null;render()">By crew</button></span>'
+                              : '<span class="seg2"><button class="on">By crew</button></span>';
+  return '<div class="card bd"><div class="row-flex"><span class="sub mono" style="text-transform:uppercase;letter-spacing:.08em">Break down</span>' + seg + '<span class="spacer"></span>' + (S.bdKey ? '<button class="btn sm ghost" onclick="S.bdKey=null;render()">Clear filter ✕</button>' : '') + '</div>' +
+    '<div class="bd-items">' + items.map(function (i) { return '<button class="bdi' + (i.n ? ' hot' : '') + (S.bdKey === i.k ? ' on' : '') + '" onclick="S.bdKey=(S.bdKey===\'' + i.k.replace(/'/g, '') + '\'?null:\'' + i.k.replace(/'/g, '') + '\');render()"><b>' + i.n + '</b>' + i.l + '</button>'; }).join('') + '</div></div>';
+}
+function applyBd(list) {
+  if (!S.bdKey) return list;
+  var k = S.bdKey;
+  return list.filter(function (o) {
+    if (S.bd === 'job' && byId(S.ctx).kind === 'site') return k === 'site' ? !o.job : o.job === k;
+    if (k === 'none') return !o.crew;
+    return o.crew === k;
+  });
+}
+function renderOutstanding(c) {
+  var list = owed(c.id);
+  var html = bdStrip(c, list);
+  var shown = applyBd(list).filter(function (o) { return o.state !== 'removed'; });
+  var groups = groupObs(shown);
+  if (!groups.length) html += '<div class="card sub" style="padding:20px;text-align:center">Nothing owed for this filter.</div>';
+  groups.forEach(function (g) {
+    var outs = g.items.filter(isOut), done = g.items.filter(function (o) { return o.state === 'done'; }), didn = g.items.filter(function (o) { return o.state === 'didnt'; });
+    var total = g.items.length, nDone = done.length + didn.length;
+    var counted = (g.ritual === 'Start of Day' && (c.id === 'ny' || c.id === 'wo4471')) ? ' <span class="kind">also on ' + (c.id === 'ny' ? 'WO-4471' : 'North Yard') + ' — counted once</span>' : '';
+    var assetFlag = g.ritual === 'Equipment Pre-Op' ? ' ' + flag('per asset') : '';
+    html += '<div class="rgroup"><div class="rg-head"><div><div class="rg-title">' + (g.ritual === 'One-off' ? 'One-off — assigned here' : g.ritual) + counted + assetFlag + '</div><div class="rg-meta">' + (RMETA[g.ritual] || 'Daily · working days') + '</div></div><span class="rg-count">' + nDone + ' of ' + total + ' done</span></div>';
+    html += outs.map(function (o) { return obRow(o, c); }).join('');
+    var key = c.id + '|' + g.ritual;
+    var closedItems = done.concat(didn);
+    if (closedItems.length) {
+      if (S.showDone[key]) html += closedItems.map(function (o) { return obRow(o, c); }).join('') + '<div class="collapsed" onclick="toggleDone(\'' + key + '\')">Hide completed</div>';
+      else html += '<div class="collapsed" onclick="toggleDone(\'' + key + '\')">✓ ' + done.length + ' completed' + (didn.length ? ' · ' + didn.length + ' didn’t happen' : '') + ' — show</div>';
+    }
+    html += '</div>';
+  });
+  if (c.id === 'ny' && !S.bdKey) html += '<div class="sub" style="padding:4px 2px">Not due this period: <b>Weekly Site Inspection</b> · next Fri Oct 3. Triggered only: <b>Incident</b> — never shows as outstanding.</div>';
+  return html;
+}
+function presText(p) {
+  if (!p.pres) return '<span class="st st-out" style="font-size:10.5px;padding:2px 7px">Not yet recorded</span>';
+  if (p.pres === 'out') return '<span class="muted">Absent</span>';
+  var pl = p.proof === 'signed' ? 'Signed' : (p.proof === 'signin' ? 'Signed in' : 'Marked by supervisor');
+  return '<b>Present</b><div class="sub">' + pl + ' · ' + p.at + (p.how ? ' · ' + p.how : '') + '</div>';
+}
+function trText(p, k) {
+  var v = p.tr[k];
+  if (v === 'na') return '<span class="sub">·</span>';
+  if (v === 'cur') return '<span class="muted">✓ Current</span>';
+  if (v === 'exp') return '<b>◷ Expiring</b><div class="sub">Oct 20</div>';
+  if (v === 'expd') return '<b style="color:var(--action)">✕ Expired</b><div class="sub">Aug 12</div>';
+  if (v === 'none') return '<b style="color:var(--action)">— No record</b>' + (!S.viewer && p.ext ? '<div><button class="btn link" style="font-size:11px" onclick="openExt(\'' + p.id + '\')">Add ticket</button></div>' : '');
+  return '';
+}
+function renderPeople(c) {
+  var people = S.people;
+  if (c.id === 'wo4471') people = people.filter(function (p) { return p.crew === 'Underground Crew'; });
+  if (c.id !== 'ny' && c.id !== 'wo4471') {
+    return '<div class="card" style="padding:16px"><b>' + trainCount(c.id) + ' people have training issues</b> for ' + c.name + '.<p class="sub" style="margin-top:6px">Sample data is detailed for North Yard only — <button class="btn link" onclick="openCtx(\'ny\');S.vtab=\'people\';render()">open North Yard’s people</button>.</p></div>';
+  }
+  var issues = people.filter(hasIssue).length, present = people.filter(function (p) { return p.pres === 'in'; }).length, gap = people.filter(function (p) { return !p.pres; }).length;
+  var others = people.filter(function (p) { return p.other; });
+  var html = '<div class="statrow" style="margin-bottom:12px">' +
+    '<div class="stat"><div class="k">Training — required here</div><b>' + issues + ' ' + (issues === 1 ? 'person has' : 'people have') + ' training issues</b><div class="sub" style="margin-top:4px"><button class="btn link" style="font-size:11px" onclick="S.showOther=!S.showOther;render()">' + others.length + ' more have other expiring training (not required here) ' + (S.showOther ? '▴' : '▾') + '</button></div>' +
+      (S.showOther ? '<div class="sub" style="margin-top:4px">' + others.map(function (p) { return p.name + ' — ' + p.other; }).join('<br>') + '</div>' : '') + '</div>' +
+    '<div class="stat"><div class="k">Today</div><b>' + present + ' present</b>' + (gap ? ' · <span class="st st-out" style="font-size:10.5px;padding:1px 7px">' + gap + ' unaccounted</span>' : '') + '<div class="sub" style="margin-top:4px">Recorded by supervisors and by picking this Site or a ' + JL() + ' at it.</div></div>' +
+    '<div class="stat" style="flex:1;min-width:220px"><div class="k">Required here</div><span class="kind">WHMIS</span> <span class="kind">Fall Protection</span> <span class="sub">company default</span><br><span class="kind" style="margin-top:4px;display:inline-block">Confined Space</span> <span class="sub">added by WO-4471, for people on it</span>' +
+      (S.viewer ? '' : '<div style="margin-top:6px"><button class="btn sm" onclick="toast(\'Requirements: company default, overridden per Site or ' + JL() + ' only where different\')">Edit requirements</button> ' + flag('where set up? ⏳') + '</div>') + '</div>' +
+  '</div>';
+  var crews = [];
+  people.forEach(function (p) { var k = p.crew || 'Individuals — no crew'; if (crews.indexOf(k) < 0) crews.push(k); });
+  html += '<div class="card tbl-wrap"><table class="t"><thead><tr><th>Person</th><th>Today</th>' + TOPICS.map(function (t) { return '<th>' + t.n + '</th>'; }).join('') + '</tr></thead><tbody>';
+  crews.forEach(function (cr) {
+    var sup = people.filter(function (p) { return p.crew === cr && p.role; })[0];
+    html += '<tr><td colspan="5" style="background:var(--fill);padding:6px 10px" class="mono sub">' + cr.toUpperCase() + (sup ? ' · supervisor ' + sup.name : '') + '</td></tr>';
+    people.filter(function (p) { return (p.crew || 'Individuals — no crew') === cr; }).forEach(function (p) {
+      html += '<tr><td><b>' + p.name + '</b> ' + (p.ext ? '<span class="ext">External</span><div class="sub">' + p.ext + '</div>' : '') + (p.role ? '<div class="sub">' + p.role + '</div>' : '') + '</td><td>' + presText(p) + '</td>' + TOPICS.map(function (t) { return '<td>' + trText(p, t.k) + '</td>'; }).join('') + '</tr>';
+    });
+  });
+  html += '</tbody></table></div>';
+  if (!S.viewer) html += '<div class="row-flex" style="margin-top:10px"><button class="btn" onclick="openExt(null)">+ Add an external person</button><button class="btn" onclick="toast(\'Assign a crew — crews are created on the web, moved on web or mobile\')">+ Assign a crew</button><span class="spacer"></span>' + flag('real-time "who’s here now" view ⏳') + '</div>';
+  html += '<p class="sub" style="margin-top:8px">Says <b>training not current</b>, never "not competent". Shows; never blocks. External people’s training is added by hand and stored in this portal only.</p>';
+  return html;
+}
+function renderRituals(c) {
+  var att = c.id === 'ny' ? [
+    ['Start of Day', 'Daily · working days (Mon–Sat) · per crew', 'Suggested default', 'Also on WO-4471 — owed once'],
+    ['Equipment Pre-Op', 'Daily · working days · per asset: EX-07, SS-02, LD-03', 'Overridden here', ''],
+    ['Weekly Site Inspection', 'Weekly · Friday · per Site', 'Suggested default', ''],
+    ['Incident', 'Triggered only', 'Suggested default', 'Never shows as outstanding']
+  ] : [['Start of Day', 'Daily · working days · per crew', 'Suggested default', '']];
+  var html = '<div class="card tbl-wrap"><table class="t"><thead><tr><th>Ritual</th><th>Schedule and who counts</th><th>Schedule source</th><th></th></tr></thead><tbody>' +
+    att.map(function (a) { return '<tr><td><b>' + a[0] + '</b>' + (a[3] ? '<div class="sub">' + a[3] + '</div>' : '') + '</td><td class="sub">' + a[1] + '</td><td class="sub">' + a[2] + '</td><td>' + (S.viewer ? '' : '<button class="btn sm" onclick="go(\'a-attach\')">Edit</button>') + '</td></tr>'; }).join('') +
+    '</tbody></table></div>';
+  html += '<div class="sec-h">Loose items — recur, no ritual yet</div><div class="card row-flex" style="padding:10px 12px;font-size:12.5px"><b>Spill kit inspection</b> <span class="sub">· weekly · per Site</span>' + (S.viewer ? '' : ' <button class="btn sm" style="margin-left:8px" onclick="toast(\'Group loose items into a ritual — affects new days only\')">Group into a ritual</button>') + '</div>';
+  html += '<div class="sec-h">One-off — owed once</div><div class="card" style="padding:10px 12px;font-size:12.5px">' + owed(c.id).filter(function (o) { return o.oneoff; }).map(function (o) { return '<div><b>' + o.item + '</b> <span class="sub">· ' + o.who + ' · ' + stateText(o) + '</span></div>'; }).join('') + (S.viewer ? '' : '<div style="margin-top:6px"><button class="btn sm" onclick="openOneoff()">+ Add task / Assign form</button></div>') + '</div>';
+  if (!S.viewer) html += '<div style="margin-top:12px"><button class="btn pri" onclick="go(\'a-attach\')">Attach a ritual</button></div>';
+  html += '<p class="sub" style="margin-top:8px">Changing a ritual or its schedule affects new days only. Last month keeps reporting against what was owed then.</p>';
+  return html;
+}
+function renderEvidence(c) {
+  var done = obsFor(c.id).filter(function (o) { return o.state === 'done'; });
+  return '<div class="row-flex" style="margin-bottom:10px"><select style="font-size:12px"><option>Today, Wed Oct 1</option><option>This week</option><option>Past day…</option></select><span class="spacer"></span><button class="btn" onclick="toast(\'Export: everything submitted for ' + c.name + ' in this period\')">Export</button></div>' +
+    '<div class="card tbl-wrap"><table class="t"><thead><tr><th>Submission</th><th>By</th><th>Counts toward</th><th>How</th></tr></thead><tbody>' +
+    done.map(function (o) { return '<tr class="click" onclick="openPanel(\'' + o.id + '\')"><td><b>' + o.item + '</b><div class="sub">' + o.time + '</div></td><td>' + o.by + '</td><td>' + (o.job ? byId(o.job).code + ' <span class="sub">→ ' + c.name + '</span>' : c.name) + '</td><td class="sub">' + srcShort(o.src) + '</td></tr>'; }).join('') +
+    '</tbody></table></div>';
+}
+function srcShort(s) { return s === 'ritual' ? 'From the ritual' : s === 'selection' ? 'From their ' + JL() + ' or Site pick' : s === 'oneoff' ? 'One-off assigned here' : 'Picked on the form'; }
+function srcLong(o) {
+  if (o.src === 'ritual') return '<b>From the ritual.</b> It was owed by ' + o.ritual + (o.job ? ' on ' + byId(o.job).code : '') + ', so it inherited that work context with no setup.';
+  if (o.src === 'selection') return '<b>From the ' + JL() + ' they picked.</b> ' + o.by + ' had picked ' + (o.job ? byId(o.job).code : 'this context') + ' in the app before starting this form — wherever they started it.';
+  if (o.src === 'oneoff') return '<b>Assigned here as a one-off.</b> Owed once, then gone — not part of any ritual.';
+  return '<b>Picked on the form.</b> Neither a ritual nor a ' + JL() + ' selection applied, so they chose it.';
+}
+function whyPanel(o, c) {
+  var ctxOf = o.job ? byId(o.job) : c;
+  var h = '<div class="row-flex" style="margin-bottom:6px"><h3 style="flex:1">' + o.item + '</h3><button class="close-x" onclick="closePanel()">✕</button></div>' +
+    '<div class="sub" style="margin-bottom:8px">' + o.who + ' · ' + o.ritual + '</div>' +
+    '<div class="row-flex"><span class="sdot ' + o.state + '"></span><b style="font-size:12.5px">' + stateText(o) + '</b></div>';
+  if (o.state === 'done') {
+    h += '<div class="sec-h">Why it counted</div><dl class="kv">' +
+      '<dt>Submitted by</dt><dd>' + o.by + ' · ' + o.time + '</dd>' +
+      '<dt>Their home location</dt><dd>' + (HOME[o.by] || 'West Branch') + '<div class="sub">Shown, never used for counting</div></dd>' +
+      '<dt>Counts toward</dt><dd><b>' + cname(ctxOf) + '</b> <span class="kind">' + kindLabel(ctxOf) + '</span>' + (o.job && c.kind === 'site' ? '<div class="sub">Rolls up into ' + c.name + '’s breakdown — not counted twice</div>' : (ctxOf.at ? '<div class="sub">Rolls up into ' + byId(ctxOf.at).name + '</div>' : '')) + '</dd>' +
+      '<dt>How that was decided</dt><dd>' + srcLong(o) + '</dd>' +
+      '<dt>Satisfied</dt><dd>' + (o.evidence ? 'Nothing owed — kept as evidence for this ' + kindLabel(ctxOf) : o.ritual + ' · ' + o.who) + '</dd>' +
+      '<dt>Also appears in</dt><dd>' + (o.src === 'selection' ? 'The ' + (HOME[o.by] || 'West Branch') + ' location reports, unchanged — added on top, nothing moved' : o.by + '’s Assigned forms, as today') + '</dd></dl>' +
+      '<div class="sec-h">Other ways a form gets here</div><ul class="chain">' +
+      '<li><b>a · From the ritual</b> — owed by a ritual on this Site or ' + JL() + '.</li><li><b>b · From the ' + JL() + ' or Site they picked</b> — even an unprompted form from the Forms tab.</li><li><b>c · Picked on the form</b> — the fallback when neither applies.</li></ul>';
+  } else if (o.state === 'didnt') {
+    h += '<div class="sec-h">Closed without completion</div><p style="font-size:12px">Marked “didn’t happen” by you · reason: <b>' + o.reason + '</b>. Kept in the record and in the period snapshot. ' + flag() + '</p>';
+  } else {
+    var per = o.asset ? 'per asset — ' + o.who + ' is listed on the attachment' : (o.crew && o.who === o.crew ? 'per crew — ' + o.crew + ' is assigned here' : (o.who.indexOf('anyone') > -1 ? 'per ' + kindLabel(ctxOf) + ' — anyone can complete it' : 'per person — ' + o.who));
+    h += '<div class="sec-h">Why it’s owed</div><ul class="chain">' +
+      '<li><b>Ritual:</b> ' + o.ritual + ', attached to ' + cname(ctxOf) + (o.ritual === 'Start of Day' && c.id === 'ny' ? ' (also on WO-4471 — owed once, not twice)' : '') + '.</li>' +
+      '<li><b>Schedule:</b> ' + (o.job ? 'per visit — owed by whoever is on ' + byId(o.job).code + ' today' : 'daily, on ' + c.name + '’s working days (' + (c.days || 'Mon–Fri') + '). ' + (o.day ? o.day + ' was' : 'Today is') + ' a working day') + '.</li>' +
+      '<li><b>Counts ' + per + '.</b></li>' +
+      (o.presentBy ? '<li><b>Present:</b> ' + o.presentBy + '.</li>' : '') +
+      '<li><b>Timing:</b> created 1 day before due; due ' + (o.day ? o.day + ', 11:59 PM — now late, still counts if submitted' : 'today 11:59 PM') + '. At cutoff the period is frozen.</li></ul>';
+    if (o.state === 'prog') h += '<div class="info">A draft counts as outstanding but is labelled <b>in progress</b>, so nobody chases someone halfway through a form.</div>';
+    if (!S.viewer) h += '<div class="row-flex" style="margin-top:12px"><button class="btn sm" onclick="toast(\'Opens the form — it inherits this work context\')">Open form</button>' + (o.state === 'not' ? (o.reminded ? '<span class="sub">Reminded ✓</span>' : '<button class="btn sm" onclick="remind(\'' + o.id + '\')">Remind</button>') : '') + '<button class="btn sm" onclick="closePanel();toggleMenu(\'' + o.id + '\')">Didn’t happen…</button></div>';
+  }
+  h += '<p class="sub" style="margin-top:14px;border-top:1px solid var(--line);padding-top:8px">Counted by where the work was for — never by the submitter’s home location.</p>';
+  return '<div class="overlay"><div class="scrim" onclick="closePanel()"></div><div class="spanel">' + h + '</div></div>';
+}
+function sheetArchive(c) {
+  var outs = owed(c.id).filter(isOut);
+  return '<div class="overlay center" onclick="S.sheet=null;render()"><div class="sheet" onclick="event.stopPropagation()"><h3>' + c.name + ' can’t be archived yet</h3><p class="muted" style="font-size:12.5px">' + outs.length + ' items are still outstanding. Complete or remove each one first — nothing archives with open items.</p>' +
+    outs.map(function (o) { return '<div class="blocker"><span class="sdot ' + o.state + '" style="margin-top:4px"></span><div class="bt"><b style="font-size:12.5px">' + o.item + ' — ' + o.who + '</b><div class="sub">' + stateText(o) + '</div></div><button class="btn sm" onclick="S.sheet=null;openPanel(\'' + o.id + '\')">Open</button></div>'; }).join('') +
+    '<div class="info" style="margin-top:10px">Once archived, a Site leaves the active index and stays viewable, read-only. Its history never changes.</div><div class="sheet-foot"><button class="btn" onclick="S.sheet=null;render()">OK</button></div></div></div>';
+}
+function sheetOneoff(c) {
+  var f = S.oneoff;
+  return '<div class="overlay center" onclick="S.sheet=null;render()"><div class="sheet" onclick="event.stopPropagation()"><h3>Add to ' + c.name + '</h3><p class="muted" style="font-size:12.5px;margin-bottom:10px">Owed once, here. Not a ritual — rituals are set once and left to run.</p>' +
+    '<span class="seg2"><button class="' + (f.kind === 'form' ? 'on' : '') + '" onclick="S.oneoff.kind=\'form\';render()">Assign form</button><button class="' + (f.kind === 'task' ? 'on' : '') + '" onclick="S.oneoff.kind=\'task\';render()">Add task</button></span>' +
+    '<div class="grid2" style="margin-top:12px"><label class="field">' + (f.kind === 'form' ? 'Form' : 'Task') + '<input id="ooName" value="' + (f.kind === 'form' ? 'Fire extinguisher check' : 'Replace damaged barrier') + '"></label><label class="field">Assign to<select id="ooTo"><option>Paving Crew 2</option><option>Underground Crew</option><option>K. Diaz</option><option>Anyone on ' + c.name + '</option></select></label><label class="field">Due<input value="Today, 11:59 PM"></label></div>' +
+    '<p class="sub" style="margin-top:8px">It shows in this view and in their own To-do / Assigned forms.</p>' +
+    '<div class="sheet-foot"><button class="btn" onclick="S.sheet=null;render()">Cancel</button><button class="btn pri" onclick="addOneoff()">' + (f.kind === 'form' ? 'Assign' : 'Add task') + '</button></div></div></div>';
+}
+function sheetExt() {
+  var e = S.ext, p = e.forId ? S.people.filter(function (x) { return x.id === e.forId; })[0] : null;
+  return '<div class="overlay center" onclick="S.ext=null;render()"><div class="sheet" onclick="event.stopPropagation()"><h3>' + (p ? 'Add a training ticket for ' + p.name : 'Add an external person') + '</h3><p class="muted" style="font-size:12.5px;margin-bottom:10px">' + (p ? p.ext : 'Not a BIS user. A record, not free text — we’ll recognise them next time.') + '</p>' +
+    (p ? '' : '<div class="grid2"><label class="field">Name<input id="exName" value="D. Kowalski"></label><label class="field">Company<input id="exCo" value="Northline Scaffold"></label><label class="field">Type<select><option>Contractor</option><option>Visitor</option><option>Other trade</option><option>Temporary worker</option></select></label><label class="field">On North Yard until<input value="Oct 31, 2026"></label></div><div class="sec-h">Training (optional)</div>') +
+    '<div class="grid2"><label class="field">Topic<select><option>Fall Protection</option><option>WHMIS</option><option>Confined Space</option></select></label><label class="field">Expires<input value="2027-03-14"></label></div>' +
+    '<div class="camera" style="height:70px;margin-top:10px">Drop a photo or file of the ticket</div>' +
+    '<p class="sub" style="margin-top:8px">Stored in this portal only. Next step (not MVP): they register themselves by QR before arriving.</p>' +
+    '<div class="sheet-foot"><button class="btn" onclick="S.ext=null;render()">Cancel</button><button class="btn pri" onclick="saveExt()">Save</button></div></div></div>';
+}
+function renderView() {
+  var c = byId(S.ctx), outs = outCount(c.id), tr = trainCount(c.id);
+  var closed = isClosed(c), archived = isArchived(c);
+  var head = '<div class="crumb"><a onclick="go(\'a-index\')">' + navLabel() + '</a> › ' + c.name + '</div>';
+  var actions = '';
+  if (!S.viewer && !closed && !archived) {
+    actions = '<div class="row-flex"><button class="btn" onclick="openOneoff()">Add task / Assign form</button><button class="btn" onclick="go(\'a-attach\')">Attach a ritual</button>' +
+      (c.kind === 'site' ? '<button class="btn" onclick="tryArchive()">Archive site</button>' : '<button class="btn pri" onclick="startClose(\'' + c.id + '\')">Close ' + JL().toLowerCase() + '</button>') + '</div>';
+  }
+  var meta = c.kind === 'site' ? (c.code ? c.code + ' · ' : '') + c.addr + (c.src ? ' · from Site Access' : '') + ' · working days ' + c.days
+                              : c.dates + ' · ' + (c.at ? 'at ' + byId(c.at).name + ' — inherits its address, working days and Site Access' : c.spans ? 'spans ' + c.spans.join(', ') + ' — forms count toward this ' + JL() + ' only' : c.addr);
+  var stage = c.kind === 'job' ? '<div class="stepper" style="margin-top:8px">' + ['Planned','Active','Awaiting close','Closed'].map(function (s, i) {
+      var cur = closed ? 3 : (c.awaiting ? 2 : 1); return '<span class="' + (i < cur ? 'done' : (i === cur ? 'now' : '')) + '">' + s + '</span>'; }).join('') + '</div>' : '';
+  var html = '<div class="wpage">' + head + '<div class="wh"><div><h2>' + cname(c) + ' <span class="kind">' + kindLabel(c) + '</span></h2><div class="sub" style="margin-top:3px">' + meta + '</div>' + stage + '</div>' + actions + '</div>';
+  if (archived) html += '<div class="info" style="margin-bottom:12px"><b>Archived Oct 1</b> — read-only, still viewable. <button class="btn link" onclick="S.close.siteArchived=false;render()">Unarchive</button></div>';
+  html += '<div class="statrow">' +
+    '<div class="stat"><div class="k">State</div>' + statePill(c.id, true) + '</div>' +
+    '<div class="stat"><div class="k">Training</div><div class="tn' + (tr ? '' : ' zero') + '" style="font-size:14px"><span class="pi"></span>' + (tr ? tr + (tr === 1 ? ' person has' : ' people have') + ' training issues' : 'No training issues') + '</div>' + (tr ? '<div style="margin-top:4px"><button class="btn link" style="font-size:11px" onclick="S.vtab=\'people\';render()">See who →</button></div>' : '') + '</div>' +
+    '<div class="stat" style="flex:1;min-width:230px"><div class="k">Period</div><b>Today, Wed Oct 1</b> <span class="muted">· cutoff 11:59 PM</span><div class="sub">Then frozen as a snapshot — a period’s misses don’t change afterwards.</div></div>' +
+    '<div class="stat" style="min-width:200px"><div class="k">Who’s answerable</div><div style="font-size:12px">' + (c.crews.length ? c.crews.join(', ') : 'No crews yet') + '</div><div class="sub" style="margin-top:3px">' + kindLabel(c) + ' supervisor: — ' + flag() + '</div></div>' +
+  '</div>';
+  var nPeople = (c.id === 'ny' ? S.people.length : (c.id === 'wo4471' ? 3 : '–'));
+  var tabs = [['out','Outstanding', outs, true], ['people','People & training', nPeople], ['rituals','Rituals'], ['evidence','Evidence', obsFor(c.id).filter(function (o) { return o.state === 'done'; }).length]];
+  html += '<div class="tabs-w">' + tabs.map(function (t) { return '<button class="tab-w' + (S.vtab === t[0] ? ' on' : '') + '" onclick="S.vtab=\'' + t[0] + '\';S.panel=null;render()">' + t[1] + (t[2] !== undefined ? '<span class="cnt' + (t[3] && t[2] ? ' act' : '') + '">' + t[2] + '</span>' : '') + '</button>'; }).join('') + '</div>';
+  if (S.vtab === 'out') html += renderOutstanding(c);
+  else if (S.vtab === 'people') html += renderPeople(c);
+  else if (S.vtab === 'rituals') html += renderRituals(c);
+  else html += renderEvidence(c);
+  html += '</div>';
+  var overlay = '';
+  if (S.panel) { var o = findOb(S.panel); if (o) overlay = whyPanel(o, c); }
+  if (S.sheet === 'archive') overlay = sheetArchive(c);
+  if (S.sheet === 'oneoff') overlay = sheetOneoff(c);
+  if (S.ext) overlay = sheetExt();
+  var id = activeFlow();
+  return layout(web(c.kind === 'site' ? 'sites/' + c.id : 'jobs/' + c.id, html, overlay), id);
+}
+
+/* =========================================================================
+   11. ADMIN · ATTACH A RITUAL
+   ========================================================================= */
+function renderAttach() {
+  var a = S.att, rit = RITUALS.filter(function (r) { return r.id === a.rit; })[0];
+  var sites = CTX.filter(function (c) { return c.kind === 'site' && !isArchived(c); }), jobs = CTX.filter(function (c) { return c.kind === 'job' && !isClosed(c); });
+  function selected(c) { return c.kind === 'site' ? (a.allSites || !!a.where[c.id]) : !!a.where[c.id]; }
+  var nSites = sites.filter(selected).length, nJobs = jobs.filter(selected).length;
+  var once = jobs.filter(function (j) { return selected(j) && j.at && selected(byId(j.at)); });
+  var sec1 = '<div class="fsec"><div class="fsec-h"><span class="num">1</span><span class="ft">What</span><span class="fq">The ritual — defined once, attached many times</span></div>' +
+    '<div class="grid3">' + RITUALS.map(function (r) { return '<div class="opt' + (a.rit === r.id && !a.loose ? ' on' : '') + '" onclick="pickRit(\'' + r.id + '\')"><div class="ot">' + r.name + '</div><div class="sub" style="margin-top:3px">' + r.def + '</div></div>'; }).join('') +
+      '<div class="opt' + (a.loose ? ' on' : '') + '" onclick="S.att.loose=true;render()"><div class="ot">Loose forms</div><div class="sub" style="margin-top:3px">No ritual yet — bundle later</div></div></div>' +
+    (a.loose ? '<div class="info" style="margin-top:10px">A loose item recurs like a ritual of one. Group loose items into a ritual later — it affects new days only.</div>'
+             : '<div class="sec-h">In the bundle</div><div class="row-flex">' + rit.items.map(function (i) { return '<span class="kind" style="font-size:10px;padding:3px 7px">' + i + '</span>'; }).join('') + '</div>') +
+    '<div class="row-flex" style="margin-top:10px"><button class="btn sm" onclick="toast(\'Opens the Forms module — there is no form builder in here\')">+ Create a new form ↗</button><button class="btn sm" onclick="toast(\'Opens the existing Folders picker — files are linked, not copied\')">+ Link a file from Folders</button><button class="btn sm" disabled>+ Upload a file</button>' + flag('standalone upload?') + '</div></div>';
+  var sec2 = '<div class="fsec"><div class="fsec-h"><span class="num">2</span><span class="ft">Where</span><span class="fq">Sites and ' + JLs() + '</span></div>' +
+    '<div class="grid2"><div>' + check(a.allSites, '<b>All Sites (' + sites.length + ')</b>', 'S.att.allSites=!S.att.allSites;render()', false, 'Sites added later join automatically — no re-saving.') +
+    sites.map(function (c) { return '<div style="padding-left:20px">' + check(selected(c), c.name, 'toggleWhere(\'' + c.id + '\')', a.allSites) + '</div>'; }).join('') + '</div><div>' +
+    '<div class="sub mono" style="text-transform:uppercase;letter-spacing:.08em;margin:4px 0">' + JLs() + '</div>' + jobs.map(function (j) { return check(selected(j), j.code + ' ' + j.name, 'toggleWhere(\'' + j.id + '\')', false, whereText(j)); }).join('') + '</div></div>' +
+    once.map(function (j) { return '<div class="info" style="margin-top:8px">' + j.code + ' sits at ' + byId(j.at).name + ', which also carries ' + (a.loose ? 'these forms' : rit.name) + '. <b>People there owe it once.</b></div>'; }).join('') + '</div>';
+  var assets = [['ex07','Excavator EX-07'],['ss02','Skid steer SS-02'],['ld03','Loader LD-03'],['gn11','Generator GN-11']];
+  var sec3 = '<div class="fsec"><div class="fsec-h"><span class="num">3</span><span class="ft">Who counts</span><span class="fq">How many are owed each time</span></div>' +
+    '<div class="grid2">' +
+      '<div class="opt' + (a.per === 'person' ? ' on' : '') + '" onclick="S.att.per=\'person\';render()"><div class="ot">Each person present</div><div class="od">Everyone on the field owes their own.</div></div>' +
+      '<div class="opt' + (a.per === 'crew' ? ' on' : '') + '" onclick="S.att.per=\'crew\';render()"><div class="ot">Each crew present</div><div class="od">One per crew — three crews on a Site, three owed.</div></div>' +
+      '<div class="opt' + (a.per === 'ctx' ? ' on' : '') + '" onclick="S.att.per=\'ctx\';render()"><div class="ot">The Site or ' + JL() + '</div><div class="od">One for the place or the work — anyone can complete it.</div></div>' +
+      '<div class="opt' + (a.per === 'asset' ? ' on' : '') + '" onclick="S.att.per=\'asset\';render()"><div class="ot">Each asset ' + flag('open item') + '</div><div class="od">Each listed asset owes its own.</div></div>' +
+    '</div>' +
+    (a.per === 'asset' ? '<div class="sec-h">Assets on this attachment</div><div class="row-flex">' + assets.map(function (x) { return check(!!a.assets[x[0]], x[1], 'S.att.assets[\'' + x[0] + '\']=!S.att.assets[\'' + x[0] + '\'];render()'); }).join('') + '</div>' : '') + '</div>';
+  var whens = [
+    ['working','Working days','Reads each Site’s calendar — North Yard Mon–Sat, Depot East Mon–Fri. Never counts a day nobody worked.'],
+    ['rotation','Rotation','4 on · 4 off, from a start date.'],
+    ['visit','Per visit','Owed by whoever picked the ' + JL() + ' that day. The ' + JL() + ' default.'],
+    ['weekly','Weekly','On a set day.'],
+    ['metered','Metered','Every N engine-hours or km (asset forms).'],
+    ['trigger','Triggered only','Fires on an event. Never outstanding.']
+  ];
+  var sec4 = '<div class="fsec"><div class="fsec-h"><span class="num">4</span><span class="ft">When</span><span class="fq">Starts from the ritual’s suggested default (' + (a.loose ? 'daily · working days' : rit.def) + ') — override for this attachment</span></div>' +
+    '<div class="grid3">' + whens.map(function (w) { return '<div class="opt' + (a.when === w[0] ? ' on' : '') + '" onclick="S.att.when=\'' + w[0] + '\';render()"><div class="ot">' + w[1] + '</div><div class="od">' + w[2] + '</div></div>'; }).join('') + '</div>' +
+    (a.when === 'rotation' ? '<div class="inline-field" style="margin-top:10px">On <input value="4" style="width:44px"> days, off <input value="4" style="width:44px"> days, starting <input value="2026-10-02" style="width:110px"></div>' : '') +
+    (a.when === 'weekly' ? '<div class="inline-field" style="margin-top:10px">Every <select><option>Friday</option><option>Monday</option></select></div>' : '') +
+    (a.when !== 'trigger' ? '<div class="grid2" style="margin-top:12px">' +
+      '<div class="inline-field">Runs per day <span class="seg2"><button class="' + (a.shifts === '1' ? 'on' : '') + '" onclick="S.att.shifts=\'1\';render()">1</button><button class="' + (a.shifts === '2' ? 'on' : '') + '" onclick="S.att.shifts=\'2\';render()">2 · 12-h shifts</button></span></div>' +
+      '<div class="inline-field">Open from <select><option>Start of shift</option><option>Midnight</option></select> to <select><option>11:59 PM</option><option>End of shift</option></select></div>' +
+      '<div class="inline-field">Created <input value="' + a.lead + '" style="width:40px" onchange="S.att.lead=this.value;render()"> day(s) before due</div>' +
+      '<div class="inline-field"><button class="btn sm" onclick="toast(\'Block-out dates for this attachment only — e.g. cancel Thursday\')">+ Exception dates</button></div></div>' : '') +
+    '<p class="sub" style="margin-top:10px">No schedule sends a push notification on its own. Late submissions still count toward the day they were owed.</p></div>';
+  var perTxt = { person: 'by each person present', crew: 'once per crew present', ctx: 'once per Site or ' + JL(), asset: 'once per listed asset' }[a.per];
+  var whenTxt = { working: 'on working days', rotation: 'on the "on" days of a 4-on-4-off rotation', visit: 'on days someone picks it', weekly: 'every Friday', metered: 'by meter reading', trigger: 'only when triggered' }[a.when];
+  var name = a.loose ? 'These loose forms' : rit.name;
+  var summary = '<div class="summary"><span style="flex:1;min-width:220px"><b>' + name + '</b> will be owed <b>' + perTxt + '</b>, <b>' + whenTxt + '</b>' + (a.shifts === '2' && a.when !== 'trigger' ? ', twice a day' : '') + ', at <b>' + nSites + ' Site' + (nSites === 1 ? '' : 's') + '</b> and <b>' + nJobs + ' ' + (nJobs === 1 ? JL() : JLs()) + '</b>.' + (once.length ? ' Counted once where a ' + JL() + ' sits at a Site that carries it too.' : '') + ' Changing this attachment won’t affect any other.</span>' +
+    '<button class="btn" style="background:transparent;color:#fff" onclick="go(\'a-view\')">Cancel</button><button class="btn" onclick="saveAttach()" style="color:var(--ink)">Attach</button></div>';
+  var inner = '<div class="wpage"><div class="crumb"><a onclick="go(\'a-index\')">' + navLabel() + '</a> › Attach a ritual</div><div class="wh"><h2>Attach a ritual</h2>' + flag('"Ritual" is a working name') + '</div>' + sec1 + sec2 + sec3 + sec4 + summary + '</div>';
+  return layout(web('rituals/attach', inner), 'a-attach');
+}
+
+/* =========================================================================
+   12. ADMIN · JOB CLOSE-OUT / SITE ARCHIVE
+   ========================================================================= */
+function renderClose() {
+  var cl = S.close;
+  if (cl.view === 'site') return renderSiteArchive();
+  var c = byId('j2210'), list = owed('j2210'), outs = list.filter(isOut);
+  var blockers = [
+    { k: 'b1', t: 'FLHA — Splice Crew A', m: 'Not started · owed Sep 30 (Start of Day)' },
+    { k: 'b2', t: 'Close-out checklist: client sign-off', m: 'Not signed yet' }
+  ];
+  var closed = cl.step === 'pack';
+  var stage = '<div class="stepper" style="margin-top:8px">' + ['Planned','Active','Awaiting close','Closed'].map(function (s, i) { var cur = closed ? 3 : 2; return '<span class="' + (i < cur ? 'done' : (i === cur ? 'now' : '')) + '">' + s + '</span>'; }).join('') + '</div>';
+  var html = '<div class="wpage"><div class="crumb"><a onclick="go(\'a-index\')">' + navLabel() + '</a> › ' + c.name + '</div>' +
+    '<div class="wh"><div><h2>' + cname(c) + ' <span class="kind">' + JL() + '</span>' + (closed ? ' <span class="st st-closed">Closed</span>' : ' <span class="aw">Awaiting close</span>') + '</h2><div class="sub" style="margin-top:3px">' + c.dates + ' · ' + c.addr + ' · Splice Crew A</div>' + stage + '</div>' +
+    (closed ? '' : '<div class="row-flex"><button class="btn pri" onclick="S.close.step=\'sheet\';render()">Close ' + JL().toLowerCase() + '</button></div>') + '</div>';
+  if (!closed) {
+    html += '<div class="info" style="margin-bottom:12px"><b>Awaiting close.</b> The expected end (Sep 30) has passed and nobody has confirmed the work is done. A ' + JL() + ' never closes on its own — a silent close would hide one that ran long.</div>' +
+      '<div class="statrow"><div class="stat"><div class="k">State</div>' + statePill('j2210', true) + '</div><div class="stat" style="flex:1"><div class="k">What counts as done for this ' + JL() + '</div>' +
+      radio(cl.mode === 'deadline', 'A deadline — the expected end', 'S.close.mode=\'deadline\';render()') + radio(cl.mode === 'checklist', 'A close-out checklist', 'S.close.mode=\'checklist\';render()', false, 'Client sign-off') + '</div></div>' +
+      '<div class="sec-h">Outstanding</div>' + list.filter(isOut).map(function (o) { return '<div class="card" style="margin-bottom:6px">' + obRow(o, c) + '</div>'; }).join('') +
+      (outs.length ? '' : '<p class="sub">Nothing outstanding.</p>');
+  } else {
+    var didntN = list.filter(function (o) { return o.state === 'didnt'; }).length;
+    html += '<div class="info" style="margin-bottom:12px"><b>Closed Oct 1, 2026 by you.</b> Read-only now. History never changes — the evidence pack is what you hand over.</div>' +
+      '<div class="card" style="padding:16px"><div class="row-flex"><h3 style="margin:0;flex:1;font-size:15px">Evidence pack — ' + cname(c) + '</h3><button class="btn pri" onclick="toast(\'Evidence pack PDF — format still open\')">Export PDF</button><button class="btn" onclick="toast(\'Evidence pack ZIP of every record — format still open\')">Export all files</button>' + flag('format') + '</div>' +
+      '<div class="grid3" style="margin-top:12px">' +
+        '<div class="stat"><div class="k">Forms</div><b>' + list.filter(function (o) { return o.state === 'done'; }).length + ' submitted</b><div class="sub">' + (didntN ? didntN + ' marked didn’t happen, with reason' : 'all completed') + '</div></div>' +
+        '<div class="stat"><div class="k">Attendance</div><b>2 days · 4 people</b><div class="sub">with proof level per entry</div></div>' +
+        '<div class="stat"><div class="k">Signatures</div><b>4 signed</b><div class="sub">who, when, which device</div></div>' +
+        '<div class="stat"><div class="k">Close-out</div><b>Client sign-off</b><div class="sub">Oct 1, 2:14 PM</div></div>' +
+      '</div><p class="sub" style="margin-top:10px">Everything done on this ' + JL() + ' in one place — what a client or general contractor asks for at the end.</p></div>' +
+      '<div style="margin-top:14px"><button class="btn" onclick="S.close.view=\'site\';render()">Compare: how a Site archives →</button></div>';
+  }
+  html += '</div>';
+  var overlay = '';
+  if (cl.step === 'sheet') {
+    var all = blockers.every(function (b) { return cl.res[b.k]; });
+    overlay = '<div class="overlay center"><div class="sheet"><div class="row-flex"><h3 style="flex:1">Close ' + c.code + ' with open items?</h3><button class="close-x" onclick="S.close.step=\'job\';render()">✕</button></div>' +
+      '<p class="muted" style="font-size:12.5px;margin-bottom:6px">' + blockers.filter(function (b) { return !cl.res[b.k]; }).length + ' things are still open. Resolve each one here, then close.</p>' +
+      blockers.map(function (b) {
+        var r = cl.res[b.k];
+        var acts = r ? '<b style="font-size:12px">✓ ' + r + '</b>' : (b.k === 'b1'
+          ? '<button class="btn sm" onclick="resolveB(\'b1\',\'Completed late — counts toward Sep 30\')">Complete now</button><button class="btn sm" onclick="resolveB(\'b1\',\'Didn’t happen — no work done\')">Didn’t happen ⚑</button><button class="btn sm" onclick="resolveB(\'b1\',\'Removed\')">Remove</button>'
+          : '<button class="btn sm" onclick="resolveB(\'b2\',\'Signed by client rep, 2:14 PM\')">Request sign-off</button>');
+        return '<div class="blocker"><span class="sdot ' + (r ? 'done' : 'not') + '" style="margin-top:4px"></span><div class="bt"><b style="font-size:12.5px">' + b.t + '</b><div class="sub">' + b.m + '</div></div><div class="row-flex">' + acts + '</div></div>';
+      }).join('') +
+      '<div class="sheet-foot"><button class="btn" onclick="S.close.step=\'job\';render()">Cancel</button><button class="btn pri" onclick="S.close.step=\'confirm\';render()"' + (all ? '' : ' disabled') + '>Continue</button></div></div></div>';
+  }
+  if (cl.step === 'confirm') {
+    overlay = '<div class="overlay center"><div class="sheet"><h3>Confirm close</h3><p class="muted" style="font-size:12.5px;margin-bottom:10px">' + cname(c) + ' · ' + c.dates + '. Nothing is outstanding.</p>' +
+      check(cl.confirmTick, 'I confirm the work on ' + c.code + ' is finished.', 'S.close.confirmTick=!S.close.confirmTick;render()', false, 'Recorded as: closed by you, Oct 1, 2026, 2:20 PM.') +
+      '<div class="sheet-foot"><button class="btn" onclick="S.close.step=\'sheet\';render()">Back</button><button class="btn pri" onclick="doClose()"' + (cl.confirmTick ? '' : ' disabled') + '>Close ' + JL().toLowerCase() + ' and build evidence pack</button></div></div></div>';
+  }
+  return layout(web('jobs/j2210', html, overlay), 'a-close');
+}
+function renderSiteArchive() {
+  var c = byId('mso'), arch = S.close.siteArchived;
+  var html = '<div class="wpage"><div class="crumb"><a onclick="S.close.view=\'job\';render()">‹ Back to ' + JL().toLowerCase() + ' close-out</a></div>' +
+    '<div class="wh"><div><h2>' + c.name + ' <span class="kind">Site</span>' + (arch ? ' <span class="st st-closed">Archived</span>' : '') + '</h2><div class="sub" style="margin-top:3px">' + c.addr + ' · from Site Access</div></div>' +
+    (arch ? '<button class="btn" onclick="S.close.siteArchived=false;render();toast(\'Unarchived — back in the active index\')">Unarchive</button>' : '<button class="btn pri" onclick="S.sheet=\'arch2\';render()">Archive site</button>') + '</div>' +
+    (arch ? '<div class="info" style="margin-bottom:12px"><b>Archived.</b> Gone from the active index, still viewable, read-only. Anyone can unarchive it — no support ticket.</div>' : '') +
+    '<div class="statrow"><div class="stat"><div class="k">State</div>' + statePill('mso', true) + '</div><div class="stat" style="flex:1"><div class="k">Gate the Job, archive the Site</div><div style="font-size:12.5px">A Site never ends — it archives. A ' + JL() + ' is gated by a close-out. Neither can happen with anything outstanding.</div><button class="btn sm" style="margin-top:8px" onclick="openCtx(\'ny\');tryArchive()">Try archiving North Yard (5 outstanding)</button></div></div>' +
+    '<div class="sec-h">History</div><div class="card" style="padding:12px;font-size:12.5px">' + owed('mso').length + ' records this month · visitors and sign-ins from Site Access · all kept as they were</div></div>';
+  var overlay = S.sheet === 'arch2' ? '<div class="overlay center"><div class="sheet"><h3>Archive ' + c.name + '?</h3><p class="muted" style="font-size:12.5px">Nothing is outstanding. It leaves the active index; its history stays viewable, read-only.</p><div class="sheet-foot"><button class="btn" onclick="S.sheet=null;render()">Cancel</button><button class="btn pri" onclick="S.sheet=null;S.close.siteArchived=true;render()">Archive</button></div></div></div>' : '';
+  return layout(web('sites/mso', html, overlay), 'a-close');
+}
+
+/* =========================================================================
+   13. ADMIN · "CAN VIEW" ACCESS
+   ========================================================================= */
+function renderAccess() {
+  var a = S.access;
+  var n = Object.keys(a.scope).filter(function (k) { return a.scope[k]; }).length;
+  var rows = '<tr><td><b>Client admins</b></td><td><span class="kind">Full access</span></td><td class="sub">Everything — only client admins in the MVP</td><td></td></tr>' +
+    '<tr><td><b>Crew supervisors</b><div class="sub">automatic</div></td><td><span class="kind">Their crew’s</span></td><td class="sub">Sites and ' + JLs() + ' their crew is assigned to</td><td></td></tr>' +
+    (a.granted ? '<tr><td><b>D. Moreau</b><div class="sub">Regional Safety Manager</div></td><td><span class="kind">Can view</span></td><td class="sub">' + CTX.filter(function (c) { return a.scope[c.id]; }).map(cname).join(', ') + '</td><td><button class="btn sm" onclick="S.viewer=true;S.idxFilter=\'all\';go(\'a-index\')">Preview as D. Moreau</button></td></tr>' : '');
+  var form = a.granted ? '' : '<div class="fsec" style="margin-top:14px"><div class="fsec-h"><span class="ft">Give someone “Can view”</span><span class="fq">See what’s owed, done and missing. Change nothing.</span></div>' +
+    '<div class="grid2"><label class="field">Who — a person or a crew<select><option>' + a.who + '</option><option>Paving Crew 2 (crew)</option><option>K. Diaz</option></select></label><div class="field">Access level' +
+      radio(true, 'Can view — read-only', '') + radio(false, 'Can edit', '', true, 'After the MVP') + radio(false, 'Full access', '', true, 'Client admins only in the MVP') + '</div></div>' +
+    '<div class="sec-h">Over these Sites and ' + JLs() + ' (' + n + ')</div><div class="grid3">' + CTX.filter(function (c) { return !isClosed(c); }).map(function (c) { return check(!!a.scope[c.id], cname(c), 'S.access.scope[\'' + c.id + '\']=!S.access.scope[\'' + c.id + '\'];render()', false, kindLabel(c)); }).join('') + '</div>' +
+    '<div class="info" style="margin-top:10px">D. Moreau will get a notification, like a shared file. A grant only ever adds access — it never takes away anything they already have.</div>' +
+    '<div class="row-flex" style="margin-top:12px"><span class="spacer"></span><button class="btn pri" onclick="S.access.granted=true;render();toast(\'Granted — D. Moreau has been notified\')"' + (n ? '' : ' disabled') + '>Grant access</button></div></div>';
+  var inner = '<div class="wpage"><div class="crumb"><a onclick="go(\'a-index\')">' + navLabel() + '</a> › Access</div><div class="wh"><div><h2>Who can see Field Management</h2><div class="sub" style="margin-top:3px">Built inside Field Management — doesn’t read or change BIS system roles</div></div></div>' +
+    '<div class="card tbl-wrap"><table class="t"><thead><tr><th>Who</th><th>Level</th><th>Over</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' + form + '</div>';
+  return layout(web('access', inner), 'a-access');
+}
+
+/* =========================================================================
+   14. SUPERVISOR (mobile)
+   ========================================================================= */
+var SUP_CTX = ['ny','wo4471','wo4502'];
+function supRow(id) {
+  var c = byId(id), tr = trainCount(id);
+  return '<div class="prow tap" onclick="S.sup.ctx=\'' + id + '\';go(\'s-view\')"><div class="tx"><div class="t1">' + cname(c) + '</div><div class="t2">' + kindLabel(c) + ' · ' + whereText(c) + '</div></div><div style="text-align:right">' + statePill(id) + '<div class="t2" style="margin-top:3px">' + (tr ? tr + ' training' : 'no training issues') + '</div></div></div>';
+}
+function renderSupHome() {
+  var inner = '<div class="pbar"><span class="dot" style="width:18px;height:18px;border-radius:5px;background:var(--ink)"></span><span class="pt" style="flex:1">Home</span><span class="sub">L. Park</span></div><div class="pscroll"><div class="pbody">' +
+    '<div class="sub">Wed Oct 1 · Paving Crew 2</div>' +
+    '<div class="widget" data-tag="Field Management · layer on Home"><div class="pcard-h" style="border-radius:12px 12px 0 0"><b style="font-size:12.5px">Your crew’s Sites &amp; ' + JLs() + '</b><span class="t2 sub">synced 2 min ago</span></div>' + SUP_CTX.map(supRow).join('') +
+      '<div style="padding:8px 11px;border-top:1px dashed var(--line)">' + flag('offline: sync or degrade?') + '</div></div>' +
+    '<div class="pcard"><div class="pcard-h"><b style="font-size:12px">Assigned forms</b><span class="t2">existing</span></div><div class="prow"><span class="ph" style="width:60%"></span></div><div class="prow"><span class="ph" style="width:45%"></span></div></div>' +
+    '<div class="pcard"><div class="pcard-h"><b style="font-size:12px">My training</b><span class="t2">existing</span></div><div class="prow"><span class="ph" style="width:55%"></span></div></div>' +
+    '</div></div>';
+  return layout('<p class="frame-tag">Mobile · supervisor · app home</p><div class="phones">' + phone(inner, { tab: 'home' }) + '</div>', 's-home', true);
+}
+function renderSupView() {
+  var id = S.sup.ctx, c = byId(id), list = owed(id), outs = list.filter(isOut);
+  var groups = groupObs(list.filter(function (o) { return o.state !== 'removed'; }));
+  var siteOut = outs.filter(function (o) { return !o.job; }).length;
+  var html = '<div class="pbar"><button class="back" onclick="go(\'s-home\')">‹</button><div style="flex:1"><div class="pt">' + c.name + '</div><div class="t2 sub">' + kindLabel(c) + ' · today · cutoff 11:59 PM</div></div></div><div class="pscroll" data-keep="1"><div class="pbody">' +
+    '<div class="row-flex">' + statePill(id, true) + '<span class="tn"><span class="pi"></span>' + trainCount(id) + ' training</span><span class="spacer"></span><span class="sub">synced 2 min ago</span></div>' +
+    (c.kind === 'site' ? '<div class="row-flex"><span class="kind">Site ' + siteOut + '</span>' + CTX.filter(function (x) { return x.at === id; }).map(function (j) { return '<span class="kind">' + j.code + ' ' + outs.filter(function (o) { return o.job === j.id; }).length + '</span>'; }).join('') + '</div>' : '');
+  groups.forEach(function (g) {
+    var go_ = g.items.filter(isOut), dn = g.items.length - go_.length;
+    html += '<div class="pcard"><div class="pcard-h"><div><b style="font-size:12.5px">' + (g.ritual === 'One-off' ? 'One-off' : g.ritual) + '</b> <span class="mono" style="font-size:11px">· ' + dn + ' of ' + g.items.length + ' done</span></div>' + (g.ritual !== 'One-off' ? '<button class="btn sm ghost" onclick="go(\'s-move\')" title="Move this ritual here only">⋯</button>' : '') + '</div>' +
+      go_.map(function (o) {
+        var act = o.state === 'prog' ? '<span class="t2">draft</span>' : (o.reminded ? '<span class="t2">reminded ✓</span>' : '<button class="btn sm" onclick="remind(\'' + o.id + '\')">Remind</button>');
+        return '<div class="prow"><span class="sdot ' + o.state + '"></span><div class="tx"><div class="t1">' + o.item + ' — ' + o.who + '</div><div class="t2">' + (o.state === 'prog' ? 'In progress' : 'Not started') + (o.job && c.kind === 'site' ? ' · ' + byId(o.job).code : '') + '</div></div>' + act + '</div>';
+      }).join('') + (go_.length ? '' : '<div class="prow"><span class="t2">✓ All done</span></div>') + '</div>';
+  });
+  html += '<button class="big-btn pri" onclick="go(\'s-att\')">Who’s on site · ' + S.people.filter(function (p) { return !p.pres; }).length + ' unaccounted</button>' +
+    '<p class="sub">Same grouping and numbers as the web view.</p></div></div>';
+  return layout('<p class="frame-tag">Mobile · supervisor · ' + c.name + '</p><div class="phones">' + phone(html, { tab: 'home' }) + '</div>', 's-view', true);
+}
+function renderSupAtt() {
+  var ppl = S.people, gap = ppl.filter(function (p) { return !p.pres; }).length, present = ppl.filter(function (p) { return p.pres === 'in'; }).length;
+  var crews = [];
+  ppl.forEach(function (p) { var k = p.crew || 'Not in a crew'; if (crews.indexOf(k) < 0) crews.push(k); });
+  var html = '<div class="pbar"><button class="back" onclick="go(\'s-view\')">‹</button><div style="flex:1"><div class="pt">Who’s on site</div><div class="t2 sub">North Yard · Wed Oct 1</div></div></div><div class="pscroll" data-keep="1"><div class="pbody">' +
+    '<div class="row-flex"><b style="font-size:13px">' + present + ' present</b>' + (gap ? '<span class="st st-out">' + gap + ' unaccounted</span>' : '<span class="st st-ok">Everyone recorded</span>') + '</div>' +
+    '<div class="pcard" style="padding:10px 11px"><div class="t1" style="font-size:12px;font-weight:650">This Site asks for signatures</div><div class="t2 sub" style="margin:2px 0 8px">Each person signs for themselves.</div><button class="btn sm pri" onclick="S.sup.sheet=\'sigmode\';render()">Collect signatures</button></div>';
+  crews.forEach(function (cr) {
+    html += '<div class="glabel">' + cr + '</div><div class="pcard">';
+    ppl.filter(function (p) { return (p.crew || 'Not in a crew') === cr; }).forEach(function (p) {
+      var trn = ['whmis','fall','conf'].filter(function (k) { return ['exp','expd','none'].indexOf(p.tr[k]) > -1; }).map(function (k) { var t = TOPICS.filter(function (x) { return x.k === k; })[0]; return t.n + ' ' + TDATES[p.tr[k]]; });
+      var proof = p.pres === 'in' ? (p.proof === 'signed' ? 'signed ' + p.at : p.proof === 'signin' ? 'signed in ' + p.at + ' · ' + p.how : 'marked by you ' + p.at) : (p.pres === 'out' ? 'absent · marked by you' : 'not yet recorded');
+      html += '<div class="prow"><div class="tx"><div class="t1">' + p.name + ' ' + (p.ext ? '<span class="ext">External</span>' : '') + '</div><div class="t2">' + proof + '</div>' + (trn.length ? '<div class="t2" style="color:var(--action);font-weight:650">' + trn.join(' · ') + '</div>' : '') + '</div>' +
+        '<span class="seg2"><button class="' + (p.pres === 'in' ? 'on' : '') + '" onclick="mark(\'' + p.id + '\',\'in\')">Present</button><button class="' + (p.pres === 'out' ? 'on' : '') + '" onclick="mark(\'' + p.id + '\',\'out\')">Absent</button></span></div>';
+    });
+    html += '</div>';
+  });
+  html += '<button class="big-btn" onclick="markAll()">Mark everyone else present</button><p class="sub" style="margin-top:-4px">Recorded as your observation — never as anyone’s signature.</p>' +
+    '<button class="big-btn" onclick="go(\'s-visitor\')">+ Add someone not in a crew</button>' +
+    '<div>' + flag('real-time "who’s here now" ⏳') + '</div><p class="sub">Training shows beside names. It never blocks.</p></div></div>';
+  var sheet = '';
+  if (S.sup.sheet === 'sigmode') sheet = '<div class="pscrim" onclick="S.sup.sheet=null;render()"></div><div class="psheet"><div class="grab"></div><b style="font-size:13px">How will people sign?</b><div class="pbody" style="padding:10px 0 0">' +
+    '<button class="big-btn" onclick="startSig(\'pass\')">Pass this phone round</button><button class="big-btn" onclick="startSig(\'own\')">Send to each person’s phone</button><button class="big-btn" onclick="startSig(\'photo\')">Photo of a paper sheet</button><p class="sub">You never sign for someone else.</p></div></div>';
+  return layout('<p class="frame-tag">Mobile · supervisor · attendance checklist</p><div class="phones">' + phone(html, { tab: 'home', sheet: sheet }) + '</div>', 's-att', true);
+}
+function sigQueue() { return S.people.filter(function (p) { return p.pres === 'in' && p.proof !== 'signed' && !S.sup.signed[p.id] && !p._skip; }); }
+function renderSupSign() {
+  var sp = S.sup, mode = sp.sigMode, html;
+  var head = '<div class="pbar"><button class="back" onclick="go(\'s-att\')">‹</button><div style="flex:1"><div class="pt">Signatures</div><div class="t2 sub">North Yard · Start of Day</div></div></div>';
+  if (!mode) {
+    html = head + '<div class="pscroll"><div class="pbody"><b style="font-size:13px">How will people sign?</b>' +
+      '<button class="big-btn" onclick="startSig(\'pass\')">Pass this phone round</button><div class="sub" style="margin-top:-6px">For sites where workers can’t carry phones.</div>' +
+      '<button class="big-btn" onclick="startSig(\'own\')">Send to each person’s phone</button><div class="sub" style="margin-top:-6px">Faster for 20 people. You see them come in.</div>' +
+      '<button class="big-btn" onclick="startSig(\'photo\')">Photo of a paper sheet</button><div class="sub" style="margin-top:-6px">A legitimate fallback, not a workaround.</div></div></div>';
+  } else if (mode === 'pass') {
+    var q = sigQueue();
+    if (!q.length) {
+      html = head + '<div class="pscroll"><div class="pbody"><div class="st st-ok big" style="align-self:flex-start">All signed</div><div class="pcard">' +
+        S.people.filter(function (p) { return p.pres === 'in'; }).map(function (p) { return '<div class="prow"><div class="tx"><div class="t1">' + p.name + '</div><div class="t2">' + (sp.signed[p.id] ? 'signed ' + sp.signed[p.id] + ' · on L. Park’s phone' : (p.proof === 'signed' ? 'signed ' + p.at : 'skipped — will sign on own phone')) + '</div></div></div>'; }).join('') +
+        '</div><p class="sub">Every signature stores who signed, when, and on which device.</p><button class="big-btn" onclick="go(\'s-att\')">Back to Who’s on site</button></div></div>';
+    } else {
+      var p = q[0], total = S.people.filter(function (x) { return x.pres === 'in'; }).length, doneN = total - q.length;
+      html = head + '<div class="pscroll"><div class="pbody"><div class="sub mono">' + doneN + ' of ' + total + ' signed</div>' +
+        '<div class="pcard" style="padding:14px;text-align:center"><div class="sub">Hand the phone to</div><div style="font-size:20px;font-weight:700;margin-top:2px">' + p.name + '</div></div>' +
+        '<p style="font-size:12.5px;line-height:1.5">By signing, I, <b>' + p.name + '</b>, confirm I was present at <b>North Yard</b> on Wed Oct 1 and received today’s Start of Day briefing. Recorded by <b>L. Park</b>.</p>' +
+        '<div class="sigpad" onclick="S.sup.drawn=true;render()">' + (sp.drawn ? '<svg width="160" height="50" viewBox="0 0 160 50" fill="none" stroke="#2b2f36" stroke-width="2"><path d="M5 35c10-25 20-25 25 0s15-30 25-10 10 20 20 0 15-15 25 5 20-10 30-5"/></svg>' : 'Sign here') + '</div>' +
+        '<button class="big-btn" onclick="S.sup.drawn=true;render()">Use my saved signature</button><div>' + flag('saved signatures — compliance check') + '</div>' +
+        '<button class="big-btn pri" onclick="signNext(\'' + p.id + '\')"' + (sp.drawn ? '' : ' disabled') + '>Sign</button>' +
+        '<button class="btn ghost" onclick="skipSig(\'' + p.id + '\')">Skip — they’ll sign on their own phone</button></div></div>';
+    }
+  } else if (mode === 'own') {
+    var pres = S.people.filter(function (x) { return x.pres === 'in'; });
+    html = head + '<div class="pscroll"><div class="pbody"><div class="info">Sent to ' + pres.length + ' phones at 10:42 AM. People without a phone can still sign on yours.</div><div class="pcard">' +
+      pres.map(function (x, i) { var got = x.proof === 'signed' || (sp.ownSent && i % 2 === 0); return '<div class="prow"><span class="sdot ' + (got ? 'done' : 'not') + '"></span><div class="tx"><div class="t1">' + x.name + '</div><div class="t2">' + (got ? 'signed on own phone' + (x.proof === 'signed' ? ' ' + x.at : ' 10:44 AM') : 'waiting') + '</div></div></div>'; }).join('') +
+      '</div><button class="big-btn" onclick="S.sup.ownSent=true;render()">Refresh</button><button class="big-btn" onclick="startSig(\'pass\')">Switch to passing this phone</button></div></div>';
+  } else {
+    html = head + '<div class="pscroll"><div class="pbody"><div class="camera">' + (sp.photo ? 'sheet-1001.jpg ✓ attached' : 'camera') + '</div>' +
+      '<button class="big-btn pri" onclick="S.sup.photo=true;render();toast(\'Photo attached to today’s attendance as evidence\')">' + (sp.photo ? 'Retake' : 'Take photo of sign-in sheet') + '</button>' +
+      '<p class="sub">The photo is the evidence. You still mark who’s present on the checklist, so the gap stays countable.</p><button class="big-btn" onclick="go(\'s-att\')">Back to Who’s on site</button></div></div>';
+  }
+  return layout('<p class="frame-tag">Mobile · supervisor · signatures</p><div class="phones">' + phone(html, { tab: false }) + '</div>', 's-sign', true);
+}
+function renderSupVisitor() {
+  var v = S.sup.vis, t = S.sup.addTab;
+  var html = '<div class="pbar"><button class="back" onclick="go(\'s-att\')">‹</button><div style="flex:1"><div class="pt">Add someone</div><div class="t2 sub">North Yard · today</div></div></div><div class="pscroll"><div class="pbody">' +
+    '<span class="seg2" style="align-self:flex-start"><button class="' + (t === 'crew' ? 'on' : '') + '" onclick="S.sup.addTab=\'crew\';render()">BIS user</button><button class="' + (t === 'ext' ? 'on' : '') + '" onclick="S.sup.addTab=\'ext\';render()">Not a BIS user</button></span>';
+  if (t === 'crew') {
+    html += '<div class="search"><span class="muted">⌕</span><input placeholder="Search people"></div><div class="pcard">' + ['B. Lindqvist · Yard Crew','F. Mensah · Electrical Crew','G. Rossi · no crew'].map(function (n) { return '<div class="prow tap" onclick="toast(\'Added for today only — their crew doesn’t change\');go(\'s-att\')"><div class="tx"><div class="t1">' + n + '</div><div class="t2">add for today</div></div><span class="btn sm">Add</span></div>'; }).join('') + '</div>';
+  } else {
+    html += '<label class="field">Name<input value="' + v.name + '" oninput="S.sup.vis.name=this.value"></label><label class="field">Company<input value="' + v.company + '" oninput="S.sup.vis.company=this.value"></label>' +
+      '<div class="field">Type<span class="seg2">' + ['Visitor','Contractor','Other trade'].map(function (x) { return '<button class="' + (v.type === x ? 'on' : '') + '" onclick="S.sup.vis.type=\'' + x + '\';render()">' + x + '</button>'; }).join('') + '</span></div>' +
+      '<label class="field">On North Yard until<select><option>Today only</option><option>End of this week</option><option>Oct 31, 2026</option></select></label>' +
+      '<div class="glabel" style="margin-top:4px">Training (optional)</div>' +
+      '<button class="big-btn" onclick="S.sup.vis.photo=true;render()">' + (v.photo ? 'ticket-photo.jpg ✓' : 'Photograph their ticket') + '</button>' +
+      '<label class="field">Topic<select><option>Fall Protection</option><option>WHMIS</option><option>Confined Space</option></select></label><label class="field">Expires<input value="' + v.exp + '"></label>' +
+      '<p class="sub">Stored in this portal only. It feeds the training signal like anyone’s record.</p><div>' + flag('who adds a visitor’s training on mobile?') + '</div>' +
+      '<button class="big-btn pri" onclick="addVisitor()">Add to Who’s on site</button><p class="sub">Next step, not MVP: they self-register by QR before arriving.</p>';
+  }
+  html += '</div></div>';
+  return layout('<p class="frame-tag">Mobile · supervisor · add someone</p><div class="phones">' + phone(html, { tab: false }) + '</div>', 's-visitor', true);
+}
+function renderSupMove() {
+  var sp = S.sup;
+  var html = '<div class="pbar"><button class="back" onclick="go(\'s-view\')">‹</button><div style="flex:1"><div class="pt">Move</div><div class="t2 sub">North Yard</div></div></div><div class="pscroll"><div class="pbody">' +
+    '<div class="pcard" style="padding:12px"><b style="font-size:12.5px">Move a ritual — North Yard only</b><div class="t2 sub" style="margin:4px 0 10px">Weekly Site Inspection · usually Friday</div>' +
+      (sp.ritMoved ? '<div class="info">Moved to <b>' + sp.moveTo + '</b> for this week. Every other Site keeps Friday.</div>'
+                   : '<label class="field">Fri Oct 3 moves to<select onchange="S.sup.moveTo=this.value"><option>Thu Oct 2</option><option>Sat Oct 4</option><option>Mon Oct 6</option></select></label><button class="big-btn pri" style="margin-top:10px" onclick="S.sup.ritMoved=true;render();toast(\'Only North Yard’s attachment changed\')">Move</button>') + '</div>' +
+    '<div class="pcard" style="padding:12px"><b style="font-size:12.5px">Move people or a crew</b>' +
+      (sp.crewMoved ? '<div class="info" style="margin-top:8px">Underground Crew moved to <b>' + sp.crewTo + '</b> (' + sp.crewWhen.toLowerCase() + '). Crew membership history stays as it was.</div>'
+                    : '<label class="field" style="margin-top:8px">Who<select><option>Underground Crew</option><option>Paving Crew 2</option><option>R. Singh</option></select></label><label class="field" style="margin-top:6px">To<select onchange="S.sup.crewTo=this.value"><option>WO-4502</option><option>Quarry Road</option><option>P-118</option></select></label>' +
+                      '<div class="field" style="margin-top:6px">For<span class="seg2"><button class="' + (sp.crewWhen === 'Today only' ? 'on' : '') + '" onclick="S.sup.crewWhen=\'Today only\';render()">Today only</button><button class="' + (sp.crewWhen === 'From now on' ? 'on' : '') + '" onclick="S.sup.crewWhen=\'From now on\';render()">From now on</button></span></div>' +
+                      '<button class="big-btn pri" style="margin-top:10px" onclick="S.sup.crewMoved=true;render()">Move</button>') + '</div>' +
+    '<p class="sub">Edit, don’t create: new Sites, ' + JLs() + ', rituals and crews are made on the web.</p></div></div>';
+  return layout('<p class="frame-tag">Mobile · supervisor · move</p><div class="phones">' + phone(html, { tab: false }) + '</div>', 's-move', true);
+}
+
+/* =========================================================================
+   15. WORKER (mobile) — R. Singh, Underground Crew
+   ========================================================================= */
+var W_CTX = ['wo4471','ny','wo4502','p118','qr'];
+var W_GAP = { wo4471: 'Your Confined Space training expired Aug 12. WO-4471 requires it.' };
+function wList() {
+  var q = S.w.q.toLowerCase();
+  var list = W_CTX.map(byId).filter(function (c) { return !q || cname(c).toLowerCase().indexOf(q) > -1; });
+  function row(c) {
+    var on = S.w.ctx === c.id;
+    return '<div class="prow tap" onclick="wPick(\'' + c.id + '\')"><div class="tx"><div class="t1">' + cname(c) + (on ? ' <span class="kind">you’re here</span>' : '') + '</div><div class="t2">' + kindLabel(c) + ' · ' + whereText(c) + (c.dates ? ' · ' + c.dates : '') + '</div>' + (W_GAP[c.id] ? '<div class="t2" style="color:var(--action);font-weight:650">training gap — you can still pick it</div>' : '') + '</div><span class="muted">›</span></div>';
+  }
+  var jobs = list.filter(function (c) { return c.kind === 'job'; }), sites = list.filter(function (c) { return c.kind === 'site'; });
+  var html = '';
+  if (!q) html += '<div class="glabel">Recent</div><div class="pcard">' + S.w.history.slice(0, 2).map(function (id) { return row(byId(id)); }).join('') + '</div>';
+  if (jobs.length) html += '<div class="glabel">' + JLs() + '</div><div class="pcard">' + jobs.map(row).join('') + '</div>';
+  if (sites.length) html += '<div class="glabel">Sites</div><div class="pcard">' + sites.map(row).join('') + '</div>';
+  if (!list.length) html += '<p class="sub">Nothing matches “' + esc(S.w.q) + '”.</p>';
+  return html;
+}
+function renderWPick() {
+  var c = S.w.ctx ? byId(S.w.ctx) : null;
+  var html = '<div class="pbar">' + (c ? '<button class="back" onclick="go(\'w-day\')">‹</button>' : '') + '<div style="flex:1"><div class="pt">Where are you working?</div><div class="t2 sub">Wed Oct 1 · R. Singh</div></div></div><div class="pscroll"><div class="pbody">' +
+    (c ? '<div class="info">You’re on <b>' + cname(c) + '</b> since ' + S.w.since + '. Picking another moves you there.</div>' : '') +
+    '<div class="search"><span class="muted">⌕</span><input placeholder="Search Sites and ' + JLs() + '" value="' + esc(S.w.q) + '" oninput="wSearch(this.value)"></div>' +
+    '<div id="wlist" style="display:flex;flex-direction:column;gap:10px">' + wList() + '</div>' +
+    '<p class="sub">Every Site and ' + JL() + ' your crew is on — no qualification or location gating. Picking one is your visit for today.</p></div></div>';
+  var sheet = '';
+  if (S.w.warn) {
+    var wc = byId(S.w.warn);
+    sheet = '<div class="pscrim" onclick="S.w.warn=null;render()"></div><div class="psheet"><div class="grab"></div><b style="font-size:13.5px">Training not current</b><p style="font-size:12.5px;margin:6px 0 10px;line-height:1.5">' + W_GAP[wc.id] + ' You can still continue — your supervisor will see it.</p>' +
+      '<button class="big-btn pri" onclick="wSelect(\'' + wc.id + '\')">Continue on ' + wc.code + '</button><button class="big-btn" style="margin-top:8px" onclick="S.w.warn=null;render()">Pick somewhere else</button><p class="sub" style="margin-top:8px">This warns. It never blocks.</p></div>';
+  }
+  return layout('<p class="frame-tag">Mobile · worker · picker</p><div class="phones">' + phone(html, { tab: 'home', sheet: sheet }) + '</div>', 'w-pick', true);
+}
+function wChip() {
+  var c = byId(S.w.ctx);
+  return '<div class="ctx-chip"><span class="dotl"></span><div><b>On ' + (c.code || c.name) + '</b> · ' + (c.code ? c.name : kindLabel(c)) + '<div style="opacity:.7;font-size:10px">' + (c.at ? 'at ' + byId(c.at).name + ' · ' : '') + 'since ' + S.w.since + '</div></div><button class="sw" onclick="go(\'w-pick\')">Switch</button></div>';
+}
+function wOwed() {
+  var id = S.w.ctx;
+  /* On the Job: the Site's Start of Day (owed once) plus the Job's own rituals. On the Site: the Site's only. */
+  if (id === 'wo4471') return S.ob.ny.filter(function (o) { return o.id === 'o2' || o.id === 'o7' || o.id === 'o9'; });
+  if (id === 'ny') return S.ob.ny.filter(function (o) { return o.id === 'o2' || o.id === 'o4'; });
+  return owed(id).slice(0, 2);
+}
+function renderWForm() {
+  var f = S.w.form, o = f === 'hazard' ? null : findOb(f), c = byId(S.w.ctx);
+  var title = o ? o.item : 'Hazard report';
+  var how = o ? '<b>Counts toward ' + (o.job ? byId(o.job).code : c.name) + '</b> — from the ritual (' + o.ritual + '). It keeps that day even if you submit it late.'
+              : '<b>Counts toward ' + (c.code || c.name) + '</b> — from what you picked. It also stays in your location’s reports, as today.';
+  var html = wChip() + '<div class="pbar"><button class="back" onclick="S.w.form=null;render()">‹</button><div class="pt" style="flex:1">' + title + '</div></div><div class="pscroll"><div class="pbody">' +
+    '<div class="info">' + how + '</div>' +
+    '<div class="field">Hazards identified<div class="formline"></div></div><div class="field">Controls in place<div class="formline" style="height:54px"></div></div><div class="field">Photos<div class="formline"></div></div>' +
+    '<button class="big-btn pri" onclick="wSubmit()">Submit</button><button class="btn ghost" onclick="S.w.form=null;render();toast(\'Saved as a draft — it shows as in progress, not missing\')">Save draft</button></div></div>';
+  return html;
+}
+function renderWDay() {
+  if (!S.w.ctx) {
+    var empty = '<div class="pbar"><div class="pt">Home</div></div><div class="pscroll"><div class="pbody"><div class="pcard" style="padding:14px"><b>Where are you working today?</b><p class="sub" style="margin:4px 0 10px">Pick a Site or ' + JL() + ' to see what’s owed there.</p><button class="big-btn pri" onclick="go(\'w-pick\')">Pick where you are</button></div></div></div>';
+    return layout('<p class="frame-tag">Mobile · worker · home</p><div class="phones">' + phone(empty, { tab: 'home' }) + '</div>', 'w-day', true);
+  }
+  if (S.w.form) return layout('<p class="frame-tag">Mobile · worker · form</p><div class="phones">' + phone(renderWForm(), { tab: false }) + '</div>', 'w-day', true);
+  var c = byId(S.w.ctx), items = wOwed();
+  var html = wChip() + '<div class="pscroll" data-keep="1"><div class="pbody">' +
+    '<div class="widget" data-tag="your day"><div class="pcard-h"><b style="font-size:12.5px">Owed here today</b><span class="t2">' + items.filter(isOut).length + ' to do</span></div>' +
+    items.map(function (o) {
+      var mine = o.who === 'R. Singh' ? 'yours' : (o.crew ? 'your crew’s' : 'anyone on ' + (o.job ? byId(o.job).code : c.name));
+      var act = o.state === 'done' ? '<span class="t2">✓ done</span>' : (o.state === 'prog' ? '<button class="btn sm" onclick="toast(\'J. Okafor’s draft — open to add your part\')">Open</button>' : '<button class="btn sm pri" onclick="S.w.form=\'' + o.id + '\';render()">Start</button>');
+      var once = o.ritual === 'Start of Day' && S.w.ctx === 'wo4471' ? ' · owed once for North Yard + WO-4471' : '';
+      return '<div class="prow"><span class="sdot ' + o.state + '"></span><div class="tx"><div class="t1">' + o.item + '</div><div class="t2">' + o.ritual + ' · ' + mine + once + (o.state === 'prog' ? ' · in progress' : '') + '</div></div>' + act + '</div>';
+    }).join('') + '</div>' +
+    '<div class="row-flex"><b style="font-size:12.5px;flex:1">To-do</b><span class="seg2"><button class="' + (S.w.filter === 'today' ? 'on' : '') + '" onclick="S.w.filter=\'today\';render()">Today</button><button class="' + (S.w.filter === 'all' ? 'on' : '') + '" onclick="S.w.filter=\'all\';render()">All</button></span></div>' +
+    '<div class="pcard">' + items.filter(isOut).map(function (o) { return '<div class="prow"><div class="tx"><div class="t1">' + o.item + '</div><div class="t2">due today · from ' + (o.job ? byId(o.job).code : c.name) + '</div></div></div>'; }).join('') +
+      '<div class="prow"><div class="tx"><div class="t1">Read: Site rules.pdf</div><div class="t2">due today · Start of Day</div></div></div>' +
+      (S.w.filter === 'all' ? '<div class="prow"><span class="ph" style="width:60%"></span></div><div class="prow"><span class="ph" style="width:48%"></span></div><div class="prow"><span class="ph" style="width:66%"></span></div>' : '') + '</div>' +
+    '<p class="sub">These are also in your To-do and Assigned forms — both places, always. No reminders at a set time of day.</p></div></div>';
+  return layout('<p class="frame-tag">Mobile · worker · home with your day</p><div class="phones">' + phone(html, { tab: 'home' }) + '</div>', 'w-day', true);
+}
+function renderWForms() {
+  if (S.w.form) return layout('<p class="frame-tag">Mobile · worker · form</p><div class="phones">' + phone(renderWForm(), { tab: false }) + '</div>', 'w-forms', true);
+  var chip = S.w.ctx ? wChip() : '<div class="info" style="margin:10px 12px 0">Not on a Site or ' + JL() + ' — a form you start will ask where it was for (path c).</div>';
+  var f = S.w.ffilter;
+  var forms = [['Hazard report','on demand'],['Near miss','on demand'],['Vehicle inspection','assigned · weekly'],['Spill report','on demand']];
+  var html = chip + '<div class="pbar"><div class="pt" style="flex:1">Forms</div></div><div class="pscroll"><div class="pbody">' +
+    '<span class="seg2" style="align-self:flex-start">' + [['today','Today'],['yesterday','Yesterday'],['next','Next'],['all','All']].map(function (x) { return '<button class="' + (f === x[0] ? 'on' : '') + '" onclick="S.w.ffilter=\'' + x[0] + '\';render()">' + x[1] + '</button>'; }).join('') + '</span>' +
+    '<div class="pcard">' + forms.map(function (x) { return '<div class="prow tap" onclick="wOpenForm(\'' + x[0] + '\')"><div class="tx"><div class="t1">' + x[0] + '</div><div class="t2">' + x[1] + '</div></div><span class="muted">›</span></div>'; }).join('') + '</div>' +
+    '<p class="sub">The existing Forms tab, unchanged. A form you start here while on a ' + JL() + ' counts toward that ' + JL() + ' — and stays in location reports too.</p></div></div>';
+  return layout('<p class="frame-tag">Mobile · worker · Forms tab (existing)</p><div class="phones">' + phone(html, { tab: 'forms' }) + '</div>', 'w-forms', true);
+}
+
+/* =========================================================================
+   16. ACTIONS
+   ========================================================================= */
+function go(id) {
+  for (var p in FLOWS) if (FLOWS[p].some(function (f) { return f.id === id; })) { S.persp = p; break; }
+  S.flow = id; S.menu = null;
+  if (id === 'a-view' || id === 'a-index') { if (id === 'a-index') { S.panel = null; S.sheet = null; } }
+  render();
+}
+function selectFlow(id) {
+  if (S.viewer && ['a-index','a-view','a-why','a-people'].indexOf(id) < 0) S.viewer = false;
+  if (id === 'a-view') { S.panel = null; S.vtab = 'out'; S.sheet = null; S.ext = null; }
+  if (id === 'a-why') { S.ctx = 'ny'; S.vtab = 'out'; S.sheet = null; S.ext = null; S.panel = 'e1'; }
+  if (id === 'a-people') { S.ctx = 'ny'; S.vtab = 'people'; S.panel = null; S.sheet = null; }
+  if (id === 'a-index') { S.panel = null; S.sheet = null; }
+  if (id === 'a-close') { S.sheet = null; }
+  if (id === 's-view' && !S.sup.ctx) S.sup.ctx = 'ny';
+  if (id === 'w-pick' || id === 'w-day' || id === 'w-forms') S.w.form = null;
+  go(id);
+}
+function switchPersp(p) { selectFlow(FLOWS[p][0].id); }
+function goHome() { if (S.persp === 'sup') go('s-home'); else if (S.persp === 'worker') { S.w.form = null; go('w-day'); } }
+function resetAll() { S = freshState(); lastKey = ''; render(); toast('Prototype reset'); }
+function exitPreview() { S.viewer = false; go('a-access'); }
+function setStep(n) { S.setup.step = n; render(); }
+function toggleImp(id) { S.setup.imp[id] = !S.setup.imp[id]; if (!S.setup.as[id]) S.setup.as[id] = 'job'; render(); }
+function idxSearch(v) { S.idxQ = v; var b = document.getElementById('idxBody'); if (b) b.innerHTML = idxBody(); }
+function openCtx(id) {
+  var c = byId(id);
+  if (id === 'j2210' && !S.viewer) { S.close.view = 'job'; go('a-close'); return; }
+  S.ctx = id; S.panel = null; S.vtab = 'out'; S.bdKey = null; S.bd = c.kind === 'site' ? 'job' : 'crew'; S.sheet = null;
+  go('a-view');
+}
+function openPanel(id) { S.panel = id; S.menu = null; render(); scrollToFrame(); }
+function closePanel() { S.panel = null; render(); }
+function toggleMenu(id) { S.menu = S.menu === id ? null : id; S.reason = 'No work done today'; render(); }
+function toggleDone(k) { S.showDone[k] = !S.showDone[k]; render(); }
+function remind(id) {
+  var o = findOb(id); o.reminded = true;
+  render(); toast('Reminder sent to ' + (o.crew ? o.crew + '’s supervisor' : o.who) + ' — by email/text, now. No scheduled push.');
+}
+function didnt(id) { var o = findOb(id); o.state = 'didnt'; o.reason = S.reason; S.menu = null; render(); toast('Closed as “didn’t happen” — ' + S.reason + '. Kept in the record.'); }
+function removeOb(id) { var o = findOb(id); o.state = 'removed'; S.menu = null; render(); toast('One-off removed'); }
+function tryArchive() { S.sheet = outCount(S.ctx) ? 'archive' : null; if (!S.sheet) toast('Nothing outstanding — ready to archive'); render(); scrollToFrame(); }
+function openOneoff() { S.sheet = 'oneoff'; render(); scrollToFrame(); }
+function addOneoff() {
+  var nEl = document.getElementById('ooName'), tEl = document.getElementById('ooTo');
+  var name = (nEl && nEl.value) || 'One-off', to = (tEl && tEl.value) || 'Paving Crew 2';
+  var list = S.ctx === 'wo4471' ? S.ob.ny : (S.ob[S.ctx] || (S.ob[S.ctx] = []));
+  list.push({ id: 'x' + Date.now(), ritual: 'One-off', oneoff: true, item: name, who: to, crew: /Crew/.test(to) ? to : null, job: S.ctx === 'wo4471' ? 'wo4471' : null, state: 'not' });
+  S.sheet = null; S.vtab = 'out'; render(); toast('Owed once, here — also in ' + to + '’s own To-do');
+}
+function openExt(forId) { S.ext = { forId: forId }; render(); scrollToFrame(); }
+function saveExt() {
+  if (S.ext.forId) {
+    var p = S.people.filter(function (x) { return x.id === S.ext.forId; })[0];
+    p.tr.fall = 'cur'; toast('Ticket added for ' + p.name + ' — Fall Protection now current. Stored in this portal only.');
+  } else {
+    var n = document.getElementById('exName').value || 'New person', co = document.getElementById('exCo').value || '';
+    S.people.push({ id: 'px' + Date.now(), name: n, crew: null, ext: 'Contractor · ' + co, tr: { whmis: 'none', fall: 'cur', conf: 'na' }, pres: null });
+    toast(n + ' added as an external person record');
+  }
+  S.ext = null; render();
+}
+function pickRit(id) { var r = RITUALS.filter(function (x) { return x.id === id; })[0]; S.att.rit = id; S.att.loose = false; S.att.per = r.per; S.att.when = r.when; render(); }
+function toggleWhere(id) { S.att.where[id] = !S.att.where[id]; render(); }
+function saveAttach() { S.ctx = 'ny'; S.vtab = 'rituals'; S.panel = null; go('a-view'); toast('Attached. New days only — earlier days keep what they owed then.'); }
+function startClose(id) { if (id === 'j2210') { S.close.view = 'job'; S.close.step = 'sheet'; go('a-close'); } else { S.sheet = null; toast(byId(id).code + ' isn’t awaiting close yet — try J-2210 in tab 7'); } }
+function resolveB(k, label) {
+  S.close.res[k] = label;
+  if (k === 'b1') { var o = S.ob.j2210[0]; if (/Completed/.test(label)) { o.state = 'done'; o.by = 'A. Chen'; o.time = 'Oct 1, 2:05 PM (late)'; o.src = 'ritual'; } else if (/Didn/.test(label)) { o.state = 'didnt'; o.reason = 'No work done'; } else { o.state = 'removed'; } }
+  render();
+}
+function doClose() { S.close.step = 'pack'; render(); toast('J-2210 closed — evidence pack ready'); }
+function mark(id, v) {
+  var p = S.people.filter(function (x) { return x.id === id; })[0];
+  p.pres = v; if (v === 'in' && p.proof !== 'signed' && p.proof !== 'signin') { p.proof = 'sup'; p.at = '10:42 AM'; p.how = 'marked by L. Park'; }
+  if (v === 'in' && !p.at) p.at = '10:42 AM';
+  render();
+}
+function markAll() { var n = 0; S.people.forEach(function (p) { if (!p.pres) { p.pres = 'in'; p.proof = 'sup'; p.at = '10:43 AM'; p.how = 'marked by L. Park (mark all)'; n++; } }); render(); toast(n + ' marked present — recorded as your observation, not their signatures'); }
+function startSig(mode) { S.sup.sigMode = mode; S.sup.sheet = null; S.sup.drawn = false; go('s-sign'); }
+function signNext(id) { S.sup.signed[id] = '10:4' + (5 + Object.keys(S.sup.signed).length % 5) + ' AM'; var p = S.people.filter(function (x) { return x.id === id; })[0]; p.proof = 'signed'; p.at = S.sup.signed[id]; p.how = 'on L. Park’s phone'; S.sup.drawn = false; render(); }
+function skipSig(id) { var p = S.people.filter(function (x) { return x.id === id; })[0]; p._skip = true; S.sup.drawn = false; render(); }
+function addVisitor() {
+  var v = S.sup.vis;
+  S.people.push({ id: 'pv' + Date.now(), name: v.name || 'Visitor', crew: null, ext: v.type + ' · ' + (v.company || ''), tr: { whmis: 'na', fall: v.photo ? 'cur' : 'none', conf: 'na' }, pres: 'in', proof: 'sup', at: '10:44 AM', how: 'added by L. Park' });
+  toast((v.name || 'Visitor') + ' added — external person record, present today'); go('s-att');
+}
+function wSearch(v) { S.w.q = v; var l = document.getElementById('wlist'); if (l) l.innerHTML = wList(); }
+function wPick(id) { if (W_GAP[id] && S.w.ctx !== id) { S.w.warn = id; render(); } else wSelect(id); }
+function wSelect(id) {
+  S.w.warn = null; var moved = S.w.ctx && S.w.ctx !== id; S.w.ctx = id; S.w.since = '10:42 AM';
+  S.w.history = [id].concat(S.w.history.filter(function (x) { return x !== id; }));
+  var c = byId(id);
+  go('w-day'); toast((moved ? 'Moved to ' : 'You’re on ') + (c.code || c.name) + ' — recorded as your visit today (signed in)');
+}
+function wOpenForm(name) {
+  if (name !== 'Hazard report') { toast(name + ' — opens as today; try Hazard report to see where it counts'); return; }
+  S.w.form = 'hazard'; render();
+}
+function wSubmit() {
+  var f = S.w.form, c = byId(S.w.ctx);
+  if (f === 'hazard') {
+    var job = c.kind === 'job' ? c.id : null;
+    var list = (c.id === 'wo4471' || c.id === 'ny' || c.at === 'ny') ? S.ob.ny : (S.ob[c.id] || (S.ob[c.id] = []));
+    list.push({ id: 'e' + Date.now(), evidence: true, ritual: 'Not owed', item: 'Hazard report (unprompted)', who: 'R. Singh', crew: 'Underground Crew', job: job, state: 'done', by: 'R. Singh', time: '10:46 AM', src: 'selection' });
+    toast('Submitted — counts toward ' + (c.code || c.name) + ' and stays in East Branch reports');
+  } else {
+    var o = findOb(f); o.state = 'done'; o.by = 'R. Singh'; o.time = '10:46 AM'; o.src = 'ritual';
+    toast('Submitted — ' + o.item + ' done. North Yard now shows ' + outCount('ny') + ' outstanding on the web.');
+  }
+  S.w.form = null; render();
+}
+function scrollToFrame() { setTimeout(function () { var b = document.querySelector('.browser'); var st = document.getElementById('stage'); if (b && st) { var top = b.getBoundingClientRect().top - st.getBoundingClientRect().top + st.scrollTop - 10; if (st.scrollTop > top) st.scrollTop = top; } }, 0); }
+
+/* =========================================================================
+   17. STEP DETAILS (footer) + RENDER
+   ========================================================================= */
+function activeFlow() {
+  if (S.flow === 'a-view' || S.flow === 'a-why' || S.flow === 'a-people') {
+    if (S.panel) return 'a-why';
+    if (S.vtab === 'people' && S.ctx === 'ny') return 'a-people';
+    return 'a-view';
+  }
+  return S.flow;
+}
+function stepDetails() {
+  var f = activeFlow(), c = byId(S.ctx);
+  var D = {
+    'ov': ['Read me — start here', ['Pick a perspective at the top: Admin (web), Supervisor or Worker (phone). Then step through the numbered flow tabs.', 'The coverage table maps every screen to the scope tickets; the ⚑ list links to every open decision.']],
+    'a-setup': ['Day one — step ' + S.setup.step + ' of 5', ['On screen: setup without a blank screen — kinds and labels, Site Access sites already there, import from Assets, a starter ritual.', S.setup.step === 1 ? 'Try: change the label to "Work order" — the nav and every screen follow.' : 'Next: Continue, or jump to any step on the left.']],
+    'a-index': ['Index — ' + navLabel(), [S.viewer ? 'Read-only preview: only the 3 granted Sites and ' + JLs() + ', no actions.' : 'On screen: one row per Site or ' + JL() + ', state first, training number beside it, most outstanding first.', 'Try: filter "Awaiting close", or open North Yard (most outstanding).']],
+    'a-view': [c ? cname(c) + ' — single work-context view' : 'Work context', ['On screen: grouped by ritual, missing on top, completed collapsed. Header states the period and cutoff.', 'Try: break down by job or by crew, Remind a row, ⋯ → Didn’t happen, or Archive site (it’s gated).']],
+    'a-why': ['Why it counted', ['On screen: the panel explains how a submission got its work context — or why an outstanding item is owed.', 'Try: close it and open an outstanding row, or the Evidence tab.']],
+    'a-attach': ['Attach a ritual — what → where → who counts → when', ['On screen: the attachment form. The summary bar rewrites itself as you change it.', 'Try: tick North Yard and WO-4471 (counted once note), choose "Each asset" (open item), or Rotation.']],
+    'a-people': ['People & training — North Yard', ['On screen: who’s here today and each required topic’s state, grouped by crew. External people are marked.', 'Try: "Add ticket" for S. Ortiz (no Fall Protection record) and watch the training count drop.']],
+    'a-close': S.close.view === 'site' ? ['Site archive', ['On screen: a Site archives instead of closing — read-only, still viewable, unarchivable.', 'Try: archive Main St Office, then try North Yard (blocked: outstanding items).']] :
+      ['Job close-out — J-2210', [{ job: 'Awaiting close: the expected end passed and nobody confirmed.', sheet: 'Each blocker has its own resolve action. Continue unlocks when all are clear.', confirm: 'A person confirms. Then the evidence pack is built.', pack: 'Closed and read-only. Export the evidence pack.' }[S.close.step], S.close.step === 'pack' ? 'Try: Compare how a Site archives.' : 'Try: Close job → resolve each blocker → confirm.']],
+    'a-access': ['"Can view" access', [S.access.granted ? 'Granted. Preview what D. Moreau sees — read-only, scoped to 3 contexts.' : 'On screen: grant read-only access over a chosen set of Sites and ' + JLs() + '.', 'Try: Grant access, then Preview as D. Moreau.']],
+    's-home': ['Supervisor — Home with Field Management layered in', ['On screen: the Sites and ' + JLs() + ' L. Park’s crew is assigned to, state first, training beside it.', 'Try: tap North Yard.']],
+    's-view': ['Supervisor — ' + byId(S.sup.ctx).name, ['On screen: the same ritual grouping as the web, with Remind on each row.', 'Try: ⋯ on a ritual to move it, or Who’s on site.']],
+    's-att': ['Who’s on site — attendance checklist', ['On screen: pre-filled from the crews; mark present or absent; training shows beside names.', 'Try: mark K. Diaz present, then Collect signatures.']],
+    's-sign': ['Signatures', [S.sup.sigMode === 'pass' ? 'Pass the phone: each person reads the attestation and signs for themselves.' : 'Choose: pass this phone round, each person’s own phone, or a photo of a paper sheet.', 'A supervisor never signs for someone else.']],
+    's-visitor': ['Add someone', ['On screen: add a BIS user for today, or an external person record with training added by hand.', 'Try: photograph a ticket and Add to Who’s on site.']],
+    's-move': ['Move', ['On screen: move a ritual for this Site only, or move people and crews.', 'Creating stays on the web.']],
+    'w-pick': ['Worker — pick where you are', ['On screen: an ungated list of the crew’s Sites and ' + JLs() + ', with search and recents.', 'Try: pick WO-4471 — you’ll get a training warning that doesn’t block.']],
+    'w-day': ['Worker — your day', [S.w.ctx ? 'On screen: the chosen ' + kindLabel(byId(S.w.ctx)) + ' as a chip with Switch, and what it owes you today.' : 'Pick a Site or ' + JL() + ' first.', 'Try: Start the confined space permit and submit — then check North Yard on the admin web view.']],
+    'w-forms': ['Worker — the existing Forms tab', ['On screen: the Forms list with a Today / Yesterday / Next / All filter; the chip stays on.', 'Try: open Hazard report — see where it counts, submit, then find it in Admin → Why it counted / Evidence.']]
+  };
+  var d = D[f] || ['', []];
+  return { title: d[0], bullets: d[1] };
+}
+function renderScreen() {
+  var f = S.flow;
+  if (f === 'ov') return renderOverview();
+  if (f === 'a-setup') return renderSetup();
+  if (f === 'a-index') return renderIndex();
+  if (f === 'a-view' || f === 'a-why' || f === 'a-people') return renderView();
+  if (f === 'a-attach') return renderAttach();
+  if (f === 'a-close') return renderClose();
+  if (f === 'a-access') return renderAccess();
+  if (f === 's-home') return renderSupHome();
+  if (f === 's-view') return renderSupView();
+  if (f === 's-att') return renderSupAtt();
+  if (f === 's-sign') return renderSupSign();
+  if (f === 's-visitor') return renderSupVisitor();
+  if (f === 's-move') return renderSupMove();
+  if (f === 'w-pick') return renderWPick();
+  if (f === 'w-day') return renderWDay();
+  if (f === 'w-forms') return renderWForms();
+  return '';
+}
+var lastKey = '';
+function render() {
+  document.getElementById('seg').innerHTML = PERSP.map(function (p) { return '<button class="seg-opt' + (S.persp === p.id ? ' active' : '') + '" onclick="switchPersp(\'' + p.id + '\')">' + p.label + '</button>'; }).join('');
+  var af = activeFlow();
+  document.getElementById('flowTabs').innerHTML = FLOWS[S.persp].map(function (f) { return '<button class="flow-tab' + (f.id === af ? ' active' : '') + '" onclick="selectFlow(\'' + f.id + '\')">' + f.label + '</button>'; }).join('');
+  var key = S.persp + '|' + af + '|' + S.ctx + '|' + S.setup.step + '|' + S.close.step + S.close.view + '|' + S.sup.ctx + '|' + (S.w.form || '') + '|' + S.viewer;
+  /* keep in-phone scroll positions for in-screen tweaks */
+  var keep = [].map.call(document.querySelectorAll('[data-keep]'), function (el) { return el.scrollTop; });
+  var d = stepDetails();
+  document.getElementById('sdTitle').textContent = d.title;
+  document.getElementById('sdList').innerHTML = d.bullets.map(function (b) { return '<li>' + b + '</li>'; }).join('');
+  document.getElementById('stage').innerHTML = renderScreen();
+  if (key !== lastKey) { document.getElementById('stage').scrollTop = 0; lastKey = key; }
+  else [].forEach.call(document.querySelectorAll('[data-keep]'), function (el, i) { if (keep[i]) el.scrollTop = keep[i]; });
+}
+document.addEventListener('click', function (e) {
+  if (S.menu && !e.target.closest('.pop') && !e.target.closest('.ob-acts')) { S.menu = null; render(); }
+});
+render();
+</script>
+</body>
+</html>

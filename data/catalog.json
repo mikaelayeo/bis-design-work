@@ -47,6 +47,21 @@
       "kind": "folder",
       "audience": "showcase",
       "category": "wireframes",
+      "id": "field-management",
+      "title": "Field Management",
+      "date": "2026-10-01",
+      "children": [
+        {
+          "title": "Lo-fi prototype v1",
+          "path": "showcase/wireframes/field-management/field-management-lofi-prototype.html",
+          "date": "2026-10-01"
+        }
+      ]
+    },
+    {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "wireframes",
       "id": "tkt-19998-network-course-draft",
       "title": "Network course flows",
       "date": "2026-06-09",
