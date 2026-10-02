@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ID Badges Prototype</title>
+<!-- TKT-21462 · Custom ID Badge template · realistic replica of Company Settings > System Management > ID Badges, sized for a 1440px screen -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+  :root {
+    --navy: #2e2d4d;
+    --text: #222;
+    --muted: #666;
+    --border: #d9d9d9;
+    --card-head: #f5f5f5;
+    --info-strip: #ebebeb;
+    --toggle-on: #a6cf4a;
+    --toggle-off: #4d4c4c;
+    --toggle-disabled: #d4d4d4;
+    --section-green: #3cb82e;
+    --section-orange: #f47b56;
+    --section-blue: #6dd0f2;
+    --btn-grey: #f2f2f2;
+    --primary: #0078b3;
+    --danger: #cc2222;
+    --pdf-red: #d9262c;
+    --page-bg: #f4f4f4;
+    --gap: 32px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Nunito", "Segoe UI", system-ui, sans-serif; font-size: 16px; color: var(--text); background: var(--page-bg); }
+  button { font-family: inherit; }
+
+  /* ---------- Top chrome ---------- */
+  .topbar { background: #fff; height: 72px; display: flex; align-items: center; padding: 0 18px; border-bottom: 1px solid #eee; }
+  .logo { display: flex; align-items: center; gap: 7px; }
+  .logo .shield { width: 28px; height: 30px; }
+  .logo .word { font-weight: 800; font-size: 28px; letter-spacing: -0.5px; color: #24243e; }
+  .logo .env { border-left: 1px solid #999; padding-left: 6px; font-size: 11px; line-height: 1.05; color: #333; text-transform: uppercase; }
+  .topbar .spacer { flex: 1; }
+  .search-user { display: flex; border: 1px solid #ddd; border-radius: 2px; height: 34px; margin-right: 42px; }
+  .search-user input { border: 0; outline: 0; width: 190px; font-size: 14px; padding: 0 10px; font-family: inherit; }
+  .search-user span { width: 32px; display: grid; place-items: center; background: #f6f6f6; color: #889; font-size: 13px; border-left: 1px solid #ddd; }
+  .top-icons { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #555; }
+  .top-icons .circ { width: 36px; height: 36px; border: 1.5px solid #555; border-radius: 50%; display: grid; place-items: center; font-size: 16px; }
+  .navrow { background: #fff; height: 44px; display: flex; align-items: center; padding: 0 22px; gap: 42px; font-size: 16px; border-bottom: 1px solid #e6e6e6; position: relative; }
+  .navrow .i-tab { position: absolute; right: 0; top: 0; width: 42px; height: 43px; background: #1d9bd7; color: #fff; display: grid; place-items: center; font-size: 14px; }
+  .titlebar { background: var(--navy); height: 54px; display: flex; align-items: center; padding: 0 16px; color: #fff; gap: 14px; }
+  .titlebar h1 { margin: 0; font-size: 26px; font-weight: 700; }
+  .titlebar .company { background: #24233f; padding: 3px 8px; border-radius: 3px; font-size: 20px; }
+  .titlebar .back { margin-left: auto; border: 1px solid #fff; border-radius: 3px; padding: 4px 9px; font-size: 14px; background: transparent; color: #fff; }
+
+  /* ---------- Layout ---------- */
+  .layout { display: flex; padding: 0 0 60px 16px; }
+  .main { flex: 1; min-width: 0; padding-top: 14px; padding-right: 22px; }
+  .menu { width: 232px; flex-shrink: 0; padding: 10px 8px 0 10px; background: #fff; border-left: 1px solid #eee; min-height: calc(100vh - 170px); }
+  .menu h3 { margin: 6px 0 10px; font-size: 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+  .menu h3 i { font-size: 22px; color: #555; }
+  .menu .msearch { border: 1.5px solid #555; height: 32px; border-radius: 3px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; color: #aaa; font-size: 13px; margin-bottom: 10px; }
+  .menu a { display: flex; gap: 12px; align-items: center; padding: 12px 8px 12px 16px; color: #333; text-decoration: none; font-size: 15px; border-radius: 4px; }
+  .menu a i { width: 18px; text-align: center; color: #555; font-size: 15px; }
+  .menu a.active { background: var(--navy); color: #fff; font-weight: 700; }
+  .menu a.active i { color: #fff; }
+  .menu a.notes { border: 1px solid #bbb; margin-top: 4px; }
+
+  /* ---------- Section ---------- */
+  .section { background: #fff; border-top: 5px solid var(--section-green); border-radius: 2px; margin-bottom: 26px; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .section.orange { border-top-color: var(--section-orange); }
+  .section.blue { border-top-color: var(--section-blue); }
+  .section-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 16px 14px; font-size: 20px; font-weight: 600; }
+  .section-head .lead { display: flex; align-items: center; gap: 12px; }
+  .section-head > i { color: #ccc; font-size: 17px; }
+  .section-body { border-top: 1px solid #e8e8e8; margin: 0 16px; padding: 12px 0 22px; }
+  .grid { display: flex; gap: var(--gap); align-items: flex-start; }
+  .col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+
+  /* ---------- Card ---------- */
+  .card { border: 1px solid var(--border); border-radius: 4px; background: #fff; }
+  .card-head { display: flex; align-items: stretch; background: var(--card-head); border-bottom: 1px solid var(--border); min-height: 44px; border-radius: 4px 4px 0 0; }
+  .card.collapsed .card-head { border-bottom: 0; border-radius: 4px; }
+  .card-title { flex: 1; display: flex; align-items: center; gap: 12px; padding: 0 8px; font-weight: 700; font-size: 16.5px; cursor: pointer; user-select: none; }
+  .card-chev { width: 46px; display: grid; place-items: center; background: transparent; border: 0; cursor: pointer; color: #333; font-size: 18px; }
+  .card-body { padding: 10px; }
+  .card.collapsed .card-body { display: none; }
+  .info { background: var(--info-strip); border-radius: 5px; padding: 7px 12px; font-size: 13.5px; font-style: italic; color: #333; line-height: 1.55; }
+  .info i { font-style: normal; font-size: 13px; margin-right: 8px; color: #333; }
+
+  /* ---------- Toggle ---------- */
+  .toggle { position: relative; width: 54px; height: 28px; flex-shrink: 0; border-radius: 16px; background: var(--toggle-off); border: 0; padding: 0; cursor: pointer; transition: background .15s; }
+  .toggle::after { content: ""; position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left .15s; }
+  .toggle.on { background: var(--toggle-on); }
+  .toggle.on::after { left: 30px; }
+  .toggle.disabled { background: var(--toggle-disabled); cursor: not-allowed; }
+  .toggle-wrap { position: relative; display: inline-flex; }
+  .tip { position: absolute; bottom: calc(100% + 11px); left: -12px; background: #1f1f1f; color: #fff; font-size: 13.5px; font-weight: 600; font-style: normal; line-height: 1.35; padding: 9px 13px; border-radius: 5px; width: 250px; text-align: center; opacity: 0; pointer-events: none; transition: opacity .12s; z-index: 20; }
+  .tip::after { content: ""; position: absolute; top: 100%; left: 30px; border: 7px solid transparent; border-top-color: #1f1f1f; }
+  .toggle-wrap:hover .tip.show, .toggle-wrap:focus-within .tip.show { opacity: 1; }
+
+  /* ---------- Radios ---------- */
+  .radios { padding: 10px 2px 2px; display: flex; flex-direction: column; gap: 11px; }
+  .radios label { display: flex; align-items: center; gap: 10px; color: #999; font-size: 14px; }
+  .radios .dot { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #bbb; display: grid; place-items: center; }
+  .radios .dot.sel::after { content: ""; width: 10px; height: 10px; background: #ccc; border-radius: 50%; }
+
+  /* ---------- Existing logo uploader (replica) ---------- */
+  .card-title .img-ico { font-size: 30px; color: #bbb; }
+  .logo-box { border: 1px solid var(--border); border-radius: 4px; margin-top: 10px; }
+  .logo-box .preview { display: flex; }
+  .logo-box .preview .img { flex: 1; height: 76px; display: grid; place-items: center; }
+  .logo-box .preview .img div { width: 96px; height: 62px; background: linear-gradient(160deg, #3b3a2a 0%, #6b5c25 40%, #f2c400 55%, #8a6a12 70%, #222 100%); border-radius: 1px; }
+  .logo-box .preview .x { width: 42px; display: grid; place-items: center; color: var(--danger); background: #fff4f4; border-left: 1px solid #f1d0d0; font-size: 18px; }
+
+  /* ---------- Shared grey button (system style) ---------- */
+  .gbtn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--btn-grey); border: 0; border-top: 1px solid var(--border); padding: 9px; font-size: 15px; font-weight: 600; color: #333; cursor: pointer; }
+  .gbtn:hover { background: #e8e8e8; }
+  .gbtn.solo { border: 1px solid var(--border); border-radius: 4px; padding: 11px; font-size: 16.5px; }
+
+  /* ---------- NEW: Custom ID Badge uploader ---------- */
+  .tpl-row { display: flex; align-items: center; justify-content: space-between; margin: 13px 0 9px; }
+  .tpl-row strong { font-size: 15.5px; }
+  /* Matches the red-outlined "PDF Certificate Guide" link on TRM Edit Course */
+  .guide-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--pdf-red); background: #fff; border-radius: 4px; padding: 3px 9px; font-size: 14px; color: #333; font-weight: 600; cursor: pointer; }
+  .guide-btn i { color: var(--pdf-red); font-size: 15px; }
+  .guide-btn:hover { background: #fff4f4; }
+  .upload-pulse { animation: pulse 1.1s ease-out 2; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,120,179,.45); } 100% { box-shadow: 0 0 0 11px rgba(0,120,179,0); } }
+  .err { color: var(--danger); font-size: 13.5px; margin-top: 8px; display: none; }
+  .err.show { display: block; }
+  .file-box { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .file-row { display: flex; gap: 11px; align-items: flex-start; padding: 13px 13px 12px; }
+  .file-row .fa-file-pdf { color: var(--pdf-red); font-size: 24px; margin-top: 1px; }
+  .file-row > div { min-width: 0; flex: 1; }
+  .file-name { display: flex; font-weight: 700; font-size: 16px; white-space: nowrap; min-width: 0; }
+  .file-name .stem { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .file-name .ext { flex-shrink: 0; }
+  .file-meta { color: var(--muted); font-size: 13.5px; margin-top: 3px; }
+  .file-actions { display: flex; }
+  .file-actions .gbtn + .gbtn { border-left: 1px solid var(--border); }
+  .test-link { display: inline-flex; align-items: center; gap: 7px; margin-top: 10px; font-size: 14.5px; color: var(--primary); font-weight: 600; background: none; border: 0; padding: 0; cursor: pointer; }
+  .test-link:hover { text-decoration: underline; }
+  .test-link small { color: var(--muted); font-weight: 400; font-size: 13px; }
+
+  /* ---------- Back panel editor (replica) ---------- */
+  .rte-label { font-size: 14px; font-weight: 600; margin: 12px 0 5px; }
+  .rte { border: 1px solid var(--border); }
+  .rte-bar { display: flex; gap: 16px; padding: 8px 12px; border-bottom: 1px solid var(--border); color: #333; font-size: 14px; align-items: center; }
+  .rte-area { height: 200px; padding: 12px 14px; font-size: 15px; }
+
+  /* ---------- Locked cards (custom template is on) ---------- */
+  .card.locked { position: relative; cursor: not-allowed; }
+  .card.locked .card-title, .card.locked .card-body { opacity: .5; }
+  .card.locked .card-title > *, .card.locked .card-body * { pointer-events: none; }
+  .card.locked .card-title { cursor: not-allowed; }
+  .card.locked .toggle { background: var(--toggle-disabled); }
+  .card.locked .toggle.on { background: #cfe3a3; }
+  .card.locked::before { content: "Off while Custom ID Badge is on."; position: absolute; left: 10px; bottom: calc(100% + 6px); background: #1f1f1f; color: #fff; font-size: 13.5px; font-weight: 600; line-height: 1.35; padding: 9px 13px; border-radius: 5px; width: auto; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .12s; z-index: 20; }
+  .card.locked:hover::before { opacity: 1; }
+
+  /* ---------- Confirm modal: BisModal (design system), default variant, size="lg" ----------
+     Default render in pre.storybook.bissafety.app: white header, tertiary Cancel, primary Confirm. */
+  .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; align-items: center; justify-content: center; z-index: 9999; }
+  .backdrop.show { display: flex; }
+  .bismodal { background: #fefefe; width: 600px; max-width: calc(100% - 32px); border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.1); font-family: "Segoe UI", -apple-system, system-ui, sans-serif; color: #19191a; }
+  .bismodal-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 20px 6px; border-radius: 4px 4px 0 0; }
+  .bismodal-header h3 { margin: 0; font-size: 22px; font-weight: 600; }
+  .bismodal-close { border: 0; background: none; color: #afafb5; font-size: 22px; cursor: pointer; padding: 0; }
+  .bismodal-body { padding: 8px 20px 16px; font-size: 16px; line-height: 1.55; }
+  .bismodal-body p { margin: 0 0 10px; }
+  .bismodal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 12px 20px 16px; border-radius: 0 0 4px 4px; }
+  .bisbtn { font-family: "Segoe UI", -apple-system, system-ui, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; padding: 8px 18px; border-radius: 4px; border: 1px solid transparent; cursor: pointer; color: #19191a; }
+  .bisbtn-tertiary { background: transparent; }
+  .bisbtn-tertiary:hover { background: #f1f1f2; }
+  .bisbtn-primary { background: #0078b3; border-color: #0078b3; color: #fff; }
+  .bisbtn-primary:hover { background: #00669a; }
+  .bisbtn-danger { background: #cc2222; border-color: #cc2222; color: #fff; }
+  .bisbtn-danger:hover { background: #b01d1d; }
+
+  /* ---------- Success message: ModalService.success (design system) ---------- */
+  .ms-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; align-items: center; justify-content: center; z-index: 10000; }
+  .ms-backdrop.show { display: flex; }
+  .ms { position: relative; background: #fefefe; width: 500px; max-width: calc(100% - 32px); border-radius: 8px; padding: 28px 24px 24px; text-align: center; font-family: "Segoe UI", -apple-system, system-ui, sans-serif; color: #19191a; box-shadow: 0 2px 10px rgba(0,0,0,.1); }
+  .ms-close { position: absolute; top: 14px; right: 14px; width: 16px; height: 16px; border: 0; background: none; padding: 0; cursor: pointer; }
+  .ms-close svg { width: 12px; height: 12px; stroke: #636368; stroke-width: 2; }
+  .ms-icon { width: 66px; height: 66px; margin: 0 auto 20px; border: 3px solid #167b00; border-radius: 50%; display: grid; place-items: center; }
+  .ms-icon svg { width: 46px; height: 46px; fill: none; stroke: #167b00; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: ms-check .45s .1s ease-out forwards; }
+  @keyframes ms-check { to { stroke-dashoffset: 0; } }
+  .ms h2 { margin: 0 0 8px; font-size: 24px; font-weight: 600; line-height: 32px; }
+  .ms p { margin: 0 0 22px; font-size: 16px; line-height: 1.5; }
+  .ms-footer { display: flex; justify-content: center; gap: 12px; }
+
+  /* ---------- Toast ---------- */
+  .toast { position: fixed; top: 186px; right: 270px; background: #3c763d; color: #fff; padding: 11px 17px; border-radius: 4px; font-size: 15px; box-shadow: 0 3px 10px rgba(0,0,0,.2); opacity: 0; transform: translateY(-6px); transition: all .2s; z-index: 60; pointer-events: none; }
+  .toast.show { opacity: 1; transform: none; }
+
+  /* ---------- Footer ---------- */
+  .footer { position: fixed; bottom: 0; left: 0; right: 0; height: 46px; background: #3a3a3a; color: #ddd; font-size: 12.5px; display: flex; align-items: center; justify-content: flex-end; gap: 28px; padding-right: 22px; z-index: 5; }
+
+  /* ---------- Prototype helper (not part of the product) ---------- */
+  .proto { position: fixed; left: 14px; bottom: 58px; background: #fffbe6; border: 1px solid #e8d48a; border-radius: 6px; padding: 11px 13px; font-size: 13.5px; width: 270px; box-shadow: 0 2px 8px rgba(0,0,0,.12); z-index: 40; }
+  .proto b { display: block; margin-bottom: 5px; font-size: 14px; }
+  .proto p { margin: 0 0 9px; color: #665; line-height: 1.4; }
+  .proto .row { display: flex; gap: 7px; }
+  .proto button { flex: 1; font-size: 13px; padding: 5px 7px; border: 1px solid #d6c27a; background: #fff; border-radius: 3px; cursor: pointer; }
+  .proto .close { position: absolute; top: 5px; right: 7px; border: 0; background: none; flex: none; padding: 0; color: #998; }
+
+  @media (max-width: 1100px) {
+    .grid { flex-direction: column; }
+    .col { width: 100%; }
+    .menu { display: none; }
+    .main { padding-right: 16px; }
+    .navrow { overflow-x: auto; gap: 24px; }
+    .toast { right: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ Top chrome (replica) ============ -->
+<div class="topbar">
+  <div class="logo">
+    <svg class="shield" viewBox="0 0 24 26" aria-hidden="true"><path d="M12 1 2 5v7c0 6.5 4.3 11 10 13 5.7-2 10-6.5 10-13V5L12 1z" fill="#5a5d8f"/><path d="M12 6 7 8.5V12c0 3.6 2.2 6 5 7.2 2.8-1.2 5-3.6 5-7.2V8.5L12 6z" fill="#fff"/></svg>
+    <span class="word">BIS</span>
+    <span class="env">QAQC Test<br>Environment</span>
+  </div>
+  <div class="spacer"></div>
+  <div class="search-user"><input placeholder="Search User" aria-label="Search user"><span><i class="fas fa-search"></i></span></div>
+  <div class="top-icons">
+    <span class="circ"><i class="fas fa-sync-alt" style="color:#3a8a3a"></i></span>
+    <span class="circ"><i class="fas fa-question"></i></span>
+    <span class="circ"><i class="fas fa-user"></i></span>
+    Log Out <i class="fas fa-chevron-right" style="font-size:13px"></i>
+  </div>
+</div>
+<nav class="navrow">
+  <span>Home</span><span>Profile</span><span>Store</span><span>Rewards</span><span>Purchases</span><span>Users</span><span>Reporting</span><span>Calendar</span><span>Equipment</span><span>Folders</span><span>QR</span><span>Admin</span>
+  <span class="i-tab"><i class="fas fa-info"></i></span>
+</nav>
+<div class="titlebar">
+  <h1>Company Settings</h1>
+  <span class="company">BIS QAQC Test Environment</span>
+  <button class="back"><i class="fas fa-chevron-left"></i> Back</button>
+</div>
+
+<div class="layout">
+<main class="main">
+
+  <section class="section" aria-labelledby="idb-title">
+    <div class="section-head"><span id="idb-title">ID Badges</span><i class="fas fa-chevron-up"></i></div>
+
+    <div class="section-body">
+
+      <!-- ===== Existing settings (unchanged) ===== -->
+      <div class="grid">
+        <div class="col">
+          <!-- ===== NEW: Custom ID Badge (first item in the section) ===== -->
+          <div class="card collapsed" id="customCard">
+            <div class="card-head">
+              <div class="card-title" id="customTitle">
+                <span class="toggle-wrap">
+                  <button class="toggle disabled" id="customToggle" role="switch" aria-checked="false" aria-disabled="true" aria-describedby="customTip" aria-label="Custom ID Badge"></button>
+                  <span class="tip show" id="customTip" role="tooltip">Upload a PDF badge template first.</span>
+                </span>
+                Custom ID Badge
+              </div>
+              <button class="card-chev" id="customChev" aria-expanded="false" aria-controls="customBody" aria-label="Expand Custom ID Badge"><i class="fas fa-chevron-down"></i></button>
+            </div>
+            <div class="card-body" id="customBody">
+              <div class="info" id="customInfo"></div>
+
+              <div class="tpl-row">
+                <strong>Badge Template</strong>
+                <button class="guide-btn" id="guideBtn"><i class="fas fa-file-pdf"></i> PDF ID Badge Guide</button>
+              </div>
+
+              <!-- Empty state -->
+              <div id="emptyState">
+                <button class="gbtn solo" id="uploadBtn"><i class="fas fa-file-upload"></i> Upload</button>
+                <input type="file" id="fileInput" accept=".pdf,application/pdf" hidden>
+                <div class="err" id="fileErr" role="alert"><i class="fas fa-exclamation-circle"></i> Only PDF files are accepted.</div>
+              </div>
+
+              <!-- Uploaded state -->
+              <div id="fileState" hidden>
+                <div class="file-box">
+                  <div class="file-row">
+                    <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                    <div>
+                      <div class="file-name" id="fileName"></div>
+                      <div class="file-meta" id="fileMeta"></div>
+                    </div>
+                  </div>
+                  <div class="file-actions">
+                    <button class="gbtn" id="testBtn" title="Download a test badge filled with sample data"><i class="fas fa-download"></i> Test Badge</button>
+                    <button class="gbtn" id="removeBtn"><i class="fas fa-trash"></i> Remove</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card collapsed">
+            <div class="card-head"><div class="card-title"><button class="toggle" role="switch" aria-checked="false" aria-label="Lock Profile Image"></button>Lock Profile Image</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>If the profile image is locked, users cannot update a previously uploaded profile photo.</div></div>
+          </div>
+
+          <div class="card collapsed">
+            <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="Company Role"></button>Company Role</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Show or hide users' company roles from their accounts on their ID badges.</div></div>
+          </div>
+
+          <div class="card collapsed">
+            <div class="card-head"><div class="card-title"><i class="far fa-image img-ico"></i>ID Badge Logo</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body">
+              <div class="info"><i class="fas fa-info-circle"></i>Upload a unique logo to add to ID badges, which may differ from this portal's logo.</div>
+              <div class="logo-box">
+                <div class="preview"><div class="img"><div></div></div><div class="x"><i class="fas fa-times"></i></div></div>
+                <button class="gbtn"><i class="fas fa-file-upload"></i> Upload</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card collapsed">
+            <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="Employee ID"></button>Employee ID</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Show or hide users' employee ID from their accounts on their ID badges.</div></div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="card collapsed">
+            <div class="card-head"><div class="card-title"><button class="toggle" role="switch" aria-checked="false" aria-label="Company Name"></button>Company Name</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body">
+              <div class="info"><i class="fas fa-info-circle"></i>The name option selected below will appear on user ID Badge.</div>
+              <div class="radios">
+                <label><span class="dot sel"></span>Portal Name</label>
+                <label><span class="dot"></span>Company Name in Profile</label>
+                <label><span class="dot"></span>Custom Field in Location</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="card collapsed">
+            <div class="card-head"><div class="card-title"><button class="toggle disabled" role="switch" aria-checked="false" aria-disabled="true" aria-label="Display Driver's Licence"></button>Display Driver's Licence</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>ID badges will show users' driver's licence numbers only if driver's licence security is turned off.</div></div>
+          </div>
+
+          <div class="card collapsed">
+            <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="Print Landscape Format"></button>Print Landscape Format</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Set ID badges to Landscape (horizontal) or Portrait (vertical) orientation.</div></div>
+          </div>
+
+          <div class="card collapsed">
+            <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="Start Date"></button>Start Date</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Show or hide users' start date from their accounts on their ID badges.</div></div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="card collapsed">
+            <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="Company Logo"></button>Company Logo</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Show or hide the company logo uploaded in your portal branding settings from ID badges.</div></div>
+          </div>
+
+          <div class="card collapsed">
+            <div class="card-head"><div class="card-title"><button class="toggle" role="switch" aria-checked="false" aria-label="Company Location"></button>Company Location</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Display users' location in your company structure shown on the User Administration page (click <b>Users</b> in your portal menu).</div></div>
+          </div>
+
+          <div class="card collapsed" data-keep-on>
+            <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="Folder Document and Forms"></button>Folder Document and Forms</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Any forms and documents from folders that the user has completed is shown when the QR code on their ID badge is scanned.</div></div>
+          </div>
+
+          <div class="card collapsed" data-keep-on>
+            <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="ID Badge Back Panel"></button>ID Badge Back Panel</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body">
+              <div class="info"><i class="fas fa-info-circle"></i>Enable and customize text to be shown at the back of your ID Badge.</div>
+              <div class="rte-label">Text</div>
+              <div class="rte">
+                <div class="rte-bar"><b>B</b><i>I</i><span>A ▾</span><span>12pt ▾</span><i class="fas fa-align-left"></i><i class="fas fa-align-center"></i><i class="fas fa-link"></i><i class="fas fa-undo"></i><i class="fas fa-redo"></i><i class="fas fa-list-ol"></i><i class="fas fa-list-ul"></i></div>
+                <div class="rte-area">certified QA/QC tester extrodinaire</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section orange"><div class="section-head"><span>Purchase Order Management Systems</span><i class="fas fa-chevron-down"></i></div></section>
+  <section class="section blue"><div class="section-head"><span class="lead"><span class="toggle on" aria-hidden="true"></span>Invoice Management</span><i class="fas fa-chevron-down"></i></div></section>
+</main>
+
+<aside class="menu">
+  <h3>Menu <i class="far fa-arrow-alt-circle-right"></i></h3>
+  <div class="msearch">Search <i class="fas fa-search" style="color:#333"></i></div>
+  <a><i class="fas fa-info"></i>Company Information</a>
+  <a><i class="fas fa-tools"></i>Settings</a>
+  <a><i class="fas fa-puzzle-piece"></i>System Modules</a>
+  <a class="active"><i class="fas fa-desktop"></i>System Management</a>
+  <a><i class="fas fa-th"></i>Course Management</a>
+  <a><i class="fas fa-sliders-h"></i>Integration</a>
+  <a><i class="fas fa-lock"></i>BIS Admin</a>
+  <a class="notes"><i class="far fa-sticky-note"></i>Notes</a>
+</aside>
+</div>
+
+<div class="footer"><span>Copyright © 2026</span><span>Privacy Policy</span><span>Terms and Conditions</span><span>System Requirements</span><span>Pay Online</span><span>Certificate Verification</span><span>Credit Card Receipt Lookup</span></div>
+
+<!-- ============ Modal ============ -->
+<div class="backdrop" id="backdrop">
+  <div class="bismodal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div class="bismodal-header"><h3 id="mTitle"></h3><button class="bismodal-close" id="mClose" aria-label="Close modal"><i class="fas fa-times"></i></button></div>
+    <div class="bismodal-body" id="mBody"></div>
+    <div class="bismodal-footer"><button class="bisbtn bisbtn-tertiary" id="mCancel">Cancel</button><button class="bisbtn bisbtn-primary" id="mOk"></button></div>
+  </div>
+</div>
+<div class="ms-backdrop" id="msBackdrop">
+  <div class="ms" role="dialog" aria-modal="true" aria-labelledby="msTitle" aria-describedby="msMsg">
+    <button class="ms-close" id="msClose" aria-label="Close dialog"><svg viewBox="0 0 12 12"><path d="M1 1 L11 11 M11 1 L1 11" stroke-linecap="round"/></svg></button>
+    <div class="ms-icon"><svg viewBox="0 0 52 52"><path d="M14 27l7.5 7.5L38 17"/></svg></div>
+    <h2 id="msTitle"></h2>
+    <p id="msMsg"></p>
+    <div class="ms-footer"><button class="bisbtn bisbtn-primary" id="msOk">OK</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<!-- ============ Prototype helper (not part of the product) ============ -->
+<div class="proto" id="proto">
+  <button class="close" id="protoClose" aria-label="Hide prototype panel">✕</button>
+  <b>Prototype · TKT-21462</b>
+  <p>New card: <em>Custom ID Badge</em>, first in the section. Upload a real PDF, or simulate one. Modal actions save instantly (no Save/Cancel bar).</p>
+  <div class="row"><button id="simBtn">Simulate upload</button><button id="resetBtn">Reset</button></div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const card = $('customCard'), toggle = $('customToggle'), tip = $('customTip');
+  const chev = $('customChev'), info = $('customInfo');
+  const emptyState = $('emptyState'), fileState = $('fileState');
+  const fileInput = $('fileInput'), fileErr = $('fileErr');
+  // Back Panel and Folder Document and Forms stay enabled with a custom template (open question for dev)
+  const otherCards = [...document.querySelectorAll('.grid .card')].filter(c => c !== card && !c.hasAttribute('data-keep-on'));
+
+  const state = { file: null, url: null, on: false };
+
+  const INFO_OFF = '<i class="fas fa-info-circle"></i>Upload an Adobe PDF to replace the standard badge. Nothing changes until you turn this on.';
+  const INFO_ON  = '<i class="fas fa-info-circle"></i>ID badges now use this template. Layout settings are off; Back Panel and Folder Document and Forms still apply.';
+
+  // Collapse / expand any card
+  function setExpanded(c, open) {
+    c.classList.toggle('collapsed', !open);
+    const btn = c.querySelector('.card-chev');
+    btn.setAttribute('aria-expanded', open);
+    btn.setAttribute('aria-label', open ? 'Collapse' : 'Expand');
+    btn.innerHTML = open ? '<i class="fas fa-chevron-up"></i>' : '<i class="fas fa-chevron-down"></i>';
+  }
+  document.querySelectorAll('.card').forEach(c => {
+    c.querySelector('.card-chev').addEventListener('click', () => setExpanded(c, c.classList.contains('collapsed')));
+  });
+
+  function render() {
+    const has = !!state.file;
+    emptyState.hidden = has;
+    fileState.hidden = !has;
+    toggle.classList.toggle('disabled', !has);
+    toggle.setAttribute('aria-disabled', !has);
+    toggle.classList.toggle('on', state.on);
+    toggle.setAttribute('aria-checked', state.on);
+    tip.classList.toggle('show', !has);
+    info.innerHTML = state.on ? INFO_ON : INFO_OFF;
+    otherCards.forEach(c => {
+      c.classList.toggle('locked', state.on);
+      c.querySelectorAll('.card-title button, .card-body button, .card-body input').forEach(el => el.toggleAttribute('disabled', state.on));
+    });
+    if (has) {
+      const name = state.file.name, dot = name.lastIndexOf('.');
+      const stem = dot > 0 ? name.slice(0, dot) : name, ext = dot > 0 ? name.slice(dot) : '.pdf';
+      $('fileName').innerHTML = '';
+      const st = document.createElement('span'); st.className = 'stem'; st.textContent = stem;
+      const ex = document.createElement('span'); ex.className = 'ext'; ex.textContent = ext.toLowerCase();
+      $('fileName').append(st, ex);
+      $('fileName').title = name;
+      const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      $('fileMeta').textContent = 'Uploaded ' + date + ' by Mikaela Yeo (myeo6)';
+    }
+  }
+
+  // Modal
+  let onOk = null;
+  // BisModal confirms: default variant; danger variant for Remove.
+  // Confirming a modal saves immediately: this card never shows the page's Save/Cancel bar.
+  function openModal({ title, body, ok, variant = 'primary' }) {
+    $('mTitle').textContent = title;
+    $('mBody').innerHTML = body;
+    const okBtn = $('mOk');
+    okBtn.textContent = ok;
+    okBtn.className = 'bisbtn bisbtn-' + variant;
+    $('backdrop').classList.add('show');
+    okBtn.focus();
+  }
+  function closeModal() { $('backdrop').classList.remove('show'); onOk = null; }
+  $('mOk').onclick = () => { const fn = onOk; closeModal(); fn && fn(); };
+  $('mCancel').onclick = $('mClose').onclick = closeModal;
+  $('backdrop').onclick = e => { if (e.target.id === 'backdrop') closeModal(); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // ModalService.success({ title, message, confirmLabel: 'OK', hideCancelButton: true })
+  function success(title, message) {
+    $('msTitle').textContent = title;
+    $('msMsg').textContent = message;
+    $('msMsg').hidden = !message;
+    const icon = document.querySelector('.ms-icon svg');
+    icon.style.animation = 'none'; void icon.offsetWidth; icon.style.animation = '';
+    $('msBackdrop').classList.add('show');
+    $('msOk').focus();
+  }
+  const closeSuccess = () => $('msBackdrop').classList.remove('show');
+  $('msOk').onclick = $('msClose').onclick = closeSuccess;
+  $('msBackdrop').onclick = e => { if (e.target.id === 'msBackdrop') closeSuccess(); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSuccess(); });
+
+  // Prototype-only notes for actions the product handles elsewhere (file download, guide link)
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  // Disabled toggle → open the card and point at Upload
+  function goToUpload() {
+    setExpanded(card, true);
+    const btn = $('uploadBtn');
+    btn.classList.remove('upload-pulse'); void btn.offsetWidth; btn.classList.add('upload-pulse');
+    btn.focus({ preventScroll: true });
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  toggle.onclick = e => {
+    e.stopPropagation();
+    if (!state.file) { goToUpload(); return; }
+    if (!state.on) {
+      onOk = () => { state.on = true; render(); success('Custom ID badge on', 'ID badges now use your template.'); };
+      openModal({ title: 'Use custom ID badge?', ok: 'Turn on',
+        body: '<p>All ID badges will use your template. Layout settings turn off; Back Panel and Folder Document and Forms still apply.</p>' });
+    } else {
+      onOk = () => { state.on = false; render(); success('Custom ID badge off', 'ID badges use the standard layout.'); };
+      openModal({ title: 'Turn off custom ID badge?', ok: 'Turn off',
+        body: '<p>ID badges go back to the standard layout. Your template is kept.</p>' });
+    }
+  };
+
+  $('customTitle').onclick = () => {
+    if (!state.file && card.classList.contains('collapsed')) goToUpload();
+    else setExpanded(card, card.classList.contains('collapsed'));
+  };
+
+  // Upload
+  $('uploadBtn').onclick = () => fileInput.click();
+  fileInput.onchange = () => {
+    const f = fileInput.files[0];
+    fileInput.value = '';
+    if (!f) return;
+    const isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+    fileErr.classList.toggle('show', !isPdf);
+    if (!isPdf) return;
+    if (state.url) URL.revokeObjectURL(state.url);
+    state.file = f; state.url = URL.createObjectURL(f);
+    render();
+    success('Template uploaded', 'Download a Test Badge to check your fields.');
+  };
+
+
+  function doRemove() {
+    if (state.url) URL.revokeObjectURL(state.url);
+    state.file = null; state.url = null; state.on = false;
+    render();
+  }
+  $('removeBtn').onclick = () => {
+    if (!state.on) { doRemove(); success('Template removed', ''); return; }
+    onOk = () => { doRemove(); success('Template removed', 'ID badges use the standard layout.'); };
+    openModal({ title: 'Remove template?', ok: 'Remove', variant: 'danger',
+      body: '<p>This template is in use. ID badges will go back to the standard layout.</p>' });
+  };
+
+  $('testBtn').onclick = () => toast('Downloading test badge (sample data: Jordan Sample, EMP-0042)…');
+  $('guideBtn').onclick = () => toast('Opens the PDF ID Badge Guide in a new tab (guide still to be written).');
+
+  // Prototype helper
+  $('simBtn').onclick = () => { if (state.url) URL.revokeObjectURL(state.url); state.file = { name: 'excelsior-safety-solutions-employee-id-badge-template-final-v3.pdf' }; state.url = null; state.on = false; setExpanded(card, true); render(); };
+  $('resetBtn').onclick = () => { if (state.url) URL.revokeObjectURL(state.url); state.file = null; state.url = null; state.on = false; fileErr.classList.remove('show'); setExpanded(card, false); render(); };
+  $('protoClose').onclick = () => $('proto').remove();
+
+  render();
+})();
+</script>
+</body>
+</html>

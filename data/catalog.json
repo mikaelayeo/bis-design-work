@@ -47,6 +47,27 @@
       "kind": "folder",
       "audience": "showcase",
       "category": "wireframes",
+      "id": "tkt-21462-custom-id-badge",
+      "title": "Custom ID Badge Template",
+      "date": "2026-10-02",
+      "children": [
+        {
+          "title": "Proposal",
+          "path": "showcase/wireframes/tkt-21462-custom-id-badge/TKT-21462-proposal.html",
+          "date": "2026-10-02"
+        },
+        {
+          "title": "Prototype",
+          "path": "showcase/wireframes/tkt-21462-custom-id-badge/TKT-21462-prototype.html",
+          "date": "2026-10-02"
+        }
+      ],
+      "ticket": "TKT-21462"
+    },
+    {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "wireframes",
       "id": "field-management",
       "title": "Field Management",
       "date": "2026-10-01",

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TKT-21462 — Custom Mapped ID Badge Template — Proposal v5</title>
+  <style>
+    /* === BIStrainer UI Library design tokens === */
+    :root {
+      --surface-primary: #0078b3;
+      --surface-primary-lightest: #f2fcff;
+      --icon-primary: #009acb;
+      --surface-error: #cc2222;
+      --surface-error-lightest: #fff2f2;
+      --icon-error: #cc2222;
+      --text-error: #cc2222;
+      --surface-warning: #a1851f;
+      --surface-warning-light: #e8b203;
+      --surface-warning-lightest: #fffcf2;
+      --icon-warning: #c29c14;
+      --text-warning: #a1851f;
+      --surface-success: #167b00;
+      --surface-success-lightest: #fafff2;
+      --icon-success: #167b00;
+      --text-success: #167b00;
+      --text-default: #191919;
+      --text-on-surface: #feffff;
+      --surface-default: #feffff;
+      --surface-secondary-subtle: #f8f8f9;
+      --stroke-default: #b2b2b3;
+      --stroke-default-light: #e2e2e3;
+      --stroke-default-dark: #4d4c4c;
+      --text-secondary: #666666;
+      --bis-red: #b81f2d;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif; font-size: 14px; background: var(--surface-secondary-subtle); color: var(--text-default);
+      line-height: 1.5;
+    }
+    html { scroll-behavior: smooth; scroll-padding-top: 58px; }
+
+    /* --- template chrome --- */
+    .topbar { background: var(--surface-default); border-bottom: 1px solid var(--stroke-default-light); display: flex; align-items: center; gap: 10px; padding: 6px 16px; flex-wrap: wrap; position: sticky; top: 0; z-index: 10; }
+    .t-ticket { font-size: 16px; font-weight: 600; color: var(--text-default); }
+    .t-project { font-size: 14px; color: var(--text-default); }
+    .t-date { font-size: 12px; color: var(--text-default); }
+    .badge-pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; box-shadow: 0 0 4px rgba(0,0,0,.15); white-space: nowrap; }
+    .badge-pill.primary { background: var(--surface-primary-lightest); color: var(--surface-primary); }
+    .badge-pill.success { background: var(--surface-success-lightest); color: var(--surface-success); }
+
+    .page { max-width: 1280px; margin: 0 auto; padding: 20px 24px 60px; display: flex; gap: 28px; align-items: flex-start; }
+    .content { flex: 1; min-width: 0; max-width: 940px; }
+
+    /* --- table of contents --- */
+    .toc { width: 218px; flex-shrink: 0; position: sticky; top: 58px; }
+    .toc-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-secondary); padding: 0 10px 8px; }
+    .toc a { display: block; font-size: 12.5px; color: #556; padding: 6px 10px; border-left: 2px solid transparent; border-radius: 0 4px 4px 0; text-decoration: none; line-height: 1.35; }
+    .toc a:hover { background: var(--surface-secondary-subtle); color: var(--text-default); }
+    .toc a.active { color: var(--surface-primary); border-left-color: var(--surface-primary); background: var(--surface-primary-lightest); font-weight: 600; }
+    .toc a .l { display: inline-block; width: 15px; color: #99a; font-weight: 700; }
+    .toc a.active .l { color: var(--surface-primary); }
+    @media (max-width: 860px) { .page { flex-direction: column; } .toc { position: static; width: 100%; display: flex; flex-wrap: wrap; gap: 2px; } .toc-head { width: 100%; } }
+
+    /* --- doc chrome --- */
+    .page-header { margin-bottom: 18px; }
+    .page-header .sub { font-size: 13.5px; color: #444; }
+    .page-header .meta { font-size: 12px; color: #666; margin-top: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .badge { display: inline-block; font-size: 11.5px; font-weight: 500; background: var(--surface-secondary-subtle); border: 1px solid var(--stroke-default-light); color: #556; border-radius: 4px; padding: 4px 9px; }
+
+    .legend { display: flex; gap: 18px; flex-wrap: wrap; background: var(--surface-default); border: 1px solid var(--stroke-default-light); border-radius: 6px; padding: 10px 14px; margin: 22px 0; font-size: 12px; color: #444; }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .dot.reused { background: var(--surface-success); }
+    .dot.new { background: var(--surface-primary); }
+    .dot.open { background: var(--surface-warning-light); }
+
+    .section { background: var(--surface-default); border: 1px solid var(--stroke-default-light); border-radius: 6px; overflow: hidden; margin-bottom: 20px; }
+    .section__title { background: var(--surface-secondary-subtle); border-bottom: 1px solid var(--stroke-default-light); padding: 10px 16px; font-size: 13.5px; font-weight: 700; color: var(--text-default); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .section__title .sp { flex: 1; }
+    .tag { display: inline-flex; align-items: center; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; border-radius: 12px; padding: 2px 9px; white-space: nowrap; box-shadow: 0 0 4px rgba(0,0,0,.15); }
+    .tag.reused { background: var(--surface-success-lightest); color: var(--surface-success); }
+    .tag.new { background: var(--surface-primary-lightest); color: var(--surface-primary); }
+    .tag.open { background: var(--surface-warning-lightest); color: var(--surface-warning); }
+    .section__body { padding: 16px; }
+    .section__note { font-size: 12px; color: #555; padding: 11px 16px; background: var(--surface-secondary-subtle); border-top: 1px dashed var(--stroke-default-light); }
+    .section__note b { color: #333; }
+    .lede { font-size: 12.5px; color: #555; margin-bottom: 14px; }
+    .sub-h { font-size: 12px; font-weight: 700; color: #556; margin: 16px 0 8px; text-transform: uppercase; letter-spacing: .03em; }
+
+    .ds-banner { display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; font-size: 12.5px; border-left: 4px solid; border-radius: 4px; margin: 10px 0; }
+    .ds-banner .ico { flex-shrink: 0; font-size: 14px; line-height: 1.35; }
+    .ds-banner.info { background: var(--surface-primary-lightest); border-color: var(--surface-primary); color: #0c5460; }
+    .ds-banner.warning { background: var(--surface-warning-lightest); border-color: var(--surface-warning); color: #6b5800; }
+    .ds-banner.error { background: var(--surface-error-lightest); border-color: var(--surface-error); color: #7a1f1f; }
+
+    /* ===== BisModal (design system) — default variant, size=lg =====
+       measured from the live Storybook render */
+    .bm-frame { background: rgba(0,0,0,.5); border-radius: 6px; padding: 28px 16px; display: flex; justify-content: center; margin-bottom: 14px; }
+    .bismodal { width: 600px; max-width: 100%; background: #fefefe; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.1); font-family: "Segoe UI", system-ui, sans-serif; color: #19191a; overflow: hidden; }
+    .bm-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 14px 20px 6px; background: #fff; }
+    .bm-head h3 { font-size: 22px; font-weight: 600; line-height: 1.3; }
+    .bm-close { width: 20px; height: 20px; color: #afafb5; flex-shrink: 0; margin-top: 3px; }
+    .bm-body { padding: 8px 20px 12px; font-size: 16px; line-height: 1.45; }
+    .bm-body p + p { margin-top: 8px; }
+    .bm-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 8px 20px 14px; }
+    .bisbtn-tertiary, .bisbtn-primary, .bisbtn-danger { font-family: "Segoe UI", system-ui, sans-serif; font-size: 16px; font-weight: 600; padding: 8px 18px; border-radius: 4px; border: none; cursor: default; }
+    .bisbtn-tertiary { background: transparent; color: #19191a; }
+    .bisbtn-primary { background: #0078b3; color: #fff; }
+    .bisbtn-danger { background: #cc2222; color: #fff; }
+    .ds-ref { font-size: 12px; background: var(--surface-secondary-subtle); border: 1px solid var(--stroke-default-light); border-radius: 6px; padding: 8px 12px; margin-bottom: 14px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+    .ds-ref code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11.5px; background: #f1f3f5; padding: 1px 5px; border-radius: 3px; }
+    .ds-ref a { color: var(--surface-primary); }
+
+    /* ===== ModalService.success ===== */
+    .successmodal { position: relative; width: 500px; max-width: 100%; background: #fefefe; border-radius: 8px; padding: 24px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.1); font-family: "Segoe UI", system-ui, sans-serif; color: #19191a; }
+    .sm-close { position: absolute; top: 14px; right: 14px; width: 20px; height: 20px; color: #636368; }
+    .sm-check { width: 66px; height: 66px; border: 3px solid #167b00; border-radius: 50%; margin: 6px auto 20px; display: flex; align-items: center; justify-content: center; color: #167b00; }
+    .successmodal h2 { font-size: 24px; font-weight: 600; line-height: 1.3; }
+    .successmodal p { font-size: 16px; line-height: 1.45; margin-top: 8px; }
+    .successmodal .bisbtn-primary { margin-top: 20px; min-width: 80px; }
+
+    /* tables */
+    table.wording-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    table.wording-table th { text-align: left; background: var(--surface-secondary-subtle); border: 1px solid var(--stroke-default-light); padding: 7px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .03em; color: #556; }
+    table.wording-table td { border: 1px solid var(--stroke-default-light); padding: 7px 10px; vertical-align: top; }
+    table.wording-table code, .cl-step code, .lede code, .els code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; background: #f1f3f5; padding: 1px 5px; border-radius: 3px; }
+
+    /* checklist */
+    .checklist { display: flex; gap: 8px; flex-wrap: wrap; }
+    .cl-step { flex: 1; min-width: 150px; border: 1px solid #e2e6ea; border-radius: 6px; padding: 9px 12px; font-size: 12px; background: #fff; }
+    .cl-step .h { font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .cl-step .s { font-size: 11.5px; margin-top: 3px; color: #667; }
+    .cl-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--surface-primary); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
+
+    .els { list-style: none; margin-top: 14px; font-size: 12px; }
+    .els li { display: flex; gap: 10px; align-items: baseline; padding: 5px 0; border-bottom: 1px dashed var(--stroke-default-light); }
+    .els li:last-child { border-bottom: none; }
+    .els .tag { flex-shrink: 0; min-width: 52px; justify-content: center; }
+
+    /* ===== ID Badges page mock (mirrors the live Company Settings page) ===== */
+    .idb { border: 1px solid #ddd; border-top: 3px solid #4cae1c; border-radius: 4px; background: #fff; padding: 10px 12px 14px; }
+    .idb-title { display: flex; align-items: center; font-size: 15px; font-weight: 600; color: #222; margin-bottom: 10px; }
+    .chev { display: inline-block; width: 7px; height: 7px; border-top: 2px solid #666; border-left: 2px solid #666; transform: rotate(45deg); margin-left: auto; margin-top: 3px; flex-shrink: 0; }
+    .chev.down { transform: rotate(225deg); margin-top: -2px; }
+    .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-items: start; }
+    .col { display: flex; flex-direction: column; gap: 10px; }
+    .scard { border: 1px solid #d6d6d6; border-radius: 4px; background: #fff; }
+    .scard-h { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: #f1f1f1; border-radius: 4px 4px 0 0; font-size: 12.5px; font-weight: 600; color: #222; }
+    .scard-b { padding: 7px 8px 9px; border-top: 1px solid #e3e3e3; }
+    .scard.off { opacity: .5; }
+    .info { display: flex; gap: 6px; align-items: flex-start; background: #ececec; border-radius: 3px; padding: 5px 8px; font-size: 11px; font-style: italic; color: #555; line-height: 1.4; }
+    .info .i { flex-shrink: 0; width: 11px; height: 11px; border-radius: 50%; background: #555; color: #fff; font-style: normal; font-size: 8px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-top: 2px; }
+    .tg { width: 32px; height: 17px; border-radius: 9px; background: #4a4a4a; position: relative; flex-shrink: 0; }
+    .tg::after { content: ''; position: absolute; width: 13px; height: 13px; background: #fff; border-radius: 50%; top: 2px; left: 2px; }
+    .tg.on { background: #a6cc4a; } .tg.on::after { left: 17px; }
+    .tg.dis { background: #e3e3e3; } .tg.dis::after { background: #f7f7f7; box-shadow: 0 0 0 1px #d2d2d2; }
+    .rd { display: flex; align-items: center; gap: 8px; font-size: 12.5px; padding: 4px 2px; color: #222; }
+    .rd i { width: 14px; height: 14px; border: 1.5px solid #888; border-radius: 50%; flex-shrink: 0; display: inline-block; position: relative; background: #fff; }
+    .rd.sel i { border-color: #777; }
+    .rd.sel i::after { content: ''; position: absolute; inset: 2px; background: #777; border-radius: 50%; }
+    .lbl-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 9px 0 7px; font-size: 12.5px; font-weight: 600; }
+    .lbl-row .sp { flex: 1; }
+    .guide2 { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #d9262c; border-radius: 4px; padding: 2px 8px 2px 6px; font-size: 11.5px; font-weight: 600; color: #333; background: #fff; }
+    .guide2 .ic { color: #d9262c; }
+    .ic { width: 13px; height: 13px; vertical-align: -2px; flex-shrink: 0; }
+    .ic.pdf { width: 14px; height: 17px; color: #cc2222; vertical-align: 0; }
+    .upl-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; border: 1px solid #cfcfcf; border-radius: 4px; background: #f1f1f1; padding: 8px; font-size: 13px; font-weight: 600; color: #222; font-family: inherit; }
+    .upl-btn .ic { color: #333; width: 14px; height: 14px; }
+    .fbox-wrap { position: relative; }
+    .fbox { border: 1px solid #d0d0d0; border-radius: 4px; overflow: hidden; background: #fff; }
+    .fbox-top { padding: 9px 10px; display: flex; gap: 8px; align-items: flex-start; }
+    .fbox-top > div { min-width: 0; flex: 1; }
+    .fbox-top .nm { font-size: 13px; font-weight: 600; color: #191919; line-height: 1.25; display: flex; min-width: 0; white-space: nowrap; }
+    .fbox-top .nm .base { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .fbox-top .nm .ext { flex-shrink: 0; }
+    .fbox-top .mt { font-size: 11px; color: #666; margin-top: 3px; }
+    .fbox-foot { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid #d0d0d0; background: #f1f1f1; }
+    .fbox-foot span { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px; font-size: 12.5px; font-weight: 600; color: #555; }
+    .fbox-foot span + span { border-left: 1px solid #d0d0d0; }
+    .fbox-foot .ic { color: #444; }
+    .link-sm { font-size: 11.5px; color: var(--surface-primary); text-decoration: underline; }
+    /* existing ID Badge Logo uploader (live) */
+    .logo-prev { display: grid; grid-template-columns: 1fr 34px; border: 1px solid #d6d6d6; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+    .logo-prev .img { height: 54px; background: linear-gradient(135deg, #d9b24a, #6f5a2a); margin: 4px auto; width: 70px; }
+    .logo-prev .x { background: #fff2f2; color: #cc2222; display: flex; align-items: center; justify-content: center; font-size: 14px; border-left: 1px solid #f0c2c2; }
+    .editor { border: 1px solid #d6d6d6; border-radius: 3px; margin-top: 6px; font-size: 12px; }
+    .editor .tb { background: #f6f6f6; border-bottom: 1px solid #ddd; padding: 3px 7px; font-size: 11px; color: #666; letter-spacing: 3px; }
+    .editor .tx { padding: 7px 8px; min-height: 58px; }
+    /* tooltips */
+    .tip-wrap { position: relative; }
+    .tip { position: absolute; left: 0; bottom: calc(100% + 8px); width: 196px; background: #1a1a1a; color: #fff; font-size: 12px; line-height: 1.35; text-align: center; padding: 7px 10px; border-radius: 4px; z-index: 2; }
+    .tip.wide { width: 250px; left: 14px; bottom: auto; top: 22px; }
+    .tip::after { content: ''; position: absolute; left: 16px; top: 100%; border: 6px solid transparent; border-top-color: #1a1a1a; }
+    .tip.wide::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: #1a1a1a; }
+    .tip.fname { left: 18px; width: 240px; bottom: calc(100% + 4px); word-break: break-all; }
+    .sketch-wrap { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+    .badge-sketch { width: 156px; height: 244px; border: 2px solid #333; border-radius: 9px; background: #fff; padding: 8px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .badge-sketch .art { background: #e9ecef; border-radius: 4px; font-size: 9.5px; color: #667; text-align: center; padding: 8px 4px; }
+    .fld { border: 1.5px dashed var(--surface-primary); background: var(--surface-primary-lightest); color: #0a587f; border-radius: 3px; font-size: 9.5px; font-family: ui-monospace, Menlo, Consolas, monospace; text-align: center; padding: 3px 2px; }
+    .fld.img { display: flex; align-items: center; justify-content: center; }
+    .sketch-legend { font-size: 11px; color: #667; margin-top: 8px; max-width: 156px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+    .two-col h5 { font-size: 12px; margin-bottom: 6px; }
+    .stack-h { font-size: 12px; font-weight: 700; margin: 4px 0 6px; }
+    .notes-list { margin: 0 0 0 18px; font-size: 12.5px; }
+    .notes-list li { margin-bottom: 5px; }
+    @media (max-width: 720px) { .cols, .two-col { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <!-- icon sprite -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-pdf" viewBox="0 0 16 20"><path fill="currentColor" d="M2 1h8l4 4v14H2z"/><path fill="#fff" opacity=".4" d="M10 1l4 4h-4z"/><text x="8" y="15.5" font-size="5.4" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif">PDF</text></symbol>
+    <symbol id="i-upload" viewBox="0 0 16 16"><path fill="currentColor" d="M3 1h6l4 4v10H3z"/><path fill="#fff" d="M8 6 5.5 8.8h1.7V12h1.6V8.8h1.7z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 16 16"><path fill="currentColor" d="M5 1h6l1 2h3v2H1V3h3l1-2zM2.5 6h11l-.8 9H3.3z"/></symbol>
+    <symbol id="i-download" viewBox="0 0 16 16"><path fill="currentColor" d="M7 1h2v6h2.6L8 11 4.4 7H7zM2 12h12v2.5H2z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 20 20"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 4l12 12M16 4 4 16"/></symbol>
+    <symbol id="i-check" viewBox="0 0 40 40"><path fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d="M9 21l8 8 14-16"/></symbol>
+  </svg>
+
+  <div class="topbar">
+    <span class="t-ticket">TKT-21462</span>
+    <span class="t-project">Custom Mapped ID Badge Template</span>
+    <span class="badge-pill success">Proposal Document - v5</span>
+    <span class="t-date">October 02, 2026 Generated</span>
+  </div>
+
+  <div class="page">
+
+  <aside class="toc" id="toc">
+    <div class="toc-head">On this page</div>
+    <a href="#sec-a"><span class="l">A</span>How it works</a>
+    <a href="#sec-b"><span class="l">B</span>Custom ID Badge card</a>
+    <a href="#sec-c"><span class="l">C</span>Template uploaded</a>
+    <a href="#sec-d"><span class="l">D</span>Confirm &amp; success modals</a>
+    <a href="#sec-e"><span class="l">E</span>Custom on: layout locked</a>
+    <a href="#sec-f"><span class="l">F</span>Edge cases</a>
+    <a href="#sec-g"><span class="l">G</span>Field reference</a>
+    <a href="#sec-h"><span class="l">H</span>Decisions log &amp; open questions</a>
+  </aside>
+
+  <main class="content">
+
+  <div class="page-header">
+    <div class="sub">Ticket TKT-21462 (Excelsior Safety Solutions) — let admins upload their own Adobe Embedded PDF as the ID badge template, the same way certificate templates work today, instead of being limited to the system-generated badge layout. Company Settings &rarr; System Management &rarr; ID Badges.</div>
+    <div class="meta">
+      <span class="badge">Round 5 — default BisModal (lg); success modals; Back Panel and Folder Docs stay on</span>
+      <span class="badge">Prepared for: design review + dev (Sachin Verma)</span>
+      <span class="badge">Target: 2026-10-30</span>
+      <span style="color:#888;">2026-10-02</span>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot reused"></span> Reused — already live / exists today</span>
+    <span><span class="dot new"></span> New — being proposed</span>
+    <span><span class="dot open"></span> Open — needs a dev answer or is beyond the agreed 32 h</span>
+  </div>
+
+  <!-- ========================= A ========================= -->
+  <div class="section" id="sec-a">
+    <div class="section__title">A. The Problem and How the PDF Template Works <span class="sp"></span><span class="tag reused">Reused pattern</span></div>
+    <div class="section__body">
+      <p class="lede"><b>The problem:</b> every portal's ID badge has the same BIS-generated layout, controlled only by on/off toggles. Excelsior needs their own branded layout, the option to leave the profile photo off, and freedom to place and size the QR code, logo, text and photo. <b>The solution:</b> admins upload a PDF template, exactly like the Adobe Embedded <i>certificate</i> templates on TRM Edit Course. There is <b>no visual editor</b> — agreed dev scope is "upload your own PDF with any fields we currently support in ID badges, and we print badges from it." Badges are still downloaded from each user's profile; that flow doesn't change.</p>
+
+      <div class="sketch-wrap">
+        <div>
+          <div class="badge-sketch">
+            <div class="art">Logo and branding<br>(baked into the PDF)</div>
+            <div class="fld img" style="height:62px;">userProfileImage</div>
+            <div class="fld">FullName</div>
+            <div class="fld">CompanyRole</div>
+            <div class="fld">EmployeeID</div>
+            <div class="fld img" style="height:38px;">QRCode</div>
+          </div>
+          <div class="sketch-legend">Grey = artwork drawn once in the PDF. Dashed blue = a field the admin draws in Acrobat. <b>The box's size and position is where it prints.</b></div>
+        </div>
+        <div style="flex:1; min-width:300px;">
+          <div class="checklist" style="flex-direction:column;">
+            <div class="cl-step"><div class="h"><span class="cl-dot">1</span> Design the badge artwork</div><div class="s">In any design tool. Logo, colours and layout are simply part of the PDF — export as PDF.</div></div>
+            <div class="cl-step"><div class="h"><span class="cl-dot">2</span> Open in Adobe Acrobat &rarr; Prepare Form</div><div class="s">Draw one text field per data item (name, role, employee ID…). <b>Name each field exactly</b> as listed in section G, e.g. <code>FullName</code>.</div></div>
+            <div class="cl-step"><div class="h"><span class="cl-dot">3</span> Use "Add an image" for pictures</div><div class="s">Profile photo and QR code are image fields. Skip the photo box and <b>no photo prints</b> — this covers the "photo optional" request.</div></div>
+            <div class="cl-step"><div class="h"><span class="cl-dot">4</span> Upload it in the Custom ID Badge card</div><div class="s">Upload, check it with <b>Test Badge</b>, then turn the toggle on (sections B–E).</div></div>
+          </div>
+          <div class="ds-banner warning"><span class="ico">&#9888;</span><div><b>Watch-out:</b> a misspelled field name is silently left blank. That is why the PDF ID Badge Guide, the optional starter template and the Test Badge button all matter.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> one PDF template per portal; any badge data without a matching field in the PDF is simply not printed; any field with no data is left blank. The full field-name list is in section G.</div>
+  </div>
+
+  <!-- ========================= B ========================= -->
+  <div class="section" id="sec-b">
+    <div class="section__title">B. The Custom ID Badge Card — First in the Grid, Before a Template Exists <span class="sp"></span><span class="tag new">New card</span><span class="tag reused">Reused uploader</span><span class="tag open">Starter PDF</span></div>
+    <div class="section__body">
+      <p class="lede">The ID Badges grid stays exactly as it is today. The only addition is <b>one new card, placed first</b> — top of column 1, above Lock Profile Image, with the existing cards flowing beside and below it exactly as they do now. It is built like every other card: toggle, bold label, collapse chevron, grey italic info strip. With no template yet, its <b>toggle is disabled</b>, and hovering it explains why. <b>Clicking the toggle (or the header) expands the card</b> so the Upload button is right there — the disabled toggle doubles as a pointer to the uploader. Until a template is uploaded and the toggle is on, every other card works as normal.</p>
+
+      <div class="sub-h" style="margin-top:0;">B1 — In context: hovering the disabled toggle (existing cards collapsed to headers)</div>
+      <div class="idb">
+        <div class="idb-title" style="margin-bottom:46px;">ID Badges <span class="chev"></span></div>
+        <div class="cols">
+          <div class="col">
+            <div class="tip-wrap">
+              <div class="tip">Upload a PDF badge template first.</div>
+              <div class="scard"><div class="scard-h"><span class="tg dis"></span>Custom ID Badge <span class="chev down"></span></div></div>
+            </div>
+            <div class="scard"><div class="scard-h"><span class="tg"></span>Lock Profile Image <span class="chev down"></span></div></div>
+            <div class="scard"><div class="scard-h"><span class="tg on"></span>Company Role <span class="chev down"></span></div></div>
+            <div class="scard"><div class="scard-h">ID Badge Logo <span class="chev down"></span></div></div>
+            <div class="scard"><div class="scard-h"><span class="tg on"></span>Employee ID <span class="chev down"></span></div></div>
+          </div>
+          <div class="col">
+            <div class="scard"><div class="scard-h"><span class="tg"></span>Company Name <span class="chev down"></span></div></div>
+            <div class="scard"><div class="scard-h"><span class="tg"></span>Display Driver's Licence <span class="chev down"></span></div></div>
+            <div class="scard"><div class="scard-h"><span class="tg on"></span>Print Landscape Format <span class="chev down"></span></div></div>
+            <div class="scard"><div class="scard-h"><span class="tg on"></span>Start Date <span class="chev down"></span></div></div>
+          </div>
+          <div class="col">
+            <div class="scard"><div class="scard-h"><span class="tg on"></span>Company Logo <span class="chev down"></span></div></div>
+            <div class="scard"><div class="scard-h"><span class="tg"></span>Company Location <span class="chev down"></span></div></div>
+            <div class="scard"><div class="scard-h"><span class="tg on"></span>Folder Document and Forms <span class="chev down"></span></div></div>
+            <div class="scard"><div class="scard-h"><span class="tg on"></span>ID Badge Back Panel <span class="chev down"></span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-h">B2 — After clicking the toggle or header: expanded, empty</div>
+      <div style="max-width:300px;">
+        <div class="scard">
+          <div class="scard-h"><span class="tg dis"></span>Custom ID Badge <span class="chev"></span></div>
+          <div class="scard-b">
+            <div class="info"><span class="i">i</span>Upload an Adobe PDF to replace the standard badge. Nothing changes until you turn this on.</div>
+            <div class="lbl-row">Badge Template <span class="sp"></span><span class="guide2"><svg class="ic" style="width:11px;height:14px;"><use href="#i-pdf"/></svg>PDF ID Badge Guide</span></div>
+            <button class="upl-btn"><svg class="ic"><use href="#i-upload"/></svg>Upload</button>
+            <div style="margin-top:7px; font-size:11.5px; color:#777;"><a class="link-sm">Download starter template (.pdf)</a> <span class="tag open" style="margin-left:4px;">Open</span></div>
+          </div>
+        </div>
+      </div>
+
+      <ul class="els">
+        <li><span class="tag new">New</span><span><b>Custom ID Badge card</b> — first card in column 1, standard card anatomy. Toggle disabled until a PDF exists, with the tooltip "Upload a PDF badge template first." Clicking the disabled toggle or header expands the card.</span></li>
+        <li><span class="tag reused">Reused</span><span><b>The uploader</b> — the full-width grey Upload button follows the existing ID Badge Logo uploader.</span></li>
+        <li><span class="tag reused">Reused</span><span><b>PDF ID Badge Guide button</b> — white background, red 1px border (#d9262c), red PDF icon, dark text: the certificate guide pattern ("PDF Certificate Guide" on TRM Edit Course), labelled "ID Badge".</span></li>
+        <li><span class="tag reused">Reused</span><span><b>All 12 existing cards, unchanged</b>, in their current positions and order. No regrouping, no relabelling.</span></li>
+        <li><span class="tag open">Open</span><span>PDF ID Badge Guide must be written (certificates have one; badges don't). Optional blank starter PDF with every badge field pre-placed and named.</span></li>
+      </ul>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> the toggle is disabled (not hidden) so the feature is discoverable, and the tooltip tells the admin what to do. Putting the card first means the admin meets the "one decision" before the settings it affects.</div>
+  </div>
+
+  <!-- ========================= C ========================= -->
+  <div class="section" id="sec-c">
+    <div class="section__title">C. Template Uploaded — Toggle Enabled, Still Off <span class="sp"></span><span class="tag reused">Reused uploader</span><span class="tag new">New file row</span><span class="tag open">Test Badge</span></div>
+    <div class="section__body">
+      <p class="lede">Uploading is <b>decoupled from turning it on</b>. After upload, a bordered file box replaces the Upload button and the <b>toggle becomes enabled</b> — but nothing changes for users until it is switched on, and every other ID badge setting stays fully active. This gives admins a safe "draft" without a draft concept. The <b>Test Badge</b> button is the check step: it lets Excelsior see the template working before going live, as they asked.</p>
+
+      <div class="two-col">
+        <div style="max-width:320px;">
+          <div class="scard">
+            <div class="scard-h"><span class="tg"></span>Custom ID Badge <span class="chev"></span></div>
+            <div class="scard-b">
+              <div class="info"><span class="i">i</span>Upload an Adobe PDF to replace the standard badge. Nothing changes until you turn this on.</div>
+              <div class="lbl-row">Badge Template <span class="sp"></span><span class="guide2"><svg class="ic" style="width:11px;height:14px;"><use href="#i-pdf"/></svg>PDF ID Badge Guide</span></div>
+              <div class="fbox-wrap">
+                <div class="tip fname">excelsior-safety-solutions-employee-id-badge-template-v3.pdf</div>
+                <div class="fbox">
+                  <div class="fbox-top">
+                    <svg class="ic pdf"><use href="#i-pdf"/></svg>
+                    <div><div class="nm" title="excelsior-safety-solutions-employee-id-badge-template-v3.pdf"><span class="base">excelsior-safety-solutions-employee-id-badge-template-v3</span><span class="ext">.pdf</span></div><div class="mt">Uploaded Oct 2, 2026 by Mika Yeo (mryeo)</div></div>
+                  </div>
+                  <div class="fbox-foot"><span><svg class="ic"><use href="#i-download"/></svg>Test Badge</span><span><svg class="ic"><use href="#i-trash"/></svg>Remove</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="ds-banner info" style="margin-top:0;"><span class="ico">&#9432;</span><div><b>Design note:</b> the uploader follows the existing ID Badge Logo uploader pattern in System Management (full-width Upload button, bordered preview box, 2-button footer) — reused intentionally for consistency. The only new piece is the file row (PDF icon + filename + upload meta) replacing the image preview.</div></div>
+          <div style="font-size:12px; color:#555; margin-bottom:8px;"><b>Filename:</b> always one line. A long name is truncated with an ellipsis and <b>".pdf" is always shown at the end</b> (above: "excelsior-safety-solutions-employee-id-ba….pdf"). Hovering shows the full name in a tooltip.</div>
+          <div style="font-size:12px; color:#555; margin-bottom:8px;"><b>Test Badge</b> downloads a badge built from the uploaded template filled with <b>dummy sample data</b> — not the admin's own profile. Viewing the raw PDF is dropped: this button is the check step.</div>
+          <table class="wording-table">
+            <thead><tr><th>Field</th><th>Sample value</th></tr></thead>
+            <tbody>
+              <tr><td><code>FullName</code></td><td>Jordan Sample</td></tr>
+              <tr><td><code>EmployeeID</code></td><td>EMP-0042</td></tr>
+              <tr><td><code>userProfileImage</code></td><td>Placeholder photo</td></tr>
+              <tr><td><code>QRCode</code></td><td>Sample QR code</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <ul class="els">
+        <li><span class="tag reused">Reused</span><span><b>Bordered box with a 50/50 footer</b> — the layout of the logo uploader's Save | Cancel footer, here Test Badge | Remove.</span></li>
+        <li><span class="tag new">New</span><span><b>File row</b> — red PDF icon and a one-line filename (ellipsis, ".pdf" always visible, full name on hover) instead of an image preview.</span></li>
+        <li><span class="tag open">Open</span><span><b>"Uploaded Oct 2, 2026 by Mika Yeo (mryeo)"</b> — pending dev: can the upload date and uploading user be stored and shown?</span></li>
+        <li><span class="tag open">Open</span><span><b>Test Badge</b> (download icon) — generates a badge from the uploaded template using sample data, without turning the template on. It lets admins catch a misnamed field or a badly placed box before any user does. It is beyond Sachin's 32 h estimate, so it needs sizing.</span></li>
+        <li><span class="tag new">New</span><span><b>Remove</b> (trash icon) returns the card to the empty Upload state (B2). When the toggle is off it removes immediately with no confirm; a "Template removed" success message follows (section D).</span></li>
+      </ul>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> uploading never changes what users get; only turning the toggle on does (section D). A separate Download button and a raw-PDF View were both considered and rejected: Test Badge is the one check step, and the footer stays at two buttons.</div>
+  </div>
+
+  <!-- ========================= D ========================= -->
+  <div class="section" id="sec-d">
+    <div class="section__title">D. Confirm and Success Modals <span class="sp"></span><span class="tag reused">BisModal</span><span class="tag reused">ModalService.success</span><span class="tag new">New copy</span></div>
+    <div class="section__body">
+      <p class="lede">Turning the toggle on is the real "go live" moment — and it disables the layout settings — so it asks for confirmation. Turning it off is just as easy and gets its own confirm, so a misclick on either side is recoverable. Once an action completes, a success message confirms it.</p>
+
+      <div class="ds-ref"><span class="tag reused">Reused</span><span><b>Uses BisModal (design system) · default variant · size=lg</b> (remove uses variant="danger") · <b>confirming saves immediately, no Save/Cancel bar</b> — <code>@bistrainingsolutions/design-system/dist/components/BisModal</code>. White header, title with no icon, tertiary Cancel, primary Confirm. Same component for every confirm in this proposal (turn on, turn off, remove while on).</span></div>
+
+      <div class="stack-h">Toggle on</div>
+      <div class="bm-frame">
+        <div class="bismodal">
+          <div class="bm-head"><h3>Use custom ID badge?</h3><span class="bm-close"><svg width="20" height="20"><use href="#i-x"/></svg></span></div>
+          <div class="bm-body"><p>All ID badges will use your template. Layout settings turn off; Back Panel and Folder Document and Forms still apply.</p></div>
+          <div class="bm-foot"><button class="bisbtn-tertiary">Cancel</button><button class="bisbtn-primary">Turn on</button></div>
+        </div>
+      </div>
+
+      <div class="stack-h">Toggle off</div>
+      <div class="bm-frame">
+        <div class="bismodal">
+          <div class="bm-head"><h3>Turn off custom ID badge?</h3><span class="bm-close"><svg width="20" height="20"><use href="#i-x"/></svg></span></div>
+          <div class="bm-body"><p>ID badges go back to the standard layout. Your template is kept.</p></div>
+          <div class="bm-foot"><button class="bisbtn-tertiary">Cancel</button><button class="bisbtn-primary">Turn off</button></div>
+        </div>
+      </div>
+
+      <div class="sub-h">Success messages</div>
+      <div class="ds-ref"><span class="tag reused">Reused</span><span><b>Uses ModalService.success (design system)</b> — <code>@bistrainingsolutions/design-system/dist/services/ModalService</code> (<a href="https://pre.storybook.bissafety.app/?path=/docs/feedback-modalservice--docs">Storybook</a>). Centred card, green check, title, message, a single OK button — no cancel.</span></div>
+
+      <div class="stack-h">Example — after the template is uploaded</div>
+      <div class="bm-frame">
+        <div class="successmodal">
+          <span class="sm-close"><svg width="20" height="20"><use href="#i-x"/></svg></span>
+          <div class="sm-check"><svg width="36" height="36"><use href="#i-check"/></svg></div>
+          <h2>Template uploaded</h2>
+          <p>Download a Test Badge to check your fields.</p>
+          <button class="bisbtn-primary">OK</button>
+        </div>
+      </div>
+
+      <div class="stack-h">Where a success message fires</div>
+      <table class="wording-table">
+        <thead><tr><th style="width:24%">Trigger</th><th style="width:26%">Title</th><th>Message</th><th style="width:70px">Tag</th></tr></thead>
+        <tbody>
+          <tr><td>Template uploaded</td><td>Template uploaded</td><td>Download a Test Badge to check your fields.</td><td><span class="tag reused">Reused</span></td></tr>
+          <tr><td>Turned on</td><td>Custom ID badge on</td><td>ID badges now use your template.</td><td><span class="tag reused">Reused</span></td></tr>
+          <tr><td>Turned off</td><td>Custom ID badge off</td><td>ID badges use the standard layout.</td><td><span class="tag reused">Reused</span></td></tr>
+          <tr><td>Template removed</td><td>Template removed</td><td>No message. If it was in use: "ID badges use the standard layout."</td><td><span class="tag reused">Reused</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> confirm in both directions with the default BisModal; success via ModalService.success. The uploaded template is never deleted by turning it off, and saved values are kept. <b>Assumption:</b> the change takes effect on confirm, as the other toggles on this page appear to (see H, question 6).</div>
+  </div>
+
+  <!-- ========================= E ========================= -->
+  <div class="section" id="sec-e">
+    <div class="section__title">E. Custom On — Layout Settings Disabled <span class="sp"></span><span class="tag new">New state</span><span class="tag reused">Reused cards</span><span class="tag open">Dev to confirm</span></div>
+    <div class="section__body">
+      <p class="lede">With the toggle on, the <b>10 layout settings are disabled — not hidden</b>. They stay in place at about 50% opacity, their toggles, radios and uploader not clickable, and their saved values untouched. Admins can still see what is set, and nothing on the page reflows. Hovering (or keyboard-focusing) a disabled card shows a dark tooltip. <b>ID Badge Back Panel and Folder Document and Forms stay fully enabled</b> — they aren't layout, so they still apply. The Custom ID Badge card stays fully live, including Test Badge and Remove.</p>
+
+      <div class="idb">
+        <div class="idb-title">ID Badges <span class="chev"></span></div>
+        <div class="cols">
+          <div class="col">
+            <div class="scard">
+              <div class="scard-h"><span class="tg on"></span>Custom ID Badge <span class="chev"></span></div>
+              <div class="scard-b">
+                <div class="info"><span class="i">i</span>ID badges now use this template. Layout settings are off; Back Panel and Folder Document and Forms still apply.</div>
+                <div class="lbl-row">Badge Template <span class="sp"></span><span class="guide2"><svg class="ic" style="width:11px;height:14px;"><use href="#i-pdf"/></svg>PDF ID Badge Guide</span></div>
+                <div class="fbox">
+                  <div class="fbox-top">
+                    <svg class="ic pdf"><use href="#i-pdf"/></svg>
+                    <div><div class="nm" title="excelsior-safety-solutions-employee-id-badge-template-v3.pdf"><span class="base">excelsior-safety-solutions-employee-id-badge-template-v3</span><span class="ext">.pdf</span></div><div class="mt">Uploaded Oct 2, 2026 by Mika Yeo (mryeo)</div></div>
+                  </div>
+                  <div class="fbox-foot"><span><svg class="ic"><use href="#i-download"/></svg>Test Badge</span><span><svg class="ic"><use href="#i-trash"/></svg>Remove</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="scard off"><div class="scard-h"><span class="tg"></span>Lock Profile Image <span class="chev"></span></div><div class="scard-b"><div class="info"><span class="i">i</span>If the profile image is locked, users cannot update a previously uploaded profile photo.</div></div></div>
+            <div class="scard off"><div class="scard-h"><span class="tg on"></span>Company Role <span class="chev"></span></div><div class="scard-b"><div class="info"><span class="i">i</span>Show or hide users' company roles from their accounts on their ID badges.</div></div></div>
+            <div class="scard off"><div class="scard-h">ID Badge Logo <span class="chev"></span></div><div class="scard-b">
+              <div class="info"><span class="i">i</span>Upload a unique logo to add to ID badges, which may differ from this portal's logo.</div>
+              <div class="logo-prev"><div class="img"></div><div class="x">&#10005;</div></div>
+              <button class="upl-btn" style="margin-top:6px; padding:5px;"><svg class="ic"><use href="#i-upload"/></svg>Upload</button>
+            </div></div>
+            <div class="scard off"><div class="scard-h"><span class="tg on"></span>Employee ID <span class="chev"></span></div><div class="scard-b"><div class="info"><span class="i">i</span>Show or hide users' employee ID from their accounts on their ID badges.</div></div></div>
+          </div>
+
+          <div class="col">
+            <div class="scard off"><div class="scard-h"><span class="tg"></span>Company Name <span class="chev"></span></div><div class="scard-b">
+              <div class="info"><span class="i">i</span>The name option selected below will appear on user ID Badge.</div>
+              <div class="rd sel" style="margin-top:4px;"><i></i>Portal Name</div>
+              <div class="rd"><i></i>Company Name in Profile</div>
+              <div class="rd"><i></i>Custom Field in Location</div>
+            </div></div>
+            <div class="tip-wrap">
+              <div class="tip wide">Off while Custom ID Badge is on.</div>
+              <div class="scard off"><div class="scard-h"><span class="tg"></span>Display Driver's Licence <span class="chev"></span></div><div class="scard-b"><div class="info"><span class="i">i</span>ID badges will show users' driver's licence numbers only if driver's licence security is turned off.</div></div></div>
+            </div>
+            <div class="scard off"><div class="scard-h"><span class="tg on"></span>Print Landscape Format <span class="chev"></span></div><div class="scard-b"><div class="info"><span class="i">i</span>Set ID badges to Landscape (horizontal) or Portrait (vertical) orientation.</div></div></div>
+            <div class="scard off"><div class="scard-h"><span class="tg on"></span>Start Date <span class="chev"></span></div><div class="scard-b"><div class="info"><span class="i">i</span>Show or hide users' start date from their accounts on their ID badges.</div></div></div>
+          </div>
+
+          <div class="col">
+            <div class="scard off"><div class="scard-h"><span class="tg on"></span>Company Logo <span class="chev"></span></div><div class="scard-b"><div class="info"><span class="i">i</span>Show or hide the company logo uploaded in your portal branding settings from ID badges.</div></div></div>
+            <div class="scard off"><div class="scard-h"><span class="tg"></span>Company Location <span class="chev"></span></div><div class="scard-b"><div class="info"><span class="i">i</span>Display users' location in your company structure shown on the User Administration page.</div></div></div>
+            <div class="scard"><div class="scard-h"><span class="tg on"></span>Folder Document and Forms <span class="chev"></span></div><div class="scard-b"><div class="info"><span class="i">i</span>Any forms and documents from folders that the user has completed is shown when the QR code on their ID badge is scanned.</div></div></div>
+            <div class="scard"><div class="scard-h"><span class="tg on"></span>ID Badge Back Panel <span class="chev"></span></div><div class="scard-b">
+              <div class="info"><span class="i">i</span>Enable and customize text to be shown at the back of your ID Badge.</div>
+              <div class="editor"><div class="tb">B&nbsp; I&nbsp; U&nbsp; &#8801;&nbsp; &#8801;</div><div class="tx">certified QA/QC tester extrodinaire</div></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+
+      <ul class="els">
+        <li><span class="tag new">New</span><span><b>Disabled state for the 10 layout cards</b> (Lock Profile Image, Company Role, ID Badge Logo, Employee ID, Company Name, Display Driver's Licence, Print Landscape Format, Start Date, Company Logo, Company Location) — about 50% opacity, controls not clickable, saved values kept. Disabled, not hidden, so nothing reflows and the admin can see what is set.</span></li>
+        <li><span class="tag new">New</span><span><b>Tooltip on every disabled card</b> (hover and keyboard focus): "Off while Custom ID Badge is on." Shown here on Display Driver's Licence.</span></li>
+        <li><span class="tag new">New</span><span><b>Custom card info strip changes with state:</b> "ID badges now use this template. Layout settings are off; Back Panel and Folder Document and Forms still apply."</span></li>
+        <li><span class="tag reused">Reused</span><span><b>ID Badge Back Panel and Folder Document and Forms stay fully enabled</b> — the existing components, unchanged, at full opacity.</span></li>
+        <li><span class="tag open">Open</span><span><b>Dev to confirm</b> that ID Badge Back Panel (the back side of the badge, e.g. as page 2 of the PDF or appended) and Folder Document and Forms (QR scan contents) can work with a custom template — and whether any of the 10 locked settings, like the driver's licence security rule, still need to apply at the data level (H, question 8).</span></li>
+      </ul>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> the layout-type settings (orientation, logo, role, start date and similar show/hide toggles) have no job in Custom mode because the PDF itself carries layout, so they lock. Back Panel and Folder Document and Forms carry content and behaviour rather than layout, so they stay on. <b>Open:</b> dev confirms both can actually work with a custom template.</div>
+  </div>
+
+  <!-- ========================= F ========================= -->
+  <div class="section" id="sec-f">
+    <div class="section__title">F. Edge Cases <span class="sp"></span><span class="tag new">New</span><span class="tag open">Upload check</span></div>
+    <div class="section__body">
+      <p class="lede">The states that could go wrong, and what the admin sees in each.</p>
+
+      <div class="stack-h">F1 — Remove while the toggle is on</div>
+      <div class="bm-frame">
+        <div class="bismodal">
+          <div class="bm-head"><h3>Remove template?</h3><span class="bm-close"><svg width="20" height="20"><use href="#i-x"/></svg></span></div>
+          <div class="bm-body"><p>This template is in use. ID badges will go back to the standard layout.</p></div>
+          <div class="bm-foot"><button class="bisbtn-tertiary">Cancel</button><button class="bisbtn-danger">Remove</button></div>
+        </div>
+      </div>
+      <div style="font-size:11.5px; color:#667; margin:-6px 0 12px;">BisModal <b>variant="danger"</b> (error state): red Remove button, because this is destructive. A "Template removed" success message follows.</div>
+
+      <div class="stack-h">F2 — Wrong file type</div>
+      <div style="max-width:320px;">
+        <div class="scard">
+          <div class="scard-h"><span class="tg dis"></span>Custom ID Badge <span class="chev"></span></div>
+          <div class="scard-b">
+            <div class="lbl-row" style="margin-top:2px;">Badge Template <span class="sp"></span><span class="guide2"><svg class="ic" style="width:11px;height:14px;"><use href="#i-pdf"/></svg>PDF ID Badge Guide</span></div>
+            <button class="upl-btn"><svg class="ic"><use href="#i-upload"/></svg>Upload</button>
+            <div class="ds-banner error"><span class="ico">&#9888;</span><div>That file couldn't be uploaded. Only Adobe PDF files (.pdf) are accepted — please choose a PDF badge template.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-h">Other cases</div>
+      <table class="wording-table">
+        <thead><tr><th style="width:26%">Case</th><th>Behaviour</th><th style="width:70px">Tag</th></tr></thead>
+        <tbody>
+          <tr><td>Click or tab to a disabled card</td><td>Nothing changes. The tooltip shows on hover and on keyboard focus. Cards can still be expanded to read their saved values.</td><td><span class="tag new">New</span></td></tr>
+          <tr><td>Very long filename</td><td>One line only: truncated with an ellipsis, ".pdf" always shown at the end, full name in a tooltip on hover.</td><td><span class="tag new">New</span></td></tr>
+          <tr><td>Misnamed field in the PDF</td><td>That item prints blank — there is no error. The PDF ID Badge Guide calls this out and Test Badge exposes it (the field is empty on the sample badge).</td><td><span class="tag reused">Reused</span></td></tr>
+          <tr><td>Upload check: "fields recognised"</td><td>On upload, show how many recognised badge fields were found and warn if none were. This is the main safeguard against silent blanks.</td><td><span class="tag open">Open</span></td></tr>
+          <tr><td>No photo box in the PDF</td><td>No photo prints. This is the intended way to exclude the profile photo. Test Badge shows the same.</td><td><span class="tag reused">Reused</span></td></tr>
+          <tr><td>Driver's licence security (encryption) is on</td><td><code>DriversLicence</code> must print blank even if the field exists in the PDF, regardless of the locked Display Driver's Licence card.</td><td><span class="tag open">Open</span></td></tr>
+          <tr><td>User has no data for a field (no photo, no role…)</td><td>The field prints blank. No placeholder text.</td><td><span class="tag new">New</span></td></tr>
+          <tr><td>Test Badge when the toggle is on or off</td><td>Available in both states. It always uses sample data, so it never depends on, or changes, any real user's badge.</td><td><span class="tag open">Open</span></td></tr>
+          <tr><td>Swap in a new template while the toggle is on</td><td>There is no Replace button: Remove (reverts all badges to standard and re-enables the layout settings, with confirm), upload the new file, turn it on again. <b>If a direct Replace is wanted instead,</b> add a confirm: "This will update all ID badges immediately."</td><td><span class="tag open">Open</span></td></tr>
+          <tr><td>Toggle on with no file</td><td>Not reachable, because the toggle is disabled until a file exists. Defensive fallback (e.g. a template removed in another tab): "Please upload a badge template before turning this on."</td><td><span class="tag new">New</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> removing an in-use template always reverts to the standard layout, with a confirm, and re-enables the layout cards, so users never get a broken or empty badge.</div>
+  </div>
+
+  <!-- ========================= G ========================= -->
+  <div class="section" id="sec-g">
+    <div class="section__title">G. Field Reference — What an Admin Can Place in the PDF <span class="sp"></span><span class="tag reused">Reused</span><span class="tag new">New</span><span class="tag open">Names TBC</span></div>
+    <div class="section__body">
+      <p class="lede">Certificate templates already support 40 fields, so the existing ones are reused. The ones badges still need are new. Field names must match exactly (case-sensitive). Acrobat automatically adds <code>_af_image</code> to image fields.</p>
+      <table class="wording-table">
+        <thead><tr><th>Badge data</th><th>Field name</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Full name</td><td><code>FullName</code></td><td>Text</td><td><span class="tag reused">Reused</span></td><td>Exists on certificates today.</td></tr>
+          <tr><td>Profile photo</td><td><code>userProfileImage</code></td><td>Image</td><td><span class="tag reused">Reused</span></td><td>Leave this box out of the PDF for a badge with no photo.</td></tr>
+          <tr><td>Employee ID</td><td><code>EmployeeID</code></td><td>Text</td><td><span class="tag reused">Reused</span></td><td></td></tr>
+          <tr><td>Employer / company name</td><td><code>Employer</code></td><td>Text</td><td><span class="tag reused">Reused</span> <span class="tag open">Check</span></td><td>Filled from the Company Name source setting (Portal Name / Company Name in Profile / Custom Field in Location). That card is locked while Custom is on — whether its saved value still applies is H, question 8.</td></tr>
+          <tr><td>QR code</td><td><code>QRCode</code></td><td>Image</td><td><span class="tag reused">Reused</span> <span class="tag open">Check</span></td><td>Exists, but must encode the badge's QR target (the folder documents and forms link), not a certificate's.</td></tr>
+          <tr><td>Company role</td><td><code>CompanyRole</code></td><td>Text</td><td><span class="tag new">New</span> <span class="tag open">TBC</span></td><td>Name to be confirmed by dev.</td></tr>
+          <tr><td>Start date</td><td><code>StartDate</code></td><td>Text</td><td><span class="tag new">New</span> <span class="tag open">TBC</span></td><td></td></tr>
+          <tr><td>Company location</td><td><code>UserLocation</code></td><td>Text</td><td><span class="tag new">New</span> <span class="tag open">TBC</span></td><td>Not <code>LocationAddress</code> — that is the classroom address on certificates.</td></tr>
+          <tr><td>ID Badge logo</td><td><code>badgeLogo_af_image</code></td><td>Image</td><td><span class="tag new">New</span> <span class="tag open">TBC</span></td><td>Optional: the logo can instead be baked into the PDF artwork.</td></tr>
+          <tr><td>Driver's licence</td><td><code>DriversLicence</code></td><td>Text</td><td><span class="tag new">New</span> <span class="tag open">TBC</span></td><td>Must stay blank when licence encryption is on.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> five fields are reused as-is and five are new. Every field is optional in the PDF — include only what the badge needs.</div>
+  </div>
+
+  <!-- ========================= H ========================= -->
+  <div class="section" id="sec-h">
+    <div class="section__title">H. Decisions Log and Open Questions</div>
+    <div class="section__body">
+      <div class="sub-h" style="margin-top:0;">Decisions log</div>
+      <table class="wording-table">
+        <thead><tr><th style="width:24px">#</th><th style="width:150px">Decision</th><th>What</th><th style="width:210px">Why</th><th style="width:150px">Status</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><b>Build approach</b></td><td>Admins upload a fillable Adobe PDF template; no visual or image editor.</td><td>Sachin's agreed scope (Aug 11), about 32 h dev.</td><td><span class="tag reused">Confirmed</span></td></tr>
+          <tr><td>2</td><td><b>Field names: reused</b></td><td>Reuse certificate field names where they exist: <code>FullName</code>, <code>userProfileImage</code>, <code>EmployeeID</code>, <code>Employer</code>, <code>QRCode</code>.</td><td>Admins who already build certificate templates know them.</td><td><span class="tag reused">Confirmed</span></td></tr>
+          <tr><td>3</td><td><b>Field names: new</b></td><td>New badge fields: <code>CompanyRole</code>, <code>StartDate</code>, <code>UserLocation</code>, <code>badgeLogo_af_image</code>, <code>DriversLicence</code>. Full table in G.</td><td>Covers every field the badge supports today.</td><td><span class="tag open">Open · dev</span> names (Q1)</td></tr>
+          <tr><td>4</td><td><b>Pictures</b></td><td>Photo, QR and logo are Acrobat image (button) fields; the drawn box's size and position become the picture's size and position.</td><td>Delivers "flexible placement and sizing" with no editor.</td><td><span class="tag open">Open · dev</span> (Q2)</td></tr>
+          <tr><td>5</td><td><b>Profile photo optional</b></td><td>Leave the photo field out of the PDF and the badge has no photo.</td><td>The client's explicit ask, at no extra cost.</td><td><span class="tag reused">Confirmed</span></td></tr>
+          <tr><td>6</td><td><b>Misnamed or missing fields</b></td><td>Print blank, with no error. Mitigated by the guide and Test Badge.</td><td>Same behaviour as certificate templates.</td><td><span class="tag reused">Confirmed</span></td></tr>
+          <tr><td>7</td><td><b>One template per portal</b></td><td>A single badge template per portal; badge download from user profiles is unchanged.</td><td>All the client needs; keeps scope small.</td><td><span class="tag reused">Confirmed</span></td></tr>
+          <tr><td>8</td><td><b>Placement</b></td><td>New "Custom ID Badge" card is the first card in the ID Badges section (top of column 1), same anatomy as other cards.</td><td>It changes what the other cards do, so it leads.</td><td><span class="tag reused">Confirmed</span></td></tr>
+          <tr><td>9</td><td><b>Disabled toggle</b></td><td>Toggle disabled until a template is uploaded. Tooltip: "Upload a PDF badge template first." Clicking the toggle or header expands the card and focuses Upload.</td><td>Discoverable, and points straight at the next step.</td><td><span class="tag reused">Confirmed</span></td></tr>
+          <tr><td>10</td><td><b>Draft without a draft state</b></td><td>Uploading changes nothing for users until the toggle is turned on.</td><td>Admins can upload and test before replacing everyone's badge.</td><td><span class="tag reused">Confirmed</span></td></tr>
+          <tr><td>11</td><td><b>Uploader</b></td><td>Reuses the ID Badge Logo uploader pattern (full-width Upload, bordered box, 2-button footer). PDF only; a wrong type shows inline "Only PDF files are accepted."</td><td>Consistency with the same page.</td><td><span class="tag reused">Confirmed</span></td></tr>
+          <tr><td>12</td><td><b>PDF ID Badge Guide button</b></td><td>Red PDF icon and red 1px border, reusing the "PDF Certificate Guide" pattern.</td><td>Same affordance admins know from certificates.</td><td><span class="tag reused">Confirmed</span> · writer <span class="tag open">Open · dev</span> (Q10)</td></tr>
+          <tr><td>13</td><td><b>File row</b></td><td>Red PDF icon; filename on one line, truncated with "…" and always ending ".pdf", full name on hover. Below: "Uploaded &lt;date&gt; by First Last (username)".</td><td>Only one line of text is allowed; extension must stay visible.</td><td><span class="tag reused">Confirmed</span> · meta <span class="tag open">Open · dev</span> (Q7)</td></tr>
+          <tr><td>14</td><td><b>Test Badge</b></td><td>Footer is Test Badge | Remove. Test Badge downloads a badge from the template filled with sample data (Jordan Sample, EMP-0042, placeholder photo, sample QR), not the admin's profile. Replaces View; raw-PDF view dropped.</td><td>The real check step, and supports the client's ask to test before sign-off.</td><td><span class="tag open">Open · dev</span> effort (Q4)</td></tr>
+          <tr><td>15</td><td><b>Remove</b></td><td>Toggle off: removes immediately, then a success message. Toggle on: confirm, then revert to the standard badge.</td><td>Users never get a broken or empty badge.</td><td><span class="tag reused">Confirmed</span></td></tr>
+          <tr><td>16</td><td><b>Confirms</b></td><td>Turn on and turn off use <b>BisModal</b>, default variant, size lg (primary Confirm, tertiary Cancel). Remove-while-on uses <b>variant="danger"</b>. <b>Confirming any modal saves immediately</b>, so this card never shows the page's bottom-left Save/Cancel bar.</td><td>Design-system component; the modal is already the confirm step, so a second Save is redundant.</td><td><span class="tag reused">Confirmed</span> (Q6)</td></tr>
+          <tr><td>17</td><td><b>Success feedback</b></td><td><b>ModalService.success</b> after upload, turn on, turn off and remove.</td><td>The design-system success pattern.</td><td><span class="tag reused">Confirmed</span></td></tr>
+          <tr><td>18</td><td><b>Custom on: layout locked</b></td><td>The 10 layout cards are disabled (not hidden): about 50% opacity, not clickable, values kept. Tooltip: "Off while Custom ID Badge is on."</td><td>Nothing reflows; admins can still see what is set.</td><td><span class="tag reused">Confirmed</span></td></tr>
+          <tr><td>19</td><td><b>Custom on: two stay enabled</b></td><td>ID Badge Back Panel and Folder Document and Forms stay enabled.</td><td>They are about the back side and the QR scan contents, not front layout.</td><td><span class="tag reused">Confirmed</span> (Mika) · works? <span class="tag open">Open · dev</span> (Q8)</td></tr>
+          <tr><td>20</td><td><b>Data-level rules</b></td><td>Driver's licence encryption must still apply: <code>DriversLicence</code> stays blank when encryption is on, even though its card is locked.</td><td>Security rule cannot be bypassed by a template.</td><td><span class="tag open">Open · dev</span> (Q8)</td></tr>
+          <tr><td>21</td><td><b>Nice-to-haves</b></td><td>Blank starter PDF with every field pre-placed; upload-time "X of Y fields recognised" check.</td><td>Reduce misnamed-field errors.</td><td><span class="tag open">Open · dev</span> (Q4, Q5)</td></tr>
+          <tr><td>22</td><td><b>PDF size limit</b></td><td>To be set by dev.</td><td>Not documented for certificates either.</td><td><span class="tag open">Open · dev</span> (Q5)</td></tr>
+        </tbody>
+      </table>
+      <div class="section__note" style="margin-top:8px;"><b>Source:</b> Mika's design review, Oct 2, 2026, and Sachin Verma's TKT-21462 comment, Aug 11, 2026.</div>
+
+      <div class="sub-h">Open questions</div>
+      <table class="wording-table">
+            <thead><tr><th style="width:20px">#</th><th>Question</th><th style="width:60px">For</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Exact names of the five new fields (<code>CompanyRole</code>, <code>StartDate</code>, <code>UserLocation</code>, <code>badgeLogo_af_image</code>, <code>DriversLicence</code>).</td><td>Sachin</td></tr>
+              <tr><td>2</td><td>Are photo and QR image (button) fields, as on certificates? How is <code>QRCode</code> pointed at the badge's QR target?</td><td>Sachin</td></tr>
+              <tr><td>3</td><td>Can the template have 2 pages (front/back)? See question 8 on how the Back Panel fits.</td><td>Sachin</td></tr>
+              <tr><td>4</td><td>Effort for <b>Test Badge</b> (generate a badge from the uploaded template using dummy sample data: Jordan Sample, EMP-0042, placeholder photo, sample QR — plus sample values for role, start date, location and licence) and the optional <b>starter PDF</b>. Both are beyond the 32 h estimate.</td><td>Sachin</td></tr>
+              <tr><td>5</td><td>PDF file size limit? Can upload report "N badge fields found" so misnamed fields are visible?</td><td>Sachin</td></tr>
+              <tr><td>6</td><td><b>Decided:</b> confirming a modal saves immediately, with no bottom-left Save/Cancel bar for this card. Please confirm upload and remove (when off) also save instantly.</td><td>Sachin</td></tr>
+              <tr><td>7</td><td>Can the upload date and uploading user ("Uploaded Oct 2, 2026 by Mika Yeo (mryeo)") be stored and shown?</td><td>Sachin</td></tr>
+              <tr><td>8</td><td><b>Please confirm</b> that <b>ID Badge Back Panel</b> (the back side of the badge — for example as page 2 of the PDF, or appended) and <b>Folder Document and Forms</b> (what a QR scan shows) can work with a custom template, since both stay enabled when Custom is on. Also: do any of the 10 locked settings — such as the <b>driver's licence security</b> rule (if encryption is on, <code>DriversLicence</code> must stay blank regardless) — still need to apply at the data level? Proposed: their saved values still apply at the data level and only their UI is locked. Please confirm per setting.</td><td>Sachin</td></tr>
+              <tr><td>9</td><td>Swapping a template while it's on: accept Remove &rarr; upload &rarr; turn on, or add a direct Replace with a confirm?</td><td>Mika / Sachin</td></tr>
+              <tr><td>10</td><td>Who writes the PDF ID Badge Guide (tech writer or dev)?</td><td>PM</td></tr>
+            </tbody>
+          </table>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> everything above sits within the agreed PDF-template scope except the items tagged Open (Test Badge, starter PDF, upload check, uploaded-by meta, and the Back Panel / Folder Document and Forms / data-level confirmation).</div>
+  </div>
+
+  </main>
+  </div>
+
+  <script>
+    (function(){
+      var HEADER = 54;
+      var links = [].slice.call(document.querySelectorAll('.toc a'));
+      var sections = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+
+      links.forEach(function(a){
+        a.addEventListener('click', function(e){
+          e.preventDefault();
+          var t = document.querySelector(a.getAttribute('href'));
+          if (!t) return;
+          var y = t.getBoundingClientRect().top + window.pageYOffset - HEADER;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+          if (history.replaceState) history.replaceState(null, '', a.getAttribute('href'));
+        });
+      });
+
+      function onScroll(){
+        var y = window.pageYOffset + HEADER + 40, idx = 0;
+        for (var i = 0; i < sections.length; i++){
+          if (sections[i] && sections[i].getBoundingClientRect().top + window.pageYOffset <= y) idx = i;
+        }
+        links.forEach(function(a, i){ a.classList.toggle('active', i === idx); });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+
+</body>
+</html>
