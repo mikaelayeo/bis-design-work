@@ -652,6 +652,14 @@
       "kind": "item",
       "audience": "studio",
       "category": "docs",
+      "title": "Mobile Release Train",
+      "date": "2026-10-02",
+      "path": "studio/docs/mobile-release-train.html"
+    },
+    {
+      "kind": "item",
+      "audience": "studio",
+      "category": "docs",
       "title": "Product trio",
       "date": "2026-05-20",
       "path": "studio/docs/product-trio.html"
