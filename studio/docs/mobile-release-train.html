@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Local copy of the Mobile Release Train artifact: https://claude.ai/artifact/KNr3rvhUsShTXUUjwtm47t (v16, Oct 2 2026) -->
+<!-- Copy of the Mobile Release Train artifact: https://claude.ai/artifact/KNr3rvhUsShTXUUjwtm47t (Oct 2 2026). Edit the artifact source, then re-copy. -->
 </head>
 <body>
 <title>Mobile Release Train</title>
@@ -38,6 +38,18 @@
   color-scheme:dark; }
 
 *{box-sizing:border-box}
+/* keep anything marked hidden hidden, wherever the page is hosted (the artifact viewer adds this rule; a plain web page does not) */
+[hidden]{display:none!important}
+html{color-scheme:light}
+body{margin:0}
+img{max-width:100%}
+/* dependencies switch */
+.switch{display:inline-flex; align-items:center; gap:10px; border:none; background:none; padding:5px 2px; cursor:pointer; font-size:13px; font-weight:600}
+.sw-track{position:relative; width:40px; height:22px; border-radius:999px; background:var(--line-strong); transition:background .15s; flex:none}
+.sw-thumb{position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgb(0 0 0 / .3); transition:transform .15s}
+.switch[aria-checked="true"] .sw-track{background:var(--focus)}
+.switch[aria-checked="true"] .sw-thumb{transform:translateX(18px)}
+.switch:focus-visible{outline:2px solid var(--focus); outline-offset:3px; border-radius:6px}
 body{background:var(--bg); color:var(--fg); font:400 15px/1.55 var(--sans); padding-inline:clamp(16px,3vw,32px); padding-block:28px 64px}
 .wrap{display:flex; flex-direction:column; gap:44px}
 .wrap > *{width:100%; max-width:1240px; align-self:center}
@@ -504,7 +516,7 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
     <div class="fgroup"><span class="eyebrow" id="lbl-dates">Dates</span><div class="seg" role="group" aria-labelledby="lbl-dates" id="ctl-dtype"></div></div>
     <div class="fgroup"><span class="eyebrow" id="lbl-zoom">Date view</span><div class="seg" role="group" aria-labelledby="lbl-zoom" id="ctl-zoom"></div></div>
     <div class="fgroup"><span class="eyebrow" id="lbl-types">Show</span><div class="seg" role="group" aria-labelledby="lbl-types" id="ctl-types"></div></div>
-    <div class="fgroup"><span class="eyebrow" id="lbl-deps">Dependencies</span><div class="seg" role="group" aria-labelledby="lbl-deps" id="ctl-deps"></div></div>
+    <div class="fgroup"><span class="eyebrow" id="lbl-deps">Dependencies</span><div id="ctl-deps"></div></div>
     <div class="fgroup"><span class="eyebrow" id="lbl-color">Colour based on</span><div class="seg" role="group" aria-labelledby="lbl-color" id="ctl-color"></div></div>
     <div class="fgroup"><span class="eyebrow" id="lbl-role">Show work for</span><div class="frow" role="group" aria-labelledby="lbl-role" id="ctl-role"></div></div>
     <div class="fgroup wide"><span class="eyebrow" id="lbl-sprint">Follow a sprint</span><div class="seg loose" role="group" aria-labelledby="lbl-sprint" id="ctl-sprint"></div></div>
@@ -517,7 +529,7 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
       <button class="btn" id="btn-fs" type="button" aria-pressed="false"></button>
     </div>
     <div class="tl-scroll" id="tl-scroll"><div class="tl" id="tl"></div></div>
-    <p class="tl-hint">Select anything for details. Turn on Dependencies to see what each item depends on and what comes next, and to focus on a sprint's workflow when you click. Key dates are weighted: red for code freeze and release, bold for the planning cutoffs, outlined for lighter checkpoints.</p>
+    <p class="tl-hint">Hover anything to see what it depends on and what comes next; click to focus on that sprint's workflow and see details. Switch Dependencies off for a calmer view. Key dates are weighted: red for code freeze and release, bold for the planning cutoffs, outlined for lighter checkpoints.</p>
   </div>
   <div class="pop" id="pop" role="dialog" aria-labelledby="pop-title" tabindex="-1" hidden></div>
   <aside class="flegend" id="flegend" aria-label="Legend">
@@ -904,15 +916,15 @@ const COLLAPSED_H = 34, HIDDEN_H = 32;
 const collH = () => (colW >= 44 ? 48 : COLLAPSED_H);
 
 /* ---------- state ---------- */
-const state = {dateType:"template", zoom:"month", color:"lane", role:"all", sprint:"all", collapsed:new Set(), hidden:new Set(), types:new Set(["work","key","meeting"]), deps:false};
+const state = {dateType:"template", zoom:"month", color:"lane", role:"all", sprint:"all", collapsed:new Set(), hidden:new Set(), types:new Set(["work","key","meeting"]), deps:true};
 try{
-  const p = JSON.parse(localStorage.getItem("mrt-prefs") || "{}");
+  const p = JSON.parse(localStorage.getItem("mrt-prefs-v2") || "{}");
   if(p.dateType==="real"||p.dateType==="template") state.dateType = p.dateType;
   if(ZOOM[p.zoom]) state.zoom = p.zoom;
   if(p.color==="lane"||p.color==="sprint") state.color = p.color;
   if(typeof p.deps==="boolean") state.deps = p.deps;
 }catch(e){}
-function save(){ try{ localStorage.setItem("mrt-prefs", JSON.stringify({dateType:state.dateType, zoom:state.zoom, color:state.color, deps:state.deps})); }catch(e){} }
+function save(){ try{ localStorage.setItem("mrt-prefs-v2", JSON.stringify({dateType:state.dateType, zoom:state.zoom, color:state.color, deps:state.deps})); }catch(e){} }
 
 /* ---------- helpers ---------- */
 const $ = id => document.getElementById(id);
@@ -1009,11 +1021,14 @@ function renderControls(){
     renderControls(); renderTimeline();
   })));
   const dp = $("ctl-deps"); dp.innerHTML="";
-  [[false,"Off"],[true,"On"]].forEach(([v,l]) => {
-    const b = chip(l, state.deps===v, () => { state.deps = v; save(); closePop(false); hoverEl = null; drawDeps(); renderControls(); });
-    b.dataset.tip = v ? "Hover shows links; clicking focuses that sprint's workflow" : "No arrows or fading; clicking just shows details";
-    dp.appendChild(b);
-  });
+  const sw = document.createElement("button");
+  sw.type = "button"; sw.className = "switch"; sw.setAttribute("role", "switch");
+  sw.setAttribute("aria-checked", state.deps ? "true" : "false");
+  sw.setAttribute("aria-labelledby", "lbl-deps");
+  sw.innerHTML = '<span class="sw-track" aria-hidden="true"><span class="sw-thumb"></span></span><span class="sw-label">'+(state.deps ? "On" : "Off")+'</span>';
+  sw.dataset.tip = state.deps ? "Hover shows links; clicking focuses that sprint's workflow. Turn off for a calmer view." : "Turn on to see what each item depends on and leads to";
+  sw.addEventListener("click", () => { state.deps = !state.deps; save(); closePop(false); hoverEl = null; drawDeps(); renderControls(); });
+  dp.appendChild(sw);
   const c = $("ctl-color"); c.innerHTML="";
   [["sprint","Sprint"],["lane","Discipline"]].forEach(([v,l]) => c.appendChild(chip(l, state.color===v, () => { state.color=v; save(); renderAll(); })));
   const r = $("ctl-role"); r.innerHTML="";
@@ -1049,7 +1064,7 @@ function renderLegend(){
     '<li><i class="sample s-tick" style="border-style:solid; border-width:1.5px; border-color:var(--fg)"></i><span>Light: design final, review due dates, retro</span></li>'+
     '<li><span class="badge" style="padding:2px 3px; font-size:8px">Opt</span><span>Optional: only when the case needs it</span></li>'+
     '<li><i class="sample s-compact"></i><span>Key date in a collapsed lane</span></li>'+
-    '<li><i class="sample s-dep"></i><span>Leads to (bold arrow)<small>Turn on Dependencies in the filters</small></span></li>'+
+    '<li><i class="sample s-dep"></i><span>Leads to (bold arrow)<small>Switch Dependencies off in the filters for a calmer view</small></span></li>'+
     '<li><i class="sample s-dep" style="background:var(--muted); opacity:.6"></i><span>Comes after (faint arrow)</span></li>'+
     '<li><i class="sample s-tick"></i><span>Weekly meeting</span></li>'+
     '<li><i class="swatch" style="--c:var(--l-mobile)"></i><span>Work in progress</span></li>'+
