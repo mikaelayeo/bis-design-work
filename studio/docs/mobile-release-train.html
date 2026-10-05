@@ -441,10 +441,6 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
 <header class="top">
   <div class="topbar"><span class="eyebrow">Mobile app · release cadence · proposal v1</span><button class="btn theme-btn" type="button" data-theme-toggle></button></div>
   <h1>Mobile Release Train</h1>
-  <div class="status">
-    <span class="pill"><span class="dot"></span><span><b>Planning &amp; design</b> on the new cadence from Oct 5</span></span>
-    <span class="pill"><span class="dot amber"></span><span><b>Dev &amp; QA</b> start in November: first code freeze Nov 13, first release Nov 27</span></span>
-  </div>
 </header>
 
 <nav class="tabs" role="tablist" aria-label="Sections" id="tabs">
@@ -556,7 +552,7 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
   </div>
 
   <div class="tl-frame">
-    <div class="notice" id="transition-note" hidden><span aria-hidden="true">⚑</span><span><b>October is a transition month.</b> Planning and design follow the new cadence now. Striped bars and struck-through key dates belong to the September sprint (v2.16) and earlier, which still run the current process. There is no official code freeze on Oct 16.</span></div>
+    <div class="notice" id="transition-note" hidden><span aria-hidden="true">⚑</span><span><b>October is the trial month.</b> Everyone starts on the new cadence now, loosely, to find the bottlenecks. Striped bars and struck-through key dates belong to the September sprint (v2.16) and earlier, which shipped the old way.</span></div>
     <div class="tl-tools">
       <div class="frow"><button class="btn" id="btn-prev" type="button" aria-label="Scroll to earlier dates">‹ Earlier</button><button class="btn" id="btn-next" type="button" aria-label="Scroll to later dates">Later ›</button><span class="range" id="tl-range" aria-live="polite"></span></div>
       <div class="frow"><button class="btn theme-btn" type="button" data-theme-toggle></button><button class="btn" id="btn-fs" type="button" aria-pressed="false"></button></div>
@@ -579,7 +575,7 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
       <div class="plan-copy">
         <span class="eyebrow">Our plan, realistically</span>
         <h2 id="pl-title">October to December, one discipline at a time</h2>
-        <p>Planning and design move to the new cadence now, in October. Dev and QA wrap up the September sprint (v2.16, in stores around Oct 8) the current way and switch in November.</p>
+        <p>Everyone starts on the new cadence in October, as a soft trial. The September sprint (v2.16, in stores around Oct 8) was the last one shipped the old way; development on the October sprint starts after sprint planning on Oct 14.</p>
         <p>That makes the <b>October sprint (v2.17, ships Nov 27) the first built and tested the new way</b>, and the <b>November sprint (v2.18, ships Dec 25) the first where every discipline runs the full cycle</b>. Dec 25 is Christmas Day, so that date still needs a decision.</p>
         <p>Expect v2.17 to be small. Three of its four cases depend on backend, and anything that isn't merged by the Nov 13 freeze moves to December. October is a soft trial: the goal is to find the bottlenecks, not to follow every date exactly.</p>
         <p><b>Sprint planning is next week, Wednesday Oct 14</b>, so backend has room for the API work first.</p>
@@ -719,7 +715,7 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
         <h3>Decided</h3>
         <ul class="dl">
           <li>Code freeze is on Friday of week 2, so the India team can finish the week. QA starts testing on Monday.</li>
-          <li>Planning and design switch to the new cadence in October. Dev and QA start officially in November: first code freeze Fri Nov 13, first release Fri Nov 27.</li>
+          <li>Everyone starts on the new cadence in October, as a soft trial. Development and QA on the October sprint (v2.17) start after sprint planning on Oct 14; its code freeze is Fri Nov 13 and it ships Fri Nov 27.</li>
           <li>Backend splits into small and big cases. Big cases run two sprints, and their designs move with them.</li>
           <li>Reviews run about three working days, Friday of week 1 to Tuesday of week 2: technical review always, backend and QA design reviews when the case needs them. All feed back into design fixes.</li>
           <li>Design QA review runs Mon–Wed of week 3 on the code-freeze build.</li>
@@ -1453,7 +1449,7 @@ function openPop(it, m, btn){
   const k = sprintOf(it, m), lane = LANES.find(l => l.id===it.lane);
   const who = it.who.map(w => ROLES[w].name+" ("+ROLES[w].people.split(",")[0]+")").join(", ");
   let flags = "";
-  if(isOld(k)) flags += '<p class="flag">Transition: this belongs to a release on the current process ('+esc(sprintName(k))+'). The new cadence for dev and QA starts in November.</p>';
+  if(isOld(k)) flags += '<p class="flag">Before the switch: this belongs to a release that shipped the old way ('+esc(sprintName(k))+').</p>';
   if(isDated()){ const hol = holidayIn(cM()+m, it.s, it.e); if(hol) flags += '<p class="flag"><b class="warn">Holiday:</b> '+esc(hol)+' falls in this window. Plan around it.</p>'; }
   pop.innerHTML =
     '<button class="pop-x" type="button" aria-label="Close details">×</button>'+
@@ -1654,8 +1650,8 @@ function renderBoard(){
 
 /* ---------- plan tab: month boxes + release tracks (always real dates) ---------- */
 const MONTH_NOTES = {
-  "0": {stage:"Planning & design switch", note:"Planning and design run the new cadence. They work on the October sprint (v2.17), which is next sprint for dev. Dev and QA wrap up the September sprint the current way.", old:"Dev and QA: the September sprint (v2.16) goes to stores around Oct 8 on the current process. No official code freeze on Oct 16."},
-  "1": {stage:"Dev & QA switch", note:"Everyone is on the new cadence. QA tests the October sprint (v2.17) while the November sprint (v2.18) is planned and built.", old:"Wrapping up the September sprint: smoke tests on the live v2.16 build."},
+  "0": {stage:"Trial month", note:"Everyone starts on the new cadence, loosely. Sprint planning for the October sprint (v2.17) is Oct 14; development and QA test planning start right after.", old:"The September sprint (v2.16) goes to stores around Oct 8; it was the last one shipped the old way."},
+  "1": {stage:"First freeze and release", note:"First code freeze (Nov 13) and first release (Nov 27) on the cadence. QA tests the October sprint (v2.17) while the November sprint (v2.18) is planned and built.", old:"Smoke tests on the live v2.16 build."},
   "2": {stage:"First full cycle", note:"Every discipline runs the full cycle. QA tests the November sprint (v2.18), whose store date lands on Christmas Day and needs a decision.", old:""}
 };
 function instanceDate(it, c, useStart){ return cycleDate(c, useStart ? it.s : it.e); }
