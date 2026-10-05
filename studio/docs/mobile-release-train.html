@@ -277,6 +277,7 @@ header.top{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); g
 /* ---------- tabs ---------- */
 .tabs{position:sticky; top:env(safe-area-inset-top, 0px); z-index:30; background:var(--bg); display:flex; gap:2px; overflow-x:auto; border-bottom:1px solid var(--line-strong); scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
+.tabs.stuck{box-shadow:0 8px 16px -10px rgb(0 0 0 / .25); margin-inline:calc(-1 * clamp(16px,3vw,32px)); padding-inline:clamp(16px,3vw,32px)}
 .tab{flex:none; border:none; background:none; padding:12px 14px 10px; font:600 14px/1.2 var(--sans); color:var(--muted); border-bottom:3px solid transparent; margin-bottom:-1px; cursor:pointer; white-space:nowrap}
 .tab:hover{color:var(--fg)}
 .tab[aria-selected="true"]{color:var(--fg); border-bottom-color:var(--fg)}
@@ -358,6 +359,13 @@ html.fs-open #p-timeline{max-width:none}
 .fs .sec-head{order:0} .fs .filters{order:1} .fs .tl-frame{order:3}
 .map.fs{gap:8px}
 .fs .filters{gap:8px 22px; padding:10px 12px}
+.fs-only{display:none!important}
+.fs .fs-only{display:flex!important}
+.fs .filterbar{order:1; align-items:center; gap:12px; flex-wrap:wrap}
+.fs .filters.collapsed{display:none}
+.filter-sum{font:500 12.5px var(--mono); color:var(--muted)}
+#btn-filters svg{width:14px; height:14px; transition:transform .15s}
+#btn-filters[aria-expanded="false"] svg{transform:rotate(-90deg)}
 .fs .fgroup{gap:4px}
 .fs .fgroup.wide{flex-basis:auto}
 .fs .chip{padding:4px 9px; font-size:12px}
@@ -536,6 +544,7 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
     <p class="muted">Each lane is a discipline. Each marker shows which sprint the work belongs to; hover it to see which. Use the eye on a lane to hide it, and the arrow to collapse it to key dates.</p>
   </div>
 
+  <div class="filterbar fs-only"><button class="btn" id="btn-filters" type="button" aria-expanded="true" aria-controls="filters"></button><span class="filter-sum" id="filter-sum" hidden></span></div>
   <div class="filters" id="filters">
     <div class="fgroup"><span class="eyebrow" id="lbl-dates">Dates</span><div class="seg" role="group" aria-labelledby="lbl-dates" id="ctl-dtype"></div></div>
     <div class="fgroup"><span class="eyebrow" id="lbl-zoom">Date view</span><div class="seg" role="group" aria-labelledby="lbl-zoom" id="ctl-zoom"></div></div>
@@ -666,6 +675,7 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
       <li><b>Merge continuously.</b><span class="muted">Only complete cases merge: code review approved, tested on a real iOS and Android device, /qa-notes attached. Late merges pile bugs into week 3.</span></li>
       <li><b>Dev work order.</b><span class="muted">Release bug fixes first, then committed cases, then stretch cases in rank order, then tech debt and tooling.</span></li>
       <li><b>Ship on the date.</b><span class="muted">Small known bugs don't delay a release. It goes out on Friday of week 4, with an OTA fix the same day or the day after if needed.</span></li>
+      <li><b>Urgent? Use OTA.</b><span class="muted">Anything important that needs to reach users right away, such as a critical fix, goes out through our OTA process instead of waiting for the next release or breaking the cycle. OTA covers JavaScript changes only; native changes still need a store release.</span></li>
       <li><b>Release isn't live.</b><span class="muted">Store submission is Friday of week 4. Store review takes about 1–3 days, so users get it early the following week.</span></li>
       <li><b>Design QA replaces per-case checks.</b><span class="muted">With per-case QA gone, Mika reviews the code-freeze build Mon–Wed of week 3, before case cutoff. UI bugs go to daily bug triage.</span></li>
       <li><b>Scope of this cadence.</b><span class="muted">New features and feature improvements. Bug cases and small optimisations can still go into the release package before the final week.</span></li>
@@ -1070,6 +1080,7 @@ function renderControls(){
   $("transition-note").hidden = !isDated();
   $("tl-title").textContent = isDated() ? "October to December, every discipline" : "Three cycles, every discipline";
   renderLegend();
+  if($("btn-filters")) paintFilters();
 }
 function resetSprint(){ if(state.sprint!=="all" && !sprintRange().includes(state.sprint)) state.sprint = "all"; }
 
@@ -1511,6 +1522,29 @@ document.addEventListener("keydown", ev => {
   if($("map").classList.contains("fs")) setFs(false);
 });
 
+/* full screen: the filter panel can be folded away, leaving a one-line summary */
+let filtersOpen = true;
+try{ filtersOpen = localStorage.getItem("mrt-filters") !== "0"; }catch(e){}
+function filterSummary(){
+  const role = state.role==="all" ? "Everyone" : (GROUPS[state.role] ? GROUPS[state.role].name : ROLES[state.role].name);
+  const shown = TYPES.filter(([v]) => state.types.has(v)).map(([,l]) => l).join(", ");
+  return [state.dateType==="real" ? "Real dates" : "Template", ZOOM[state.zoom].label, "Colour: "+(state.color==="lane" ? "Discipline" : "Sprint"),
+          role, state.sprint==="all" ? "All sprints" : sprintName(state.sprint), "Dependencies "+(state.deps ? "on" : "off"), shown].join(" · ");
+}
+function paintFilters(){
+  const b = $("btn-filters"), f = $("filters");
+  f.classList.toggle("collapsed", !filtersOpen);
+  b.setAttribute("aria-expanded", filtersOpen ? "true" : "false");
+  b.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>'+(filtersOpen ? "Hide filters" : "Show filters")+'</span>';
+  $("filter-sum").hidden = filtersOpen;
+  $("filter-sum").textContent = filterSummary();
+}
+$("btn-filters").addEventListener("click", () => {
+  filtersOpen = !filtersOpen;
+  try{ localStorage.setItem("mrt-filters", filtersOpen ? "1" : "0"); }catch(e){}
+  paintFilters();
+  if($("map").classList.contains("fs")) requestAnimationFrame(renderTimeline);   /* give the freed space to the rows */
+});
 /* ---------- light / dark ---------- */
 const THEME_ICON = {
   dark:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 9.8A5.8 5.8 0 0 1 6.2 2.5a5.8 5.8 0 1 0 7.3 7.3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
@@ -1684,6 +1718,9 @@ function renderWho(){
 }
 
 /* ---------- tabs ---------- */
+/* sticky tabs: a soft shadow once they're pinned, and switching tabs mid-page brings the new content to the top */
+function markStuck(){ const t = $("tabs"); t.classList.toggle("stuck", t.getBoundingClientRect().top <= 1 && window.scrollY > 0); }
+window.addEventListener("scroll", () => requestAnimationFrame(markStuck), {passive:true});
 const TABS = ["overview","timeline","plan","roles","rules","status"];
 let currentTab = "overview";
 function showTab(id, opts){
@@ -1701,7 +1738,8 @@ function showTab(id, opts){
   closePop(false); tip.hidden = true;
   if(id==="timeline") renderTimeline();
   if(opts.focus) $("t-"+id).focus();
-  if(opts.scroll) $("tabs").scrollIntoView({block:"start"});
+  const tabsTop = $("tabs").getBoundingClientRect().top + window.scrollY;
+  if(opts.scroll || window.scrollY > tabsTop) window.scrollTo({top: tabsTop, behavior: "auto"});
 }
 $("tabs").addEventListener("click", ev => { const b = ev.target.closest(".tab"); if(b) showTab(b.dataset.tab); });
 $("tabs").addEventListener("keydown", ev => {
