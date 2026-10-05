@@ -189,7 +189,7 @@ header.top{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); g
 .km.mini > span:first-child{display:none}
 .km.old{opacity:.45; text-decoration:line-through}
 .km:hover:not(.dim){filter:brightness(1.12)}
-/* key-date weights: critical (code freeze) > major (release) > heavy (case ready, sprint planning, planning freeze) > medium > light */
+/* key-date weights: critical (code freeze) > major (release) > heavy (sprint planning, planning freeze) > medium > light */
 .km.w-critical{height:min(38px, calc(var(--row-h, 54px) - 4px)); padding:0 14px 0 15px; background:var(--major); color:var(--major-fg); font-size:14.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; box-shadow:0 0 0 3px color-mix(in oklab, var(--major) 28%, transparent), 0 3px 10px color-mix(in oklab, var(--major) 40%, transparent)}
 .km.w-major{height:min(34px, calc(var(--row-h, 54px) - 6px)); padding:0 12px 0 13px; background:var(--major); color:var(--major-fg); font-size:13.5px; font-weight:700; box-shadow:0 2px 8px color-mix(in oklab, var(--major) 40%, transparent)}
 .km.w-critical .g,.km.w-major .g{filter:drop-shadow(0 0 1.5px rgb(255 255 255 / .9))}
@@ -490,8 +490,7 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
       </ul></div>
       <div class="wk"><span class="eyebrow">Week 2</span><h3>Ready, plan, freeze</h3><ul>
         <li style="--c:var(--l-mobile)"><i></i><div><b>Reviews: technical, backend, QA</b><span>Fri wk 1 → Tue, due Tue</span></div></li>
-        <li class="key" style="--c:var(--l-planning)"><i></i><div><b>Case ready</b><span>Wed weekly meeting, scope locked</span></div></li>
-        <li class="key" style="--c:var(--l-planning)"><i></i><div><b>Sprint planning</b><span>Thu, final check, 1 hour max</span></div></li>
+        <li class="key" style="--c:var(--l-planning)"><i></i><div><b>Sprint planning (case ready)</b><span>Wed weekly meeting: check, rank, lock scope</span></div></li>
         <li class="key" style="--c:var(--l-mobile)"><i></i><div><b>Code freeze</b><span>Fri</span></div></li>
       </ul></div>
       <div class="wk"><span class="eyebrow">Week 3</span><h3>Test and decide</h3><ul>
@@ -502,7 +501,8 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
       </ul></div>
       <div class="wk"><span class="eyebrow">Week 4</span><h3>Fix and ship</h3><ul>
         <li class="key" style="--c:var(--l-planning)"><i></i><div><b>Release check-in</b><span>Wed weekly meeting</span></div></li>
-        <li class="key" style="--c:var(--l-mobile)"><i></i><div><b>Fix cutoff</b><span>Wed</span></div></li>
+        <li class="key" style="--c:var(--l-mobile)"><i></i><div><b>Fix cutoff</b><span>Wed, release branch closes</span></div></li>
+        <li class="key" style="--c:var(--l-qa)"><i></i><div><b>QA sign-off</b><span>Fri, after 2 days of regression</span></div></li>
         <li class="key" style="--c:var(--l-mobile)"><i></i><div><b>Release to stores</b><span>Fri, on time</span></div></li>
         <li class="key" style="--c:var(--l-backend)"><i></i><div><b>Backend cutoff</b><span>Fri, on staging or it moves</span></div></li>
       </ul></div>
@@ -525,7 +525,7 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
     </div>
     <ul class="expect">
       <li><span><b>Early releases may be small.</b> Most current cases need backend work, and cases with new endpoints take two sprints. A light release while the pipeline fills is expected.</span></li>
-      <li><span><b>Missing a deadline means the next train, not a failure.</b> A case that isn't ready at the readiness check, or isn't merged by the freeze, moves to the next release.</span></li>
+      <li><span><b>Missing a deadline means the next train, not a failure.</b> A case that isn't ready at sprint planning, or isn't merged by the freeze, moves to the next release.</span></li>
       <li><span><b>Week 3 will be bug-heavy.</b> QA no longer tests case by case, so every case's bugs show up together after the freeze. Daily triage keeps it manageable.</span></li>
       <li><span><b>We'll measure and adjust.</b> Each retro looks at bugs found at the freeze, reverts and late cases, on-time store submission, bugs that escaped to production, and cases carried over.</span></li>
       <li><span><b>Design will be about one sprint ahead, not two.</b> While October's cases wait on backend, the pipeline fills one sprint at a time.</span></li>
@@ -581,7 +581,8 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
         <h2 id="pl-title">October to December, one discipline at a time</h2>
         <p>Planning and design move to the new cadence now, in October. Dev and QA wrap up the September sprint (v2.16, in stores around Oct 8) the current way and switch in November.</p>
         <p>That makes the <b>October sprint (v2.17, ships Nov 27) the first built and tested the new way</b>, and the <b>November sprint (v2.18, ships Dec 25) the first where every discipline runs the full cycle</b>. Dec 25 is Christmas Day, so that date still needs a decision.</p>
-        <p>Expect v2.17 to be small. Three of its four cases depend on backend, and anything that isn't merged by the Nov 13 freeze moves to December.</p>
+        <p>Expect v2.17 to be small. Three of its four cases depend on backend, and anything that isn't merged by the Nov 13 freeze moves to December. October is a soft trial: the goal is to find the bottlenecks, not to follow every date exactly.</p>
+        <p><b>Sprint planning is next week, Wednesday Oct 14</b>, so backend has room for the API work first.</p>
       </div>
       <div class="board" aria-labelledby="board-title">
         <div class="board-h"><span class="eyebrow" id="board-title">Coming up</span><span class="muted" style="font:500 12px var(--mono)" id="board-today"></span></div>
@@ -633,7 +634,7 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
     <div class="panel-head">
       <span class="eyebrow">The gate</span>
       <h2 id="dor-title">When is a case ready for sprint planning?</h2>
-      <p class="muted">Checked at the week 2 weekly meeting. Only ready cases are pulled at sprint planning. If planning runs over an hour, the cases weren't ready and go back to refinement.</p>
+      <p class="muted">Checked at sprint planning, the week 2 weekly meeting (Wednesday). Only ready cases go in. If it runs over an hour, the cases weren't ready and go back to refinement.</p>
     </div>
     <div class="cols2">
       <div class="card">
@@ -672,9 +673,11 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
       <li><b>Late cases are the exception.</b><span class="muted">A late case gets in only if there is a real reason it can't wait, it is very low risk, and both the mobile lead and the QA lead approve it, by case cutoff.</span></li>
       <li><b>Backend has a cutoff too.</b><span class="muted">Small cases (new data on existing endpoints) start at the code freeze and must be on staging by release day, the backend cutoff. Big cases (new endpoints) move to the next sprint with their design and hit the same cutoff each sprint until ready. The mobile freeze doesn't apply to backend.</span></li>
       <li><b>Plan two weeks, add stretch.</b><span class="muted">Plan about 2 weeks of dev work per sprint (about 2½ realistically, since weeks 3–4 are shared with release bugs), plus 2–3 ranked stretch cases that meet the same checklist. Unused stretch cases go to the top of the next planning.</span></li>
+      <li><b>Rank the sprint.</b><span class="muted">At sprint planning, cases are ranked. Must-ship cases are built first, backend is told the priority and the deadline, and QA tests them first, so the most important work makes the release.</span></li>
+      <li><b>Plan around time off.</b><span class="muted">Known vacations and holidays come off the committed capacity at sprint planning, with stretch cases to fill any gap.</span></li>
       <li><b>Merge continuously.</b><span class="muted">Only complete cases merge: code review approved, tested on a real iOS and Android device, /qa-notes attached. Late merges pile bugs into week 3.</span></li>
       <li><b>Dev work order.</b><span class="muted">Release bug fixes first, then committed cases, then stretch cases in rank order, then tech debt and tooling.</span></li>
-      <li><b>Ship on the date.</b><span class="muted">Small known bugs don't delay a release. It goes out on Friday of week 4, with an OTA fix the same day or the day after if needed.</span></li>
+      <li><b>Ship on the date.</b><span class="muted">The release date is the goal. Small known bugs don't delay a release: it goes out on Friday of week 4, with an OTA fix the same day or the day after if needed. What to do with a known critical bug found late is still open (see Decisions).</span></li>
       <li><b>Urgent? Use OTA.</b><span class="muted">Anything important that needs to reach users right away, such as a critical fix, goes out through our OTA process instead of waiting for the next release or breaking the cycle. OTA covers JavaScript changes only; native changes still need a store release.</span></li>
       <li><b>Release isn't live.</b><span class="muted">Store submission is Friday of week 4. Store review takes about 1–3 days, so users get it early the following week.</span></li>
       <li><b>Design QA replaces per-case checks.</b><span class="muted">With per-case QA gone, Mika reviews the code-freeze build Mon–Wed of week 3, before case cutoff. UI bugs go to daily bug triage.</span></li>
@@ -693,8 +696,7 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
         <thead><tr><th>Meeting</th><th>When</th><th>Length</th><th>Purpose</th></tr></thead>
         <tbody>
           <tr><td>Week 1 weekly</td><td>Wednesday, week 1</td><td>~60 min</td><td>Grooming for the next sprint and preparing cases, plus a check-in on this sprint's designs heading to design final. Design flags which cases fit its capacity.</td></tr>
-          <tr><td>Week 2 weekly: Case ready</td><td>Wednesday, week 2</td><td>~60 min</td><td>Readiness check for this sprint's cases; scope is locked here. Then a bit of grooming.</td></tr>
-          <tr><td>Sprint planning</td><td>Thursday, week 2</td><td>1 hour max</td><td>Final readiness check with QA: review, remove anything not ready, confirm capacity. The day before the code freeze.</td></tr>
+          <tr><td>Week 2 weekly: Sprint planning</td><td>Wednesday, week 2</td><td>~60 min</td><td>Case ready and sprint planning in one: check each case against the definition of ready, rank them, confirm capacity (minus planned time off), lock scope. QA attends.</td></tr>
           <tr><td>Week 3 weekly: Planning freeze</td><td>Wednesday, week 3</td><td>~60 min</td><td>Final grooming for the next sprint, then lock it. Design confirms capacity.</td></tr>
           <tr><td>Week 4 weekly: Release check-in</td><td>Wednesday, week 4</td><td>~60 min</td><td>Review what is actually going out in Friday's release and what's being pushed, then groom the sprint after next.</td></tr>
           <tr><td>Bug triage</td><td>Daily in week 3 (week 4 if needed)</td><td>10–15 min</td><td>QA lead and mobile lead decide per bug: fix now, OTA later, or next release.</td></tr>
@@ -722,12 +724,18 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
           <li>Reviews run about three working days, Friday of week 1 to Tuesday of week 2: technical review always, backend and QA design reviews when the case needs them. All feed back into design fixes.</li>
           <li>Design QA review runs Mon–Wed of week 3 on the code-freeze build.</li>
           <li>A planning freeze in week 3 locks the design list for the next sprint.</li>
-          <li>Sprints are named by the month they are planned and built, plus the app version: the October sprint is v2.17 and ships Nov 27. "This month's sprint" is the one planned in this month's week 2.</li>
+          <li>Sprints are named by the month they are planned and built, plus the app version: the October sprint is v2.17 and ships Nov 27. The "current sprint" uses dev and QA's meaning: the sprint in development or testing that ships at the end of this month. Planning and design work on the next sprint.</li>
           <li>Case cutoff (end of week 3) is for reverting or removing cases with blocking bugs, and the deadline to approve late cases (real reason, very low risk, mobile lead and QA lead approval).</li>
           <li>Backend cutoff is release day (end of week 4). Small backend work starts at the code freeze and must be on staging by then, so mobile gets weeks 1–2 of the next month full time. Big cases hit the same cutoff each sprint; not ready means they move one more sprint.</li>
           <li>No dev builds in the new process. QA gets the release package at the code freeze; in weeks 1–2 the only other builds are OTA fixes, which QA tests before they go out.</li>
           <li>Releases go out on the date. Small known bugs ship with an OTA fix the same day or the day after, instead of delaying the release.</li>
-          <li>Meetings: the four weekly meetings each have a purpose (grooming and design check-in, case ready, planning freeze, release check-in). QA joins sprint planning.</li>
+          <li>Sprint planning moves to Wednesday of week 2 and is the same meeting as case ready. Cases are ranked there, planned time off comes off capacity, and QA attends.</li>
+          <li>Code freeze hands one pre-production build to India QA and BIS Testing together; they test in parallel for two weeks. Testers use Claude and the PRs to trace bugs to cases.</li>
+          <li>Test plans are written by each tester when a case moves to Ready for development (Udayan is moving the trigger). Automation for the sprint's cases is written in weeks 3–4.</li>
+          <li>Fix cutoff closes the release branch only. Thursday and Friday are regression on that stable build, and QA signs off at the end of Friday.</li>
+          <li>At case cutoff, cases with bugs too big to fix in time are reverted or switched off with a feature flag.</li>
+          <li>October is a soft trial to find the bottlenecks. The first sprint planning is Wednesday Oct 14.</li>
+          <li>Meetings: the four weekly meetings each have a purpose (grooming and design check-in, sprint planning, planning freeze, release check-in). Case ready and sprint planning are one meeting on Wednesday of week 2, and QA attends.</li>
           <li>Capacity: plan about 2 weeks of dev work per sprint (about 2½ realistically) plus stretch cases.</li>
         </ul>
       </div>
@@ -736,10 +744,12 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
         <ul class="dl open">
           <li><span><b>Design capacity per cycle.</b> Mika to propose a number for the planning freeze.</span></li>
           <li><span><b>QA's part in planning.</b> Assumed from standard sprint practice: an optional QA design review for edge cases, test planning from the Monday after sprint planning through to the freeze, and a QA sign-off after fix cutoff. Confirm these and the weeks 1–2 plan with Preeti.</span></li>
-          <li><span><b>December.</b> Store submission falls on Fri Dec 25 and the next cycle would start Dec 28. Pick holiday dates.</span></li>
+          <li><span><b>December.</b> Store submission falls on Fri Dec 25. Options raised: extend that sprint by a week, release the day before, or skip that release and use the time on a big case.</span></li>
           <li><span><b>Cycles vs months.</b> Four-week cycles give 13 releases a year, so cycles drift off calendar months. Choose fixed four weeks or month-anchored.</span></li>
           <li><span><b>Backend visibility.</b> Aymeric added a backend-dependency field to the PM board. Next: auto-notify Deepak when a case needs backend, and confirm when bisapi changes deploy relative to the app release.</span></li>
           <li><span><b>Weekly meeting day.</b> This page assumes Wednesday.</span></li>
+          <li><span><b>Critical bugs found late.</b> Do we ever delay a release for a known critical bug, and by how long? Udayan doesn't want to ship one (crashes, data loss, forms or action rules broken). Preeti: ideally not, and the release could slip 1–2 days, decided at QA sign-off. Aymeric: keep the date, revert or flag at case cutoff, OTA after. Also open: what counts as critical.</span></li>
+          <li><span><b>Sprint roadmap.</b> A numbered sprint roadmap, so everyone can say which sprint they're on, was suggested for later.</span></li>
           <li><span><b>Version numbers.</b> v2.17 onward are assumed to follow v2.16 one per sprint. Confirm with dev, including the patch number (2.16.1).</span></li>
         </ul>
       </div>
@@ -756,14 +766,14 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
       <details><summary>Release package</summary><p>The build cut at code freeze. QA tests it in weeks 3–4 and devs push fixes into it until fix cutoff.</p></details>
       <details><summary>Case cutoff</summary><p>End of week 3. Cases with a blocking bug, or that won't be fixed in time, are reverted or removed. It's also the deadline to approve a late case: there must be a real reason it can't wait, it must be very low risk, and both the mobile lead and the QA lead must approve it.</p></details>
       <details><summary>Late case</summary><p>A case that missed the code freeze but is let into the release. Allowed only with a real reason it can't wait, very low risk, and approval from the mobile lead and the QA lead before case cutoff.</p></details>
-      <details><summary>Fix cutoff</summary><p>Mid-week 4. The last fix goes into the release package, then final checks and store submission.</p></details>
+      <details><summary>Fix cutoff</summary><p>Wednesday of week 4. The last fix goes into the release branch, so Thursday and Friday can run regression on a stable build. Fixing continues on the development branch or as OTA fixes.</p></details>
       <details><summary>Planning freeze</summary><p>Week 3 weekly meeting. The list of cases design will work on for the next sprint is locked. Later additions wait a cycle.</p></details>
       <details><summary>OTA</summary><p>Over-the-air update. A JavaScript-only fix pushed to installed apps without a store release.</p></details>
       <details><summary>Smoke test</summary><p>A quick pass over the main flows of a build to confirm nothing major is broken. Maestro automation targets these first.</p></details>
       <details><summary>Stretch case</summary><p>A ready, ranked case beyond the committed scope. Picked up only if committed work is done or blocked.</p></details>
       <details><summary>bisapi</summary><p>The BIS backend API the app talks to. Cases flag whether they need a bisapi change and whether it's small or big.</p></details>
       <details><summary>Sprint names</summary><p>A sprint is named by the month it is planned and built, plus its app version: the October sprint (v2.17) is designed by early October, built from mid-October, tested in November and ships Nov 27. Each discipline touches it in a different month, so QA tests the October sprint in November.</p></details>
-      <details><summary>This month's sprint</summary><p>The sprint planned in this month's week 2 and built from week 3. It's the team's shared reference point. Your own focus may be a different sprint: design is already on next month's, and QA is testing last month's.</p></details>
+      <details><summary>Current sprint</summary><p>The sprint in development or testing that hasn't been released yet; it ships at the end of this month. We use dev and QA's terms: planning, design and the reviews are always working on the next sprint, or the one after.</p></details>
       <details><summary>Template dates</summary><p>Month 1, 2 and 3 are any three consecutive cycles. Sprints are numbered v1–v6; v3 is the sprint planned in Month 1.</p></details>
       <details><summary>Swimlane timeline</summary><p>The chart type on the Timeline tab: a Gantt-style timeline split into lanes per discipline, with milestones as markers. It's also called a swimlane Gantt chart.</p></details>
       <details><summary>Staggered sprints</summary><p>The pattern this cadence follows. Design works one sprint ahead of dev, and QA tests the sprint behind it, so several sprints are in flight at once. Also called dual-track or pipelined sprints.</p></details>
@@ -793,8 +803,8 @@ const GROUPS = {
 };
 const ROLE_NOTES = {
   product: "Runs the four weekly meetings, sprint planning and the retro, and has the final say on what goes in. Grooming is ongoing work between meetings. Chases backend from the reviews to the backend cutoff.",
-  design:  "Gatekeeper at the readiness check: designs final and attached. Big-backend cases are designed a cycle ahead of when they ship.",
-  mobile:  "Gatekeeper at the readiness check: technical review done. The mobile lead co-approves any late case at case cutoff.",
+  design:  "Gatekeeper at sprint planning: designs final and attached. Big-backend cases are designed a cycle ahead of when they ship.",
+  mobile:  "Gatekeeper at sprint planning: technical review done. The mobile lead co-approves any late case at case cutoff.",
   backend: "Not in the planning group, but the most common blocker. Small work starts at the code freeze and must be on staging by the backend cutoff (release day). A PM-board field now tracks backend dependency.",
   qa:      "Everything is tested together at the freeze. The QA lead co-approves any late case at case cutoff. The design review, test planning and sign-off steps are assumed from standard practice; confirm with Preeti."
 };
@@ -805,12 +815,12 @@ const LANES = [
   {id:"backend",  name:"Backend",            people:"API team"},
   {id:"qa",       name:"QA",                 people:"Preeti's team, BIS Testing"}
 ];
-const SRC = {doc:"Cadence doc", map:"Mika's map", oct2:"Decided Oct 2", devqa:"Dev & QA clarification", assumed:"Assumed, confirm with Preeti", mika:"Mika's feedback"};
+const SRC = {doc:"Cadence doc", map:"Mika's map", oct2:"Decided Oct 2", devqa:"Dev & QA clarification", assumed:"Assumed, confirm with Preeti", mika:"Mika's feedback", oct5:"Team review Oct 5"};
 /* key-date weight, heaviest first. Code freeze is the one date everything else hangs on. */
 const WEIGHT = {
   "m-freeze":"critical",
   "m-release":"major",
-  "p-ready":"heavy", "x-plan":"heavy", "p-freeze":"heavy",
+  "x-plan":"heavy", "p-freeze":"heavy",
   "m-live":"medium", "q-cut":"medium", "m-fixcut":"medium", "q-signoff":"medium", "b-cut":"medium",
   "d-final":"light", "r-tech":"light", "r-be":"light", "r-qa":"light", "x-retro":"light"
 };
@@ -824,13 +834,13 @@ const DEPS = [
   ["p-groom2","p-groom"],["p-groom","p-freeze"],["p-freeze","d-next"],["d-next","d-work"],["d-work","d-final"],
   ["d-final","m-tr"],["d-final","b-review",0,true],["d-final","q-drev",0,true],["d-final","b-big",1],
   ["m-tr","r-tech"],["b-review","r-be",0,true],["q-drev","r-qa",0,true],["r-tech","d-fix"],["r-be","d-fix",0,true],["r-qa","d-fix",0,true],
-  ["d-fix","p-ready"],["r-be","b-small",0,true],
-  ["p-ready","x-plan"],["x-plan","m-next"],["x-plan","q-plan"],["x-plan","b-small",0,true],
+  ["d-fix","x-plan"],["r-be","b-small",0,true],
+  ["x-plan","m-next"],["x-plan","q-plan"],["x-plan","b-small",0,true],
   ["b-small","b-cut",0,true],["b-big","b-cut"],["b-cut","m-dev"],
   ["m-next","m-dev"],["m-dev","m-freeze"],["q-plan","q-plan2"],["q-plan2","m-freeze"],["q-plan2","q-test"],
-  ["m-freeze","q-test"],["m-freeze","d-qa"],["m-freeze","x-triage"],["m-freeze","m-fix"],
+  ["m-freeze","q-test"],["m-freeze","d-qa"],["m-freeze","x-triage"],["m-freeze","q-auto"],["m-freeze","m-fix"],
   ["x-triage","m-fix"],["q-test","q-cut"],["d-qa","q-cut"],["q-cut","m-fixcut"],["m-fix","m-fixcut"],
-  ["m-fixcut","q-signoff"],["q-test","q-signoff"],["q-signoff","m-release"],["m-release","m-live"],["m-live","q-smoke"],["m-live","x-retro"]
+  ["m-fixcut","q-regress"],["q-regress","q-signoff"],["q-test","q-regress"],["q-signoff","m-release"],["m-release","m-live"],["m-live","q-smoke"],["m-live","x-retro"]
 ];
 
 /* t = sprint relative to the month the item sits in: -2 last-last, -1 last, 0 current, +1 next. s/e = working day 0–19 (week 1 Mon … week 4 Fri). */
@@ -840,14 +850,13 @@ const T = [
   {id:"d-final", lane:"design", row:1, t:0,  s:4,  e:4,  ms:true, label:"Design final", who:["design"], src:"doc",
    desc:"Designs final and attached to the PM case. It starts the reviews: technical review by dev, and backend and QA design reviews when the case needs them. Depending on size, cases with big backend work move to the next sprint together with their backend."},
   {id:"d-fix",   lane:"design", row:0, t:0,  s:5,  e:7,  label:"Design fixes", who:["design"], src:"map",
-   desc:"Update designs from technical, backend and QA review feedback as it comes in. Must land before the readiness check on Wednesday. Small visual fixes after that are fine, since devs have four weeks to build."},
+   desc:"Update designs from technical, backend and QA review feedback as it comes in. Must land before sprint planning on Wednesday. Small visual fixes after that are fine, since devs have four weeks to build."},
   {id:"d-qa",    lane:"design", row:0, t:-1, s:10, e:12, label:"Design QA review", who:["design"], src:"map",
    desc:"Review the code-freeze build for design quality before case cutoff. Raise UI bugs at daily bug triage so they're sorted into fix now, OTA later, or next release."},
   {id:"d-next",  lane:"design", row:0, t:1,  s:13, e:19, label:"Design: next sprint", who:["design"], src:"map",
    desc:"Start designing the cases locked at the planning freeze. Starts Thursday of week 3 and runs to design final on Friday of week 1: about seven working days, plus fixes."},
 
-  {id:"p-ready", lane:"planning", row:0, t:0, s:7, e:7, ms:true, label:"Case ready", who:["product","design","mobile"], src:"doc",
-   desc:"Week 2 weekly meeting, and our planning cutoff: scope for this sprint is locked here. A case is ready only when all five checks pass; planning, design or dev can each mark a case not ready. Anything not ready waits for the next sprint. Some grooming of the next sprint continues after the check."},
+
   {id:"p-freeze",lane:"planning", row:0, t:1, s:12, e:12, ms:true, label:"Planning freeze", who:["product","design"], src:"map",
    desc:"Week 3 weekly meeting: the final grooming for the next sprint, then it's locked. The PM decides which tickets are meant for that sprint, and design confirms what fits its capacity (flagged at the week 1 check-in). Anything added later waits a cycle unless something of equal size comes out."},
   {id:"p-groom", lane:"planning", row:1, t:1, s:0, e:12, label:"Backlog grooming: next sprint", who:["product","design","mobile"], src:"doc",
@@ -862,19 +871,19 @@ const T = [
   {id:"m-tr",    lane:"mobile", row:1, t:0,  s:4,  e:6,  label:"Technical review", who:["mobile"], src:"oct2",
    desc:"A key review that runs three working days, Friday of week 1 to Tuesday of week 2. Dev reviews final designs: blocking questions answered, estimate, native or bisapi change flagged and sized. Feedback goes back to design fixes."},
   {id:"r-tech",  lane:"mobile", row:3, t:0,  s:6,  e:6,  ms:true, label:"Tech review due", who:["mobile"], src:"mika",
-   desc:"Dev's technical review feedback is due: blocking questions answered, estimate, native or bisapi change flagged and sized. Design fixes pick it up so cases pass Wednesday's readiness check."},
-  {id:"r-be",    lane:"backend", row:1, t:0, s:6, e:6, ms:true, optional:true, label:"Backend review due", who:["backend"], src:"mika",
-   desc:"Only for cases that touch the API. Backend's review feedback and sizing (small or big) are due, so design fixes and the API work can start."},
+   desc:"Dev's technical review feedback is due: blocking questions answered, estimate, native or bisapi change flagged and sized. Design fixes pick it up so cases pass Wednesday's sprint planning."},
+  {id:"r-be",    lane:"backend", row:1, t:0, s:6, e:6, ms:true, optional:true, label:"Backend review due", who:["backend"], src:"oct5",
+   desc:"Only for cases that touch the API. Backend gives its feedback and sizing, and commits before sprint planning: will this be on staging by the backend cutoff (end of week 4)? If not, the case moves to the next sprint."},
   {id:"r-qa",    lane:"qa", row:3, t:0, s:6, e:6, ms:true, optional:true, label:"QA review due", who:["qa"], src:"assumed",
-   desc:"Only for cases with tricky states or flows. QA's edge-case feedback on the designs is due, so design fixes can cover it before the readiness check. Assumed; confirm with Preeti."},
+   desc:"Only for cases with tricky states or flows. QA's edge-case feedback on the designs is due, so design fixes can cover it before sprint planning. Assumed; confirm with Preeti."},
   {id:"m-next",  lane:"mobile", row:1, t:0,  s:10, e:19, label:"Sprint development (half capacity)", who:["mobile"], src:"doc",
    desc:"Start the cases locked at sprint planning, on the development branch, in parallel with release bug fixes. Flexible: if the release is buggy, this gets little time. Plan about 2 weeks of dev work per sprint (about 2½ realistically) plus stretch cases."},
   {id:"m-live",  lane:"mobile", row:2, t:-2, s:1,  e:1,  ms:true, label:"In stores", who:["mobile"], src:"doc",
    desc:"Last month's release is live in the App Store and Google Play after 1–3 days of store review."},
-  {id:"m-freeze",lane:"mobile", row:2, t:-1, s:9,  e:9,  ms:true, label:"Code freeze", who:["mobile","qa"], src:"oct2",
-   desc:"The most important date in the cycle. Friday of week 2: the release package is cut, and anything not merged ships in the next release unless it's approved as a late case. This date doesn't move."},
-  {id:"m-fixcut",lane:"mobile", row:2, t:-1, s:17, e:17, ms:true, label:"Fix cutoff", who:["mobile","qa"], src:"doc",
-   desc:"Mid-week 4. The last fix goes into the release package."},
+  {id:"m-freeze",lane:"mobile", row:2, t:-1, s:9,  e:9,  ms:true, label:"Code freeze", who:["mobile","qa"], src:"oct5",
+   desc:"The most important date in the cycle. Friday of week 2: the release package is cut, and anything not merged ships in the next release unless it's approved as a late case. Udayan sends one pre-production build to India QA and BIS Testing together for the start of week 3. This date doesn't move."},
+  {id:"m-fixcut",lane:"mobile", row:2, t:-1, s:17, e:17, ms:true, label:"Fix cutoff", who:["mobile","qa"], src:"oct5",
+   desc:"Wednesday of week 4: the last fix goes into the release branch, so Thursday and Friday test a stable build. Fixing doesn't stop: later fixes go to the development branch or out as an OTA."},
   {id:"m-release",lane:"mobile",row:2, t:-1, s:19, e:19, ms:true, label:"Release", who:["mobile","qa"], src:"doc",
    desc:"Store submission at the end of week 4. Users get it after store review, early the following week. Moves only for a critical issue."},
 
@@ -887,30 +896,34 @@ const T = [
   {id:"b-cut",   lane:"backend", row:2, t:0, s:19, e:19, ms:true, label:"Backend cutoff", who:["backend","product"], src:"oct2",
    desc:"Release day, end of week 4. Backend for this sprint's cases must be on staging so mobile can build full time in weeks 1–2. Not ready means the case moves to the next sprint. Aymeric added a backend-dependency field to the PM board to track this."},
 
-  {id:"q-smoke", lane:"qa", row:0, t:-2, s:0,  e:9,  label:"Live build: smoke tests, OTA fixes, automation", who:["qa"], src:"doc",
-   desc:"Smoke-test the live store build and build automation (Maestro smoke tests on the main flows first). There are no dev builds in the new process, so the only other build QA gets in weeks 1–2 is an OTA fix: test it before it goes out."},
-  {id:"q-test",  lane:"qa", row:0, t:-1, s:10, e:17, label:"Release testing with BIS Testing", who:["qa"], src:"doc",
-   desc:"The first time QA gets the new build. Mobile QA and BIS Testing test the release package against the test cases, high-risk cases first: native changes, forms, auth, offline sync. Every case is tested together here, so expect a bug pile-up in week 3."},
+  {id:"q-smoke", lane:"qa", row:0, t:-2, s:0,  e:9,  label:"Regression, OTA fixes, carry-over testing", who:["qa"], src:"oct5",
+   desc:"After the release: smoke tests and regression builds on the live app, testing any OTA fixes, and more testing on features QA wasn't fully confident about (bugs still go to devs and get fixed during the sprint). There are no dev builds in the new process."},
+  {id:"q-test",  lane:"qa", row:0, t:-1, s:10, e:17, label:"Release testing (India QA + BIS Testing)", who:["qa"], src:"oct5",
+   desc:"Two weeks, everyone on the same build in parallel: no per-case builds and no separate BIS phase. High-priority and high-risk cases first. Testers use Claude and the PRs to work out which case caused a bug before raising it. iOS testing stays manual on real devices."},
+  {id:"q-auto",  lane:"qa", row:3, t:-1, s:10, e:19, label:"Automation for this sprint's cases", who:["qa"], src:"oct5",
+   desc:"Written in weeks 3–4 alongside manual testing, against the code-freeze build, and run after release. Next sprint's cases are already known, so scripts can be started early."},
   {id:"q-drev",  lane:"qa", row:3, t:0,  s:4,  e:6,  optional:true, label:"QA design review: edge cases", who:["qa"], src:"assumed",
    desc:"Optional, for cases with tricky states or flows. While dev runs technical review, QA reads the final designs and acceptance criteria for edge cases and testability. Feedback goes back to design fixes. Standard practice in most sprint teams; confirm with Preeti."},
-  {id:"q-plan",  lane:"qa", row:2, t:0,  s:10, e:19, label:"Test planning: write test cases", who:["qa"], src:"assumed",
-   desc:"Starts the Monday after sprint planning, once the scope is locked: QA writes test cases from the acceptance criteria. It runs alongside release testing for the previous sprint, so expect it to be light until week 1. Confirm with Preeti."},
+  {id:"q-plan",  lane:"qa", row:2, t:0,  s:10, e:19, label:"Test planning: write test plans", who:["qa"], src:"oct5",
+   desc:"When a case moves to Ready for development at sprint planning, each tester writes their own test plan with the Claude skill (no longer only Vishnu). Udayan is moving the trigger from Ready for QA to Ready for development. Runs alongside release testing for the previous sprint."},
   {id:"q-plan2", lane:"qa", row:2, t:-1, s:0,  e:8,  label:"Test planning: finish test cases", who:["qa"], src:"assumed",
    desc:"The same sprint's test cases, finished in weeks 1–2 while QA has more room, so they're ready when the code freeze hands over the release package. Confirm with Preeti."},
-  {id:"q-signoff",lane:"qa", row:1, t:-1, s:18, e:18, ms:true, label:"QA sign-off", who:["qa"], src:"assumed",
-   desc:"After fix cutoff, a final regression pass on the release package; the QA lead signs off before store submission. Standard go/no-go step; confirm with Preeti."},
+  {id:"q-signoff",lane:"qa", row:1, t:-1, s:19, e:19, ms:true, label:"QA sign-off", who:["qa"], src:"oct5",
+   desc:"End of Friday, so both the India and Canada Fridays count. The QA lead signs off on the release package and lists any open bugs, then it goes to the stores. A known critical bug is a team call here; see the open question on the Decisions tab."},
+  {id:"q-regress",lane:"qa", row:2, t:-1, s:18, e:19, label:"Final regression (release branch)", who:["qa"], src:"oct5",
+   desc:"Thursday and Friday after fix cutoff: regression on the stable release branch, which gets no more fixes, before sign-off."},
   {id:"q-cut",   lane:"qa", row:1, t:-1, s:14, e:14, ms:true, label:"Case cutoff", who:["qa","mobile"], src:"devqa",
-   desc:"End of week 3. Two jobs: revert or remove cases that have a blocking bug or won't be fixed in time, and the deadline to approve a late case. A late case needs a real reason it can't wait, very low risk, and approval from both the mobile lead and the QA lead."},
+   desc:"End of week 3. Mobile lead and QA lead review the bugs per case: anything too big to fix in time is reverted or switched off with a feature flag, so no major bugs are left in the release. It's also the deadline to approve a late case: a real reason it can't wait, very low risk, and approval from both leads."},
 
-  /* weekly meetings now live in the Product & planning lane; weeks 2 and 3 are the Case ready and Planning freeze key dates */
+  /* weekly meetings now live in the Product & planning lane; weeks 2 and 3 are the Sprint planning and Planning freeze key dates */
   {id:"x-w1", lane:"planning", row:0, t:null, s:2,  e:2,  ms:true, tick:true, meeting:true, label:"Grooming + design check-in", who:["product","design","mobile"], src:"mika",
    desc:"Week 1 weekly meeting. Backlog grooming for the next sprint: prepare cases and talk through what's coming. Also a check-in on this sprint's designs heading to design final, where design says which cases fit its capacity."},
   {id:"x-w4", lane:"planning", row:0, t:null, s:17, e:17, ms:true, tick:true, meeting:true, label:"Release check-in", who:["product","design","mobile"], src:"mika",
    desc:"Week 4 weekly meeting, just before release day. Review what is actually going out in this Friday's release and what's being pushed, then groom the sprint after next."},
   {id:"x-retro", lane:"planning", row:0, t:-2, s:4, e:4, ms:true, meeting:true, label:"Retro", who:["product","design","mobile","qa"], src:"doc",
    desc:"30–45 minutes on the release that just went live. Track bugs found at the freeze, reverts and late cases, on-time store submission, bugs that escaped to production, and cases carried over."},
-  {id:"x-plan",  lane:"planning", row:0, t:0,  s:8, e:8, ms:true, meeting:true, label:"Sprint planning", who:["product","design","mobile","qa"], src:"doc",
-   desc:"The final readiness check, with the planning group and QA (Preeti). Case ready is the real cutoff, so this is mostly review and removing: confirm capacity (plan about 2 weeks of dev work plus stretch cases) and lock scope. One hour maximum, the day before the code freeze. QA starts test planning from here."},
+  {id:"x-plan",  lane:"planning", row:0, t:0,  s:7, e:7, ms:true, meeting:true, label:"Sprint planning", who:["product","design","mobile","qa"], src:"oct5",
+   desc:"Week 2 weekly meeting, and our planning cutoff: case ready and sprint planning are the same meeting. Only cases that pass all five readiness checks go in; planning, design or dev can each mark a case not ready. Rank the cases so must-ship ones are built and tested first, confirm capacity (about 2 weeks of dev work, less any planned time off, plus stretch cases) and lock scope. QA attends and starts test planning from here."},
   {id:"x-triage",lane:"qa", row:1, t:-1, s:10, e:14, meeting:true, label:"Daily bug triage", who:["qa","mobile"], src:"doc",
    desc:"10–15 minutes a day, QA lead and mobile lead: fix now, OTA later, or next release. Continues into week 4 if needed."}
 ];
@@ -935,8 +948,10 @@ const SP_VAR = {"-2":"--sp-m2","-1":"--sp-m1","0":"--sp-0","1":"--sp-1","2":"--s
 /* template mode: v1–v6, where v3 is the sprint planned in Month 1 */
 const monthWord = n => n >= 1 ? "Month "+n : (n === 0 ? "the month before Month 1" : "2 months before Month 1");
 const GEN_NAME = k => "v"+(k+3);
-const GEN_SUB  = k => "planned in "+monthWord(k+1)+" · ships end of "+(k+2 >= 1 ? "Month "+(k+2) : "the month before Month 1");
-/* "this month's sprint": the one planned and built in the cycle that contains today (real dates) */
+const REL_WORD = {"-2":"Last sprint (live)", "-1":"Current sprint", "0":"Next sprint", "1":"Sprint after next", "2":"3 sprints out", "3":"4 sprints out", "4":"5 sprints out"};
+/* dev & QA's terms: the current sprint is the one in development or testing that ships at the end of Month 1 */
+const GEN_SUB  = k => REL_WORD[String(k)] + " · ships end of " + (k+2 >= 1 ? "Month "+(k+2) : "the month before Month 1");
+/* the cycle that contains today (real dates): its release is the current sprint, in dev and QA terms */
 function todayCycle(){
   const t = new Date(); t.setHours(0,0,0,0); let cur = 0;
   for(let c=0; c<=4; c++){ const s = cycleDate(c,0); if(s && t >= s) cur = c; }
@@ -985,7 +1000,7 @@ function sprintName(k){
 function sprintSub(k){
   if(!isDated()) return GEN_SUB(k);
   const ship = cM()+1+k, cy = CYCLES[String(ship)];
-  return (cy ? cy.ships : "") + (ship === todayCycle()+1 ? " · this month's sprint" : "");
+  return (cy ? cy.ships : "") + (ship === todayCycle() ? " · current sprint" : ship === todayCycle()+1 ? " · next sprint" : "");
 }
 const isOld = k => isDated() && k !== null && (cM()+1+k) <= 0;
 function glyphSvg(k){
@@ -1094,7 +1109,7 @@ function renderLegend(){
     '<li><i class="sample s-pill"></i><span>Key date<small>Right edge is the deadline day</small></span></li>'+
     '<li><i class="sample s-major" style="height:14px"></i><span>Critical: code freeze<small>The one date everything hangs on</small></span></li>'+
     '<li><i class="sample s-major"></i><span>Major: release</span></li>'+
-    '<li><i class="sample s-pill" style="height:13px"></i><span>Heavy: case ready, sprint planning, planning freeze</span></li>'+
+    '<li><i class="sample s-pill" style="height:13px"></i><span>Heavy: sprint planning, planning freeze</span></li>'+
     '<li><i class="sample s-pill" style="height:10px"></i><span>Medium: in stores, case cutoff, fix cutoff, QA sign-off, backend cutoff</span></li>'+
     '<li><i class="sample s-tick" style="border-style:solid; border-width:1.5px; border-color:var(--fg)"></i><span>Light: design final, review due dates, retro</span></li>'+
     '<li><span class="badge" style="padding:2px 3px; font-size:8px">Opt</span><span>Optional: only when the case needs it</span></li>'+
@@ -1576,7 +1591,7 @@ function renderOverlap(){
     const items = T.filter(it => it.t === k && !it.tick);
     const byLane = LANES.map(l => ({l, its: items.filter(it => it.lane === l.id)})).filter(x => x.its.length);
     const chips = byLane.map(x => '<span class="ov-chip" style="--c:var(--l-'+x.l.id+')"><b>'+esc(x.l.name)+'</b>'+esc(x.its.map(it => it.label).join(", "))+'</span>').join("");
-    return '<div class="ov-row"><div class="ov-sp"><span class="gw" data-tip="'+esc(GEN_NAME(k)+" · "+GEN_SUB(k))+'">'+glyphSvg(k)+'</span><div><b>'+esc(GEN_NAME(k))+'</b><small>'+esc(OV_STAGE[String(k)])+'</small></div></div><div class="ov-who">'+chips+'</div></div>';
+    return '<div class="ov-row"><div class="ov-sp"><span class="gw" data-tip="'+esc(GEN_NAME(k)+" · "+GEN_SUB(k))+'">'+glyphSvg(k)+'</span><div><b>'+esc(GEN_NAME(k))+'</b><small>'+esc(REL_WORD[String(k)]+': '+OV_STAGE[String(k)].charAt(0).toLowerCase()+OV_STAGE[String(k)].slice(1))+'</small></div></div><div class="ov-who">'+chips+'</div></div>';
   }).join("");
 }
 
@@ -1640,7 +1655,7 @@ function renderBoard(){
 
 /* ---------- plan tab: month boxes + release tracks (always real dates) ---------- */
 const MONTH_NOTES = {
-  "0": {stage:"Planning & design switch", note:"Planning and design run the new cadence. This month's sprint is the October sprint (v2.17). Dev and QA wrap up the September sprint the current way.", old:"Dev and QA: the September sprint (v2.16) goes to stores around Oct 8 on the current process. No official code freeze on Oct 16."},
+  "0": {stage:"Planning & design switch", note:"Planning and design run the new cadence. They work on the October sprint (v2.17), which is next sprint for dev. Dev and QA wrap up the September sprint the current way.", old:"Dev and QA: the September sprint (v2.16) goes to stores around Oct 8 on the current process. No official code freeze on Oct 16."},
   "1": {stage:"Dev & QA switch", note:"Everyone is on the new cadence. QA tests the October sprint (v2.17) while the November sprint (v2.18) is planned and built.", old:"Wrapping up the September sprint: smoke tests on the live v2.16 build."},
   "2": {stage:"First full cycle", note:"Every discipline runs the full cycle. QA tests the November sprint (v2.18), whose store date lands on Christmas Day and needs a decision.", old:""}
 };
@@ -1673,7 +1688,7 @@ function renderPlan(){
   });
 
   const STEPS = [
-    ["p-freeze","Planning freeze"],["d-final","Design final"],["p-ready","Case ready"],["x-plan","Sprint planning"],["m-next","Dev starts",true],
+    ["p-freeze","Planning freeze"],["d-final","Design final"],["x-plan","Sprint planning"],["m-next","Dev starts",true],
     ["m-freeze","Code freeze"],["q-cut","Case cutoff"],["m-fixcut","Fix cutoff"],["m-release","Store submission"],["m-live","In stores"],["x-retro","Retro"]
   ];
   const tr = $("tracks"); tr.innerHTML = "";
@@ -1695,7 +1710,7 @@ function glyphSvgAbs(ship){ const k = Math.max(-2, Math.min(4, ship - 1)); retur
 /* who's on which sprint, per discipline and month: each person's own "current sprint" */
 const STAGE_VERB = {
   design:   {"1":"Designing", "0":"Finishing designs", "-1":"Design QA on the freeze build"},
-  planning: {"2":"Grooming the sprint after next", "1":"Grooming, planning freeze", "0":"Case ready, sprint planning"},
+  planning: {"2":"Grooming the sprint after next", "1":"Grooming, planning freeze", "0":"Sprint planning (case ready)"},
   mobile:   {"0":"Tech review, then building part time", "-1":"Building full time, freeze, fixes, release", "-2":"In stores"},
   backend:  {"0":"Review, then small API work to the cutoff", "1":"Big API work"},
   qa:       {"0":"Edge-case review, test planning", "-1":"Finish test cases, release testing, sign-off", "-2":"Smoke tests, OTA fixes"}
