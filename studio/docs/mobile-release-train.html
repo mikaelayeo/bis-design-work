@@ -236,7 +236,7 @@ header.top{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); g
 .tl-hint{font-size:12.5px; color:var(--muted)}
 
 /* tooltip */
-.tip{position:fixed; z-index:95; max-width:280px; background:var(--fg); color:var(--bg); font:500 12px/1.35 var(--sans); padding:6px 9px; border-radius:7px; pointer-events:none; box-shadow:0 6px 18px rgb(0 0 0 / .2)}
+.tip{position:fixed; z-index:95; max-width:300px; white-space:pre-line; background:var(--fg); color:var(--bg); font:500 12px/1.35 var(--sans); padding:6px 9px; border-radius:7px; pointer-events:none; box-shadow:0 6px 18px rgb(0 0 0 / .2)}
 
 /* pop-over */
 .pop{position:fixed; z-index:80; width:min(440px, calc(100vw - 32px)); max-height:min(70vh, 560px); overflow:auto; background:var(--surface); border:1px solid var(--line-strong); border-radius:12px; box-shadow:0 14px 40px rgb(0 0 0 / .22); padding:16px 18px 18px; display:flex; flex-direction:column; gap:10px}
@@ -359,12 +359,27 @@ html.fs-open #p-timeline{max-width:none}
 .fs .sec-head{order:0} .fs .filters{order:1} .fs .tl-frame{order:3}
 .map.fs{gap:8px}
 .fs .filters{gap:8px 22px; padding:10px 12px}
-.fs-only{display:none!important}
-.fs .fs-only{display:flex!important}
-.fs .filterbar{order:1; align-items:center; gap:12px; flex-wrap:wrap}
-.fs .filters.collapsed{display:none}
+/* role + Filters toggle stay visible; the rest of the filters fold away (collapsed by default) */
+.filterbar{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:12px 24px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px}
+.filter-toggle{display:flex; flex-direction:column; align-items:flex-end; gap:6px; min-width:0}
+.filters.collapsed{display:none}
+/* role bar and filters share one card, with a divider between them */
+.filterpanel{background:var(--surface); border:1px solid var(--line); border-radius:12px}
+.filterpanel .filterbar,.filterpanel .filters{background:none; border:none; border-radius:0}
+.filterpanel .filters{border-top:1px solid var(--line); gap:12px 18px}
+.filterpanel .filters .chip{padding:5px 9px}
+.filterpanel .seg.loose{gap:4px}
+.filterpanel .seg.loose .chip{padding:4px 8px; gap:5px}
+.fs .filterpanel{order:1}
+.fs .filterbar{padding:10px 12px}
+.lbl-info{display:inline-flex; align-items:center; gap:6px}
+.info{display:inline-grid; place-items:center; width:16px; height:16px; border-radius:50%; border:1.5px solid var(--muted); color:var(--muted); font:700 10px/1 var(--sans); text-transform:none; letter-spacing:0; cursor:help}
+.info:hover,.info:focus-visible{border-color:var(--fg); color:var(--fg)}
+.linkbtn{background:none; border:none; padding:6px 2px; font:600 13.5px var(--sans); color:var(--muted); cursor:pointer; text-decoration:underline; text-decoration-color:transparent; text-underline-offset:4px; transition:color .15s, text-decoration-color .15s}
+.linkbtn:hover{color:var(--fg); text-decoration-color:currentColor}
 .filter-sum{font:500 12.5px var(--mono); color:var(--muted)}
 #btn-filters svg{width:14px; height:14px; transition:transform .15s}
+.filter-sum{text-align:right; max-width:620px}
 #btn-filters[aria-expanded="false"] svg{transform:rotate(-90deg)}
 .fs .fgroup{gap:4px}
 .fs .fgroup.wide{flex-basis:auto}
@@ -434,6 +449,61 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
   .role li{grid-template-columns:96px minmax(0,1fr) 13px}
 }
 @media (prefers-reduced-motion:reduce){ *{transition:none!important; scroll-behavior:auto!important} }
+/* overview: key dates by week */
+.kd{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px}
+.kd li{display:grid; grid-template-columns:38px minmax(0,1fr); gap:10px; font-size:14px; line-height:1.35}
+.kd .day{font:600 12px/1.55 var(--mono); text-transform:uppercase; letter-spacing:.05em; color:var(--muted)}
+.kd b{display:block; font-weight:600; font-size:14.5px}
+.kd small{display:block; color:var(--muted); font-size:12.5px; margin-top:2px}
+.kd small.who{font:500 11px/1.4 var(--mono); text-transform:uppercase; letter-spacing:.05em; margin-top:4px}
+.kd li.big b{color:var(--major)}
+/* overview: the sprint being built this month stands out */
+.ov-row.now{background:color-mix(in oklab, var(--sp-0) 8%, var(--surface)); box-shadow:inset 4px 0 0 var(--sp-0)}
+.ov-pos{display:inline-block; margin-top:4px; font:600 10.5px/1 var(--mono); letter-spacing:.07em; text-transform:uppercase; color:var(--muted)}
+.ov-row.now .ov-pos{color:var(--sp-0)}
+.ov-desc{font-size:14px; margin:0 0 8px}
+/* plan: plain prose */
+.month-copy{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px; display:flex; flex-direction:column; gap:8px; max-width:78ch}
+.month-copy p{font-size:15px}
+/* roles: plain week-by-week cards */
+.rcards{display:grid; grid-template-columns:repeat(auto-fill, minmax(290px,1fr)); gap:14px}
+.rcard{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px; display:flex; flex-direction:column; gap:4px}
+.rcard > small{color:var(--muted); font-size:13px; margin-bottom:8px}
+.wlist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+.wlist li{display:grid; grid-template-columns:62px minmax(0,1fr); gap:10px; font-size:14px; line-height:1.4}
+.wlist b{font:600 12px/1.6 var(--mono); text-transform:uppercase; letter-spacing:.04em; color:var(--muted)}
+/* role switch */
+.role-seg .chip{padding:7px 14px; font-size:14px; font-weight:600}
+/* onboarding, tour and help */
+.ob{position:fixed; inset:0; z-index:120; display:grid; place-items:center; padding:16px; background:color-mix(in oklab, var(--bg) 72%, transparent); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px)}
+.ob-card{width:min(620px, 100%); max-height:calc(100vh - 32px); overflow:auto; background:var(--surface); border:1px solid var(--line-strong); border-radius:16px; box-shadow:0 24px 60px rgb(0 0 0 / .18); padding:28px; display:flex; flex-direction:column; gap:14px}
+.ob-card h2{font-size:28px}
+.ob-roles{display:grid; grid-template-columns:repeat(auto-fill, minmax(165px,1fr)); gap:10px; margin-top:4px}
+.ob-role{display:flex; flex-direction:column; align-items:flex-start; gap:3px; text-align:left; padding:12px 14px 12px 18px; border-radius:12px; border:1.5px solid var(--line); background:var(--surface); cursor:pointer; box-shadow:inset 5px 0 0 var(--c)}
+.ob-role:hover{border-color:var(--fg)}
+.ob-role b{font:600 15px var(--sans)}
+.ob-role small{color:var(--muted); font-size:12.5px}
+.ob-foot{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:4px}
+.btn.primary{background:var(--fg); color:var(--bg); border-color:var(--fg)}
+.btn.primary:hover{filter:brightness(1.15); background:var(--fg)}
+#btn-help svg{display:block}
+.tour-ring{position:fixed; z-index:125; border-radius:10px; box-shadow:0 0 0 3px var(--focus), 0 0 0 9999px rgb(15 18 24 / .42); pointer-events:none; transition:top .2s, left .2s, width .2s, height .2s}
+.tour-tip{position:fixed; z-index:126; width:min(330px, calc(100vw - 20px)); background:var(--surface); border:1px solid var(--line-strong); border-radius:12px; box-shadow:0 14px 40px rgb(0 0 0 / .25); padding:16px 16px 14px; display:flex; flex-direction:column; gap:8px}
+.tour-tip p{font-size:14px; color:var(--muted)}
+.tour-nav{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:4px}
+.tour-nav span{display:flex; gap:6px}
+.help-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px}
+.help-list li{display:grid; grid-template-columns:104px minmax(0,1fr); gap:14px; align-items:center; font-size:14px}
+.help-list b{display:block}
+.help-list .t{color:var(--muted)}
+.help-vis{display:flex; align-items:center; justify-content:center; gap:4px; height:42px; border-radius:10px; background:var(--band); border:1px solid var(--line); color:var(--fg)}
+.hv-chip{font-size:11px; font-weight:600; padding:3px 8px; border-radius:7px; background:var(--fg); color:var(--bg)}
+.hv-pill{font:700 9.5px/1 var(--sans); letter-spacing:.03em; padding:5px 7px; border-radius:6px; background:var(--major); color:var(--major-fg)}
+.hv-bar{width:70px; height:14px; border-radius:5px; background:color-mix(in oklab, var(--l-mobile) 20%, var(--surface)); border:1px solid color-mix(in oklab, var(--l-mobile) 60%, transparent)}
+.hv-arrow{width:60px; height:2.5px; background:var(--focus); position:relative}
+.hv-arrow::after{content:""; position:absolute; right:-2px; top:-4px; border-left:8px solid var(--focus); border-top:5px solid transparent; border-bottom:5px solid transparent}
+.hv-key{font:600 14px var(--mono)}
+@media (max-width:560px){ .help-list li{grid-template-columns:minmax(0,1fr)} .ob-card{padding:20px} }
 </style>
 
 <div class="wrap" style="gap:28px">
@@ -448,17 +518,55 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
   <button class="tab" role="tab" id="t-timeline" aria-controls="p-timeline" data-tab="timeline" type="button">Timeline</button>
   <button class="tab" role="tab" id="t-plan" aria-controls="p-plan" data-tab="plan" type="button">Our plan</button>
   <button class="tab" role="tab" id="t-roles" aria-controls="p-roles" data-tab="roles" type="button">Roles</button>
-  <button class="tab" role="tab" id="t-rules" aria-controls="p-rules" data-tab="rules" type="button">Rules &amp; meetings</button>
-  <button class="tab" role="tab" id="t-status" aria-controls="p-status" data-tab="status" type="button">Decisions &amp; terms</button>
+  <button class="tab" role="tab" id="t-rules" aria-controls="p-rules" data-tab="rules" type="button">Rules</button>
+  <button class="tab" role="tab" id="t-meetings" aria-controls="p-meetings" data-tab="meetings" type="button">Meetings</button>
 </nav>
 
 <!-- ============ 1. Overview ============ -->
 <div class="panel" role="tabpanel" id="p-overview" aria-labelledby="t-overview" tabindex="0">
+  <section aria-labelledby="ov-cycle">
+    <div class="panel-head">
+      <span class="eyebrow">Every four weeks</span>
+      <h2 id="ov-cycle">What happens each week</h2>
+      <p class="muted">Only the key dates. Everything here repeats every cycle; the <button class="jump" type="button" data-goto="timeline">Timeline</button> shows the work in between.</p>
+    </div>
+    <div class="cycle4">
+      <div class="wk"><span class="eyebrow">Week 1</span><ul class="kd">
+          <li><span class="day">Wed</span><div><b>Grooming and design check-in</b><small>Weekly meeting: prepare the next tickets and check designs are on track.</small><small class="who">Product, design</small></div></li>
+          <li><span class="day">Fri</span><div><b>Design is due</b><small>Designs are final and attached to the case, ready for review.</small><small class="who">Design</small></div></li>
+          <li><span class="day">Fri</span><div><b>Retro</b><small>On the release that just went live.</small><small class="who">Everyone</small></div></li>
+      </ul></div>
+      <div class="wk"><span class="eyebrow">Week 2</span><ul class="kd">
+          <li><span class="day">Tue</span><div><b>Reviews are due</b><small>Tech review, plus backend and QA reviews when a case needs them.</small><small class="who">Dev, backend, QA</small></div></li>
+          <li><span class="day">Wed</span><div><b>Sprint planning: cases must be ready</b><small>Only ready cases get in. They're ranked and the scope is locked.</small><small class="who">Everyone</small></div></li>
+          <li class="big"><span class="day">Fri</span><div><b>Code freeze</b><small>Everything for this month's release is merged. Nothing new after this.</small><small class="who">Dev</small></div></li>
+      </ul></div>
+      <div class="wk"><span class="eyebrow">Week 3</span><ul class="kd">
+          <li><span class="day">Wed</span><div><b>Planning freeze</b><small>Next sprint's tickets are locked, and design starts on them.</small><small class="who">Product, design</small></div></li>
+          <li><span class="day">Fri</span><div><b>Case cutoff</b><small>Cases with bugs too big to fix in time are reverted or switched off.</small><small class="who">Dev, QA</small></div></li>
+      </ul></div>
+      <div class="wk"><span class="eyebrow">Week 4</span><ul class="kd">
+          <li><span class="day">Wed</span><div><b>Fix cutoff</b><small>The last fix goes into the release build.</small><small class="who">Dev</small></div></li>
+          <li class="big"><span class="day">Fri</span><div><b>QA sign-off and release</b><small>QA signs off, and the release goes to the stores.</small><small class="who">QA, dev</small></div></li>
+          <li><span class="day">Fri</span><div><b>Backend cutoff</b><small>API work for the sprint being built is on staging.</small><small class="who">Backend</small></div></li>
+      </ul></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="ov-overlap">
+    <div class="panel-head">
+      <span class="eyebrow">Why it feels like a lot</span>
+      <h2 id="ov-overlap">Every month, five sprints overlap</h2>
+      <p class="muted">Each sprint takes about four months from first grooming to live, so in any month every team is touching a different sprint. We name sprints v1 to v5 instead of "current" or "next", because each team means something different by those words. In this example month, v3 is the one being built.</p>
+    </div>
+    <div class="overlap" id="overlap"></div>
+  </section>
+
   <section aria-labelledby="ov-why">
     <div class="panel-head">
       <span class="eyebrow">Why we're changing</span>
-      <h2 id="ov-why">One fixed release every four weeks, with a deadline for every discipline</h2>
-      <p class="lede">Today mobile releases go out roughly monthly, with no fixed date, no code freeze, and design work arriving whenever it's ready. The new cadence turns that into a release train: a fixed schedule where each discipline knows exactly when its work is due.</p>
+      <h2 id="ov-why">One fixed release every four weeks, with a deadline for every team</h2>
+      <p class="lede">Today mobile releases go out roughly monthly, with no fixed date, no code freeze, and design work arriving whenever it's ready. The new cadence turns that into a release train: a fixed schedule where every team knows when its work is due.</p>
     </div>
     <div class="goals">
       <div class="goal"><b>A fixed release date</b><span>Store submission on the Friday of week 4, every cycle. Everyone, including clients, knows when work ships.</span></div>
@@ -469,49 +577,71 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
       <div class="goal"><b>Room for QA automation</b><span>Testing everything together at the freeze frees QA time in weeks 1–2 for smoke tests and automation.</span></div>
     </div>
   </section>
+</div>
 
-  <section aria-labelledby="ov-cycle">
-    <div class="panel-head">
-      <span class="eyebrow">The cycle at a glance</span>
-      <h2 id="ov-cycle">What happens each week</h2>
-      <p class="muted">Diamonds are key dates. Each week mixes work from different sprints; the <button class="jump" type="button" data-goto="timeline">Timeline tab</button> shows which is which.</p>
-    </div>
-    <div class="cycle4">
-      <div class="wk"><span class="eyebrow">Week 1</span><h3>Build and finalise</h3><ul>
-        <li class="key" style="--c:var(--l-planning)"><i></i><div><b>Grooming + design check-in</b><span>Wed weekly meeting</span></div></li>
-        <li style="--c:var(--l-mobile)"><i></i><div><b>Dev builds last cycle's cases full time</b><span>Mon–Fri, merge as you go</span></div></li>
-        <li style="--c:var(--l-qa)"><i></i><div><b>QA smoke-tests the live build, OTA fixes</b><span>Mon–Fri, plus automation</span></div></li>
-        <li class="key" style="--c:var(--l-design)"><i></i><div><b>Design final</b><span>Fri</span></div></li>
-        <li class="key" style="--c:var(--l-planning)"><i></i><div><b>Retro on the last release</b><span>Fri</span></div></li>
-      </ul></div>
-      <div class="wk"><span class="eyebrow">Week 2</span><h3>Ready, plan, freeze</h3><ul>
-        <li style="--c:var(--l-mobile)"><i></i><div><b>Reviews: technical, backend, QA</b><span>Fri wk 1 → Tue, due Tue</span></div></li>
-        <li class="key" style="--c:var(--l-planning)"><i></i><div><b>Sprint planning (case ready)</b><span>Wed weekly meeting: check, rank, lock scope</span></div></li>
-        <li class="key" style="--c:var(--l-mobile)"><i></i><div><b>Code freeze</b><span>Fri</span></div></li>
-      </ul></div>
-      <div class="wk"><span class="eyebrow">Week 3</span><h3>Test and decide</h3><ul>
-        <li style="--c:var(--l-qa)"><i></i><div><b>Release testing + daily bug triage</b><span>Mon–Fri</span></div></li>
-        <li style="--c:var(--l-backend)"><i></i><div><b>Small backend work starts</b><span>Mon, through week 4</span></div></li>
-        <li class="key" style="--c:var(--l-planning)"><i></i><div><b>Planning freeze</b><span>Wed weekly meeting, next sprint locked</span></div></li>
-        <li class="key" style="--c:var(--l-qa)"><i></i><div><b>Case cutoff</b><span>Fri, revert or approve late cases</span></div></li>
-      </ul></div>
-      <div class="wk"><span class="eyebrow">Week 4</span><h3>Fix and ship</h3><ul>
-        <li class="key" style="--c:var(--l-planning)"><i></i><div><b>Release check-in</b><span>Wed weekly meeting</span></div></li>
-        <li class="key" style="--c:var(--l-mobile)"><i></i><div><b>Fix cutoff</b><span>Wed, release branch closes</span></div></li>
-        <li class="key" style="--c:var(--l-qa)"><i></i><div><b>QA sign-off</b><span>Fri, after 2 days of regression</span></div></li>
-        <li class="key" style="--c:var(--l-mobile)"><i></i><div><b>Release to stores</b><span>Fri, on time</span></div></li>
-        <li class="key" style="--c:var(--l-backend)"><i></i><div><b>Backend cutoff</b><span>Fri, on staging or it moves</span></div></li>
-      </ul></div>
-    </div>
-  </section>
+<!-- ============ 2. Timeline ============ -->
+<div class="panel full" role="tabpanel" id="p-timeline" aria-labelledby="t-timeline" tabindex="0" hidden>
+<section class="map" id="map" aria-labelledby="tl-title">
+  <div class="sec-head">
+    <span class="eyebrow">Swimlane timeline</span>
+    <h2 id="tl-title">Two months, five sprints, five disciplines</h2>
+    <p class="muted">Each lane is a discipline. Each marker shows which sprint the work belongs to; hover it to see which. Use the eye on a lane to hide it, and the arrow to collapse it to key dates.</p>
+  </div>
 
-  <section aria-labelledby="ov-overlap">
-    <div class="panel-head">
-      <span class="eyebrow">Why it feels like a lot</span>
-      <h2 id="ov-overlap">Every month, five sprints overlap</h2>
-      <p class="muted">A sprint takes about four months from first grooming to live, so in any one month each discipline is on a different sprint. QA is still finishing the sprint planned two months ago while planning is already grooming the one after next. Here's one month (Month 1) and who touches which sprint. Hover a marker for its name.</p>
+  <div class="filterpanel">
+  <div class="filterbar">
+    <div class="fgroup"><span class="eyebrow" id="lbl-role">Your role</span><div class="seg role-seg" role="group" aria-labelledby="lbl-role" id="ctl-role"></div></div>
+    <div class="filter-toggle"><button class="btn" id="btn-filters" type="button" aria-expanded="false" aria-controls="filters"></button><span class="filter-sum" id="filter-sum" hidden></span></div>
+  </div>
+  <div class="filters" id="filters">
+    <div class="fgroup"><span class="eyebrow" id="lbl-dates">Dates</span><div class="seg" role="group" aria-labelledby="lbl-dates" id="ctl-dtype"></div></div>
+    <div class="fgroup"><span class="eyebrow" id="lbl-zoom">Date view</span><div class="seg" role="group" aria-labelledby="lbl-zoom" id="ctl-zoom"></div></div>
+    <div class="fgroup"><span class="eyebrow" id="lbl-types">Show</span><div class="seg" role="group" aria-labelledby="lbl-types" id="ctl-types"></div></div>
+    <div class="fgroup"><span class="eyebrow" id="lbl-deps">Dependencies</span><div id="ctl-deps"></div></div>
+    <div class="fgroup"><span class="eyebrow" id="lbl-color">Colour based on</span><div class="seg" role="group" aria-labelledby="lbl-color" id="ctl-color"></div></div>
+    <div class="fgroup"><span class="eyebrow lbl-info" id="lbl-sprint">Follow a sprint <span class="info" id="sprint-info" tabindex="0" role="img" aria-label="What v1 to v7 mean">i</span></span><div class="seg loose" role="group" aria-labelledby="lbl-sprint" id="ctl-sprint"></div></div>
+  </div>
+  </div>
+
+  <div class="tl-frame">
+    <div class="notice" id="transition-note" hidden><span aria-hidden="true">⚑</span><span><b>October is the trial month.</b> Everyone starts on the new cadence now, loosely, to find the bottlenecks. Striped bars and struck-through key dates belong to the September sprint (v2.16) and earlier, which shipped the old way.</span></div>
+    <div class="tl-tools">
+      <div class="frow"><button class="btn" id="btn-prev" type="button" aria-label="Scroll to earlier dates">‹ Earlier</button><button class="btn" id="btn-next" type="button" aria-label="Scroll to later dates">Later ›</button><span class="range" id="tl-range" aria-live="polite"></span></div>
+      <div class="frow"><button class="btn" id="btn-help" type="button" aria-haspopup="dialog"><svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.6 1.8c-.5.2-.8.6-.8 1.1v.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".9" fill="currentColor"/></svg><span>Help</span></button><button class="btn" id="btn-fs" type="button" aria-pressed="false"></button></div>
     </div>
-    <div class="overlap" id="overlap"></div>
+    <div class="tl-scroll" id="tl-scroll"><div class="tl" id="tl"></div></div>
+    <p class="tl-hint">Hover anything to see what it depends on and what comes next; click to focus on that sprint's workflow and see details. Switch Dependencies off for a calmer view. Key dates are weighted: red for code freeze and release, bold for the planning cutoffs, outlined for lighter checkpoints.</p>
+  </div>
+  <div class="pop" id="pop" role="dialog" aria-labelledby="pop-title" tabindex="-1" hidden></div>
+  <aside class="flegend" id="flegend" aria-label="Legend">
+    <button class="fl-toggle" id="fl-toggle" type="button" aria-expanded="true" aria-controls="fl-body"><span>Legend</span><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <div class="fl-body" id="fl-body"></div>
+  </aside>
+</section>
+</div>
+
+<!-- ============ 3. Our plan ============ -->
+<div class="panel" role="tabpanel" id="p-plan" aria-labelledby="t-plan" tabindex="0" hidden>
+  <section aria-labelledby="pl-title" class="prose">
+    <div class="panel-head">
+      <span class="eyebrow">Our plan</span>
+      <h2 id="pl-title">October to December</h2>
+    </div>
+    <div class="month-copy">
+      <h3>October: we start planning</h3>
+      <p>There is no code freeze in October. We start with sprint planning on Wednesday, October 14, which locks the tickets for the October sprint (v2.17). Development and QA test planning start right after.</p>
+      <p>Over the first three weeks, the planning team plans November's tickets. The planning freeze on Wednesday, October 21 locks them, so design can start on them from Thursday, October 22.</p>
+      <p>Once the planning freeze is done, Anita can ask backend to review the scope of tickets that don't need much design work, so any API questions come up early.</p>
+    </div>
+    <div class="month-copy">
+      <h3>November: the first real code freeze and release</h3>
+      <p>Designs for the November sprint (v2.18) are due Friday, November 6, and sprint planning is Wednesday, November 11.</p>
+      <p>The first real code freeze is Friday, November 13. QA then tests the October sprint's build: case cutoff is Friday, November 20, fix cutoff is Wednesday, November 25, and the release goes out on Friday, November 27, the end of November.</p>
+    </div>
+    <div class="month-copy">
+      <h3>December: the cycle repeats</h3>
+      <p>Designs are due Friday, December 4, sprint planning is Wednesday, December 9, and the code freeze is Friday, December 11. The release would fall on Friday, December 25, Christmas Day, so we still need to choose a date for it.</p>
+    </div>
   </section>
 
   <section aria-labelledby="ov-expect">
@@ -527,91 +657,6 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
       <li><span><b>Design will be about one sprint ahead, not two.</b> While October's cases wait on backend, the pipeline fills one sprint at a time.</span></li>
       <li><span><b>Judge it on cycles two and three.</b> The switchover cycle will be messy by design.</span></li>
     </ul>
-    <p class="muted">Next: <button class="jump" type="button" data-goto="plan">see our month-by-month rollout plan</button>.</p>
-  </section>
-</div>
-
-<!-- ============ 2. Timeline ============ -->
-<div class="panel full" role="tabpanel" id="p-timeline" aria-labelledby="t-timeline" tabindex="0" hidden>
-<section class="map" id="map" aria-labelledby="tl-title">
-  <div class="sec-head">
-    <span class="eyebrow">Swimlane timeline</span>
-    <h2 id="tl-title">Two months, five sprints, five disciplines</h2>
-    <p class="muted">Each lane is a discipline. Each marker shows which sprint the work belongs to; hover it to see which. Use the eye on a lane to hide it, and the arrow to collapse it to key dates.</p>
-  </div>
-
-  <div class="filterbar fs-only"><button class="btn" id="btn-filters" type="button" aria-expanded="true" aria-controls="filters"></button><span class="filter-sum" id="filter-sum" hidden></span></div>
-  <div class="filters" id="filters">
-    <div class="fgroup"><span class="eyebrow" id="lbl-dates">Dates</span><div class="seg" role="group" aria-labelledby="lbl-dates" id="ctl-dtype"></div></div>
-    <div class="fgroup"><span class="eyebrow" id="lbl-zoom">Date view</span><div class="seg" role="group" aria-labelledby="lbl-zoom" id="ctl-zoom"></div></div>
-    <div class="fgroup"><span class="eyebrow" id="lbl-types">Show</span><div class="seg" role="group" aria-labelledby="lbl-types" id="ctl-types"></div></div>
-    <div class="fgroup"><span class="eyebrow" id="lbl-deps">Dependencies</span><div id="ctl-deps"></div></div>
-    <div class="fgroup"><span class="eyebrow" id="lbl-color">Colour based on</span><div class="seg" role="group" aria-labelledby="lbl-color" id="ctl-color"></div></div>
-    <div class="fgroup"><span class="eyebrow" id="lbl-role">Show work for</span><div class="frow" role="group" aria-labelledby="lbl-role" id="ctl-role"></div></div>
-    <div class="fgroup wide"><span class="eyebrow" id="lbl-sprint">Follow a sprint</span><div class="seg loose" role="group" aria-labelledby="lbl-sprint" id="ctl-sprint"></div></div>
-  </div>
-
-  <div class="tl-frame">
-    <div class="notice" id="transition-note" hidden><span aria-hidden="true">⚑</span><span><b>October is the trial month.</b> Everyone starts on the new cadence now, loosely, to find the bottlenecks. Striped bars and struck-through key dates belong to the September sprint (v2.16) and earlier, which shipped the old way.</span></div>
-    <div class="tl-tools">
-      <div class="frow"><button class="btn" id="btn-prev" type="button" aria-label="Scroll to earlier dates">‹ Earlier</button><button class="btn" id="btn-next" type="button" aria-label="Scroll to later dates">Later ›</button><span class="range" id="tl-range" aria-live="polite"></span></div>
-      <div class="frow"><button class="btn theme-btn" type="button" data-theme-toggle></button><button class="btn" id="btn-fs" type="button" aria-pressed="false"></button></div>
-    </div>
-    <div class="tl-scroll" id="tl-scroll"><div class="tl" id="tl"></div></div>
-    <p class="tl-hint">Hover anything to see what it depends on and what comes next; click to focus on that sprint's workflow and see details. Switch Dependencies off for a calmer view. Key dates are weighted: red for code freeze and release, bold for the planning cutoffs, outlined for lighter checkpoints.</p>
-  </div>
-  <div class="pop" id="pop" role="dialog" aria-labelledby="pop-title" tabindex="-1" hidden></div>
-  <aside class="flegend" id="flegend" aria-label="Legend">
-    <button class="fl-toggle" id="fl-toggle" type="button" aria-expanded="true" aria-controls="fl-body"><span>Legend</span><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-    <div class="fl-body" id="fl-body"></div>
-  </aside>
-</section>
-</div>
-
-<!-- ============ 3. Our plan ============ -->
-<div class="panel" role="tabpanel" id="p-plan" aria-labelledby="t-plan" tabindex="0" hidden>
-  <section aria-labelledby="pl-title">
-    <div class="plan-top">
-      <div class="plan-copy">
-        <span class="eyebrow">Our plan, realistically</span>
-        <h2 id="pl-title">October to December, one discipline at a time</h2>
-        <p>Everyone starts on the new cadence in October, as a soft trial. The September sprint (v2.16, in stores around Oct 8) was the last one shipped the old way; development on the October sprint starts after sprint planning on Oct 14.</p>
-        <p>That makes the <b>October sprint (v2.17, ships Nov 27) the first built and tested the new way</b>, and the <b>November sprint (v2.18, ships Dec 25) the first where every discipline runs the full cycle</b>. Dec 25 is Christmas Day, so that date still needs a decision.</p>
-        <p>Expect v2.17 to be small. Three of its four cases depend on backend, and anything that isn't merged by the Nov 13 freeze moves to December. October is a soft trial: the goal is to find the bottlenecks, not to follow every date exactly.</p>
-        <p><b>Sprint planning is next week, Wednesday Oct 14</b>, so backend has room for the API work first.</p>
-      </div>
-      <div class="board" aria-labelledby="board-title">
-        <div class="board-h"><span class="eyebrow" id="board-title">Coming up</span><span class="muted" style="font:500 12px var(--mono)" id="board-today"></span></div>
-        <table><tbody id="board-rows"></tbody></table>
-      </div>
-    </div>
-  </section>
-
-  <section aria-labelledby="mo-title">
-    <div class="panel-head">
-      <span class="eyebrow">Month by month</span>
-      <h2 id="mo-title">Which disciplines switch over, and their key dates</h2>
-      <p class="muted">Only work on the new cadence is listed. Weekly meetings run every Wednesday and aren't repeated here.</p>
-    </div>
-    <div class="months" id="months"></div>
-  </section>
-
-  <section aria-labelledby="who-title">
-    <div class="panel-head">
-      <span class="eyebrow">Your current sprint</span>
-      <h2 id="who-title">Who's on which sprint, month by month</h2>
-      <p class="muted">Each discipline works on a different sprint at the same time. Read across your row to see your own current sprint each month. For example, QA tests the October sprint (v2.17) in November, while design is already finishing the November sprint (v2.18).</p>
-    </div>
-    <div class="card tbl-wrap" id="who"></div>
-  </section>
-
-  <section aria-labelledby="tr-title">
-    <div class="panel-head">
-      <span class="eyebrow">The first two releases</span>
-      <h2 id="tr-title">How each sprint travels through the months</h2>
-      <p class="muted">The same case is designed in one month, built across the next, and tested and shipped after that. These tracks follow one release from design final to retro.</p>
-    </div>
-    <div class="tracks" id="tracks"></div>
   </section>
 </div>
 
@@ -620,10 +665,16 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
   <section aria-labelledby="r-title">
     <div class="panel-head">
       <span class="eyebrow">Deadlines and expectations</span>
-      <h2 id="r-title">What each role owns, every cycle</h2>
-      <p class="muted" id="r-lede"></p>
+      <h2 id="r-title">What each role does, week by week</h2>
+      <p class="muted">The same four weeks repeat every cycle.</p>
     </div>
-    <div class="roles" id="roles"></div>
+    <div class="rcards">
+      <div class="rcard"><h3>Product and planning</h3><small>Anita</small><ul class="wlist"><li><b>Week 1</b><span>Run the grooming and design check-in on Wednesday. Make sure backend is reviewing our scope and the designs once they're final on Friday. Hold the retro on Friday.</span></li><li><b>Week 2</b><span>Run sprint planning on Wednesday: only ready cases get in, rank them, and lock the scope. Make sure backend has committed to its work for the sprint.</span></li><li><b>Week 3</b><span>Run the planning freeze on Wednesday: lock the next sprint's tickets and check they fit design's capacity. Ask backend to review the scope of tickets that don't need much design.</span></li><li><b>Week 4</b><span>Run the release check-in on Wednesday: confirm what's going out on Friday and start grooming the sprint after next.</span></li></ul></div>
+      <div class="rcard"><h3>Design</h3><small>Mika</small><ul class="wlist"><li><b>Week 1</b><span>Finish your designs. They're due on Friday, final and attached to the case.</span></li><li><b>Week 2</b><span>Update designs from review feedback by Tuesday, ready for sprint planning on Wednesday.</span></li><li><b>Week 3</b><span>Review the code-freeze build for design quality, Monday to Wednesday. After the planning freeze, start designing the next sprint's tickets.</span></li><li><b>Week 4</b><span>Keep designing the next sprint, ready for Friday of week 1.</span></li></ul></div>
+      <div class="rcard"><h3>Mobile dev</h3><small>Udayan, Aymeric, India team</small><ul class="wlist"><li><b>Week 1</b><span>Build the sprint's cases full time and merge each one as soon as it's done. Start the tech review of new designs on Friday.</span></li><li><b>Week 2</b><span>Tech review is due Tuesday. Join sprint planning on Wednesday. Code freeze on Friday: everything for the release is merged, and one build goes to QA.</span></li><li><b>Week 3</b><span>Fix release bugs first, with daily bug triage. Start the new sprint's cases alongside. Case cutoff on Friday: revert or switch off anything too buggy.</span></li><li><b>Week 4</b><span>Fix cutoff on Wednesday. Release on Friday after QA signs off.</span></li></ul></div>
+      <div class="rcard"><h3>Backend</h3><small>API team</small><ul class="wlist"><li><b>Week 1</b><span>From Friday, review the designs for cases that touch the API.</span></li><li><b>Week 2</b><span>Review is due Tuesday: size the work and commit to whether it will be on staging by the end of week 4. If not, the case moves to the next sprint.</span></li><li><b>Week 3</b><span>Start the small API changes after the code freeze.</span></li><li><b>Week 4</b><span>Backend cutoff on Friday: the work is on staging so mobile can build in weeks 1 and 2.</span></li></ul></div>
+      <div class="rcard"><h3>QA</h3><small>Preeti's team, BIS Testing</small><ul class="wlist"><li><b>Week 1</b><span>Regression and smoke tests on the live build, test any OTA fixes, and keep testing features you weren't confident about. From Friday, review designs for edge cases when needed.</span></li><li><b>Week 2</b><span>QA review is due Tuesday when needed. Join sprint planning on Wednesday, then write test plans for the cases going into the sprint.</span></li><li><b>Week 3</b><span>Test the code-freeze build with BIS Testing, high-priority cases first. Join daily bug triage and write automation for the sprint's cases. Case cutoff on Friday.</span></li><li><b>Week 4</b><span>Final regression on Thursday and Friday, then sign off at the end of Friday.</span></li></ul></div>
+    </div>
   </section>
 
   <section aria-labelledby="dor-title">
@@ -656,7 +707,7 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
   </section>
 </div>
 
-<!-- ============ 5. Rules & meetings ============ -->
+<!-- ============ 5. Rules ============ -->
 <div class="panel" role="tabpanel" id="p-rules" aria-labelledby="t-rules" tabindex="0" hidden>
   <section aria-labelledby="rules-title">
     <div class="panel-head">
@@ -680,12 +731,15 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
       <li><b>Scope of this cadence.</b><span class="muted">New features and feature improvements. Bug cases and small optimisations can still go into the release package before the final week.</span></li>
     </ul>
   </section>
+</div>
 
+<!-- ============ 6. Meetings ============ -->
+<div class="panel" role="tabpanel" id="p-meetings" aria-labelledby="t-meetings" tabindex="0" hidden>
   <section aria-labelledby="m-title">
     <div class="panel-head">
       <span class="eyebrow">Rituals</span>
       <h2 id="m-title">Meetings</h2>
-      <p class="muted">The planning group is Anita, Mika, Udayan and Aymeric. Big topics such as field management or site management still get their own working sessions, booked by whoever needs the collaboration.</p>
+      <p class="muted">The planning group is Anita, Mika, Udayan and Aymeric, with QA at sprint planning. Big topics such as field management or site management still get their own working sessions, booked by whoever needs the collaboration.</p>
     </div>
     <div class="card tbl-wrap">
       <table class="ref">
@@ -703,82 +757,49 @@ footer{font-size:13px; color:var(--muted); border-top:1px solid var(--line); pad
   </section>
 </div>
 
-<!-- ============ 6. Decisions & terms ============ -->
-<div class="panel" role="tabpanel" id="p-status" aria-labelledby="t-status" tabindex="0" hidden>
-  <section aria-labelledby="dec-title">
-    <div class="panel-head">
-      <span class="eyebrow">Status</span>
-      <h2 id="dec-title">Decided, and still open</h2>
-    </div>
-    <div class="cols2">
-      <div class="card">
-        <h3>Decided</h3>
-        <ul class="dl">
-          <li>Code freeze is on Friday of week 2, so the India team can finish the week. QA starts testing on Monday.</li>
-          <li>Everyone starts on the new cadence in October, as a soft trial. Development and QA on the October sprint (v2.17) start after sprint planning on Oct 14; its code freeze is Fri Nov 13 and it ships Fri Nov 27.</li>
-          <li>Backend splits into small and big cases. Big cases run two sprints, and their designs move with them.</li>
-          <li>Reviews run about three working days, Friday of week 1 to Tuesday of week 2: technical review always, backend and QA design reviews when the case needs them. All feed back into design fixes.</li>
-          <li>Design QA review runs Mon–Wed of week 3 on the code-freeze build.</li>
-          <li>A planning freeze in week 3 locks the design list for the next sprint.</li>
-          <li>Sprints are named by the month they are planned and built, plus the app version: the October sprint is v2.17 and ships Nov 27. The "current sprint" uses dev and QA's meaning: the sprint in development or testing that ships at the end of this month. Planning and design work on the next sprint.</li>
-          <li>Case cutoff (end of week 3) is for reverting or removing cases with blocking bugs, and the deadline to approve late cases (real reason, very low risk, mobile lead and QA lead approval).</li>
-          <li>Backend cutoff is release day (end of week 4). Small backend work starts at the code freeze and must be on staging by then, so mobile gets weeks 1–2 of the next month full time. Big cases hit the same cutoff each sprint; not ready means they move one more sprint.</li>
-          <li>No dev builds in the new process. QA gets the release package at the code freeze; in weeks 1–2 the only other builds are OTA fixes, which QA tests before they go out.</li>
-          <li>Releases go out on the date. Small known bugs ship with an OTA fix the same day or the day after, instead of delaying the release.</li>
-          <li>Sprint planning moves to Wednesday of week 2 and is the same meeting as case ready. Cases are ranked there, planned time off comes off capacity, and QA attends.</li>
-          <li>Code freeze hands one pre-production build to India QA and BIS Testing together; they test in parallel for two weeks. Testers use Claude and the PRs to trace bugs to cases.</li>
-          <li>Test plans are written by each tester when a case moves to Ready for development (Udayan is moving the trigger). Automation for the sprint's cases is written in weeks 3–4.</li>
-          <li>Fix cutoff closes the release branch only. Thursday and Friday are regression on that stable build, and QA signs off at the end of Friday.</li>
-          <li>At case cutoff, cases with bugs too big to fix in time are reverted or switched off with a feature flag.</li>
-          <li>October is a soft trial to find the bottlenecks. The first sprint planning is Wednesday Oct 14.</li>
-          <li>Meetings: the four weekly meetings each have a purpose (grooming and design check-in, sprint planning, planning freeze, release check-in). Case ready and sprint planning are one meeting on Wednesday of week 2, and QA attends.</li>
-          <li>Capacity: plan about 2 weeks of dev work per sprint (about 2½ realistically) plus stretch cases.</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3>Still open</h3>
-        <ul class="dl open">
-          <li><span><b>Design capacity per cycle.</b> Mika to propose a number for the planning freeze.</span></li>
-          <li><span><b>QA's part in planning.</b> Assumed from standard sprint practice: an optional QA design review for edge cases, test planning from the Monday after sprint planning through to the freeze, and a QA sign-off after fix cutoff. Confirm these and the weeks 1–2 plan with Preeti.</span></li>
-          <li><span><b>December.</b> Store submission falls on Fri Dec 25. Options raised: extend that sprint by a week, release the day before, or skip that release and use the time on a big case.</span></li>
-          <li><span><b>Cycles vs months.</b> Four-week cycles give 13 releases a year, so cycles drift off calendar months. Choose fixed four weeks or month-anchored.</span></li>
-          <li><span><b>Backend visibility.</b> Aymeric added a backend-dependency field to the PM board. Next: auto-notify Deepak when a case needs backend, and confirm when bisapi changes deploy relative to the app release.</span></li>
-          <li><span><b>Critical bugs found late.</b> Do we ever delay a release for a known critical bug, and by how long? Udayan doesn't want to ship one (crashes, data loss, forms or action rules broken). Preeti: ideally not, and the release could slip 1–2 days, decided at QA sign-off. Aymeric: keep the date, revert or flag at case cutoff, OTA after. Also open: what counts as critical.</span></li>
-          <li><span><b>Sprint roadmap.</b> A numbered sprint roadmap, so everyone can say which sprint they're on, was suggested for later.</span></li>
-          <li><span><b>Version numbers.</b> v2.17 onward are assumed to follow v2.16 one per sprint. Confirm with dev, including the patch number (2.16.1).</span></li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section aria-labelledby="g-title">
-    <div class="panel-head">
-      <span class="eyebrow">Glossary</span>
-      <h2 id="g-title">Terms used on this page</h2>
-    </div>
-    <div class="gloss">
-      <details><summary>Code freeze</summary><p>The cut-off for the release. No new features or improvements go into the release package after it; only fixes. Development continues on the development branch.</p></details>
-      <details><summary>Release package</summary><p>The build cut at code freeze. QA tests it in weeks 3–4 and devs push fixes into it until fix cutoff.</p></details>
-      <details><summary>Case cutoff</summary><p>End of week 3. Cases with a blocking bug, or that won't be fixed in time, are reverted or removed. It's also the deadline to approve a late case: there must be a real reason it can't wait, it must be very low risk, and both the mobile lead and the QA lead must approve it.</p></details>
-      <details><summary>Late case</summary><p>A case that missed the code freeze but is let into the release. Allowed only with a real reason it can't wait, very low risk, and approval from the mobile lead and the QA lead before case cutoff.</p></details>
-      <details><summary>Fix cutoff</summary><p>Wednesday of week 4. The last fix goes into the release branch, so Thursday and Friday can run regression on a stable build. Fixing continues on the development branch or as OTA fixes.</p></details>
-      <details><summary>Planning freeze</summary><p>Week 3 weekly meeting. The list of cases design will work on for the next sprint is locked. Later additions wait a cycle.</p></details>
-      <details><summary>OTA</summary><p>Over-the-air update. A JavaScript-only fix pushed to installed apps without a store release.</p></details>
-      <details><summary>Smoke test</summary><p>A quick pass over the main flows of a build to confirm nothing major is broken. Maestro automation targets these first.</p></details>
-      <details><summary>Stretch case</summary><p>A ready, ranked case beyond the committed scope. Picked up only if committed work is done or blocked.</p></details>
-      <details><summary>bisapi</summary><p>The BIS backend API the app talks to. Cases flag whether they need a bisapi change and whether it's small or big.</p></details>
-      <details><summary>Sprint names</summary><p>A sprint is named by the month it is planned and built, plus its app version: the October sprint (v2.17) is designed by early October, built from mid-October, tested in November and ships Nov 27. Each discipline touches it in a different month, so QA tests the October sprint in November.</p></details>
-      <details><summary>Current sprint</summary><p>The sprint in development or testing that hasn't been released yet; it ships at the end of this month. We use dev and QA's terms: planning, design and the reviews are always working on the next sprint, or the one after.</p></details>
-      <details><summary>Template dates</summary><p>Month 1, 2 and 3 are any three consecutive cycles. Sprints are numbered v1–v6; v3 is the sprint planned in Month 1.</p></details>
-      <details><summary>Swimlane timeline</summary><p>The chart type on the Timeline tab: a Gantt-style timeline split into lanes per discipline, with milestones as markers. It's also called a swimlane Gantt chart.</p></details>
-      <details><summary>Staggered sprints</summary><p>The pattern this cadence follows. Design works one sprint ahead of dev, and QA tests the sprint behind it, so several sprints are in flight at once. Also called dual-track or pipelined sprints.</p></details>
-    </div>
-  </section>
-</div>
-
 <footer>Sources: Mobile Sprint Cadence and Planning Group Summary (Aymeric Pilaert, Oct 1 2026), mobile planning meeting of Oct 2 2026, case cutoff clarification from dev and QA, and Mika's FigJam sprint map. Holidays shown: Thanksgiving (Canada) Oct 12 and Christmas Day Dec 25. India team holidays are not shown.</footer>
 </div>
 <div class="tip" id="tip" role="tooltip" hidden></div>
+
+<div class="ob" id="ob" hidden>
+  <div class="ob-card" role="dialog" aria-modal="true" aria-labelledby="ob-title">
+    <span class="eyebrow">Welcome to the timeline</span>
+    <h2 id="ob-title">What's your role?</h2>
+    <p class="muted">We'll highlight your work and fade the rest, then show you around in a few quick tips. You can switch roles any time.</p>
+    <div class="ob-roles">
+        <button class="ob-role" type="button" data-role="product" style="--c:var(--l-planning)"><b>Product</b><small>Planning, grooming, sprint planning</small></button>
+        <button class="ob-role" type="button" data-role="design" style="--c:var(--l-design)"><b>Design</b><small>Designs, reviews, design QA</small></button>
+        <button class="ob-role" type="button" data-role="mobile" style="--c:var(--l-mobile)"><b>Mobile dev</b><small>Building, code freeze, fixes</small></button>
+        <button class="ob-role" type="button" data-role="backend" style="--c:var(--l-backend)"><b>Backend</b><small>API reviews and work</small></button>
+        <button class="ob-role" type="button" data-role="qa" style="--c:var(--l-qa)"><b>QA</b><small>Test plans, testing, sign-off</small></button>
+        <button class="ob-role" type="button" data-role="all" style="--c:var(--l-meet)"><b>Show everything</b><small>Every team's work</small></button>
+    </div>
+    <div class="ob-foot"><button class="linkbtn" type="button" id="ob-skip">Skip for now</button></div>
+  </div>
+</div>
+
+<div class="ob" id="help" hidden>
+  <div class="ob-card" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <span class="eyebrow">Help</span>
+    <h2 id="help-title">Reading the timeline</h2>
+    <ul class="help-list">
+      <li><span class="help-vis"><span class="hv-chip">Design</span></span><div><b>Your role</b><span class="t">Pick it at the top of the filters. Your work stays bright and the rest fades.</span></div></li>
+      <li><span class="help-vis"><span class="hv-pill">CODE FREEZE</span></span><div><b>Key dates</b><span class="t">Pills sit on the day they're due. Red ones matter most: code freeze and release.</span></div></li>
+      <li><span class="help-vis"><span class="hv-bar"></span></span><div><b>Work periods</b><span class="t">Bars show who's working on what, and for how long.</span></div></li>
+      <li><span class="help-vis" id="help-glyphs"></span><div><b>Sprints v1 to v5</b><span class="t">Each marker is a sprint. v3 is the one being built this month; hover a marker for its name.</span></div></li>
+      <li><span class="help-vis"><span class="hv-arrow"></span></span><div><b>Dependencies</b><span class="t">Hover anything: a bold arrow shows what it leads to, a faint one what comes before. Click to focus on that sprint.</span></div></li>
+      <li><span class="help-vis"><svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.2 8S3.7 3.2 8 3.2 14.8 8 14.8 8 12.3 12.8 8 12.8 1.2 8 1.2 8z" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="2.1" fill="none" stroke="currentColor" stroke-width="1.4"/></svg><svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Lanes</b><span class="t">The eye hides a lane; the arrow collapses it to its key dates.</span></div></li>
+      <li><span class="help-vis"><span class="hv-key">‹ ›</span></span><div><b>Moving around</b><span class="t">Weekly, Monthly or Quarterly sets the zoom. Earlier and Later step through it. Full screen gives the timeline the whole window.</span></div></li>
+    </ul>
+    <div class="ob-foot">
+      <span class="frow"><button class="btn" type="button" id="help-role">Change my role</button><button class="btn" type="button" id="help-tour">Restart the tour</button></span>
+      <button class="btn primary" type="button" id="help-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="tour-ring" id="tour-ring" hidden></div>
+<div class="tour-tip" id="tour-tip" role="dialog" aria-live="polite" hidden></div>
 
 <script>
 (function(){
@@ -943,9 +964,9 @@ const SP_VAR = {"-2":"--sp-m2","-1":"--sp-m1","0":"--sp-0","1":"--sp-1","2":"--s
 /* template mode: v1–v6, where v3 is the sprint planned in Month 1 */
 const monthWord = n => n >= 1 ? "Month "+n : (n === 0 ? "the month before Month 1" : "2 months before Month 1");
 const GEN_NAME = k => "v"+(k+3);
-const REL_WORD = {"-2":"Last sprint (live)", "-1":"Current sprint", "0":"Next sprint", "1":"Sprint after next", "2":"3 sprints out", "3":"4 sprints out", "4":"5 sprints out"};
-/* dev & QA's terms: the current sprint is the one in development or testing that ships at the end of Month 1 */
-const GEN_SUB  = k => REL_WORD[String(k)] + " · ships end of " + (k+2 >= 1 ? "Month "+(k+2) : "the month before Month 1");
+/* what each sprint is going through in Month 1. Teams mean different things by "current" and "next", so we only use v-numbers. */
+const SPRINT_STAGE = {"-2":"Live in stores in Month 1", "-1":"Finishing in Month 1: tested, then released at the end of the month", "0":"Being built in Month 1", "1":"Being designed in Month 1", "2":"Being groomed in Month 1", "3":"Ideas, further out", "4":"Ideas, further out"};
+const GEN_SUB  = k => SPRINT_STAGE[String(k)];
 /* the cycle that contains today (real dates): its release is the current sprint, in dev and QA terms */
 function todayCycle(){
   const t = new Date(); t.setHours(0,0,0,0); let cur = 0;
@@ -959,6 +980,9 @@ const ZOOM = {week:{label:"Weekly", per:5, min:56, tip:"One week fills the scree
 const COLLAPSED_H = 34, HIDDEN_H = 32;
 const collH = () => (colW >= 44 ? 48 : COLLAPSED_H);
 
+/* the role switch at the top of the timeline filters */
+const ROLE_CHIPS = [["all","Everyone"],["product","Product"],["design","Design"],["mobile","Mobile dev"],["backend","Backend"],["qa","QA"]];
+
 /* ---------- state ---------- */
 const state = {dateType:"template", zoom:"month", color:"lane", role:"all", sprint:"all", collapsed:new Set(), hidden:new Set(), types:new Set(["work","key","meeting"]), deps:true};
 try{
@@ -967,8 +991,9 @@ try{
   if(ZOOM[p.zoom]) state.zoom = p.zoom;
   if(p.color==="lane"||p.color==="sprint") state.color = p.color;
   if(typeof p.deps==="boolean") state.deps = p.deps;
+  if(p.role === "all" || ROLES[p.role]) state.role = p.role;
 }catch(e){}
-function save(){ try{ localStorage.setItem("mrt-prefs-v2", JSON.stringify({dateType:state.dateType, zoom:state.zoom, color:state.color, deps:state.deps})); }catch(e){} }
+function save(){ try{ localStorage.setItem("mrt-prefs-v2", JSON.stringify({dateType:state.dateType, zoom:state.zoom, color:state.color, deps:state.deps, role:state.role})); }catch(e){} }
 
 /* ---------- helpers ---------- */
 const $ = id => document.getElementById(id);
@@ -995,7 +1020,7 @@ function sprintName(k){
 function sprintSub(k){
   if(!isDated()) return GEN_SUB(k);
   const ship = cM()+1+k, cy = CYCLES[String(ship)];
-  return (cy ? cy.ships : "") + (ship === todayCycle() ? " · current sprint" : ship === todayCycle()+1 ? " · next sprint" : "");
+  return (cy ? cy.ships : "") + "";
 }
 const isOld = k => isDated() && k !== null && (cM()+1+k) <= 0;
 function glyphSvg(k){
@@ -1076,17 +1101,12 @@ function renderControls(){
   const c = $("ctl-color"); c.innerHTML="";
   [["sprint","Sprint"],["lane","Discipline"]].forEach(([v,l]) => c.appendChild(chip(l, state.color===v, () => { state.color=v; save(); renderAll(); })));
   const r = $("ctl-role"); r.innerHTML="";
-  const all = el("seg"); all.appendChild(chip("Everyone", state.role==="all", () => { state.role="all"; renderAll(); })); r.appendChild(all);
-  Object.entries(GROUPS).forEach(([gid,g]) => {
-    const box = el("rgroup");
-    box.appendChild(chip(esc(g.name), state.role===gid, () => { state.role = state.role===gid ? "all" : gid; renderAll(); }, "head"));
-    box.appendChild(el("sep"));
-    g.roles.forEach(rid => box.appendChild(chip(esc(ROLES[rid].name), state.role===rid, () => { state.role = state.role===rid ? "all" : rid; renderAll(); })));
-    r.appendChild(box);
-  });
+  ROLE_CHIPS.forEach(([id, label]) => r.appendChild(chip(esc(label), state.role===id, () => { state.role = id; save(); renderAll(); })));
   const s = $("ctl-sprint"); s.innerHTML="";
-  s.appendChild(chip("All sprints", state.sprint==="all", () => { state.sprint="all"; renderAll(); }));
-  sprintRange().forEach(k => s.appendChild(chip(glyph(k)+esc(sprintName(k))+' <small>'+esc(sprintSub(k))+'</small>', state.sprint===k, () => { state.sprint = state.sprint===k ? "all" : k; renderAll(); })));
+  s.appendChild(chip("All", state.sprint==="all", () => { state.sprint="all"; renderAll(); }));
+  $("sprint-info").dataset.tip = sprintRange().map(k => sprintName(k) + ": " + sprintSub(k)).join("\n");
+  sprintRange().forEach(k => s.appendChild(chip(glyphSvg(k)+esc(isDated() ? sprintName(k).split(" · ").pop() : sprintName(k)), state.sprint===k, () => { state.sprint = state.sprint===k ? "all" : k; renderAll(); })));
+  [...s.querySelectorAll(".chip")].slice(1).forEach((b, i) => { const k = sprintRange()[i]; b.dataset.tip = sprintName(k) + ": " + sprintSub(k); });
   $("transition-note").hidden = !isDated();
   $("tl-title").textContent = isDated() ? "October to December, every discipline" : "Three cycles, every discipline";
   renderLegend();
@@ -1528,32 +1548,35 @@ window.addEventListener("hashchange", () => {
 });
 document.addEventListener("keydown", ev => {
   if(ev.key !== "Escape") return;
+  if(!$("tour-tip").hidden){ closeTour(); return; }
+  if(!$("help").hidden){ $("help").hidden = true; return; }
+  if(!$("ob").hidden){ markOnboarded(); $("ob").hidden = true; return; }
   if(!$("pop").hidden){ closePop(true); return; }
   if($("map").classList.contains("fs")) setFs(false);
 });
 
 /* full screen: the filter panel can be folded away, leaving a one-line summary */
-let filtersOpen = true;
-try{ filtersOpen = localStorage.getItem("mrt-filters") !== "0"; }catch(e){}
+let filtersOpen = false;
+try{ filtersOpen = localStorage.getItem("mrt-filters-v2") === "1"; }catch(e){}
 function filterSummary(){
-  const role = state.role==="all" ? "Everyone" : (GROUPS[state.role] ? GROUPS[state.role].name : ROLES[state.role].name);
+  const role = (ROLE_CHIPS.find(([id]) => id === state.role) || [,"Everyone"])[1];
   const shown = TYPES.filter(([v]) => state.types.has(v)).map(([,l]) => l).join(", ");
   return [state.dateType==="real" ? "Real dates" : "Template", ZOOM[state.zoom].label, "Colour: "+(state.color==="lane" ? "Discipline" : "Sprint"),
-          role, state.sprint==="all" ? "All sprints" : sprintName(state.sprint), "Dependencies "+(state.deps ? "on" : "off"), shown].join(" · ");
+          state.sprint==="all" ? "All sprints" : sprintName(state.sprint), "Dependencies "+(state.deps ? "on" : "off"), shown].join(" · ");
 }
 function paintFilters(){
   const b = $("btn-filters"), f = $("filters");
   f.classList.toggle("collapsed", !filtersOpen);
   b.setAttribute("aria-expanded", filtersOpen ? "true" : "false");
-  b.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>'+(filtersOpen ? "Hide filters" : "Show filters")+'</span>';
+  b.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>'+(filtersOpen ? "Hide filters" : "Filters")+'</span>';
   $("filter-sum").hidden = filtersOpen;
   $("filter-sum").textContent = filterSummary();
 }
 $("btn-filters").addEventListener("click", () => {
   filtersOpen = !filtersOpen;
-  try{ localStorage.setItem("mrt-filters", filtersOpen ? "1" : "0"); }catch(e){}
+  try{ localStorage.setItem("mrt-filters-v2", filtersOpen ? "1" : "0"); }catch(e){}
   paintFilters();
-  if($("map").classList.contains("fs")) requestAnimationFrame(renderTimeline);   /* give the freed space to the rows */
+  requestAnimationFrame(renderTimeline);   /* in full screen, rows take the freed space */
 });
 /* ---------- light / dark ---------- */
 const THEME_ICON = {
@@ -1578,15 +1601,22 @@ document.addEventListener("click", ev => { if(ev.target.closest && ev.target.clo
 (function(){ try{ const t = localStorage.getItem("mrt-theme"); if(t === "dark" || t === "light") document.documentElement.dataset.theme = t; }catch(e){} paintThemeBtns(); })();
 if(window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", paintThemeBtns);
 
-/* ---------- overview: who touches which sprint in one month ---------- */
-const OV_STAGE = {"-2":"Live, then reviewed at the retro", "-1":"Built, frozen, tested and shipped", "0":"Designs final, planned, building starts", "1":"Being designed", "2":"Being groomed"};
+/* ---------- overview: the five sprints in one month, v3 being the one built ---------- */
+const OV_POS = {"-2":"2 sprints before", "-1":"1 sprint before", "0":"Being built this month", "1":"1 sprint after", "2":"2 sprints after"};
+const OV_TEXT = {
+  "-2":"Live. QA tests v1's live build, including any OTA fixes, and we hold the retro on it.",
+  "-1":"Finishing. Development wraps up in weeks 1 and 2 and stops at the code freeze. QA then tests the build so v2 can be released at the end of the month.",
+  "0":"Being built. Design finishes in week 1 and the reviews follow. Sprint planning locks v3's tickets in week 2, and development and QA test planning start right after.",
+  "1":"Being designed. After two weeks of grooming, the planning freeze in week 3 locks v4's tickets, and design starts working on them.",
+  "2":"Being groomed. Right after the planning freeze, the planning team starts grooming and brainstorming v5."
+};
 function renderOverlap(){
   const box = $("overlap"); if(!box) return;
   box.innerHTML = [-2,-1,0,1,2].map(k => {
     const items = T.filter(it => it.t === k && !it.tick);
     const byLane = LANES.map(l => ({l, its: items.filter(it => it.lane === l.id)})).filter(x => x.its.length);
     const chips = byLane.map(x => '<span class="ov-chip" style="--c:var(--l-'+x.l.id+')"><b>'+esc(x.l.name)+'</b>'+esc(x.its.map(it => it.label).join(", "))+'</span>').join("");
-    return '<div class="ov-row"><div class="ov-sp"><span class="gw" data-tip="'+esc(GEN_NAME(k)+" · "+GEN_SUB(k))+'">'+glyphSvg(k)+'</span><div><b>'+esc(GEN_NAME(k))+'</b><small>'+esc(REL_WORD[String(k)]+': '+OV_STAGE[String(k)].charAt(0).toLowerCase()+OV_STAGE[String(k)].slice(1))+'</small></div></div><div class="ov-who">'+chips+'</div></div>';
+    return '<div class="ov-row'+(k===0?' now':'')+'"><div class="ov-sp"><span class="gw">'+glyphSvg(k)+'</span><div><b>'+esc(GEN_NAME(k))+'</b><span class="ov-pos">'+esc(OV_POS[String(k)])+'</span></div></div><div><p class="ov-desc">'+esc(OV_TEXT[String(k)])+'</p><div class="ov-who">'+chips+'</div></div></div>';
   }).join("");
 }
 
@@ -1599,139 +1629,11 @@ function setLegend(open){
 $("fl-toggle").addEventListener("click", () => setLegend($("flegend").classList.contains("fl-collapsed")));
 (function(){ let open = window.innerWidth > 700; try{ const v = localStorage.getItem("mrt-legend"); if(v!==null) open = v==="1"; }catch(e){} setLegend(open); })();
 
-/* ---------- roles ---------- */
-function renderRoles(){
-  $("r-lede").textContent = isDated()
-    ? "Dates shown for the "+CYCLES[String(cM())].name+" cycle. The pattern repeats every four weeks; hover a marker to see which sprint each task serves."
-    : "The same pattern repeats every four weeks. Hover a marker to see which sprint each task serves, relative to Month 1.";
-  const rs = roleSet();
-  const box = $("roles"); box.innerHTML="";
-  Object.entries(ROLES).forEach(([key, role]) => {
-    let items = T.filter(it => it.who.includes(key));
-    const hasWeekly = items.some(it => it.tick);
-    items = items.filter(it => !it.tick).sort((a,b) => a.e-b.e || a.s-b.s);
-    let html = '<div class="role-h"><span class="grp">'+esc(role.group)+'</span><h3>'+esc(role.name)+'</h3><small>'+esc(role.people)+'</small></div><ul>';
-    if(hasWeekly) html += '<li><span class="w">Every week</span><b>Weekly meeting</b><span></span></li>';
-    items.forEach(it => {
-      let w;
-      if(isDated()){
-        const a = cycleDate(cM(),it.s), b = cycleDate(cM(),it.e);
-        w = it.s===it.e ? fmt(a) : fmt(a)+"–"+(b.getMonth()!==a.getMonth() ? MON[b.getMonth()]+" " : "")+b.getDate();
-      } else w = genWhen(it.s, it.e).replace(/Week /g,"Wk ");
-      html += '<li class="'+(it.ms?"ms":"")+'"><span class="w">'+esc(w)+'</span><b>'+esc(it.label)+'</b>'+glyph(it.t)+'</li>';
-    });
-    html += '</ul><p class="note">'+esc(ROLE_NOTES[key])+'</p>';
-    box.appendChild(el("role"+(rs && rs.includes(key) ? " on" : ""), "--c:var(--l-"+role.lane+")", html));
-  });
-}
-
-/* ---------- departures board (real dates, independent of the filters) ---------- */
-function renderBoard(){
-  const today = new Date(); today.setHours(0,0,0,0);
-  $("board-today").textContent = "Today " + fmt(today);
-  const rows = [];
-  for(let c=0; c<=2; c++){
-    T.filter(it => it.ms && !it.tick).forEach(it => {
-      const ship = c + 1 + it.t; if(ship <= 0) return;
-      const dt = cycleDate(c, it.e); if(!dt || dt < today) return;
-      rows.push({dt, it, rel: CYCLES[String(ship)] ? CYCLES[String(ship)].rel : "", hol: HOLIDAYS[iso(dt)]});
-    });
-  }
-  rows.sort((a,b) => a.dt-b.dt);
-  const body = $("board-rows");
-  if(!rows.length){ body.innerHTML = '<tr><td class="muted">No dated milestones left in Oct–Dec 2026. Add the next cycles to keep this board going.</td></tr>'; return; }
-  body.innerHTML = rows.slice(0,8).map(r => {
-    const days = Math.round((r.dt - today)/86400000);
-    const who = r.it.who.map(w => ROLES[w].name).join(", ");
-    return '<tr><td class="when">'+boardFmt(r.dt)+'<small>'+(days===0?"today":"in "+days+" day"+(days===1?"":"s"))+'</small></td>'+
-      '<td class="what"><b>'+esc(r.it.label)+'</b>'+(r.hol?' <span class="warn" style="display:inline">· '+esc(r.hol)+'</span>':'')+'<span>'+esc(r.rel)+' · '+esc(who)+'</span></td></tr>';
-  }).join("");
-}
-
-/* ---------- plan tab: month boxes + release tracks (always real dates) ---------- */
-const MONTH_NOTES = {
-  "0": {stage:"Trial month", note:"Everyone starts on the new cadence, loosely. Sprint planning for the October sprint (v2.17) is Oct 14; development and QA test planning start right after.", old:"The September sprint (v2.16) goes to stores around Oct 8; it was the last one shipped the old way."},
-  "1": {stage:"First freeze and release", note:"First code freeze (Nov 13) and first release (Nov 27) on the cadence. QA tests the October sprint (v2.17) while the November sprint (v2.18) is planned and built.", old:"Smoke tests on the live v2.16 build."},
-  "2": {stage:"First full cycle", note:"Every discipline runs the full cycle. QA tests the November sprint (v2.18), whose store date lands on Christmas Day and needs a decision.", old:""}
-};
-function instanceDate(it, c, useStart){ return cycleDate(c, useStart ? it.s : it.e); }
-function renderPlan(){
-  /* which items are first-ever on the new cadence */
-  const firstSeen = {};
-  for(let c=0; c<=2; c++) T.forEach(it => { if(it.tick) return; const ship = c+1+(it.t===null?0:it.t); if(ship>=1 && !(it.id in firstSeen)) firstSeen[it.id] = c; });
-  const box = $("months"); box.innerHTML = "";
-  [0,1,2].forEach(c => {
-    const cy = CYCLES[String(c)], mn = MONTH_NOTES[String(c)];
-    const a = cycleDate(c,0), b = cycleDate(c,19);
-    let html = '<div class="mbox-h"><span class="stage">'+esc(mn.stage)+'</span><h3>'+esc(cy.name)+'</h3><small>Cycle '+fmt(a)+' – '+fmt(b)+'</small><p>'+esc(mn.note)+'</p></div>';
-    LANES.forEach(l => {
-      const items = T.filter(it => it.lane===l.id && !it.tick && (c+1+it.t) >= 1).sort((x,y) => x.s-y.s || x.e-y.e);
-      if(!items.length) return;
-      html += '<div class="mlane"><div class="mlane-h"><i style="--c:var(--l-'+l.id+')"></i>'+esc(l.name)+'</div><ul>';
-      items.forEach(it => {
-        const da = cycleDate(c,it.s), db = cycleDate(c,it.e);
-        const d = it.s===it.e ? MON[db.getMonth()]+" "+db.getDate() : MON[da.getMonth()]+" "+da.getDate()+"–"+(da.getMonth()!==db.getMonth()?MON[db.getMonth()]+" ":"")+db.getDate();
-        const hol = holidayIn(c, it.s, it.e);
-        const ship = c+1+it.t, rel = CYCLES[String(ship)] ? CYCLES[String(ship)].rel : "";
-        const first = firstSeen[it.id]===c && it.ms ? '<span class="first">First</span>' : '';
-        html += '<li class="'+(it.ms?"key":"")+(isRed(it)?" major":"")+'"><span class="d">'+esc(d)+'</span><b>'+esc(it.label)+first+(hol?' <span class="warn">· '+esc(hol.split(" (")[0])+'</span>':'')+'</b><span class="gw" data-tip="'+esc("For the "+rel)+'">'+glyphSvgAbs(ship)+'</span></li>';
-      });
-      html += '</ul></div>';
-    });
-    if(mn.old) html += '<div class="mold">'+esc(mn.old)+'</div>';
-    box.appendChild(el("mbox","",html));
-  });
-
-  const STEPS = [
-    ["p-freeze","Planning freeze"],["d-final","Design final"],["x-plan","Sprint planning"],["m-next","Dev starts",true],
-    ["m-freeze","Code freeze"],["q-cut","Case cutoff"],["m-fixcut","Fix cutoff"],["m-release","Store submission"],["m-live","In stores"],["x-retro","Retro"]
-  ];
-  const tr = $("tracks"); tr.innerHTML = "";
-  [1,2].forEach(ship => {
-    let html = '<div class="track-h">'+glyphSvgAbs(ship)+'<h3>'+esc(CYCLES[String(ship)].rel)+'</h3><small>'+esc(CYCLES[String(ship)].ships)+' · '+(ship===1?"first sprint built and tested on the new cadence":"first sprint where every discipline runs the full cycle")+'</small></div><ol class="steps">';
-    STEPS.forEach(([id,label,useStart]) => {
-      const it = T.find(x => x.id===id), c = ship-1-it.t, dt = instanceDate(it, c, useStart);
-      if(!dt) return;
-      const tent = CYCLES[String(c)] && CYCLES[String(c)].tentative;
-      const hol = HOLIDAYS[iso(dt)];
-      html += '<li class="'+(hol?"hol":"")+(isRed(byId(id))?" major":"")+'" style="--c:var(--l-'+it.lane+')"><b>'+esc(label)+'</b><span>'+(tent?"~":"")+esc(fmt(dt))+(hol?" · "+esc(hol):"")+'</span></li>';
-    });
-    tr.appendChild(el("track","",html+"</ol>"));
-  });
-}
-/* plan tab colours sprints the same way as the real-dates timeline: v2.16 red, v2.17 blue, v2.18 orange, v2.19 pink */
-function glyphSvgAbs(ship){ const k = Math.max(-2, Math.min(4, ship - 1)); return glyphSvg(k); }
-
-/* who's on which sprint, per discipline and month: each person's own "current sprint" */
-const STAGE_VERB = {
-  design:   {"1":"Designing", "0":"Finishing designs", "-1":"Design QA on the freeze build"},
-  planning: {"2":"Grooming the sprint after next", "1":"Grooming, planning freeze", "0":"Sprint planning (case ready)"},
-  mobile:   {"0":"Tech review, then building part time", "-1":"Building full time, freeze, fixes, release", "-2":"In stores"},
-  backend:  {"0":"Review, then small API work to the cutoff", "1":"Big API work"},
-  qa:       {"0":"Edge-case review, test planning", "-1":"Finish test cases, release testing, sign-off", "-2":"Smoke tests, OTA fixes"}
-};
-function renderWho(){
-  let html = '<table class="ref who"><thead><tr><th>Discipline</th>'+[0,1,2].map(c => '<th>'+esc(CYCLES[String(c)].name)+'</th>').join("")+'</tr></thead><tbody>';
-  LANES.filter(l => STAGE_VERB[l.id]).forEach(l => {
-    html += '<tr><td><span class="who-l" style="--c:var(--l-'+l.id+')"><i></i>'+esc(l.name)+'</span></td>';
-    [0,1,2].forEach(c => {
-      const ts = [...new Set(T.filter(it => it.lane===l.id && it.t!==null && STAGE_VERB[l.id][String(it.t)]).map(it => it.t))].sort((a,b) => a-b);
-      html += '<td>'+ts.map(t => {
-        const ship = c+1+t, cy = CYCLES[String(ship)], old = ship <= 0;
-        const ver = cy ? cy.rel.split(" · ")[1] : "", nm = cy ? cy.rel.split(" · ")[0].replace(" sprint","") : "";
-        return '<div class="who-c'+(old?' old':'')+'"><span class="gw" data-tip="'+esc((cy?cy.rel:"")+" · "+(cy?cy.ships:""))+'">'+glyphSvgAbs(ship)+'</span><span><b>'+esc(ver)+'</b> '+esc(nm)+'<small>'+esc(STAGE_VERB[l.id][String(t)])+'</small></span></div>';
-      }).join("")+'</td>';
-    });
-    html += '</tr>';
-  });
-  $("who").innerHTML = html + '</tbody></table>';
-}
-
 /* ---------- tabs ---------- */
 /* sticky tabs: a soft shadow once they're pinned, and switching tabs mid-page brings the new content to the top */
 function markStuck(){ const t = $("tabs"); t.classList.toggle("stuck", t.getBoundingClientRect().top <= 1 && window.scrollY > 0); }
 window.addEventListener("scroll", () => requestAnimationFrame(markStuck), {passive:true});
-const TABS = ["overview","timeline","plan","roles","rules","status"];
+const TABS = ["overview","timeline","plan","roles","rules","meetings"];
 let currentTab = "overview";
 function showTab(id, opts){
   opts = opts || {};
@@ -1747,6 +1649,7 @@ function showTab(id, opts){
   if(!opts.noHash){ try{ history.replaceState(null, "", "#"+id); }catch(e){} }
   closePop(false); tip.hidden = true;
   if(id==="timeline") renderTimeline();
+  if(id==="timeline" && !obSeen()) setTimeout(openOnboarding, 250);
   if(opts.focus) $("t-"+id).focus();
   const tabsTop = $("tabs").getBoundingClientRect().top + window.scrollY;
   if(opts.scroll || window.scrollY > tabsTop) window.scrollTo({top: tabsTop, behavior: "auto"});
@@ -1759,18 +1662,82 @@ $("tabs").addEventListener("keydown", ev => {
 });
 document.addEventListener("click", ev => { const j = ev.target.closest && ev.target.closest("[data-goto]"); if(j) showTab(j.dataset.goto, {scroll:true}); });
 
-function renderAll(){ renderControls(); renderTimeline(); renderRoles(); }
-renderBoard();
-renderPlan();
+function renderAll(){ renderControls(); renderTimeline(); }
+
+/* ---------- onboarding: pick your role, then a short tour; Help reopens it ---------- */
+const obSeen = () => { try{ return localStorage.getItem("mrt-onboarded-v2") === "1"; }catch(e){ return false; } };
+function markOnboarded(){ try{ localStorage.setItem("mrt-onboarded-v2", "1"); }catch(e){} }
+function openOnboarding(){ closeTour(); $("help").hidden = true; $("ob").hidden = false; const f = $("ob").querySelector(".ob-role"); if(f) f.focus(); }
+$("ob").addEventListener("click", ev => {
+  const b = ev.target.closest("[data-role]");
+  if(b){ state.role = b.dataset.role; save(); markOnboarded(); $("ob").hidden = true; renderAll(); setTimeout(startTour, 200); return; }
+  if(ev.target.closest("#ob-skip")){ markOnboarded(); $("ob").hidden = true; }
+});
+const TOUR = [
+  {sel:"#ctl-role",     title:"Your role",          body:"Your work stays bright and everything else fades. Switch roles any time, or pick Everyone."},
+  {sel:"#ctl-zoom",     title:"Date view",          body:"Weekly zooms in on single days, Monthly fits one cycle on screen, and Quarterly shows three cycles."},
+  {sel:"#btn-next",     title:"Earlier and Later",  body:"Step a week or a month at a time. The dates on screen show next to these buttons."},
+  {sel:"#ctl-sprint",   title:"Follow a sprint",    body:"Each sprint has its own marker. v3 is the one being built this month. Pick one to fade the others."},
+  {sel:"#ctl-deps",     title:"Dependencies",       body:"Hover any item: a bold blue arrow shows what it leads to, a faint one what comes before. Click it to focus on that sprint. Switch off for a calmer view."},
+  {sel:"#ctl-types",    title:"Show",               body:"Hide work periods, key dates or meetings to declutter the chart."},
+  {sel:".km.w-critical",title:"Key dates",          body:"Pills sit on the day they're due. Red ones matter most: code freeze and release. Click any item for details."},
+  {sel:".lane-h",       title:"Lanes",              body:"The eye hides a lane. The arrow collapses it to just its key dates."},
+  {sel:".corner-btns",  title:"Expand and collapse",body:"Open or collapse every lane at once."},
+  {sel:"#btn-fs",       title:"Full screen",        body:"Give the timeline the whole window. The filters can fold away there too."},
+  {sel:"#btn-help",     title:"Help",               body:"Open the key points again, change your role, or restart this tour."}
+];
+let tourI = -1, tourEl = null;
+function startTour(){ if(!filtersOpen){ filtersOpen = true; paintFilters(); renderTimeline(); } tourI = -1; nextStep(1); }
+function nextStep(dir){
+  let i = tourI + dir;
+  while(i >= 0 && i < TOUR.length){
+    const el = document.querySelector(TOUR[i].sel);
+    if(el && el.getClientRects().length){ tourI = i; showStep(el); return; }
+    i += dir;
+  }
+  closeTour();
+}
+function showStep(el){
+  const st = TOUR[tourI], tipEl = $("tour-tip");
+  el.scrollIntoView({block:"center", inline:"nearest"});
+  tipEl.innerHTML = '<span class="eyebrow">Tip '+(tourI+1)+' of '+TOUR.length+'</span><h3>'+esc(st.title)+'</h3><p>'+esc(st.body)+'</p>'+
+    '<div class="tour-nav"><button class="linkbtn" type="button" data-t="skip">Skip tour</button><span><button class="btn" type="button" data-t="back"'+(tourI===0?' disabled':'')+'>Back</button><button class="btn primary" type="button" data-t="next">'+(tourI===TOUR.length-1?'Done':'Next')+'</button></span></div>';
+  $("tour-ring").hidden = false; tipEl.hidden = false;
+  setTimeout(() => placeTour(el), 60);
+  tipEl.querySelector('[data-t="next"]').focus({preventScroll:true});
+}
+function placeTour(el){
+  tourEl = el;
+  const r = el.getBoundingClientRect(), ring = $("tour-ring"), tipEl = $("tour-tip"), pad = 6;
+  ring.style.top = (r.top-pad)+"px"; ring.style.left = (r.left-pad)+"px"; ring.style.width = (r.width+pad*2)+"px"; ring.style.height = (r.height+pad*2)+"px";
+  const tw = tipEl.offsetWidth, th = tipEl.offsetHeight;
+  let top = r.bottom + 14; if(top + th > window.innerHeight - 10) top = Math.max(10, r.top - th - 14);
+  tipEl.style.top = top+"px"; tipEl.style.left = Math.min(Math.max(10, r.left), window.innerWidth - tw - 10)+"px";
+}
+function closeTour(){ tourI = -1; tourEl = null; $("tour-ring").hidden = true; $("tour-tip").hidden = true; }
+$("tour-tip").addEventListener("click", ev => {
+  const b = ev.target.closest("[data-t]"); if(!b) return;
+  if(b.dataset.t === "next") nextStep(1); else if(b.dataset.t === "back") nextStep(-1); else closeTour();
+});
+window.addEventListener("resize", () => { if(tourEl) placeTour(tourEl); });
+window.addEventListener("scroll", () => { if(tourEl) placeTour(tourEl); }, true);
+function openHelp(){ closeTour(); $("help-glyphs").innerHTML = [-2,-1,0,1,2].map(k => glyphSvg(k)).join(""); $("help").hidden = false; $("help-close").focus(); }
+$("btn-help").addEventListener("click", openHelp);
+$("help").addEventListener("click", ev => {
+  if(ev.target.closest("#help-close") || ev.target === $("help")) $("help").hidden = true;
+  else if(ev.target.closest("#help-tour")){ $("help").hidden = true; startTour(); }
+  else if(ev.target.closest("#help-role")) openOnboarding();
+});
+
 renderOverlap();
-renderWho();
 paintFsBtn(false);
 (function init(){
   const h = location.hash.replace("#","");
   let tab = TABS.includes(h) ? h : null;
   if(!tab){ try{ const s = localStorage.getItem("mrt-tab"); if(TABS.includes(s)) tab = s; }catch(e){} }
-  renderControls(); renderRoles();
-  if(h==="chart"){ showTab("timeline", {noHash:true}); setFs(true, true); }
+  renderControls();
+  if(h==="welcome"){ showTab("timeline", {noHash:true}); setTimeout(openOnboarding, 300); }
+  else if(h==="chart"){ showTab("timeline", {noHash:true}); setFs(true, true); }
   else showTab(tab || "overview", {noHash:!TABS.includes(h)});
 })();
 })();
