@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<!--
+  TKT-22242 — BIS Assets: Redesign Sub-Assets + Parts Inventory & Consumption (Phase 1)
+  Mid-fi interactive prototype, v2.
+  Chrome: _templates/prototype-template.html.
+  Product UI:
+    • BIS web shell = the current live chrome (purple title bar, top nav) so the client recognises it.
+    • Components follow the BIStrainer UI Library: BisButton (primary = BIS blue), BisModal "themed"
+      (BIStrainer UI Library / Storybook BisModal), the Task Management
+      "New Task" create pattern (Task Management Figma), and the Field Management right
+      panel (field-management-wireframe-ideal.html).
+    • Mobile = the live SafeTapp asset screen (Info tab → Linked Sub Asset accordion → eye → bottom sheet),
+      Mobile Figma. "Move Inventory" becomes Use / Refill.
+  One shared state drives every screen: using / refilling anywhere updates every surface.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TKT-22242 — Sub-Assets & Parts Inventory — Prototype</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root {
+    /* BIStrainer UI Library tokens (subset) */
+    --primary:#0078B3; --primary-hover:#095F8C; --primary-tint:#F0F9FE; --primary-lightest:#F8FEFF; --primary-stroke:#009ACB; --primary-stroke-l:#C9EFFA;
+    --text:#19191A; --text-2:#636368; --text-3:#96969D; --text-on:#FEFEFE;
+    --surface:#FEFEFE; --bg:#F8F8F8; --lightest:#F2F2F2; --lighter:#DFDFE2; --disabled:#F2F2F2;
+    --stroke:#AFAFB5; --stroke-l:#DFDFE2; --stroke-d:#4C4C4F;
+    --success:#167B00; --success-tint:#EBF8D6; --success-stroke:#DDF1BA;
+    --notice:#9C6300; --notice-icon:#C37900; --notice-tint:#FFF3E1; --notice-stroke:#FFECCF;
+    --danger:#CC2222; --danger-tint:#FFF2F2; --danger-stroke:#FDD4D4;
+    --icon:#4C4C4F; --icon-l:#AFAFB5;
+    --overlay:rgba(25,25,27,.25);
+    --shadow-l1:0 0 3px rgba(0,0,0,.15); --shadow-l2:0 0 4px rgba(0,0,0,.15); --shadow-l3:0 0 8px rgba(0,0,0,.15); --shadow-l5:0 0 20px rgba(0,0,0,.15);
+    --r-base:4px; --r-md:8px; --r-lg:12px;
+    --bis-purple:#463C58;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:"Segoe UI", system-ui, sans-serif; font-size:14px; color:var(--text); background:var(--bg); line-height:1.5; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+  a { color:var(--primary); text-decoration:none; cursor:pointer; }
+  a:hover { text-decoration:underline; }
+  button { font-family:inherit; cursor:pointer; background:none; border:none; color:inherit; }
+  input, select, textarea { font-family:inherit; color:var(--text); }
+
+  /* ===== template chrome (not product) ===== */
+  .topbar { background:#fff; border-bottom:1px solid var(--stroke-l); display:flex; align-items:center; justify-content:space-between; gap:12px; padding:6px 16px; flex-wrap:wrap; flex-shrink:0; }
+  .topbar-left, .topbar-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .t-ticket { font-size:16px; font-weight:600; } .t-project { font-size:14px; } .t-date { font-size:12px; }
+  .badge-pill { display:inline-flex; align-items:center; padding:2px 8px; border-radius:12px; font-size:12px; font-weight:600; box-shadow:0 0 4px rgba(0,0,0,.15); white-space:nowrap; background:var(--primary-tint); color:var(--primary); }
+  .btn-reset { background:#fff; border:1px solid var(--stroke-d); border-radius:4px; padding:5px 12px; font-size:13px; font-weight:600; color:var(--text-2); }
+  .btn-notes { background:var(--primary-tint); border:1px solid var(--primary); color:var(--primary); border-radius:4px; padding:5px 12px; font-size:13px; font-weight:600; }
+  .page { width:100%; flex:1; min-height:0; display:flex; flex-direction:column; padding:10px 20px 14px; }
+  .navrow { display:flex; align-items:center; gap:16px; margin-bottom:6px; flex-wrap:wrap; flex-shrink:0; }
+  .seg-control { display:inline-flex; border:1px solid var(--stroke); border-radius:80px; overflow:hidden; background:#fff; }
+  .seg-opt { background:rgba(254,255,255,.75); border-left:1px solid var(--stroke); padding:5px 14px; font-size:13px; }
+  .seg-opt:first-child { border-left:none; }
+  .seg-opt.active { background:var(--primary-tint); color:var(--primary); font-weight:600; }
+  .flow-tabs { display:flex; gap:4px; flex-wrap:wrap; }
+  .flow-tab { padding:5px 14px; font-size:14px; font-weight:600; color:var(--text-2); border-radius:4px; border:1px solid transparent; }
+  .flow-tab.active { background:#fff; border-color:var(--stroke-l); color:var(--primary); }
+  .proto-card { background:#fff; border:1px solid var(--stroke); border-radius:8px; display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden; position:relative; }
+  .proto-stage { flex:1; min-height:0; overflow-y:auto; padding:18px 20px 24px; background:#EEF0F2; }
+  .step-details { background:var(--bg); border-top:1px solid var(--stroke-l); padding:10px 18px 12px; flex-shrink:0; }
+  .sd-title { font-size:14px; font-weight:600; margin-bottom:4px; }
+  .sd-list { list-style:disc; padding-left:18px; font-size:12px; line-height:1.6; }
+  .anno { border:1.5px dashed #8a7fb0; background:#f7f5ff; border-radius:8px; padding:14px 16px; font-size:13px; }
+  .anno h4 { font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:#5a4e86; margin-bottom:8px; }
+  .anno-tag { display:inline-block; font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; background:#5a4e86; color:#fff; border-radius:3px; padding:1px 6px; margin-right:6px; vertical-align:middle; }
+  .ctl-row { display:flex; align-items:center; gap:10px; margin-bottom:12px; font-size:12px; color:var(--text-2); font-weight:600; flex-wrap:wrap; }
+
+  /* ===== BIS web shell (current live chrome) ===== */
+  .bis { background:#fff; border:1px solid #d6d6d6; border-radius:4px; min-height:100%; position:relative; }
+  .bis-top { display:flex; align-items:center; gap:12px; padding:9px 16px; border-bottom:1px solid #eee; }
+  .logo { display:flex; align-items:center; gap:6px; }
+  .logo b { font-size:22px; font-weight:800; letter-spacing:-1px; }
+  .logo small { font-size:8.5px; line-height:1.1; border-left:1px solid #333; padding-left:5px; color:#333; text-transform:uppercase; }
+  .spacer { flex:1; }
+  .usersearch { width:200px; height:30px; padding:4px 8px; font-size:13px; border:1px solid var(--stroke); border-radius:4px; }
+  .circ { width:30px; height:30px; border:1.5px solid #555; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; position:relative; color:#444; font-size:13px; }
+  .bell-badge { position:absolute; top:-6px; right:-7px; background:var(--danger); color:#fff; font-size:10px; border-radius:8px; padding:0 5px; font-weight:700; line-height:15px; }
+  .avatar { width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#7ad,#3a8); }
+  .logout { font-size:13px; color:#555; }
+  .bis-nav { display:flex; gap:28px; padding:8px 16px; border-bottom:1px solid #e5e5e5; font-size:14px; flex-wrap:wrap; }
+  .bis-nav .on { color:var(--primary); font-weight:600; }
+  .bis-title { background:var(--bis-purple); color:#fff; padding:9px 24px; font-size:17px; display:flex; align-items:center; gap:12px; }
+  .bis-title .back { margin-left:auto; border:1px solid #fff; color:#fff; border-radius:4px; padding:2px 9px; font-size:12px; }
+  .bis-body { padding:20px 24px 28px; }
+
+  /* menus / popovers */
+  .pop { position:absolute; background:var(--surface); border:1px solid var(--stroke-l); border-radius:var(--r-md); box-shadow:var(--shadow-l2); z-index:20; }
+  .bell-pop { right:70px; top:46px; width:360px; }
+  .bell-pop h5 { font-size:14px; padding:10px 12px; border-bottom:1px solid var(--stroke-l); }
+  .notif { padding:10px 12px; border-bottom:1px solid var(--stroke-l); font-size:13px; display:flex; gap:10px; }
+  .notif:last-child { border-bottom:none; }
+  .notif.unread { background:var(--primary-lightest); }
+  .notif i { color:var(--notice-icon); margin-top:3px; }
+  .notif small { color:var(--text-2); display:block; }
+  .menu { right:0; top:32px; min-width:200px; padding:4px; text-align:left; }
+  .mi { width:100%; display:flex; align-items:center; gap:8px; padding:8px 10px; font-size:14px; text-align:left; border-radius:var(--r-base); }
+  .mi:hover { background:var(--primary-lightest); }
+  .mi i { width:16px; color:var(--icon); font-size:13px; }
+  .mi.danger, .mi.danger i { color:var(--danger); }
+  .msep { border-top:1px solid var(--stroke-l); margin:4px 0; }
+
+  /* BisButton [Figma §3.1]: 34 high, padding 4/8, radius 4, 16/26 600; small 26 high, 14/18 */
+  .b { display:inline-flex; align-items:center; justify-content:center; gap:6px; height:34px; padding:4px 8px; border-radius:var(--r-base); border:1px solid var(--stroke); background:transparent; font-size:16px; line-height:26px; font-weight:600; color:var(--text-2); white-space:nowrap; }
+  .b:hover { background:var(--lightest); }
+  .b i { font-size:14px; }
+  .b-primary { background:var(--primary); border-color:transparent; color:var(--text-on); }
+  .b-primary:hover { background:var(--primary-hover); }
+  .b-sp { color:var(--primary); }
+  .b-ghost { border-color:transparent; color:var(--text); }
+  .b-ghost:hover { background:transparent; color:var(--text-2); }
+  .b-danger { background:var(--danger); border-color:transparent; color:var(--text-on); }
+  .b-danger:hover { background:#A43232; }
+  .b-link { border:none; height:auto; padding:2px; color:var(--primary); font-weight:400; font-size:14px; }
+  .b-link:hover { background:none; text-decoration:underline; }
+  .b-sm { height:26px; padding:4px 6px; font-size:14px; line-height:18px; }
+  .b-sm i { font-size:12px; }
+  .b:disabled { opacity:.45; cursor:not-allowed; }
+  .b-primary:disabled { opacity:1; background:var(--disabled); color:var(--text-3); }
+  .ib { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:var(--r-base); color:var(--icon); font-size:14px; flex-shrink:0; }
+  .ib:hover { background:var(--lightest); }
+
+  /* fields */
+  .lbl { display:block; font-size:16px; line-height:24px; font-weight:600; margin-bottom:4px; }
+  .lbl .req, .req { color:var(--danger); margin-left:2px; }
+  .lbl-opt { font-weight:400; color:var(--text-2); font-size:14px; margin-left:4px; display:inline; }
+  .input, .sel, .ta { width:100%; height:32px; padding:4px 8px; border:1px solid var(--stroke); border-radius:var(--r-base); font-size:16px; line-height:22px; background:var(--surface); outline:none; }
+  .ta { height:auto; min-height:64px; resize:vertical; }
+  .input:focus, .sel:focus, .ta:focus { border-color:var(--primary-stroke); }
+  .input.bad, .sel.bad { border-color:var(--danger); }
+  .ro { display:flex; align-items:center; gap:8px; min-height:32px; padding:4px 8px; border-radius:var(--r-base); background:var(--lightest); font-size:16px; }
+  .help { font-size:12px; line-height:16px; color:var(--text-2); margin-top:4px; }
+  .err { font-size:13px; color:var(--danger); margin-top:4px; display:flex; gap:6px; align-items:center; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px 16px; }
+  .grid2 .full { grid-column:1 / -1; }
+  .search { position:relative; display:inline-flex; align-items:center; }
+  .search i { position:absolute; left:10px; color:var(--icon-l); font-size:13px; }
+  .search .input { padding-left:30px; }
+
+  /* chips (tint + hairline) */
+  .chip { display:inline-flex; align-items:center; gap:4px; height:20px; padding:2px 6px; border-radius:var(--r-base); font-size:12px; line-height:16px; font-weight:600; white-space:nowrap; border:1px solid var(--stroke); background:var(--surface); color:var(--text-2); }
+  .chip i { font-size:10px; }
+  .chip.ok { background:var(--success-tint); border-color:var(--success-stroke); color:var(--success); }
+  .chip.low { background:var(--notice-tint); border-color:var(--notice-stroke); color:var(--notice); }
+  .chip.out { background:var(--danger-tint); border-color:var(--danger-stroke); color:var(--danger); }
+  .chip.mig { background:var(--primary-tint); border-color:var(--primary-stroke-l); color:var(--primary); }
+  .kpill { display:inline-flex; align-items:center; gap:5px; font-size:13px; color:var(--text-2); margin-right:10px; white-space:nowrap; }
+  .kpill i { font-size:11px; color:var(--icon-l); }
+
+  /* inventory page */
+  .tiles { display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+  .tile { border:1px solid var(--stroke-l); border-radius:var(--r-md); padding:10px 14px; min-width:170px; background:var(--surface); text-align:left; }
+  .tile:hover { border-color:var(--primary-stroke); }
+  .tile.on { border-color:var(--primary-stroke); background:var(--primary-tint); }
+  .tile .k { font-size:12px; line-height:16px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-2); font-weight:600; display:flex; gap:6px; align-items:center; }
+  .tile .n { font-size:22px; line-height:30px; font-weight:600; }
+  .tile.warn .k i:first-child { color:var(--notice-icon); } .tile.t-err .k i:first-child { color:var(--danger); }
+  .toolbar { display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+  .toolbar .sel { width:auto; min-width:150px; }
+  .tbl-wrap { border:1px solid var(--stroke-l); border-radius:var(--r-md); }
+  .tbl { width:100%; border-collapse:separate; border-spacing:0; }
+  .tbl th { text-align:left; font-weight:600; font-size:14px; padding:9px 12px; border-bottom:1px solid var(--stroke-l); background:var(--surface); white-space:nowrap; }
+  .tbl th:first-child { border-top-left-radius:var(--r-md); } .tbl th:last-child { border-top-right-radius:var(--r-md); }
+  .tbl td { padding:9px 12px; border-bottom:1px solid var(--stroke-l); vertical-align:middle; font-size:14px; }
+  .tbl tr:last-child td { border-bottom:none; }
+  .tbl th + th, .tbl td + td { border-left:1px solid var(--stroke-l); }
+  .tbl tr.row { cursor:pointer; } .tbl tr.row:hover td { background:var(--primary-lightest); }
+  .tbl tr.sel td { background:var(--primary-tint) !important; }
+  .tbl .num { text-align:right; }
+  .nm { color:var(--primary); font-weight:600; }
+  .psub { font-size:12px; line-height:16px; color:var(--text-2); }
+  .qty { font-size:16px; font-weight:600; }
+  .muted { color:var(--text-3); }
+  .acts { display:flex; gap:6px; align-items:center; justify-content:flex-end; position:relative; }
+  .empty { text-align:center; color:var(--text-2); padding:28px; }
+
+  /* asset / location / user page */
+  .fields { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px 18px; margin-bottom:14px; }
+  .fields .ro { font-size:14px; color:var(--text-2); }
+  .fields .flbl { font-size:13px; font-weight:600; margin-bottom:3px; }
+  .acc { border-bottom:1px solid #ddd; }
+  .acc-h { display:flex; align-items:center; gap:8px; padding:13px 2px; font-weight:700; font-size:15px; }
+  .acc-h .chev { margin-left:auto; color:#888; font-size:13px; }
+  .acc-h .cnt { background:var(--lightest); border-radius:10px; font-size:12px; padding:0 8px; color:var(--text-2); font-weight:600; }
+  .acc-b { padding:0 2px 18px; }
+  .sect-bar { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .info { font-size:13px; color:var(--text); background:var(--primary-tint); border:1px solid var(--primary-stroke-l); border-radius:var(--r-base); padding:5px 10px; display:inline-flex; gap:6px; align-items:center; }
+  .info i { color:var(--primary-stroke); }
+  .acc-h .lock { margin-left:auto; color:#222; font-size:15px; }
+  .acc-h .lock + .chev { margin-left:10px; }
+  /* live user profile: two-line title bar + card accordions */
+  .bis-title.prof-t { padding:6px 10px; display:block; }
+  .prof { display:flex; justify-content:space-between; gap:12px; }
+  .prof > div:first-child > div { font-size:18px; }
+  .prof i { display:block; font-size:15px; }
+  .prof-r { text-align:right; }
+  .cards { display:flex; flex-direction:column; gap:20px; }
+  .acc-card { background:#f5f5f5; border:1px solid #e3e3e3; border-radius:4px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+  .acc-card > .acc-h { padding:16px 16px; font-weight:600 !important; }
+  .acc-card > .acc-b { background:#fff; padding:14px 14px 16px; border-top:1px solid #e3e3e3; border-radius:0 0 4px 4px; }
+  /* live location page: title buttons + right-hand Menu */
+  .bis-title.big { font-size:24px; font-weight:600; padding:8px 12px; }
+  .tb-btns { margin-left:auto; display:flex; gap:6px; }
+  .tb { font-size:12px; font-weight:400; color:#fff; border-radius:3px; padding:3px 8px; }
+  .tb-g { background:#5cb85c; } .tb-b { background:#5b7fc7; } .tb-p { background:#b05cc0; }
+  .bis-title .back.w { margin-left:0; background:#fff; color:#222; border-color:#fff; display:inline-flex; gap:6px; align-items:center; }
+  .bis-body.flush { padding:0; }
+  .loc { display:flex; min-height:560px; }
+  .loc-main { flex:1; min-width:0; padding:14px 12px 28px; }
+  .loc-h { font-size:20px; font-weight:600; padding-bottom:8px; margin-bottom:12px; border-bottom:1px solid #ddd; display:flex; align-items:center; gap:8px; }
+  .loc-h .cnt { background:var(--lightest); border-radius:10px; font-size:12px; padding:0 8px; color:var(--text-2); font-weight:600; }
+  .loc-menu { width:230px; flex-shrink:0; border-left:1px solid #ddd; padding:10px 0; }
+  .loc-mh { text-align:center; position:relative; padding:4px 0 10px; }
+  .loc-mh b { display:block; font-size:15px; }
+  .loc-mh span { font-size:12px; color:#777; }
+  .loc-mh i { position:absolute; right:6px; top:4px; font-size:22px; color:#222; }
+  .loc-mi { display:flex; align-items:center; gap:14px; padding:10px 14px; font-size:14px; color:#222; }
+  .loc-mi i { width:18px; text-align:center; color:#555; }
+  .loc-mi.on { background:var(--bis-purple); color:#fff; }
+  .loc-mi.on i { color:#fff; }
+  .newtag { font-size:10px; font-weight:700; background:var(--primary); color:#fff; border-radius:3px; padding:1px 5px; letter-spacing:.04em; }
+
+  /* overlays live inside .proto-card */
+  .scrim { position:absolute; inset:0; background:var(--overlay); z-index:30; }
+  /* Field Management right panel */
+  .drawer { position:absolute; top:0; right:0; bottom:0; width:min(560px, 94%); background:var(--surface); box-shadow:var(--shadow-l3); z-index:31; display:flex; flex-direction:column; border-radius:var(--r-md) 0 0 var(--r-md); transition:width .15s; }
+  .dr-h { display:flex; align-items:center; gap:6px; padding:12px 14px; border-bottom:1px solid var(--stroke-l); }
+  .dr-h h2 { font-size:16px; line-height:24px; font-weight:400; color:var(--text-2); margin-right:auto; }
+  .dr-b { flex:1; overflow:auto; padding:14px 14px 24px; display:flex; flex-direction:column; gap:10px; }
+  .dr-title { display:flex; align-items:center; gap:10px; }
+  .dr-title h3 { font-size:18px; line-height:26px; font-weight:600; margin-right:auto; }
+  .dr-title > i { color:var(--icon-l); font-size:16px; }
+  .dr-banner { display:flex; gap:8px; font-size:13px; line-height:18px; padding:8px 10px; border-radius:var(--r-base); background:var(--primary-tint); border:1px solid var(--primary-stroke-l); color:var(--text); }
+  .dr-banner i { color:var(--primary-stroke); margin-top:2px; }
+  .kv { border:1px solid var(--stroke-l); border-radius:var(--r-md); display:grid; grid-template-columns:repeat(3, 1fr); }
+  .kv > div { padding:8px 10px; border-right:1px solid var(--stroke-l); border-bottom:1px solid var(--stroke-l); min-width:0; }
+  .kv > div:nth-child(3n) { border-right:none; }
+  .kv > div:nth-last-child(-n+3) { border-bottom:none; }
+  .kv b { display:block; font-size:13px; font-weight:600; }
+  .kv span { font-size:13px; color:var(--text-2); }
+  .blk { border:1px solid var(--stroke-l); border-radius:var(--r-md); padding:10px 12px; }
+  .blk .k { font-size:12px; line-height:16px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-2); }
+  .stock { display:flex; align-items:center; gap:12px; margin-top:4px; }
+  .stock .big { font-size:28px; line-height:34px; font-weight:600; }
+  .bar { height:6px; background:var(--lightest); border-radius:3px; margin:8px 0 2px; position:relative; overflow:hidden; }
+  .bar i { position:absolute; left:0; top:0; bottom:0; border-radius:3px; }
+  .sec { border:1px solid var(--stroke-l); border-radius:var(--r-md); }
+  .sec-h { display:flex; align-items:center; gap:8px; width:100%; padding:10px 12px; font-size:15px; font-weight:600; color:var(--text-2); text-align:left; }
+  .sec-h .cnt { background:var(--lightest); border-radius:10px; font-size:12px; padding:0 7px; }
+  .sec-h .chev { margin-left:auto; font-size:12px; color:var(--icon); }
+  .sec-b { padding:0 12px 12px; }
+  .grp-h { font-size:12px; font-weight:600; text-transform:uppercase; color:var(--text-2); letter-spacing:.05em; margin:10px 0 4px; display:flex; align-items:center; gap:6px; }
+  .trow { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--stroke-l); }
+  .trow:last-child { border-bottom:none; }
+  .trow .ic { width:28px; height:28px; border-radius:50%; background:var(--lightest); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--icon); font-size:12px; }
+  .alog { width:100%; border-collapse:collapse; }
+  .alog th { text-align:left; font-size:12px; font-weight:600; color:var(--text-2); padding:5px 6px; border-bottom:1px solid var(--stroke-l); }
+  .alog td { font-size:13px; padding:6px; border-bottom:1px solid var(--stroke-l); vertical-align:top; }
+  .alog .num { text-align:right; }
+  .plus { color:var(--success); font-weight:600; } .minus { color:var(--danger); font-weight:600; }
+
+  /* BisModal — type "themed" (white header & footer) */
+  .modal-wrap { position:absolute; inset:0; z-index:32; display:flex; align-items:flex-start; justify-content:center; padding:4% 16px; pointer-events:none; }
+  .modal { pointer-events:auto; background:var(--surface); border-radius:var(--r-md); box-shadow:var(--shadow-l5); width:100%; display:flex; flex-direction:column; max-height:100%; }
+  .modal.sm { max-width:525px; } .modal.md { max-width:640px; } .modal.lg { max-width:750px; }
+  .mh { display:flex; align-items:center; gap:8px; padding:16px 16px 6px; }
+  .mh h2 { font-size:20px; line-height:28px; font-weight:600; margin-right:auto; }
+  .mh .ti { font-size:18px; }
+  .mh .ti.primary { color:var(--primary-stroke); } .mh .ti.danger { color:var(--danger); } .mh .ti.warning { color:var(--notice-icon); } .mh .ti.success { color:var(--success); }
+  .mh .ib { color:var(--icon); font-size:18px; }
+  .mb { padding:12px 16px 16px; overflow:auto; font-size:16px; line-height:24px; }
+  .mf { display:flex; justify-content:flex-end; align-items:center; gap:8px; padding:12px 16px 16px; }
+  .mf .left { margin-right:auto; }
+  .banner { display:flex; gap:8px; font-size:14px; line-height:20px; padding:8px 10px; border-radius:var(--r-base); margin-top:12px; }
+  .banner.warning { background:var(--notice-tint); border:1px solid var(--notice-stroke); color:var(--notice); }
+  .banner.warning i { color:var(--notice-icon); margin-top:3px; }
+  .banner.info { background:var(--primary-tint); border:1px solid var(--primary-stroke-l); }
+  .banner.info i { color:var(--primary-stroke); margin-top:3px; }
+  .after { font-size:14px; color:var(--text-2); margin-top:10px; }
+  /* Task-style create form */
+  .tk-ttl { display:inline-flex; align-items:center; gap:8px; font-size:18px; line-height:26px; font-weight:600; margin-right:auto; }
+  .tk-ttl i { color:var(--primary-stroke); font-size:16px; }
+  .tk-h { font-size:18px; line-height:26px; font-weight:600; margin:22px 0 10px; }
+  .msel { position:relative; }
+  .msel-f { display:flex; align-items:center; flex-wrap:wrap; gap:6px; min-height:32px; padding:3px 30px 3px 6px; border:1px solid var(--stroke); border-radius:var(--r-base); background:var(--surface); cursor:pointer; text-align:left; width:100%; position:relative; }
+  .msel-f.open { border-color:var(--primary-stroke); }
+  .msel-f .ph { color:var(--text-3); font-size:16px; padding-left:2px; }
+  .msel-f .caret { position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--icon); font-size:12px; }
+  .mchip { display:inline-flex; align-items:center; gap:4px; height:24px; padding:0 4px 0 8px; border:1px solid var(--primary-stroke-l); background:var(--primary-tint); border-radius:12px; font-size:14px; color:var(--primary); font-weight:600; }
+  .mchip .mx { font-size:11px; color:var(--icon); padding:2px 3px; cursor:pointer; }
+  .mchip.more { padding:0 8px; }
+  .msel-menu { left:0; right:0; top:36px; padding:8px; }
+  .msel-list { max-height:220px; overflow:auto; margin-top:6px; }
+  .opt { display:flex; align-items:center; gap:10px; width:100%; padding:6px 8px; text-align:left; font-size:14px; line-height:18px; border-radius:var(--r-base); }
+  .opt:hover, .opt.on { background:var(--primary-lightest); }
+  .opt .ck { margin-left:auto; color:var(--primary); font-size:13px; }
+  .opt .oi { width:26px; height:26px; border-radius:50%; background:var(--lightest); display:flex; align-items:center; justify-content:center; color:var(--icon); font-size:11px; flex-shrink:0; }
+  .where { margin-top:14px; font-size:14px; color:var(--text-2); display:flex; gap:8px; align-items:flex-start; }
+  .where i { color:var(--primary-stroke); margin-top:3px; }
+
+  /* snackbar */
+  .snack { position:absolute; left:50%; bottom:86px; transform:translateX(-50%); display:flex; align-items:flex-start; gap:12px; width:400px; max-width:calc(100% - 32px); padding:12px 12px 15px; background:var(--surface); border-radius:var(--r-md); box-shadow:var(--shadow-l3); z-index:40; font-size:14px; line-height:20px; overflow:hidden; }
+  .snack > i { font-size:16px; margin-top:2px; color:var(--success); }
+  .snack.warn > i { color:var(--notice-icon); }
+  .snack .t { position:absolute; left:0; right:0; bottom:0; height:3px; background:var(--success-stroke); }
+  .snack.warn .t { background:var(--notice-stroke); }
+
+  /* alert explainer */
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .email { border:1px solid var(--stroke-l); border-radius:var(--r-md); overflow:hidden; background:#fff; }
+  .email .eh { background:var(--bg); padding:8px 12px; font-size:12px; color:var(--text-2); border-bottom:1px solid var(--stroke-l); }
+  .email .eb { padding:14px 16px; font-size:14px; }
+  .timeline { list-style:none; border-left:2px solid var(--stroke-l); margin-left:6px; padding-left:14px; }
+  .timeline li { position:relative; margin-bottom:9px; font-size:13px; }
+  .timeline li::before { content:''; position:absolute; left:-20px; top:5px; width:10px; height:10px; border-radius:50%; background:var(--stroke); }
+  .timeline li.fire::before { background:var(--notice-icon); } .timeline li.reset::before { background:var(--success); }
+
+  /* ===== Mobile (live SafeTapp asset screen) ===== */
+  .mwrap { display:flex; gap:28px; justify-content:center; align-items:flex-start; flex-wrap:wrap; }
+  .mside { width:310px; display:flex; flex-direction:column; gap:14px; }
+  .phone { width:360px; height:740px; border:11px solid #1d1d1f; border-radius:40px; overflow:hidden; background:#fff; position:relative; display:flex; flex-direction:column; box-shadow:0 10px 30px rgba(0,0,0,.2); font-family:Roboto, "Segoe UI", system-ui, sans-serif; }
+  .ph-status { height:28px; background:#3F3651; color:#fff; font-size:12px; font-weight:600; display:flex; align-items:center; justify-content:space-between; padding:0 18px; flex-shrink:0; }
+  .ph-status.light { background:#fff; color:#111; }
+  .ph-bar { background:#3F3651; color:#fff; height:56px; padding:0 16px; display:flex; align-items:center; gap:16px; flex-shrink:0; }
+  .ph-bar h1 { font-size:18px; font-weight:700; margin-right:auto; }
+  .ph-bar i { font-size:18px; }
+  .ph-tabs { display:flex; border-bottom:1px solid #e3e3e3; flex-shrink:0; background:#fff; }
+  .ph-tabs span { flex:1; text-align:center; padding:12px 0 10px; font-size:14px; color:#666; position:relative; }
+  .ph-tabs span.on { color:#222; font-weight:500; }
+  .ph-tabs span.on::after { content:''; position:absolute; bottom:-1px; left:32%; right:32%; height:3px; background:var(--primary); border-radius:2px; }
+  .ph-scroll { flex:1; overflow-y:auto; background:#fff; padding:14px 10px 90px; position:relative; }
+  .ph-img { border:1px solid #cfcfcf; border-radius:12px; height:190px; display:flex; align-items:center; justify-content:center; position:relative; margin-bottom:10px; }
+  .ph-img > i { font-size:84px; color:#cfcfcf; }
+  .ph-img span { position:absolute; right:10px; bottom:10px; background:#e3e3e3; border-radius:4px; padding:6px 12px; font-size:13px; }
+  .ph-acc { background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.18); margin-bottom:8px; }
+  .ph-acc-h { display:flex; align-items:center; padding:16px 12px; font-size:14px; font-weight:500; }
+  .ph-acc-h i { margin-left:auto; font-size:14px; }
+  .ph-th { display:flex; background:#f2f2f2; border-top:1px solid #ddd; border-bottom:1px solid #333; padding:9px 12px; font-size:14px; }
+  .ph-tr { display:flex; align-items:center; padding:11px 12px; border-bottom:1px solid #eee; font-size:15px; cursor:pointer; }
+  .ph-tr:last-child { border-bottom:none; }
+  .ph-tr:hover { background:#f8fbfd; }
+  .c-name { flex:1; min-width:0; } .c-qty { width:70px; } .c-eye { width:28px; text-align:right; color:var(--primary); font-size:17px; }
+  .ph-tr .chip { margin-top:3px; }
+  .ph-fab { position:absolute; right:16px; bottom:22px; background:var(--primary); color:#fff; border-radius:24px; padding:11px 18px; font-size:15px; font-weight:600; display:flex; gap:8px; align-items:center; box-shadow:0 2px 6px rgba(0,0,0,.25); z-index:3; }
+  .ph-dim { position:absolute; inset:0; background:rgba(0,0,0,.28); z-index:4; }
+  .ph-sheet { position:absolute; left:0; right:0; bottom:0; max-height:80%; background:#fff; border-radius:16px 16px 0 0; z-index:5; display:flex; flex-direction:column; }
+  .ph-grab { width:44px; height:4px; border-radius:2px; background:#999; margin:10px auto 6px; }
+  .ph-sheet-b { overflow:auto; padding:6px 16px 8px; }
+  .ph-sheet h3 { font-size:17px; font-weight:700; margin-bottom:12px; }
+  .ph-f { margin-bottom:12px; }
+  .ph-f b { display:block; font-size:14px; font-weight:700; }
+  .ph-f span { font-size:14px; color:#333; }
+  .ph-foot { padding:10px 14px 14px; display:flex; flex-direction:column; gap:8px; }
+  .mb-pri { background:var(--primary); color:#fff; border-radius:4px; height:44px; font-size:16px; font-weight:600; width:100%; }
+  .mb-sec { background:#fff; color:var(--primary); border:1.5px solid var(--primary); border-radius:4px; height:44px; font-size:16px; font-weight:600; width:100%; }
+  .mb-txt { height:36px; font-size:16px; font-weight:500; width:100%; }
+  .mb-pri:disabled { background:#cfd8dd; color:#fff; }
+  .ph-page { flex:1; overflow-y:auto; padding:6px 14px 14px; }
+  .ph-page h2 { font-size:21px; font-weight:700; display:flex; align-items:center; }
+  .ph-page h2 button { margin-left:auto; font-size:20px; }
+  .ph-page .sub { font-size:14px; color:#333; margin-bottom:12px; }
+  .ph-card { border:1px solid #cfcfcf; border-radius:12px; padding:12px; margin-bottom:12px; }
+  .ph-card .row { display:flex; gap:10px; margin-top:10px; }
+  .ph-card .row > div { flex:1; }
+  .ph-card label, .ph-page label { font-size:14px; font-weight:600; display:block; margin-bottom:4px; }
+  .ph-in { width:100%; height:42px; border:1px solid #bbb; border-radius:4px; padding:0 10px; font-size:16px; }
+  .ph-in[readonly] { background:#f0f0f0; }
+  .ph-in.bad { border-color:var(--danger); }
+  .ph-ta { width:100%; min-height:70px; border:1px solid #bbb; border-radius:4px; padding:8px 10px; font-size:15px; font-family:inherit; }
+  .ph-toast { position:absolute; left:10px; right:10px; top:34px; background:#1f1f22; color:#fff; border-radius:8px; padding:12px; font-size:14px; z-index:9; display:flex; gap:10px; align-items:flex-start; }
+  .ph-toast i { color:#9a9a9a; margin-top:2px; }
+  .sync td { font-size:12px; padding:4px 6px; border-bottom:1px solid #eee; }
+
+  /* notes drawer (prototype chrome) */
+  .notes { position:fixed; top:0; right:0; bottom:0; width:min(540px, 96vw); background:#fff; z-index:100; box-shadow:-8px 0 24px rgba(0,0,0,.2); display:flex; flex-direction:column; }
+  .notes header { padding:12px 18px; border-bottom:1px solid #e5e5e5; display:flex; align-items:center; }
+  .notes header h3 { font-size:16px; margin-right:auto; }
+  .notes .nb { overflow-y:auto; padding:14px 20px 30px; font-size:13px; }
+  .notes h4 { font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:#555; margin:16px 0 8px; }
+  .notes ol, .notes ul { padding-left:20px; }
+  .notes li { margin-bottom:7px; }
+  .tag { font-size:10px; font-weight:700; border-radius:3px; padding:1px 5px; margin-right:4px; text-transform:uppercase; }
+  .tag.new { background:#e6f3fa; color:#0078b3; } .tag.reuse { background:#eaf6e5; color:#2f7a1f; } .tag.open { background:#fff3cd; color:#7a5d00; } .tag.chg { background:#f1ecff; color:#5a4e86; }
+  .notes-scrim { position:fixed; inset:0; background:rgba(0,0,0,.2); z-index:99; }
+
+  @media (max-width:900px) { .two { grid-template-columns:1fr; } .fields { grid-template-columns:1fr 1fr; } .bis-nav { gap:14px; } .grid2 { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="t-ticket">TKT-22242</span>
+    <span class="t-project">Assets: Sub-Assets Redesign + Parts Inventory &amp; Consumption (Phase 1)</span>
+    <span class="badge-pill">Prototype - v4</span>
+    <span class="t-date">October 9, 2026 Generated</span>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-notes" onclick="toggleNotes()">Design notes &amp; open questions</button>
+    <button class="btn-reset" onclick="resetAll()">↺ Reset Prototype</button>
+  </div>
+</div>
+
+<div class="page">
+  <div class="navrow">
+    <div class="seg-control">
+      <button class="seg-opt" id="segA" onclick="switchPersp('admin')">Admin · Web</button>
+      <button class="seg-opt" id="segB" onclick="switchPersp('mobile')">Mobile app</button>
+    </div>
+    <div class="flow-tabs" id="flowTabs"></div>
+  </div>
+  <div class="proto-card" id="card">
+    <div class="proto-stage" id="stage"></div>
+    <div class="step-details">
+      <p class="sd-title" id="sdTitle"></p>
+      <ul class="sd-list" id="sdList"></ul>
+    </div>
+    <div id="ovlRoot"></div>
+  </div>
+</div>
+<div id="notesRoot"></div>
+
+<script>
+/* ------------------------------------------------------------------ */
+/* Data                                                                */
+/* ------------------------------------------------------------------ */
+var KIND = {
+  asset:    { one:'Asset',    many:'Assets',    icon:'fa-solid fa-truck' },
+  location: { one:'Location', many:'Locations', icon:'fa-solid fa-location-dot' },
+  user:     { one:'User',     many:'Users',     icon:'fa-solid fa-user' }
+};
+var TARGETS = [
+  { id:'a1', kind:'asset', name:'Ford F-150 #1', sub:'Fleet · Unit 101' },
+  { id:'a2', kind:'asset', name:'Ram 1500', sub:'Fleet · Unit 114' },
+  { id:'a3', kind:'asset', name:'Truck 12 – Kenworth T680', sub:'Fleet · Unit 212' },
+  { id:'a4', kind:'asset', name:'2025 F150', sub:'Fleet · Unit 130' },
+  { id:'a5', kind:'asset', name:'AK Equip', sub:'Equipment · JDM INC' },
+  { id:'a6', kind:'asset', name:'Forklift 3 – Toyota 8FGU25', sub:'Yard equipment' },
+  { id:'l1', kind:'location', name:'180 - Calgary Yard', sub:'Calgary, AB' },
+  { id:'l2', kind:'location', name:'Arsenal', sub:'Edmonton, AB' },
+  { id:'l3', kind:'location', name:'282 - AB Sales & Marketing', sub:'Red Deer, AB' },
+  { id:'u1', kind:'user', name:'Jordan Lee', sub:'Mechanic' },
+  { id:'u2', kind:'user', name:'Priya Shah', sub:'Driver' },
+  { id:'u3', kind:'user', name:'Sam Rivera', sub:'Fleet Supervisor' }
+];
+var TYPES = ['Tires','Brakes','Filters','Consumables','Fittings','Hoses','Uncategorized'];
+var ADMIN = 'Miku Hatsune';
+
+function D(m,d,h,mi){ return new Date(2026,m-1,d,h,mi); }
+function seed(){
+  return {
+    parts: [
+      { id:'p1', name:'Wheel – 22.5" steer tire', model:'TR-225', type:'Tires', desc:'Steer axle tire, 22.5"', qty:14, min:8, targets:['a1','a2','a3','l1'], notified:false },
+      { id:'p2', name:'Brake pads (front set)', model:'BP-4410', type:'Brakes', desc:'Front axle pad set', qty:9, min:6, targets:['a1','a2','a3','a4'], notified:false },
+      { id:'p3', name:'Oil filter', model:'OF-77', type:'Filters', desc:'Spin-on oil filter', qty:5, min:10, targets:['a1','a2','a3','a4','l1'], notified:true },
+      { id:'p4', name:'Wiper blades', model:'WB-22', type:'Consumables', desc:'22" all-season', qty:0, min:4, targets:['a2','a3','u2'], notified:true },
+      { id:'p5', name:'Nozzle', model:'N0ZZL3', type:'Fittings', desc:'This is a nozzle', qty:21, min:5, targets:['l2','a5'], notified:false },
+      { id:'p6', name:'Subber', model:'7575A', type:'Uncategorized', desc:'Test Sub Asset', qty:1002, min:null, targets:['a5','l1'], notified:false, migrated:'997 (AK Equip) + 5 (180 - Calgary)' },
+      { id:'p7', name:'Hydraulic hose 3/8"', model:'HH-38', type:'Hoses', desc:'Spare hose kit carried by mechanic', qty:12, min:4, targets:['a3','a6','u1'], notified:false }
+    ],
+    log: [
+      { pid:'p1', kind:'create', delta:20, who:ADMIN, when:D(9,2,8,30) },
+      { pid:'p1', kind:'use', delta:-2, tid:'a1', who:'Jordan Lee', when:D(9,18,14,2), note:'Front pair replaced' },
+      { pid:'p1', kind:'use', delta:-4, tid:'a3', who:'Jordan Lee', when:D(10,1,10,40), note:'' },
+      { pid:'p2', kind:'refill', delta:6, who:ADMIN, when:D(10,2,9,0), note:'PO 4471' },
+      { pid:'p2', kind:'use', delta:-2, tid:'a2', who:'Jordan Lee', when:D(10,6,15,20), note:'' },
+      { pid:'p3', kind:'use', delta:-3, tid:'a3', who:'Priya Shah', when:D(10,7,7,55), note:'Oil change at 120k' },
+      { pid:'p3', kind:'alert', who:'System', when:D(10,7,7,55), note:'5 left, minimum 10' },
+      { pid:'p4', kind:'alert', who:'System', when:D(10,3,11,5), note:'2 left, minimum 4' },
+      { pid:'p4', kind:'use', delta:-2, tid:'a3', who:'Priya Shah', when:D(10,8,6,48), note:'Both blades torn' },
+      { pid:'p5', kind:'use', delta:-1, tid:'l2', who:'Sam Rivera', when:D(9,29,13,10), note:'' },
+      { pid:'p6', kind:'migrate', who:'System', when:D(10,9,0,1), note:'Per-link quantities combined into one stock' },
+      { pid:'p7', kind:'assign', tid:'u1', who:ADMIN, when:D(9,25,16,0), note:'' }
+    ],
+    notifs: [
+      { pid:'p3', text:'Low stock: Oil filter — 5 left (minimum 10)', when:D(10,7,7,55), read:false },
+      { pid:'p4', text:'Low stock: Wiper blades — 2 left (minimum 4)', when:D(10,3,11,5), read:true }
+    ]
+  };
+}
+var DATA = seed();
+var CLOCK = D(10,9,9,14);
+function now(){ CLOCK = new Date(CLOCK.getTime() + 4*60000); return CLOCK; }
+var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmt(d){ var h=d.getHours(), ap=h<12?'AM':'PM'; h=h%12||12; return MON[d.getMonth()]+' '+d.getDate()+', '+h+':'+String(d.getMinutes()).padStart(2,'0')+' '+ap; }
+function fmtShort(d){ return MON[d.getMonth()]+' '+d.getDate(); }
+
+/* ------------------------------------------------------------------ */
+/* State                                                               */
+/* ------------------------------------------------------------------ */
+var FLOWS = {
+  admin: [
+    { id:'inv', label:'Inventory page' },
+    { id:'new', label:'New sub-asset' },
+    { id:'detail', label:'Sub-asset panel' },
+    { id:'asset', label:'Asset page' },
+    { id:'locuser', label:'Location & User pages' },
+    { id:'alert', label:'Low-stock alert' }
+  ],
+  mobile: [
+    { id:'m-info', label:'Asset → Info tab' },
+    { id:'m-sheet', label:'Sub-asset sheet' },
+    { id:'m-use', label:'Use quantity' },
+    { id:'m-refill', label:'Refill (admin)' }
+  ]
+};
+function freshState(){
+  return { persp:'admin', flow:'inv', drawer:null, max:false, secs:{assigned:true, activity:false, details:false}, ef:null,
+    modal:null, menu:null, bell:false, dd:null, ddq:'',
+    f:{ q:'', type:'', status:'' }, page:'location', notes:false,
+    nf:null, pick:null, ap:null, mf:null,
+    role:'driver', mScreen:'info', mPart:null, mQty:'', mNote:'', mToast:null, toast:null };
+}
+var st = freshState();
+
+/* ------------------------------------------------------------------ */
+/* Helpers + domain logic                                              */
+/* ------------------------------------------------------------------ */
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function part(id){ return DATA.parts.filter(function(p){return p.id===id;})[0]; }
+function tgt(id){ return TARGETS.filter(function(t){return t.id===id;})[0]; }
+function ki(kind){ return '<i class="'+KIND[kind].icon+'"></i>'; }
+function status(p){ if(p.qty<=0) return 'out'; if(p.min==null) return 'none'; if(p.qty<=p.min) return 'low'; return 'ok'; }
+var STATUS = { ok:['In stock','fa-solid fa-circle-check'], low:['Low stock','fa-solid fa-triangle-exclamation'], out:['Out of stock','fa-solid fa-circle-xmark'], none:['No minimum set',''] };
+function chip(p){ var s=status(p); return '<span class="chip '+s+'">'+(STATUS[s][1]?'<i class="'+STATUS[s][1]+'"></i>':'')+STATUS[s][0]+'</span>'; }
+function isLow(p){ return p.min!=null && p.qty<=p.min; }
+function lastAct(pid, tid){
+  return DATA.log.filter(function(e){ return e.pid===pid && (!tid || (e.tid===tid && e.kind==='use')); })
+    .sort(function(a,b){return b.when-a.when;})[0];
+}
+function actText(e){
+  if(!e) return '<span class="muted">—</span>';
+  var t = e.tid ? tgt(e.tid) : null;
+  var map = { use:'Used '+Math.abs(e.delta)+(t?' on '+esc(t.name):''), refill:'Refilled +'+e.delta, create:'Created with '+e.delta,
+    alert:'Low-stock alert sent', assign:'Assigned to '+(t?esc(t.name):''), unassign:'Removed from '+(t?esc(t.name):''),
+    migrate:'Migrated', threshold:'Minimum changed', edit:'Details edited' };
+  return '<div>'+map[e.kind]+'</div><div class="psub">'+esc(e.who)+' · '+fmtShort(e.when)+'</div>';
+}
+function kindCounts(p){
+  var c={asset:0,location:0,user:0}; p.targets.forEach(function(id){ c[tgt(id).kind]++; });
+  var out=['asset','location','user'].filter(function(k){return c[k];}).map(function(k){
+    return '<span class="kpill">'+ki(k)+c[k]+' '+(c[k]===1?KIND[k].one:KIND[k].many)+'</span>'; }).join('');
+  return out || '<span class="muted">Not assigned</span>';
+}
+function evalLow(p){
+  if(isLow(p) && !p.notified){
+    p.notified = true;
+    var when = now();
+    DATA.notifs.unshift({ pid:p.id, text:'Low stock: '+p.name+' — '+p.qty+' left (minimum '+p.min+')', when:when, read:false });
+    DATA.log.push({ pid:p.id, kind:'alert', who:'System', when:when, note:p.qty+' left, minimum '+p.min });
+    return true;
+  }
+  if(!isLow(p) && p.notified){ p.notified = false; }
+  return false;
+}
+function doUse(pid, tid, n, note, who){
+  var p = part(pid); p.qty -= n;
+  DATA.log.push({ pid:pid, kind:'use', delta:-n, tid:tid, who:who, when:now(), note:note||'' });
+  return evalLow(p);
+}
+function doRefill(pid, n, note, who){
+  var p = part(pid); p.qty += n;
+  DATA.log.push({ pid:pid, kind:'refill', delta:n, who:who, when:now(), note:note||'' });
+  evalLow(p);
+}
+function setTargets(p, ids){
+  var when=now();
+  ids.forEach(function(t){ if(p.targets.indexOf(t)<0) DATA.log.push({pid:p.id, kind:'assign', tid:t, who:ADMIN, when:when}); });
+  p.targets.forEach(function(t){ if(ids.indexOf(t)<0) DATA.log.push({pid:p.id, kind:'unassign', tid:t, who:ADMIN, when:when}); });
+  p.targets = ids.slice();
+}
+var toastTimer;
+function toast(text, kind){ st.toast={text:text, kind:kind||''}; clearTimeout(toastTimer); toastTimer=setTimeout(function(){ st.toast=null; render(); }, 4000); }
+var mToastTimer;
+function mToast(text){ st.mToast=text; clearTimeout(mToastTimer); mToastTimer=setTimeout(function(){ st.mToast=null; render(); }, 3500); }
+function unread(){ return DATA.notifs.filter(function(n){return !n.read;}).length; }
+
+/* ------------------------------------------------------------------ */
+/* Navigation                                                          */
+/* ------------------------------------------------------------------ */
+function closeOverlays(){ st.drawer=null; st.modal=null; st.menu=null; st.bell=false; st.dd=null; }
+function switchPersp(p){ st.persp=p; selectFlow(FLOWS[p][0].id); }
+function selectFlow(id){
+  st.flow=id; closeOverlays();
+  if(id==='new'){ openNew(); }
+  if(id==='detail'){ openDrawer('p3'); }
+  if(id==='m-info'){ st.mScreen='info'; st.mPart=null; }
+  if(id==='m-sheet'){ st.mScreen='sheet'; st.mPart='p2'; }
+  if(id==='m-use'){ st.role='driver'; st.mPart='p2'; st.mScreen='use'; st.mQty=''; st.mNote=''; }
+  if(id==='m-refill'){ st.role='admin'; st.mPart='p4'; st.mScreen='refill'; st.mQty=''; st.mNote=''; }
+  render();
+}
+function resetAll(){ DATA=seed(); CLOCK=D(10,9,9,14); var n=st.notes; st=freshState(); st.notes=n; render(); }
+function toggleNotes(){ st.notes=!st.notes; render(); }
+function goInventory(pid){ st.persp='admin'; st.flow='inv'; closeOverlays(); if(pid) openDrawer(pid); render(); }
+
+/* ------------------------------------------------------------------ */
+/* BIS shell                                                           */
+/* ------------------------------------------------------------------ */
+function bisShell(title, body, navOn, o){
+  o=o||{};
+  var u = unread();
+  var bell = st.bell ? '<div class="pop bell-pop" onclick="event.stopPropagation()"><h5>Notifications</h5>'
+    + (DATA.notifs.length ? DATA.notifs.map(function(n){
+        return '<div class="notif '+(n.read?'':'unread')+'"><i class="fa-solid fa-triangle-exclamation"></i><div><a onclick="openFromNotif(\''+n.pid+'\')">'+esc(n.text)+'</a><small>'+fmt(n.when)+' · Sub-Asset Inventory</small></div></div>';
+      }).join('') : '<div class="notif">No notifications</div>') + '</div>' : '';
+  return '<div class="bis">'
+    + '<div class="bis-top"><div class="logo"><svg width="22" height="24" viewBox="0 0 22 24"><path d="M11 1 2 4.5v7C2 17 6 21.5 11 23c5-1.5 9-6 9-11.5v-7z" fill="#5b5480"/></svg><b>BIS</b><small>QAQC Test<br>Environment</small></div>'
+    + '<span class="spacer"></span><input class="usersearch" placeholder="Search User" tabindex="-1">'
+    + '<button class="circ" title="Notifications" onclick="event.stopPropagation();st.bell=!st.bell;st.menu=null;render()"><i class="fa-regular fa-bell"></i>'+(u?'<span class="bell-badge">'+u+'</span>':'')+'</button>'
+    + '<span class="circ"><i class="fa-solid fa-question"></i></span><span class="avatar"></span><span class="logout">Log Out ›</span></div>'
+    + '<div class="bis-nav">'+['Home','Profile','Store','Rewards','Purchases','Users','Reporting','Calendar','Equipment','Folders','QR','Admin'].map(function(n){return '<span class="'+(n===(navOn||'Equipment')?'on':'')+'">'+n+'</span>';}).join('')+'</div>'
+    + bell
+    + (o.profile ? '<div class="bis-title prof-t">'+title+'</div>'
+      : '<div class="bis-title'+(o.big?' big':'')+'">'+title+(o.titleBtns||'')+'<button class="back'+(o.titleBtns?' w':'')+'" tabindex="-1">'+(o.titleBtns?'Back <i class="fa-solid fa-backward"></i>':'‹ Back')+'</button></div>')
+    + '<div class="bis-body'+(o.flush?' flush':'')+'">'+body+'</div></div>';
+}
+function openFromNotif(pid){ DATA.notifs.forEach(function(n){ if(n.pid===pid) n.read=true; }); goInventory(pid); }
+function btn(label, opts){ opts=opts||{};
+  return '<button class="b '+(opts.v||'')+(opts.sm?' b-sm':'')+'" '+(opts.dis?'disabled ':'')+(opts.tip?'title="'+esc(opts.tip)+'" ':'')+'onclick="'+(opts.stop?'event.stopPropagation();':'')+opts.on+'">'+(opts.icon?'<i class="'+opts.icon+'"></i>':'')+label+'</button>'; }
+function menuHTML(items){
+  return '<div class="pop menu" onclick="event.stopPropagation()">'+items.map(function(it){ return it.sep?'<div class="msep"></div>':'<button class="mi '+(it.danger?'danger':'')+'" onclick="'+it.on+'"><i class="'+it.icon+'"></i>'+it.label+'</button>'; }).join('')+'</div>';
+}
+
+/* ------------------------------------------------------------------ */
+/* Screen: Inventory page                                              */
+/* ------------------------------------------------------------------ */
+function filtered(){
+  var f=st.f, q=f.q.trim().toLowerCase();
+  return DATA.parts.filter(function(p){
+    if(q && (p.name+' '+p.model).toLowerCase().indexOf(q)<0) return false;
+    if(f.type && p.type!==f.type) return false;
+    if(f.status && status(p)!==f.status) return false;
+    return true;
+  });
+}
+function setF(k,v){ st.f[k]=v; render(); }
+function scrInventory(){
+  var all=DATA.parts, low=all.filter(function(p){return status(p)==='low';}).length, out=all.filter(function(p){return status(p)==='out';}).length;
+  var rows = filtered();
+  var tile = function(key,n,l,cls,icon){ return '<button class="tile '+cls+(st.f.status===key&&key?' on':'')+'" onclick="setF(\'status\',\''+(st.f.status===key?'':key)+'\')"><div class="k">'+(icon?'<i class="'+icon+'"></i>':'')+l+' <i class="fa-solid fa-chevron-right" style="font-size:9px"></i></div><div class="n">'+n+'</div></button>'; };
+  var body = '<div class="tiles">'+tile('',all.length,'Sub-assets','','fa-solid fa-boxes-stacked')+tile('low',low,'Low stock','warn','fa-solid fa-triangle-exclamation')+tile('out',out,'Out of stock','t-err','fa-solid fa-circle-xmark')+'</div>'
+    + '<div class="toolbar"><span class="search"><i class="fa-solid fa-magnifying-glass"></i><input class="input" style="width:280px" type="search" id="fq" placeholder="Search sub-asset or model #" value="'+esc(st.f.q)+'" oninput="setF(\'q\',this.value)"></span>'
+    + '<select class="sel" id="ft" onchange="setF(\'type\',this.value)"><option value="">All types</option>'+TYPES.map(function(t){return '<option'+(st.f.type===t?' selected':'')+'>'+t+'</option>';}).join('')+'</select>'
+    + '<select class="sel" id="fs" onchange="setF(\'status\',this.value)">'+[['','All statuses'],['ok','In stock'],['low','Low stock'],['out','Out of stock'],['none','No minimum set']].map(function(o){return '<option value="'+o[0]+'"'+(st.f.status===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select>'
+    + (st.f.q||st.f.type||st.f.status ? btn('Clear filters',{v:'b-link',on:"st.f={q:'',type:'',status:''};render()"}) : '')
+    + '<span class="spacer"></span>'+btn('New Sub-Asset',{v:'b-primary',icon:'fa-solid fa-plus',on:'openNew()'})+'</div>'
+    + '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Sub-Asset</th><th>Type</th><th class="num">In Stock</th><th class="num">Min.</th><th>Status</th><th>Assigned To</th><th>Last Activity</th><th style="width:1%"></th></tr></thead><tbody>'
+    + rows.map(function(p){
+        return '<tr class="row'+(st.drawer===p.id?' sel':'')+'" onclick="openDrawer(\''+p.id+'\')">'
+          + '<td><div class="nm">'+esc(p.name)+(p.migrated?' <span class="chip mig">Migrated</span>':'')+'</div><div class="psub">'+esc(p.model)+'</div></td>'
+          + '<td>'+esc(p.type)+'</td><td class="num"><span class="qty">'+p.qty+'</span></td><td class="num">'+(p.min==null?'<span class="muted">—</span>':p.min)+'</td>'
+          + '<td>'+chip(p)+'</td><td>'+kindCounts(p)+'</td><td>'+actText(lastAct(p.id))+'</td>'
+          + '<td><div class="acts" onclick="event.stopPropagation()">'+btn('Refill',{sm:true,v:'b-sp',icon:'fa-solid fa-plus',on:'openRefill(\''+p.id+'\')'})
+          + '<button class="ib" title="More" onclick="toggleMenu(\'row:'+p.id+'\')"><i class="fa-solid fa-ellipsis-vertical"></i></button>'
+          + (st.menu==='row:'+p.id ? menuHTML([
+              {label:'View details', icon:'fa-regular fa-eye', on:'openDrawer(\''+p.id+'\')'},
+              {label:'Edit details', icon:'fa-solid fa-pen', on:'openDrawer(\''+p.id+'\',\'details\')'},
+              {label:'Record use', icon:'fa-solid fa-minus', on:'openUse(\''+p.id+'\',null)'},
+              {label:'Edit assignments', icon:'fa-solid fa-link', on:'openAssign(\''+p.id+'\')'},
+              {sep:true},
+              {label:'Delete', icon:'fa-regular fa-trash-can', danger:true, on:'openDelete(\''+p.id+'\')'}]) : '')
+          + '</div></td></tr>';
+      }).join('')
+    + '</tbody></table>' + (rows.length?'':'<div class="empty">No sub-assets match these filters.</div>') + '</div>';
+  return bisShell('Sub-Asset Inventory', body);
+}
+function toggleMenu(k){ st.menu = st.menu===k?null:k; st.bell=false; render(); }
+
+/* ------------------------------------------------------------------ */
+/* Right panel: Field Management pattern                               */
+/* ------------------------------------------------------------------ */
+function openDrawer(pid, sec){
+  closeOverlays(); st.drawer=pid;
+  st.secs={ assigned:sec!=='details', activity:false, details:sec==='details' };
+  st.ef = sec==='details' ? editForm(pid) : null;
+  render();
+}
+function editForm(pid){ var p=part(pid); return { name:p.name, model:p.model, type:p.type, desc:p.desc, min:p.min==null?'':String(p.min) }; }
+function toggleSec(k){ st.secs[k]=!st.secs[k]; if(k==='details' && st.secs[k]) st.ef=editForm(st.drawer); render(); }
+function secHTML(k, title, count, body, action){
+  var open=st.secs[k];
+  return '<div class="sec"><button class="sec-h" onclick="toggleSec(\''+k+'\')">'+title+(count!=null?' <span class="cnt">'+count+'</span>':'')+'<i class="chev fa-solid fa-chevron-'+(open?'up':'down')+'"></i></button>'
+    + (open?'<div class="sec-b">'+(action||'')+body+'</div>':'')+'</div>';
+}
+function drawerHTML(){
+  var p = part(st.drawer); if(!p) return '';
+  var s=status(p), pct = p.min ? Math.min(100, Math.round(p.qty/(p.min*3)*100)) : 60;
+  var barCol = s==='out'?'var(--danger)':s==='low'?'var(--notice-icon)':'var(--success)';
+  var la=lastAct(p.id), created=DATA.log.filter(function(e){return e.pid===p.id&&(e.kind==='create'||e.kind==='migrate');})[0];
+  var head = '<div class="dr-h"><h2>View Sub-Asset</h2>'
+    + '<button class="ib" title="Close panel" onclick="closeOverlays();render()"><i class="fa-solid fa-xmark"></i></button></div>';
+  var b = '';
+  if(p.migrated) b += '<div class="dr-banner"><i class="fa-solid fa-circle-info"></i><span><b>Migrated from the old sub-asset page.</b> Quantities stored per link ('+esc(p.migrated)+') are now one shared stock. All assignments were kept. Set a type and a minimum to finish setting it up.</span></div>';
+  b += '<div class="dr-title"><i class="fa-solid fa-boxes-stacked"></i><h3>'+esc(p.name)+'</h3>'
+    + btn('Record use',{icon:'fa-solid fa-minus',dis:p.qty<=0,on:'openUse(\''+p.id+'\',null)'})
+    + btn('Refill',{v:'b-primary',icon:'fa-solid fa-plus',on:'openRefill(\''+p.id+'\')'})+'</div>';
+  b += '<div class="kv">'
+    + '<div><b>Model #</b><span>'+esc(p.model||'—')+'</span></div>'
+    + '<div><b>Type</b><span>'+esc(p.type)+'</span></div>'
+    + '<div><b>Minimum stock</b><span>'+(p.min==null?'Not set':p.min)+'</span></div>'
+    + '<div><b>Assigned to</b><span>'+p.targets.length+' place'+(p.targets.length===1?'':'s')+'</span></div>'
+    + '<div><b>Last activity</b><span>'+(la?fmtShort(la.when)+' · '+esc(la.who):'—')+'</span></div>'
+    + '<div><b>Created</b><span>'+(created?fmtShort(created.when):'—')+'</span></div></div>';
+  b += '<div class="blk"><div class="k">Stock</div><div class="stock"><span class="big">'+p.qty+'</span>'+chip(p)+'<span class="psub" style="margin-left:auto">Shared by all '+p.targets.length+' assignments</span></div>'
+    + '<div class="bar"><i style="width:'+pct+'%;background:'+barCol+'"></i></div></div>';
+  // Assigned to
+  var ab='';
+  ['asset','location','user'].forEach(function(k){
+    var list = p.targets.map(tgt).filter(function(t){return t.kind===k;});
+    if(!list.length) return;
+    ab += '<div class="grp-h">'+ki(k)+KIND[k].many+' ('+list.length+')</div>'
+      + list.map(function(t){ var lu=lastAct(p.id,t.id);
+          return '<div class="trow"><span class="ic">'+ki(k)+'</span><div><div>'+esc(t.name)+'</div><div class="psub">'+esc(t.sub)+(lu?' · last used '+fmtShort(lu.when):'')+'</div></div><span class="spacer"></span>'+btn('Remove',{v:'b-link',on:'openUnassign(\''+p.id+'\',\''+t.id+'\')'})+'</div>'; }).join('');
+  });
+  if(!p.targets.length) ab='<div class="empty">Not assigned yet. Assign it to an asset, location or user so it can be used there.</div>';
+  b += secHTML('assigned','Assigned To',p.targets.length, ab, '<div style="display:flex;align-items:center;gap:8px"><span class="psub">Shows in the Linked Sub Assets section of each, and in the app.</span><span class="spacer"></span>'+btn('Edit',{sm:true,v:'b-sp',icon:'fa-solid fa-link',on:'openAssign(\''+p.id+'\')'})+'</div>');
+  // Activity
+  var l = DATA.log.filter(function(e){return e.pid===p.id;}).sort(function(a,b){return b.when-a.when;});
+  var lab={use:'Used',refill:'Refilled',create:'Created',alert:'Low-stock alert',assign:'Assigned',unassign:'Unassigned',migrate:'Migrated',threshold:'Min. changed',edit:'Edited'};
+  b += secHTML('activity','Activity',l.length, '<table class="alog"><thead><tr><th>When</th><th>Action</th><th class="num">Qty</th><th>Where</th><th>By</th><th>Note</th></tr></thead><tbody>'
+    + l.map(function(e){ var t=e.tid?tgt(e.tid):null;
+        var d = e.delta==null?'':(e.delta>0?'<span class="plus">+'+e.delta+'</span>':'<span class="minus">'+e.delta+'</span>');
+        return '<tr><td style="white-space:nowrap">'+fmt(e.when)+'</td><td>'+lab[e.kind]+'</td><td class="num">'+d+'</td><td>'+(t?esc(t.name):'—')+'</td><td>'+esc(e.who)+'</td><td>'+esc(e.note||'')+'</td></tr>'; }).join('')
+    + '</tbody></table><p class="help" style="margin-top:8px">Replaces the free-text Notes log. Phase 2 reporting reads from this record.</p>');
+  // Details
+  var db='';
+  if(st.secs.details){
+    var ef = st.ef || (st.ef=editForm(p.id));
+    db = '<div class="grid2">'
+      + '<div class="full"><label class="lbl">Name<span class="req">*</span></label><input class="input" id="ef-name" value="'+esc(ef.name)+'" oninput="st.ef.name=this.value"></div>'
+      + '<div><label class="lbl">Model #</label><input class="input" id="ef-model" value="'+esc(ef.model)+'" oninput="st.ef.model=this.value"></div>'
+      + '<div><label class="lbl">Type<span class="req">*</span></label><select class="sel" id="ef-type" onchange="st.ef.type=this.value">'+TYPES.map(function(t){return '<option'+(ef.type===t?' selected':'')+'>'+t+'</option>';}).join('')+'</select></div>'
+      + '<div class="full"><label class="lbl">Description</label><textarea class="ta" id="ef-desc" rows="2" oninput="st.ef.desc=this.value">'+esc(ef.desc)+'</textarea></div>'
+      + '<div><label class="lbl">Minimum stock level</label><input class="input" id="ef-min" type="number" min="0" value="'+esc(ef.min)+'" oninput="st.ef.min=this.value"><div class="help">Blank = no low-stock alert.</div></div>'
+      + '<div><label class="lbl">Quantity</label><div class="ro">'+p.qty+'</div><div class="help">Changed only by Refill / Record use, so every change is logged.</div></div>'
+      + '</div><div style="margin-top:14px;display:flex;gap:8px;justify-content:flex-end">'+btn('Cancel',{v:'b-ghost',on:'st.ef=null;st.secs.details=false;render()'})+btn('Save',{v:'b-primary',on:'saveEdit()'})+'</div>';
+  }
+  b += secHTML('details','Details',null, db);
+  return '<div class="scrim" onclick="closeOverlays();render()"></div><aside class="drawer" role="dialog" aria-label="'+esc(p.name)+'">'+head+'<div class="dr-b">'+b+'</div></aside>';
+}
+function saveEdit(){
+  var p=part(st.drawer), ef=st.ef; if(!ef.name.trim()){ toast('Name is required','warn'); render(); return; }
+  var newMin = ef.min===''?null:Math.max(0,parseInt(ef.min,10)||0), minChanged = newMin!==p.min;
+  p.name=ef.name.trim(); p.model=ef.model; p.type=ef.type; p.desc=ef.desc;
+  if(minChanged){ DATA.log.push({pid:p.id, kind:'threshold', who:ADMIN, when:now(), note:(p.min==null?'none':p.min)+' → '+(newMin==null?'none':newMin)}); p.min=newMin; }
+  var fired = evalLow(p);
+  if(p.migrated && p.type!=='Uncategorized') p.migrated=null;
+  st.ef=null; st.secs.details=false;
+  toast(fired ? 'Saved. Stock is now at or below the new minimum, so admins were notified.' : 'Sub-asset saved', fired?'warn':''); render();
+}
+
+/* ------------------------------------------------------------------ */
+/* BisModal (type="themed")                                            */
+/* ------------------------------------------------------------------ */
+function bisModal(o){
+  // o: { size, variant, icon, title, titleHTML, body, confirm, confirmDis, onConfirm, cancel, left, extraHead }
+  var v=o.variant||'primary', confirmCls = v==='danger'?'b-danger':'b-primary';
+  return '<div class="scrim" onclick="closeModal()"></div><div class="modal-wrap"><div class="modal '+(o.size||'sm')+'" role="dialog" onclick="event.stopPropagation();if(st.dd){st.dd=null;render();}">'
+    + '<div class="mh">'+(o.titleHTML || ((o.icon?'<i class="ti '+v+' '+o.icon+'"></i>':'')+'<h2>'+o.title+'</h2>'))+(o.extraHead||'')+'<button class="ib" title="Close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button></div>'
+    + '<div class="mb" onscroll="if(st.dd){st.dd=null;render();}">'+o.body+'</div>'
+    + '<div class="mf">'+(o.left?'<span class="left">'+o.left+'</span>':'')+btn(o.cancel||'Cancel',{v:'b-ghost',on:'closeModal()'})
+    + '<button class="b '+confirmCls+'" '+(o.confirmDis?'disabled ':'')+'onclick="'+o.onConfirm+'">'+o.confirm+'</button></div>'
+    + '</div></div>';
+}
+function closeModal(){ st.modal=null; st.menu=null; st.dd=null; render(); }
+
+/* --- multi-select (Task Management chips-in-field pattern) --- */
+function mselHTML(kind){
+  var sel = st.pick.sel.filter(function(id){return tgt(id).kind===kind;});
+  var open = st.dd===kind;
+  var shown = sel.slice(0,4), more = sel.length-shown.length;
+  var field = '<div role="button" tabindex="0" class="msel-f'+(open?' open':'')+'" id="dd-'+kind+'" onclick="event.stopPropagation();st.dd=st.dd===\''+kind+'\'?null:\''+kind+'\';st.ddq=\'\';render()">'
+    + (sel.length ? shown.map(function(id){ return '<span class="mchip">'+esc(tgt(id).name)+'<span class="mx" role="button" title="Remove" onclick="event.stopPropagation();togglePick(\''+id+'\')"><i class="fa-solid fa-xmark"></i></span></span>'; }).join('')+(more?'<span class="mchip more">'+more+'+</span>':'')
+      : '<span class="ph">Select '+KIND[kind].many.toLowerCase()+'</span>')
+    + '<i class="caret fa-solid fa-chevron-'+(open?'up':'down')+'"></i></div>';
+  var menu = '';
+  if(open){
+    var q=st.ddq.trim().toLowerCase();
+    var res=TARGETS.filter(function(t){ return t.kind===kind && (!q || (t.name+' '+t.sub).toLowerCase().indexOf(q)>=0); });
+    menu = '<div class="pop msel-menu" onclick="event.stopPropagation()"><span class="search" style="display:flex"><i class="fa-solid fa-magnifying-glass"></i><input class="input" id="ddq" placeholder="Search '+KIND[kind].many.toLowerCase()+'…" value="'+esc(st.ddq)+'" oninput="st.ddq=this.value;render()"></span>'
+      + '<div class="msel-list">'+(res.length?res.map(function(t){ var on=st.pick.sel.indexOf(t.id)>=0;
+          return '<button class="opt'+(on?' on':'')+'" onclick="togglePick(\''+t.id+'\')"><span class="oi">'+ki(t.kind)+'</span><span>'+esc(t.name)+'<br><span class="psub">'+esc(t.sub)+'</span></span>'+(on?'<i class="ck fa-solid fa-check"></i>':'')+'</button>'; }).join(''):'<div class="empty">No matches</div>')+'</div></div>';
+  }
+  return '<div class="msel">'+field+menu+'</div>';
+}
+function togglePick(id){ var s=st.pick.sel, i=s.indexOf(id); if(i>=0) s.splice(i,1); else s.push(id); render(); }
+function assignFields(){
+  var c={asset:0,location:0,user:0}; st.pick.sel.forEach(function(id){c[tgt(id).kind]++;});
+  var parts=['asset','location','user'].filter(function(k){return c[k];}).map(function(k){return c[k]+' '+(c[k]===1?KIND[k].one:KIND[k].many).toLowerCase();});
+  return '<div class="grid2"><div class="full"><label class="lbl">Assets</label>'+mselHTML('asset')+'</div>'
+    + '<div><label class="lbl">Locations</label>'+mselHTML('location')+'</div>'
+    + '<div><label class="lbl">Users</label>'+mselHTML('user')+'</div></div>'
+    + '<div class="where"><i class="fa-solid fa-circle-info"></i><span>'+(parts.length?'Will appear in the Linked Sub Assets section of <b>'+parts.join(', ')+'</b>, and on those in the app.':'Not assigned yet. It will only appear on this inventory page until you assign it.')+'</span></div>';
+}
+
+/* --- New sub-asset (Task Management "New Task" layout) --- */
+function openNew(preTid){
+  closeOverlays(); st.modal={type:'new'};
+  st.nf={ name:'', model:'', type:'', desc:'', qty:'', min:'', tried:false };
+  st.pick={ sel: preTid?[preTid]:[] };
+  render();
+}
+function newHTML(){
+  var nf=st.nf, bad=function(c){ return nf.tried && c; };
+  var e=function(c,m){ return bad(c) ? '<div class="err"><i class="fa-solid fa-circle-exclamation"></i>'+m+'</div>' : ''; };
+  var body = '<div class="grid2">'
+    + '<div><label class="lbl">Sub-Asset Name<span class="req">*</span></label><input class="input'+(bad(!nf.name.trim())?' bad':'')+'" id="nf-name" value="'+esc(nf.name)+'" placeholder="e.g. Wheel – 22.5&quot; steer tire" oninput="st.nf.name=this.value">'+e(!nf.name.trim(),'Enter a name')+'</div>'
+    + '<div><label class="lbl">Type<span class="req">*</span></label><select class="sel'+(bad(!nf.type)?' bad':'')+'" id="nf-type" onchange="st.nf.type=this.value;render()"><option value="">Select a type</option>'+TYPES.map(function(t){return '<option'+(nf.type===t?' selected':'')+'>'+t+'</option>';}).join('')+'<option value="__new"'+(nf.type==='__new'?' selected':'')+'>+ Add new type…</option></select>'+e(!nf.type,'Choose a type')+(nf.type==='__new'?'<div class="help">Opens an inline field to name the type (open question Q2).</div>':'')+'</div>'
+    + '<div><label class="lbl">Model #</label><input class="input" id="nf-model" value="'+esc(nf.model)+'" oninput="st.nf.model=this.value"></div>'
+    + '<div><label class="lbl">Description</label><input class="input" id="nf-desc" value="'+esc(nf.desc)+'" oninput="st.nf.desc=this.value"></div>'
+    + '</div>'
+    + '<div class="tk-h">Stock</div><div class="grid2">'
+    + '<div><label class="lbl">Starting Quantity<span class="req">*</span></label><input class="input'+(bad(nf.qty===''||+nf.qty<0)?' bad':'')+'" id="nf-qty" type="number" min="0" value="'+esc(nf.qty)+'" oninput="st.nf.qty=this.value">'+e(nf.qty===''||+nf.qty<0,'Enter 0 or more')+'</div>'
+    + '<div><label class="lbl">Minimum Stock Level</label><input class="input" id="nf-min" type="number" min="0" value="'+esc(nf.min)+'" oninput="st.nf.min=this.value"><div class="help">Admins are notified when stock falls to or below this. Leave blank for no alert.</div></div>'
+    + '</div>'
+    + '<div class="tk-h">Assignment <span style="font-size:14px;font-weight:400;color:var(--text-2)">(optional, can be done later)</span></div>'+assignFields();
+  return bisModal({ size:'lg', titleHTML:'<span class="tk-ttl"><i class="fa-solid fa-boxes-stacked"></i>New Sub-Asset</span>',
+    body:body, left:btn('Reset',{v:'b-ghost',icon:'fa-solid fa-rotate-left',on:'openNew()'}), confirm:'Create Sub-Asset', onConfirm:'createPart()' });
+}
+function createPart(){
+  var nf=st.nf; nf.tried=true;
+  if(!nf.name.trim() || !nf.type || nf.type==='__new' || nf.qty==='' || +nf.qty<0){ render(); return; }
+  var id='p'+(Date.now()%100000), when=now();
+  var p={ id:id, name:nf.name.trim(), model:nf.model, type:nf.type, desc:nf.desc, qty:parseInt(nf.qty,10)||0, min:nf.min===''?null:parseInt(nf.min,10), targets:st.pick.sel.slice(), notified:false };
+  DATA.parts.unshift(p);
+  DATA.log.push({ pid:id, kind:'create', delta:p.qty, who:ADMIN, when:when });
+  p.targets.forEach(function(t){ DATA.log.push({ pid:id, kind:'assign', tid:t, who:ADMIN, when:when }); });
+  var fired=evalLow(p);
+  st.modal=null; st.dd=null; st.f={q:'',type:'',status:''};
+  if(st.flow==='new') st.flow='inv';
+  if(st.flow==='inv'){ st.drawer=id; st.secs={assigned:true,activity:false,details:false}; }
+  toast('“'+p.name+'” created'+(p.targets.length?' and assigned to '+p.targets.length:'')+(fired?'. Starting stock is at or below the minimum, so admins were notified.':''), fired?'warn':'');
+  render();
+}
+
+/* --- Edit assignments of one part --- */
+function openAssign(pid){ st.menu=null; st.modal={type:'assign', pid:pid}; st.pick={ sel:part(pid).targets.slice() }; render(); }
+function assignHTML(){
+  var p=part(st.modal.pid);
+  var body='<div class="banner info" style="margin:0 0 14px"><i class="fa-solid fa-circle-info"></i><span>Assigning doesn\'t move stock. It controls where <b>'+esc(p.name)+'</b> can be used. Every assignment draws from the same <b>'+p.qty+'</b> in stock. Removing one keeps its usage history.</span></div>'+assignFields();
+  return bisModal({ size:'lg', variant:'primary', icon:'fa-solid fa-link', title:'Edit Assignments', body:body, confirm:'Save Assignments', onConfirm:'confirmAssign()' });
+}
+function confirmAssign(){ var p=part(st.modal.pid); setTargets(p, st.pick.sel); toast('Assignments saved for '+p.name); st.modal=null; st.dd=null; render(); }
+
+/* --- Assign parts to a target (from asset / location / user page) --- */
+function openAssignToTarget(tid){ st.menu=null; st.modal={type:'a2t', tid:tid}; st.ap={q:'', sel:[]}; render(); }
+function a2tHTML(){
+  var t=tgt(st.modal.tid), q=st.ap.q.trim().toLowerCase();
+  var list=DATA.parts.filter(function(p){ return p.targets.indexOf(t.id)<0 && (!q || (p.name+' '+p.model+' '+p.type).toLowerCase().indexOf(q)>=0); });
+  var body='<p style="font-size:14px;color:var(--text-2);margin-bottom:10px">Pick from inventory. Stock stays shared, so assigning here doesn\'t take quantity from anywhere else.</p>'
+    + '<span class="search" style="display:flex"><i class="fa-solid fa-magnifying-glass"></i><input class="input" id="apq" type="search" placeholder="Search inventory" value="'+esc(st.ap.q)+'" oninput="st.ap.q=this.value;render()"></span>'
+    + '<div class="msel-list" style="max-height:280px;border:1px solid var(--stroke-l);border-radius:var(--r-md);padding:4px">'+(list.length?list.map(function(p){ var on=st.ap.sel.indexOf(p.id)>=0;
+        return '<button class="opt'+(on?' on':'')+'" onclick="toggleAp(\''+p.id+'\')"><i class="fa-'+(on?'solid fa-square-check':'regular fa-square')+'" style="color:'+(on?'var(--primary)':'var(--icon-l)')+';font-size:16px"></i><span style="flex:1">'+esc(p.name)+'<br><span class="psub">'+esc(p.model)+' · '+esc(p.type)+'</span></span><span style="text-align:right"><b>'+p.qty+'</b> <span class="psub">in stock</span><br>'+chip(p)+'</span></button>'; }).join(''):'<div class="empty">Every sub-asset is already assigned here.</div>')+'</div>'
+    + '<div style="margin-top:12px;font-size:14px">Not in inventory yet? <a onclick="openNew(\''+t.id+'\')">Create a new sub-asset</a> (pre-assigned to '+esc(t.name)+')</div>';
+  return bisModal({ size:'md', icon:'fa-solid fa-link', title:'Assign Sub-Asset', body:body, confirm:'Assign'+(st.ap.sel.length?' ('+st.ap.sel.length+')':''), confirmDis:!st.ap.sel.length, onConfirm:'confirmA2t()' });
+}
+function toggleAp(id){ var s=st.ap.sel, i=s.indexOf(id); if(i>=0) s.splice(i,1); else s.push(id); render(); }
+function confirmA2t(){
+  var tid=st.modal.tid, when=now();
+  st.ap.sel.forEach(function(pid){ var p=part(pid); p.targets.push(tid); DATA.log.push({pid:pid, kind:'assign', tid:tid, who:ADMIN, when:when}); });
+  toast(st.ap.sel.length+' sub-asset'+(st.ap.sel.length>1?'s':'')+' assigned to '+tgt(tid).name); st.modal=null; render();
+}
+
+/* --- Record use (web) --- */
+function openUse(pid, tid){ st.menu=null; var p=part(pid); st.modal={type:'use', pid:pid, fixedTid:tid}; st.mf={ tid: tid || (p.targets[0]||''), qty:'1', note:'' }; render(); }
+function useHTML(){
+  var p=part(st.modal.pid), mf=st.mf, n=parseInt(mf.qty,10), bad=!(n>0), over=n>p.qty;
+  var after = p.qty-(n||0), willAlert = !over && n>0 && p.min!=null && after<=p.min && !p.notified;
+  var where = st.modal.fixedTid
+    ? '<div class="ro">'+ki(tgt(mf.tid).kind)+esc(tgt(mf.tid).name)+'</div>'
+    : (p.targets.length ? '<select class="sel" id="mf-tid" onchange="st.mf.tid=this.value;render()">'+p.targets.map(function(id){var t=tgt(id);return '<option value="'+id+'"'+(mf.tid===id?' selected':'')+'>'+KIND[t.kind].one+': '+esc(t.name)+'</option>';}).join('')+'</select>' : '<div class="err"><i class="fa-solid fa-circle-exclamation"></i>Assign this part first. Use is always recorded against an asset, location or user.</div>');
+  var body = '<div class="grid2">'
+    + '<div class="full"><label class="lbl">Sub-Asset</label><div class="ro"><b style="font-weight:600">'+esc(p.name)+'</b><span class="psub">'+p.qty+' in stock</span>'+chip(p)+'</div></div>'
+    + '<div class="full"><label class="lbl">Used On<span class="req">*</span></label>'+where+'</div>'
+    + '<div><label class="lbl">Quantity Used<span class="req">*</span></label><input class="input'+(over?' bad':'')+'" id="mf-qty" type="number" min="1" value="'+esc(mf.qty)+'" oninput="st.mf.qty=this.value;render()">'
+    + (over?'<div class="err"><i class="fa-solid fa-circle-exclamation"></i>Only '+p.qty+' in stock. Enter '+p.qty+' or less.</div>':'')+'</div>'
+    + '<div><label class="lbl">Note <span class="lbl-opt">(optional)</span></label><input class="input" id="mf-note" value="'+esc(mf.note)+'" placeholder="e.g. Replaced front left" oninput="st.mf.note=this.value"></div>'
+    + '</div>' + (!bad&&!over?'<div class="after">After this: <b>'+after+'</b> in stock.</div>':'')
+    + (willAlert?'<div class="banner warning"><i class="fa-solid fa-triangle-exclamation"></i><span>This puts '+esc(p.name)+' at or below its minimum ('+p.min+'). Admins will be notified.</span></div>':'');
+  return bisModal({ size:'sm', icon:'fa-solid fa-circle-minus', title:'Record Use', body:body, confirm:'Record Use', confirmDis:bad||over||!mf.tid, onConfirm:'confirmUse()' });
+}
+function confirmUse(){
+  var p=part(st.modal.pid), n=parseInt(st.mf.qty,10);
+  var fired = doUse(p.id, st.mf.tid, n, st.mf.note, ADMIN);
+  st.modal=null; toast('Recorded: '+n+' × '+p.name+' on '+tgt(st.mf.tid).name+(fired?'. Low-stock alert sent to admins.':''), fired?'warn':''); render();
+}
+
+/* --- Refill --- */
+function openRefill(pid){ st.menu=null; st.modal={type:'refill', pid:pid}; st.mf={ qty:'', note:'' }; render(); }
+function refillHTML(){
+  var p=part(st.modal.pid), n=parseInt(st.mf.qty,10), ok=n>0;
+  var body='<div class="grid2"><div class="full"><label class="lbl">Sub-Asset</label><div class="ro"><b style="font-weight:600">'+esc(p.name)+'</b><span class="psub">'+p.qty+' in stock</span>'+chip(p)+'</div></div>'
+    + '<div><label class="lbl">Quantity Received<span class="req">*</span></label><input class="input" id="rf-qty" type="number" min="1" value="'+esc(st.mf.qty)+'" oninput="st.mf.qty=this.value;render()"></div>'
+    + '<div><label class="lbl">Note <span class="lbl-opt">(optional)</span></label><input class="input" id="rf-note" value="'+esc(st.mf.note)+'" placeholder="e.g. PO 4512" oninput="st.mf.note=this.value"></div></div>'
+    + (ok?'<div class="after">After refill: <b>'+(p.qty+n)+'</b> in stock'+(p.min!=null && p.qty<=p.min && p.qty+n>p.min?'. Back above the minimum, so the low-stock alert resets.':'')+'</div>':'')
+    + '<div class="help" style="margin-top:8px">Logged as refilled by '+ADMIN+' with today\'s date and time.</div>';
+  return bisModal({ size:'sm', icon:'fa-solid fa-circle-plus', title:'Refill Stock', body:body, confirm:'Add to Stock', confirmDis:!ok, onConfirm:'confirmRefill()' });
+}
+function confirmRefill(){ var p=part(st.modal.pid), n=parseInt(st.mf.qty,10); doRefill(p.id, n, st.mf.note, ADMIN); st.modal=null; toast('+'+n+' added. '+p.name+' now has '+p.qty+' in stock.'); render(); }
+
+/* --- Unassign / Delete (danger variant) --- */
+function openUnassign(pid, tid){ st.menu=null; st.modal={type:'unassign', pid:pid, tid:tid}; render(); }
+function unassignHTML(){
+  var p=part(st.modal.pid), t=tgt(st.modal.tid), uses=DATA.log.filter(function(e){return e.pid===p.id&&e.tid===t.id&&e.kind==='use';}).length;
+  return bisModal({ size:'sm', variant:'danger', icon:'fa-regular fa-circle-xmark', title:'Remove from '+KIND[t.kind].one,
+    body:'<p>Remove <b>'+esc(p.name)+'</b> from <b>'+esc(t.name)+'</b>? It will no longer show on this '+KIND[t.kind].one.toLowerCase()+' or in the app there. Stock isn\'t changed ('+p.qty+' stays in inventory)'+(uses?', and its '+uses+' usage record'+(uses>1?'s':'')+' stay in the Activity log.':'.')+'</p>',
+    confirm:'Remove', onConfirm:'confirmUnassign()' });
+}
+function confirmUnassign(){ var p=part(st.modal.pid), tid=st.modal.tid; p.targets=p.targets.filter(function(x){return x!==tid;}); DATA.log.push({pid:p.id, kind:'unassign', tid:tid, who:ADMIN, when:now()}); toast('Removed from '+tgt(tid).name+'. History kept.'); st.modal=null; render(); }
+function openDelete(pid){ st.menu=null; st.modal={type:'delete', pid:pid}; render(); }
+function deleteHTML(){
+  var p=part(st.modal.pid);
+  return bisModal({ size:'sm', variant:'danger', icon:'fa-regular fa-circle-xmark', title:'Delete Sub-Asset',
+    body:'<p>Delete <b>'+esc(p.name)+'</b>? It will be removed from '+p.targets.length+' assignment'+(p.targets.length===1?'':'s')+' and from inventory.</p><p class="help" style="margin-top:8px">Proposed: archive rather than hard-delete, so usage history stays reportable in Phase 2 (open question Q6).</p>',
+    confirm:'Delete', onConfirm:'confirmDelete()' });
+}
+function confirmDelete(){ var p=part(st.modal.pid); DATA.parts=DATA.parts.filter(function(x){return x.id!==p.id;}); st.modal=null; st.drawer=null; toast('“'+p.name+'” deleted'); render(); }
+
+/* ------------------------------------------------------------------ */
+/* Shared section: Linked Sub Assets on Asset / Location / User pages  */
+/* One body, two hosts: an accordion (asset, user) or a menu page       */
+/* section (location, which uses the right-hand Menu layout).           */
+/* ------------------------------------------------------------------ */
+function targetSection(tid, card){
+  var ps=DATA.parts.filter(function(p){return p.targets.indexOf(tid)>=0;});
+  return '<div class="acc'+(card?' acc-card':'')+'"><div class="acc-h">Linked Sub Assets <span class="cnt">'+ps.length+'</span> <span class="newtag">REDESIGNED</span><i class="lock fa-solid fa-lock-open" title="Existing section lock (see open question Q8)"></i><i class="chev fa-solid fa-chevron-up"></i></div><div class="acc-b">'+sectionBody(tid)+'</div></div>';
+}
+function sectionBody(tid){
+  var t=tgt(tid), ps=DATA.parts.filter(function(p){return p.targets.indexOf(tid)>=0;});
+  return '<div class="sect-bar"><span class="info"><i class="fa-solid fa-circle-info"></i>Stock is shared. Using a part here reduces the same inventory everywhere it\'s assigned.</span><span class="spacer"></span>'+btn('Assign Sub-Asset',{v:'b-primary',icon:'fa-solid fa-plus',on:'openAssignToTarget(\''+tid+'\')'})+'</div>'
+    + (ps.length ? '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Sub-Asset</th><th>Type</th><th class="num">In Stock</th><th>Status</th><th>Last Used Here</th><th style="text-align:right">Actions</th></tr></thead><tbody>'
+      + ps.map(function(p){ var la=lastAct(p.id,tid);
+          return '<tr><td><a class="nm" onclick="goInventory(\''+p.id+'\')">'+esc(p.name)+'</a><div class="psub">'+esc(p.model)+'</div></td><td>'+esc(p.type)+'</td><td class="num"><span class="qty">'+p.qty+'</span></td><td>'+chip(p)+'</td>'
+            + '<td>'+(la?'<div>'+Math.abs(la.delta)+' by '+esc(la.who)+'</div><div class="psub">'+fmt(la.when)+(la.note?' · “'+esc(la.note)+'”':'')+'</div>':'<span class="muted">Not used here yet</span>')+'</td>'
+            + '<td><div class="acts">'+btn('Use',{sm:true,icon:'fa-solid fa-minus',dis:p.qty<=0,tip:p.qty<=0?'Out of stock':'',on:'openUse(\''+p.id+'\',\''+tid+'\')'})+btn('Refill',{sm:true,v:'b-sp',icon:'fa-solid fa-plus',on:'openRefill(\''+p.id+'\')'})
+            + '<button class="ib" title="More" onclick="event.stopPropagation();toggleMenu(\'tg:'+tid+':'+p.id+'\')"><i class="fa-solid fa-ellipsis-vertical"></i></button>'
+            + (st.menu==='tg:'+tid+':'+p.id ? menuHTML([{label:'View in inventory',icon:'fa-regular fa-eye',on:'goInventory(\''+p.id+'\')'},{sep:true},{label:'Remove from this '+KIND[t.kind].one.toLowerCase(),icon:'fa-solid fa-link-slash',danger:true,on:'openUnassign(\''+p.id+'\',\''+tid+'\')'}]) : '')
+            + '</div></td></tr>'; }).join('')
+      + '</tbody></table></div>' : '<div class="empty">No sub-assets assigned to this '+KIND[t.kind].one.toLowerCase()+' yet.</div>');
+}
+function collapsed(name, card){ return '<div class="acc'+(card?' acc-card':'')+'"><div class="acc-h" style="font-weight:600">'+name+'<i class="chev fa-solid fa-chevron-down"></i></div></div>'; }
+function scrAsset(){
+  /* Live asset page: a stack of accordion sections; Linked Sub Assets sits under Attached Assets */
+  var t=tgt('a3');
+  var body = collapsed('Attached Assets') + targetSection('a3')
+    + ['Documents','Tasks','Scheduled Forms','On Demand Forms','Pending Forms','Completed Forms'].map(function(n){ return collapsed(n); }).join('');
+  return bisShell('Asset: '+esc(t.name), body);
+}
+function scrLocUser(){
+  var isLoc = st.page==='location', tid = isLoc?'l1':'u1', t=tgt(tid);
+  var ctl = '<div class="ctl-row"><span class="anno-tag">Preview</span>Same component on: <div class="seg-control"><button class="seg-opt '+(isLoc?'active':'')+'" onclick="st.page=\'location\';st.menu=null;render()">Location page</button><button class="seg-opt '+(!isLoc?'active':'')+'" onclick="st.page=\'user\';st.menu=null;render()">User page</button></div></div>';
+  if(isLoc){
+    /* Live location page: "Edit - <LOCATION>" title bar with page buttons, content left, right-hand Menu with Linked Sub Assets selected */
+    var items=[['fa-solid fa-globe','Location Information'],['fa-solid fa-users','Company Role Groups'],['fa-solid fa-link','Attached Assets'],['fa-solid fa-pen-to-square','Linked Sub Assets'],['fa-solid fa-money-bill','Billing Information'],['fa-solid fa-id-badge','Custom Location Badge ID'],['fa-solid fa-file-pen','Documentation'],['fa-solid fa-bell','Notifications'],['fa-solid fa-clock-rotate-left','Location Hours'],['fa-solid fa-clipboard','Notes']];
+    var ps=DATA.parts.filter(function(p){return p.targets.indexOf(tid)>=0;});
+    var loc = '<div class="loc"><div class="loc-main"><div class="loc-h">Linked Sub Assets <span class="cnt">'+ps.length+'</span> <span class="newtag">REDESIGNED</span></div>'+sectionBody(tid)+'</div>'
+      + '<aside class="loc-menu"><div class="loc-mh"><b>Menu</b><span>Click on a menu item below.</span><i class="fa-regular fa-circle-right"></i></div>'
+      + items.map(function(it){ return '<div class="loc-mi'+(it[1]==='Linked Sub Assets'?' on':'')+'"><i class="'+it[0]+'"></i>'+it[1]+'</div>'; }).join('')+'</aside></div>';
+    var btns='<span class="tb-btns"><span class="tb tb-g">Equipment</span><span class="tb tb-b">Generate Invoices</span><span class="tb tb-p">Invoices</span></span>';
+    return ctl + bisShell('Edit - '+esc(t.name.toUpperCase()), loc, 'Home', { titleBtns:btns, big:true, flush:true });
+  }
+  /* Live user profile: two-line title bar (name + org breadcrumb, account dates right), card-style accordions */
+  var body = '<div class="cards">' + collapsed('Driving Information',true) + collapsed('Assigned Assets',true) + targetSection(tid,true)
+    + ['Documents','Rewards','User Home Page','Online Store Purchases'].map(function(n){ return collapsed(n,true); }).join('') + '</div>';
+  var title = '<div class="prof"><div><div>'+esc(t.name)+' Profile</div><i>BIS QAQC Test Environment &gt; BIS QAQC Test Environment</i></div><div class="prof-r"><i>Account Created: Jan 28, 2025</i><i>Last logged in: Oct 9, 2026</i></div></div>';
+  return ctl + bisShell(title, body, 'Users', { profile:true });
+}
+
+/* ------------------------------------------------------------------ */
+/* Screen: low-stock alert explainer                                   */
+/* ------------------------------------------------------------------ */
+function scrAlert(){
+  var p=part('p2'), alerts=DATA.log.filter(function(e){return e.pid==='p2'&&e.kind==='alert';}).length;
+  var left = '<div class="anno" style="margin-bottom:14px"><h4>How the low-stock alert behaves (AC)</h4><ol class="timeline">'
+    + '<li>Brake pads: 9 in stock, minimum 6 → <b>In stock</b></li>'
+    + '<li class="fire">Use 3 → 6 (at minimum) → <b>alert fires once</b>, row flagged</li>'
+    + '<li>Use 1 → 5 → still low, <b>no repeat alert</b></li>'
+    + '<li class="reset">Refill +10 → 15 → back above minimum, <b>alert resets</b></li>'
+    + '<li class="fire">Later drops to 6 again → <b>new alert</b></li>'
+    + '<li>Minimum changed → status re-checked immediately against current stock</li></ol></div>'
+    + '<div class="anno"><h4>Try it live: Brake pads (front set)</h4>'
+    + '<div style="display:flex;gap:18px;align-items:center;margin-bottom:10px"><div><div style="font-size:26px;font-weight:600;line-height:1">'+p.qty+'</div><div class="psub">in stock · min '+p.min+'</div></div>'+chip(p)+'<div class="psub">Alerts sent: <b>'+alerts+'</b><br>Alert armed: <b>'+(p.notified?'no (already low)':'yes')+'</b></div></div>'
+    + '<div style="display:flex;gap:8px;flex-wrap:wrap">'+btn('Use 3 on Truck 12',{sm:true,dis:p.qty<3,on:'demoUse(3)'})+btn('Use 1',{sm:true,dis:p.qty<1,on:'demoUse(1)'})+btn('Refill +10',{sm:true,v:'b-primary',on:'demoRefill(10)'})+'</div>'
+    + '<p class="help" style="margin-top:8px">Watch the bell in the BIS header: the count only goes up when the alert fires.</p></div>';
+  var right = '<div class="anno" style="margin-bottom:14px"><h4><span class="anno-tag">Open Q1</span>Who gets notified, and how?</h4>'
+    + '<p>Scope says “admins are notified”. Not decided yet: <b>which</b> admins (all admins, Asset-module admins, or a per-part “Notify” list) and <b>which channel</b> (in-app bell, email, mobile push). Shown below: in-app plus email as a starting point.</p></div>'
+    + '<div style="margin-bottom:14px"><div class="psub" style="margin-bottom:4px;font-weight:600">In-app (web header bell)</div><div class="pop bell-pop" style="position:static;width:auto">'
+    + DATA.notifs.slice(0,3).map(function(n){return '<div class="notif '+(n.read?'':'unread')+'"><i class="fa-solid fa-triangle-exclamation"></i><div><a onclick="openFromNotif(\''+n.pid+'\')">'+esc(n.text)+'</a><small>'+fmt(n.when)+' · Sub-Asset Inventory</small></div></div>';}).join('')+'</div></div>'
+    + '<div class="psub" style="margin-bottom:4px;font-weight:600">Email (draft)</div><div class="email"><div class="eh"><b>Subject:</b> Low stock: Oil filter (5 left)<br><b>To:</b> [recipients TBD]</div><div class="eb">'
+    + '<p><b>Oil filter</b> (OF-77) has dropped to <b>5</b>, at or below its minimum of <b>10</b>.</p><p style="margin-top:8px">Last used: 3 on Truck 12 – Kenworth T680 by Priya Shah, Oct 7.</p><p style="margin-top:12px"><span class="b b-primary b-sm">View in Sub-Asset Inventory</span></p></div></div>';
+  return '<div class="two"><div>'+left+'</div><div>'+right+'</div></div>';
+}
+function demoUse(n){ var fired=doUse('p2','a3',n,'',ADMIN); toast(fired?'Alert fired: Brake pads now '+part('p2').qty+' (min 6)':'Used '+n+'. No alert'+(part('p2').notified?' (already low).':'.'), fired?'warn':''); render(); }
+function demoRefill(n){ doRefill('p2',n,'',ADMIN); toast('Refilled +'+n+'. Brake pads now '+part('p2').qty+(isLow(part('p2'))?'.':'. Alert reset.')); render(); }
+
+/* ------------------------------------------------------------------ */
+/* Mobile — live SafeTapp asset screen                                 */
+/* ------------------------------------------------------------------ */
+var M_TID='a2';
+function mWho(){ return st.role==='admin'?ADMIN:'Priya Shah'; }
+function mGo(screen, pid){
+  st.mScreen=screen; if(pid) st.mPart=pid;
+  if(screen==='use' || screen==='refill'){ st.mQty=''; st.mNote=''; }
+  st.flow = {info:'m-info', sheet:'m-sheet', use:'m-use', refill:'m-refill'}[screen]; render();
+}
+function scrMobile(){
+  var t=tgt(M_TID), ps=DATA.parts.filter(function(p){return p.targets.indexOf(M_TID)>=0;}), p=part(st.mPart);
+  var statusBar = function(light){ return '<div class="ph-status'+(light?' light':'')+'"><span>2:05</span><span><i class="fa-solid fa-signal"></i> <i class="fa-solid fa-wifi"></i> 70</span></div>'; };
+  var asset = statusBar() + '<div class="ph-bar"><i class="fa-solid fa-chevron-left"></i><h1>'+esc(t.name)+'</h1><i class="fa-solid fa-house"></i></div>'
+    + '<div class="ph-tabs"><span>Actions</span><span class="on">Info</span><span>Document</span></div>'
+    + '<div class="ph-scroll"><div class="ph-img"><i class="fa-regular fa-image"></i><span>Select Image</span></div>'
+    + '<div class="ph-acc"><div class="ph-acc-h">Assigned Asset<i class="fa-solid fa-chevron-down"></i></div></div>'
+    + '<div class="ph-acc"><div class="ph-acc-h">Linked Sub Assets<i class="fa-solid fa-chevron-up"></i></div>'
+    + '<div class="ph-th"><span class="c-name">Sub-Asset</span><span class="c-qty">In stock</span><span class="c-eye"></span></div>'
+    + ps.map(function(x){ var s=status(x); return '<div class="ph-tr" onclick="mGo(\'sheet\',\''+x.id+'\')"><span class="c-name">'+esc(x.name)+(s==='low'||s==='out'?'<br>'+chip(x):'')+'</span><span class="c-qty">'+x.qty+'</span><span class="c-eye"><i class="fa-regular fa-eye"></i></span></div>'; }).join('')
+    + '</div><div class="ph-acc"><div class="ph-acc-h">Details<i class="fa-solid fa-chevron-down"></i></div></div></div>'
+    + '<div class="ph-fab"><i class="fa-regular fa-square-plus"></i>Create Task</div>';
+  var screen = asset;
+  if(st.mScreen==='sheet' && p){
+    var others = p.targets.length-1;
+    screen += '<div class="ph-dim" onclick="mGo(\'info\')"></div><div class="ph-sheet"><div class="ph-grab"></div><div class="ph-sheet-b">'
+      + '<h3>'+esc(p.name)+'</h3>'
+      + '<div class="ph-f"><b>Model #</b><span>'+esc(p.model)+'</span></div>'
+      + '<div class="ph-f"><b>Type</b><span>'+esc(p.type)+'</span></div>'
+      + '<div class="ph-f"><b>In Stock</b><span style="display:flex;gap:8px;align-items:center"><span style="font-size:20px;font-weight:700">'+p.qty+'</span>'+chip(p)+'</span><span style="font-size:12px;color:#666">Shared stock'+(st.role==='admin'?' · minimum '+(p.min==null?'not set':p.min):'')+'</span></div>'
+      + '<div class="ph-f"><b>Linked To</b><span>'+esc(t.name)+(others>0?' + '+others+' more':'')+'</span></div></div>'
+      + '<div class="ph-foot"><button class="mb-pri" '+(p.qty<=0?'disabled':'')+' onclick="mGo(\'use\')">'+(p.qty<=0?'Out of Stock':'Use Sub-Asset')+'</button>'
+      + (st.role==='admin'?'<button class="mb-sec" onclick="mGo(\'refill\')">Refill</button>':'')
+      + '<button class="mb-txt" onclick="mGo(\'info\')">Close</button></div></div>';
+  }
+  if((st.mScreen==='use' || st.mScreen==='refill') && p){
+    var isUse = st.mScreen==='use', n=parseInt(st.mQty,10), over=isUse && n>p.qty, ok=n>0 && !over;
+    screen = statusBar(true) + '<div class="ph-page"><h2>'+(isUse?'Use Quantity':'Refill Quantity')+'<button onclick="mGo(\'sheet\')"><i class="fa-solid fa-xmark"></i></button></h2>'
+      + '<div class="sub">'+(isUse?'Record use of <b>'+esc(p.name)+'</b> on <b>'+esc(t.name)+'</b>':'Add stock to <b>'+esc(p.name)+'</b>')+'</div>'
+      + '<div class="ph-card"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px;flex:1">'+esc(p.name)+'</span>'+chip(p)+'</div>'
+      + '<div class="row"><div><label>Available</label><input class="ph-in" readonly value="'+p.qty+'"></div><div><label>'+(isUse?'Use':'Add')+'</label><input class="ph-in'+(over?' bad':'')+'" id="mqty" type="number" min="1" placeholder="0" value="'+esc(st.mQty)+'" oninput="st.mQty=this.value;render()"></div></div>'
+      + (over?'<div class="err"><i class="fa-solid fa-circle-exclamation"></i>Only '+p.qty+' available. Enter '+p.qty+' or less.</div>':'')
+      + (ok?'<div style="font-size:13px;color:#555;margin-top:8px">'+(isUse?'Leaves ':'New total: ')+'<b>'+(isUse?p.qty-n:p.qty+n)+'</b></div>':'')+'</div>'
+      + '<label>Note <span style="font-weight:400;color:#666">(optional)</span></label><textarea class="ph-ta" id="mnote" placeholder="'+(isUse?'e.g. Replaced front left':'e.g. PO 4512')+'" oninput="st.mNote=this.value">'+esc(st.mNote)+'</textarea></div>'
+      + '<div class="ph-foot"><button class="mb-pri" '+(ok?'':'disabled')+' onclick="mConfirm()">'+(isUse?'Record Use':'Add to Inventory')+'</button><button class="mb-txt" onclick="mGo(\'sheet\')">Cancel</button></div>';
+  }
+  var phone = '<div class="phone">'+screen+(st.mToast?'<div class="ph-toast"><i class="fa-solid fa-circle-check"></i><span>'+esc(st.mToast)+'</span></div>':'')+'</div>';
+  var side = '<div class="anno"><h4>Prototype controls</h4><div class="ctl-row" style="margin:0">Signed in as<div class="seg-control"><button class="seg-opt '+(st.role==='driver'?'active':'')+'" onclick="st.role=\'driver\';if(st.mScreen===\'refill\')st.mScreen=\'sheet\';render()">Driver</button><button class="seg-opt '+(st.role==='admin'?'active':'')+'" onclick="st.role=\'admin\';render()">Admin</button></div></div><p class="help" style="margin-top:6px">Drivers and mechanics can use parts. Only admin roles see Refill and the minimum.</p></div>'
+    + '<div class="anno"><h4>What changes vs. the live app</h4><ul style="padding-left:16px;font-size:12.5px;line-height:1.6"><li>Same place: Info tab → <b>Linked Sub Assets</b> → eye → bottom sheet.</li><li>Sheet button <b>Move Inventory</b> → <b>Use Sub-Asset</b> (+ <b>Refill</b> for admins). Moving stock between links goes away because stock is shared.</li><li>The <b>Move Quantity</b> page pattern is reused: Available + Use / Add, then a note.</li><li>Low / out-of-stock chip under the name in the list.</li></ul></div>'
+    + '<div class="anno"><h4>Live on web (same data)</h4><table class="sync" style="width:100%">'+ps.map(function(x){return '<tr><td>'+esc(x.name)+'</td><td style="text-align:right"><b>'+x.qty+'</b></td><td>'+chip(x)+'</td></tr>';}).join('')+'</table><p class="help" style="margin-top:6px">Use or refill on the phone, then open <a onclick="goInventory()">Admin · Inventory page</a> to see it there.</p></div>'
+    + '<div class="anno"><h4><span class="anno-tag">Open Q4</span>Location- &amp; user-assigned parts</h4><p class="help" style="color:#333">Use and refill must work on all three targets. In the app, where does someone find parts assigned to a <b>location</b> or to <b>themselves</b>? Proposal: the same Linked Sub Assets accordion on the location screen and on My Profile.</p></div>';
+  return '<div class="mwrap"><div class="mside">'+side+'</div>'+phone+'</div>';
+}
+function mConfirm(){
+  var p=part(st.mPart), n=parseInt(st.mQty,10);
+  if(st.mScreen==='use'){ var fired=doUse(p.id, M_TID, n, st.mNote, mWho()); mToast('Success! '+n+' '+(n===1?'unit':'units')+' of '+p.name+' recorded on '+tgt(M_TID).name+'.'+(fired?' Stock is low, so admins were notified.':'')); }
+  else { doRefill(p.id, n, st.mNote, mWho()); mToast('Success! '+n+' '+(n===1?'unit was':'units were')+' added to '+p.name+'.'); }
+  st.mScreen='info'; st.flow='m-info'; render();
+}
+
+/* ------------------------------------------------------------------ */
+/* Notes panel                                                         */
+/* ------------------------------------------------------------------ */
+function notesHTML(){
+  if(!st.notes) return '';
+  return '<div class="notes-scrim" onclick="toggleNotes()"></div><div class="notes"><header><h3>TKT-22242 · Design notes</h3><button class="ib" onclick="toggleNotes()"><i class="fa-solid fa-xmark"></i></button></header><div class="nb">'
+  + '<h4>v4 changes (Mika feedback, Oct 9)</h4><ul><li>Asset page matches the live layout: no asset detail fields on top, Linked Sub Assets under Attached Assets, then Documents, Tasks and the form sections.</li><li>User page matches the live profile: two-line title bar and card-style accordions (Driving Information, Assigned Assets, Linked Sub Assets, …).</li><li>The old Edit Inventory modal is replaced by the shared Record Use / Refill Stock BisModals on every page.</li><li>The existing lock icon is kept on the section header until its purpose is confirmed (Q8).</li><li>Dev PRD (data model, rules, migration, QA scenarios) is shared separately with the dev team.</li></ul><h4>v3 changes</h4><ul><li>No maximise button on modals or the side panel.</li><li>Assignment dropdowns float above the modal and open upward when there is no room below, so the list is never clipped.</li><li>“(optional)” sits beside the Note label in Record Use and Refill Stock (all entry points).</li><li>Location page matches the live layout: Edit - LOCATION title bar, right-hand Menu, Linked Sub Assets selected.</li><li>Section renamed back to the live name <b>Linked Sub Assets</b> everywhere.</li></ul><h4>v2 changes</h4><ul>'
+  + '<li>Every dialog is a <b>BisModal</b> (type “themed”): title icon, white header and footer, tertiary Cancel, primary or danger confirm.</li>'
+  + '<li>New Sub-Asset follows the Task Management <b>New Task</b> layout: icon title, maximise, section headings, chips-in-field multi-selects, Reset on the left.</li>'
+  + '<li>The side panel follows the <b>Field Management</b> right panel: grey “View …” header, maximise/close, title row with actions, key-value card, collapsible sections.</li>'
+  + '<li>All primary actions use <b>BIS blue</b> (BisButton primary). Green is gone.</li>'
+  + '<li>Mobile now matches the live app: Info tab → Linked Sub Assets → eye → bottom sheet. Move Inventory becomes Use / Refill.</li></ul>'
+  + '<h4>Key decisions</h4><ol>'
+  + '<li><span class="tag chg">Changed</span><b>One shared stock per part.</b> Assigning a part says <i>where it can be used</i>; it no longer splits the quantity. Matches the scope edge case “consumption from any assigned target draws down the same shared quantity”. Removes the “Multiple” row type and Move From / Move Inventory.</li>'
+  + '<li><span class="tag chg">Changed</span><b>Read-only list, edit in the side panel.</b> Today every row is a live form; inline editing is a likely cause of the inconsistent updates and rows dropping out.</li>'
+  + '<li><span class="tag new">New</span><b>Quantity only changes through Refill / Record use</b>, never by typing over the number, so every change has a who / when / where record.</li>'
+  + '<li><span class="tag new">New</span><b>Assignment = three multi-selects</b> (Assets · Locations · Users) plus a “Will appear in…” line. Answers the AC “it is evident which is selected and where it will appear”.</li>'
+  + '<li><span class="tag reuse">Reused</span><b>One “Linked Sub Assets” section component</b> for Asset, Location and User pages (keeps the live name), with the same columns and actions. Replaces the old input-field table and the Edit Inventory window.</li>'
+  + '<li><span class="tag new">New</span><b>Activity log</b> (action, qty, where, who, when, note) replaces the free-text Notes list and becomes the Phase 2 reporting source.</li>'
+  + '<li><span class="tag chg">Migration</span>Existing per-link quantities are <b>summed into one stock</b>. All assignments are kept. Migrated parts get type “Uncategorized”, no minimum, and a “Migrated” badge until reviewed (e.g. Subber: 997 + 5 = 1002).</li></ol>'
+  + '<h4>Open questions</h4><ol>'
+  + '<li><span class="tag open">Q1</span><b>Alert recipients &amp; channel:</b> all admins, Asset-module admins, or a per-part Notify list? In-app bell, email, mobile push?</li>'
+  + '<li><span class="tag open">Q2</span><b>Type:</b> admin-managed list (settings page) or free text with suggestions? Who can add types?</li>'
+  + '<li><span class="tag open">Q3</span><b>Stock corrections:</b> after a physical count, how does an admin lower stock without it counting as use? Proposal: an admin-only “Adjust count” with a required reason, logged separately.</li>'
+  + '<li><span class="tag open">Q4</span><b>Mobile for location / user parts:</b> where do these appear in the app?</li>'
+  + '<li><span class="tag open">Q5</span><b>Threshold edits:</b> if an admin raises the minimum above current stock, send an alert or only flag the row? (The prototype sends one.)</li>'
+  + '<li><span class="tag open">Q6</span><b>Delete vs archive:</b> deleting a part with usage history should probably archive it.</li>'
+  + '<li><span class="tag open">Q7</span><b>Units / decimals:</b> fluids are measured in litres. Whole numbers only for Phase 1?</li>'
+  + '<li><span class="tag open">Q8</span><b>Permissions:</b> which roles can create / assign / refill / use on web and mobile? Does the lock icon on today\'s “Linked Sub Assets” map to one of these?</li>'
+  + '<li><span class="tag open">Q9</span><b>Mobile offline:</b> if two people use the last part offline, which wins?</li></ol>'
+  + '<h4>Build pieces (for estimating)</h4><ul>'
+  + '<li><span class="tag chg">Rework</span>Inventory page (React): summary tiles, filters (search, type, status), read-only table, row actions</li>'
+  + '<li><span class="tag reuse">Reuse</span>Right panel (Field Management pattern): key-value card, stock block, Assigned To / Activity / Details sections</li>'
+  + '<li><span class="tag reuse">Reuse</span>BisModal ×6: New sub-asset, Edit assignments, Assign to target, Record use, Refill, Remove / Delete</li>'
+  + '<li><span class="tag reuse">Reuse</span>Chips-in-field multi-select from Task Management</li>'
+  + '<li><span class="tag chg">Rework</span>Linked Sub Assets section ×3 hosts (Asset accordion, Location menu page, User accordion)</li>'
+  + '<li><span class="tag new">New</span>Activity/ledger table + API; low-stock state + one-shot alert trigger (+ reset on refill)</li>'
+  + '<li><span class="tag chg">Rework</span>Mobile: Linked Sub Assets list (status chip), sheet buttons, Use / Refill pages (reusing Move Quantity), role gating</li>'
+  + '<li><span class="tag chg">Migration</span>Sum per-link quantities → single stock, keep links, convert old notes into the Activity log where possible</li></ul>'
+  + '<h4>Out of scope (Phase 2)</h4><ul><li>Reporting views and export, cost tracking per part / per asset</li></ul>'
+  + '</div></div>';
+}
+
+/* ------------------------------------------------------------------ */
+/* Step details                                                        */
+/* ------------------------------------------------------------------ */
+function stepDetails(){
+  var m = {
+    inv:['Sub-Asset Inventory (replaces “Main Inventory Sub Assets”)', ['Read-only list with stock, minimum and status. The summary tiles act as quick filters.','Try: filter by Type, click a row to open its side panel, or use <b>Refill</b> / <b>⋮</b> on a row.']],
+    'new':['New sub-asset (BisModal, Task Management create layout)', ['Name and type, then Stock (starting quantity + minimum), then Assignment as three multi-selects.','Try: pick a couple of assets and a location and read the “Will appear in…” line. Create opens the new part.']],
+    detail:['Sub-asset side panel (Field Management pattern)', ['Title row with <b>Record use</b> / <b>Refill</b>, a key-value card, the stock block, then collapsible Assigned To, Activity and Details.','Try: Record use on Oil filter, open Activity, then change the minimum in Details.']],
+    asset:['Asset page: Linked Sub Assets section', ['Same place as the live asset page (under Attached Assets). The old input-field table and its Edit Inventory window are replaced: <b>Use</b> and <b>Refill</b> happen in place, and Move From is gone because stock is shared.','Try: <b>Use</b> on Brake pads (watch the low-stock warning), or <b>Assign Sub-Asset</b> to add one from inventory.']],
+    locuser:['Location & User pages: same component', ['The location page keeps its live layout (Edit - LOCATION, right-hand Menu with <b>Linked Sub Assets</b> selected); the user page keeps its live profile layout with card accordions. Same section, same actions; use here is recorded against that location or user. The old <b>Edit Inventory</b> modal maps to: Adjust Add → <b>Refill</b>, Adjust Remove → <b>Use</b> (or a future Adjust count, Q3), Move From → removed.','Use the Preview switch to compare both pages.']],
+    alert:['Low-stock alert', ['The alert fires once when stock crosses to or below the minimum, stays quiet while low, and re-arms after a refill above the minimum.','Try the live buttons, then check the bell. Recipients and channel are open question Q1.']],
+    'm-info':['Mobile: asset → Info tab → Linked Sub Assets', ['Same place as the live app. The list now shows shared stock and a low / out-of-stock chip.','Tap a row (or its eye) to open the bottom sheet.']],
+    'm-sheet':['Mobile: sub-asset bottom sheet', ['Same sheet as today; <b>Move Inventory</b> is replaced by <b>Use Sub-Asset</b>, plus <b>Refill</b> for admin roles.','Switch “Signed in as” to Admin to see Refill and the minimum.']],
+    'm-use':['Mobile: use quantity', ['Reuses the Move Quantity page: Available (read-only) + Use, then an optional note. Using more than is available is blocked.','Try more than 9, then record a valid amount and check “Live on web”.']],
+    'm-refill':['Mobile: refill (admin role)', ['Admins add stock the same way. Wiper blades are out of stock here.','Add stock and watch the web side update; the low-stock state resets once above the minimum.']]
+  }[st.flow];
+  return { title:m[0], bullets:m[1] };
+}
+
+/* ------------------------------------------------------------------ */
+/* Render                                                              */
+/* ------------------------------------------------------------------ */
+/* Multi-select menus float above the modal (fixed position) so the modal body
+   can't clip them, and open upward when there isn't room below the field. */
+function placeDropdown(){
+  if(!st.dd || !document.querySelector) return;
+  var f=document.getElementById('dd-'+st.dd), m=document.querySelector('.msel-menu');
+  if(!f || !m || !f.getBoundingClientRect) return;
+  var r=f.getBoundingClientRect(), mh=m.offsetHeight, below=window.innerHeight-r.bottom, above=r.top;
+  m.style.position='fixed'; m.style.left=r.left+'px'; m.style.width=r.width+'px'; m.style.right='auto'; m.style.zIndex=60;
+  m.style.top = (below < mh+12 && above > below) ? Math.max(8, r.top-mh-4)+'px' : (r.bottom+4)+'px';
+}
+var lastViewKey='';
+function render(){
+  var ae=document.activeElement, fid=ae&&ae.id, ss=null;
+  try{ ss=ae.selectionStart; }catch(e){}
+  document.getElementById('segA').classList.toggle('active', st.persp==='admin');
+  document.getElementById('segB').classList.toggle('active', st.persp==='mobile');
+  document.getElementById('flowTabs').innerHTML = FLOWS[st.persp].map(function(f){ return '<button class="flow-tab '+(f.id===st.flow?'active':'')+'" onclick="selectFlow(\''+f.id+'\')">'+f.label+'</button>'; }).join('');
+  var d=stepDetails();
+  document.getElementById('sdTitle').innerHTML=d.title;
+  document.getElementById('sdList').innerHTML=d.bullets.map(function(b){return '<li>'+b+'</li>';}).join('');
+  var f=st.flow, html;
+  if(st.persp==='mobile') html=scrMobile();
+  else if(f==='asset') html=scrAsset();
+  else if(f==='locuser') html=scrLocUser();
+  else if(f==='alert') html=bisShell('Low-Stock Alerts', scrAlert());
+  else html=scrInventory();
+  document.getElementById('stage').innerHTML=html;
+
+  var o='';
+  if(st.drawer && st.persp==='admin') o+=drawerHTML();
+  if(st.modal){
+    var mt=st.modal.type;
+    o+= mt==='new'?newHTML(): mt==='assign'?assignHTML(): mt==='a2t'?a2tHTML(): mt==='use'?useHTML(): mt==='refill'?refillHTML(): mt==='unassign'?unassignHTML(): mt==='delete'?deleteHTML():'';
+  }
+  if(st.toast) o+='<div class="snack '+st.toast.kind+'"><i class="fa-solid fa-'+(st.toast.kind==='warn'?'triangle-exclamation':'circle-check')+'"></i><span>'+esc(st.toast.text)+'</span><span class="t"></span></div>';
+  document.getElementById('ovlRoot').innerHTML=o;
+  document.getElementById('notesRoot').innerHTML=notesHTML();
+
+  placeDropdown();
+  if(fid){ var el=document.getElementById(fid); if(el){ el.focus(); try{ if(ss!=null) el.setSelectionRange(ss,ss); }catch(e){} } }
+  var key=st.persp+'|'+st.flow;
+  if(key!==lastViewKey){ document.getElementById('stage').scrollTop=0; lastViewKey=key; }
+}
+document.addEventListener('click', function(){ if(st.menu||st.bell||st.dd){ st.menu=null; st.bell=false; st.dd=null; render(); } });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ if(st.notes){st.notes=false;} else if(st.dd){st.dd=null;} else if(st.modal){st.modal=null;} else {closeOverlays();} render(); } });
+/* deep links: #inv #new #detail #asset #locuser #alert #m-info #m-sheet #m-use #m-refill (+ #notes) */
+(function(){
+  var h=(location.hash||'').replace('#',''); if(h==='notes'){ st.notes=true; h=''; }
+  var p = FLOWS.mobile.some(function(f){return f.id===h;}) ? 'mobile' : FLOWS.admin.some(function(f){return f.id===h;}) ? 'admin' : null;
+  if(p){ st.persp=p; selectFlow(h); } else render();
+})();
+</script>
+</body>
+</html>

@@ -558,6 +558,22 @@
       ]
     },
     {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "prototypes",
+      "id": "tkt-22242-sub-assets",
+      "title": "Sub assets",
+      "date": "2026-10-09",
+      "children": [
+        {
+          "title": "Prototype",
+          "path": "showcase/prototypes/tkt-22242-sub-assets/TKT-22242-prototype.html",
+          "date": "2026-10-09"
+        }
+      ],
+      "ticket": "TKT-22242"
+    },
+    {
       "kind": "item",
       "audience": "showcase",
       "category": "prototypes",
