@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ID Badges Prototype v2</title>
+<!-- TKT-21462 · Custom ID Badge template · v2 (Standard / Custom tabs, per Sachin's direction)
+     Realistic replica of Company Settings > System Management > ID Badges, sized for a 1440px screen.
+     Drop a real fillable PDF: pdf.js reads its pages, size and form fields in the browser (nothing is uploaded). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  :root {
+    --navy: #2e2d4d;
+    --text: #222;
+    --muted: #666;
+    --border: #d9d9d9;
+    --card-head: #f5f5f5;
+    --info-strip: #ebebeb;
+    --toggle-on: #a6cf4a;
+    --toggle-off: #4d4c4c;
+    --toggle-disabled: #d4d4d4;
+    --section-green: #3cb82e;
+    --section-orange: #f47b56;
+    --section-blue: #6dd0f2;
+    --btn-grey: #f2f2f2;
+    --primary: #0078b3;
+    --primary-lightest: #f2fcff;
+    --danger: #cc2222;
+    --pdf-red: #d9262c;
+    --success: #167b00;
+    --success-bg: #f1f8e6;
+    --warning: #a1851f;
+    --warning-bg: #fff8e6;
+    --page-bg: #f4f4f4;
+    --gap: 32px;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; font-family: "Nunito", "Segoe UI", system-ui, sans-serif; font-size: 16px; color: var(--text); background: var(--page-bg); }
+  button { font-family: inherit; }
+  code { font-family: ui-monospace, Consolas, Menlo, monospace; font-size: .92em; }
+
+  /* ---------- Top chrome (replica) ---------- */
+  .topbar { background: #fff; height: 72px; display: flex; align-items: center; padding: 0 18px; border-bottom: 1px solid #eee; }
+  .logo { display: flex; align-items: center; gap: 7px; }
+  .logo .shield { width: 28px; height: 30px; }
+  .logo .word { font-weight: 800; font-size: 28px; letter-spacing: -0.5px; color: #24243e; }
+  .logo .env { border-left: 1px solid #999; padding-left: 6px; font-size: 11px; line-height: 1.05; color: #333; text-transform: uppercase; }
+  .topbar .spacer { flex: 1; }
+  .search-user { display: flex; border: 1px solid #ddd; border-radius: 2px; height: 34px; margin-right: 42px; }
+  .search-user input { border: 0; outline: 0; width: 190px; font-size: 14px; padding: 0 10px; font-family: inherit; }
+  .search-user span { width: 32px; display: grid; place-items: center; background: #f6f6f6; color: #889; font-size: 13px; border-left: 1px solid #ddd; }
+  .top-icons { display: flex; align-items: center; gap: 10px; font-size: 14px; color: #555; }
+  .top-icons .circ { width: 36px; height: 36px; border: 1.5px solid #555; border-radius: 50%; display: grid; place-items: center; font-size: 16px; }
+  .navrow { background: #fff; height: 44px; display: flex; align-items: center; padding: 0 22px; gap: 42px; font-size: 16px; border-bottom: 1px solid #e6e6e6; position: relative; }
+  .navrow .i-tab { position: absolute; right: 0; top: 0; width: 42px; height: 43px; background: #1d9bd7; color: #fff; display: grid; place-items: center; font-size: 14px; }
+  .titlebar { background: var(--navy); height: 54px; display: flex; align-items: center; padding: 0 16px; color: #fff; gap: 14px; }
+  .titlebar h1 { margin: 0; font-size: 26px; font-weight: 700; }
+  .titlebar .company { background: #24233f; padding: 3px 8px; border-radius: 3px; font-size: 20px; }
+  .titlebar .back { margin-left: auto; border: 1px solid #fff; border-radius: 3px; padding: 4px 9px; font-size: 14px; background: transparent; color: #fff; }
+
+  /* ---------- Layout ---------- */
+  .layout { display: flex; padding: 0 0 60px 16px; }
+  .main { flex: 1; min-width: 0; padding-top: 14px; padding-right: 22px; }
+  .menu { width: 232px; flex-shrink: 0; padding: 10px 8px 0 10px; background: #fff; border-left: 1px solid #eee; min-height: calc(100vh - 170px); }
+  .menu h3 { margin: 6px 0 10px; font-size: 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+  .menu h3 i { font-size: 22px; color: #555; }
+  .menu .msearch { border: 1.5px solid #555; height: 32px; border-radius: 3px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; color: #aaa; font-size: 13px; margin-bottom: 10px; }
+  .menu a { display: flex; gap: 12px; align-items: center; padding: 12px 8px 12px 16px; color: #333; text-decoration: none; font-size: 15px; border-radius: 4px; }
+  .menu a i { width: 18px; text-align: center; color: #555; font-size: 15px; }
+  .menu a.active { background: var(--navy); color: #fff; font-weight: 700; }
+  .menu a.active i { color: #fff; }
+  .menu a.notes { border: 1px solid #bbb; margin-top: 4px; }
+
+  /* ---------- Section ---------- */
+  .section { background: #fff; border-top: 5px solid var(--section-green); border-radius: 2px; margin-bottom: 26px; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .section.orange { border-top-color: var(--section-orange); }
+  .section.blue { border-top-color: var(--section-blue); }
+  .section-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 16px 14px; font-size: 20px; font-weight: 600; }
+  .section-head .lead { display: flex; align-items: center; gap: 12px; }
+  .section-head > i { color: #ccc; font-size: 17px; }
+  .section-body { border-top: 1px solid #e8e8e8; margin: 0 16px; padding: 14px 0 22px; }
+  .info { background: var(--info-strip); border-radius: 5px; padding: 7px 12px; font-size: 13.5px; font-style: italic; color: #333; line-height: 1.55; }
+  .info i { font-style: normal; font-size: 13px; margin-right: 8px; color: #333; }
+
+  /* ---------- NEW: design tabs ---------- */
+  .design-tabs { display: flex; gap: 0; margin-top: 14px; }
+  .dtab { display: flex; align-items: flex-start; gap: 11px; text-align: left; width: 360px; padding: 12px 14px; border: 1.5px solid #dcdcdc; border-bottom: 0; border-radius: 6px 6px 0 0; background: #f6f6f6; cursor: pointer; color: var(--text); position: relative; }
+  .dtab + .dtab { margin-left: 8px; }
+  .dtab[aria-selected="true"] { background: #fff; border-color: var(--primary); z-index: 2; margin-bottom: -1.5px; padding-bottom: 13.5px; }
+  .dtab .ic { width: 34px; height: 34px; border-radius: 7px; display: grid; place-items: center; background: #e9e9e9; color: #555; font-size: 16px; flex-shrink: 0; }
+  .dtab[aria-selected="true"] .ic { background: var(--primary-lightest); color: var(--primary); }
+  .dtab .t { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+  .dtab .d { font-size: 13px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+  .chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+  .chip.live { background: var(--success-bg); color: var(--success); }
+  .chip.off { background: #eee; color: #666; }
+  .chip.draft { background: var(--warning-bg); color: #8a6500; border: 1px solid #f0d48a; }
+  .panel { border: 1.5px solid var(--primary); border-radius: 0 6px 6px 6px; padding: 16px; position: relative; z-index: 1; background: #fff; }
+
+  /* ---------- Cards (replica) ---------- */
+  .grid { display: flex; gap: var(--gap); align-items: flex-start; }
+  .col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+  .card { border: 1px solid var(--border); border-radius: 4px; background: #fff; }
+  .card-head { display: flex; align-items: stretch; background: var(--card-head); border-bottom: 1px solid var(--border); min-height: 44px; border-radius: 4px 4px 0 0; }
+  .card.collapsed .card-head { border-bottom: 0; border-radius: 4px; }
+  .card-title { flex: 1; display: flex; align-items: center; gap: 12px; padding: 0 8px; font-weight: 700; font-size: 16.5px; user-select: none; }
+  .card-chev { width: 46px; display: grid; place-items: center; background: transparent; border: 0; cursor: pointer; color: #333; font-size: 18px; }
+  .card-body { padding: 10px; }
+  .card.collapsed .card-body { display: none; }
+  .toggle { position: relative; width: 54px; height: 28px; flex-shrink: 0; border-radius: 16px; background: var(--toggle-off); border: 0; padding: 0; cursor: pointer; }
+  .toggle::after { content: ""; position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left .15s; }
+  .toggle.on { background: var(--toggle-on); }
+  .toggle.on::after { left: 30px; }
+  .toggle.disabled { background: var(--toggle-disabled); cursor: not-allowed; }
+  .card-title .img-ico { font-size: 30px; color: #bbb; }
+  .radios { padding: 10px 2px 2px; display: flex; flex-direction: column; gap: 11px; }
+  .radios label { display: flex; align-items: center; gap: 10px; color: #999; font-size: 14px; }
+  .radios .dot { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #bbb; display: grid; place-items: center; }
+  .radios .dot.sel::after { content: ""; width: 10px; height: 10px; background: #ccc; border-radius: 50%; }
+  .logo-box { border: 1px solid var(--border); border-radius: 4px; margin-top: 10px; }
+  .logo-box .preview { display: flex; }
+  .logo-box .preview .img { flex: 1; height: 76px; display: grid; place-items: center; }
+  .logo-box .preview .img div { width: 96px; height: 62px; background: linear-gradient(160deg, #3b3a2a 0%, #6b5c25 40%, #f2c400 55%, #8a6a12 70%, #222 100%); }
+  .logo-box .preview .x { width: 42px; display: grid; place-items: center; color: var(--danger); background: #fff4f4; border-left: 1px solid #f1d0d0; font-size: 18px; }
+  .gbtn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--btn-grey); border: 0; border-top: 1px solid var(--border); padding: 9px; font-size: 15px; font-weight: 600; color: #333; cursor: pointer; }
+  .gbtn:hover { background: #e8e8e8; }
+  .gbtn:disabled { color: #aaa; cursor: not-allowed; background: #f7f7f7; }
+  .rte-label { font-size: 14px; font-weight: 600; margin: 12px 0 5px; }
+  .rte { border: 1px solid var(--border); }
+  .rte-bar { display: flex; gap: 16px; padding: 8px 12px; border-bottom: 1px solid var(--border); color: #333; font-size: 14px; align-items: center; }
+  .rte-area { height: 160px; padding: 12px 14px; font-size: 15px; }
+  .group-label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 22px 0 10px; }
+  .third { width: calc((100% - 2 * var(--gap)) / 3); }
+
+  /* ---------- NEW: status banner at the top of ID Badges ---------- */
+  .banner { display: flex; align-items: center; gap: 12px; border-radius: 5px; padding: 11px 14px; margin-top: 12px; font-size: 15px; border: 1px solid; }
+  .banner > i { font-size: 18px; }
+  .banner .msg b { display: block; font-size: 15.5px; }
+  .banner .msg span { font-size: 14px; color: #444; }
+  .banner .sp { flex: 1; }
+  .banner.draft { background: #fff8e6; border-color: #f0d48a; }
+  .banner.draft > i { color: #c29c14; }
+  .banner.live { background: var(--success-bg); border-color: #bcdca0; }
+  .banner.live > i { color: var(--success); }
+
+  /* ---------- NEW: custom panel ---------- */
+  .cust-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .cust-top .sp { flex: 1; }
+  .cust-top .lbl { font-weight: 700; font-size: 16px; }
+  .guide-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--pdf-red); background: #fff; border-radius: 4px; padding: 4px 10px; font-size: 14px; color: #333; font-weight: 600; cursor: pointer; }
+  .guide-btn i { color: var(--pdf-red); font-size: 15px; }
+  .guide-btn:hover { background: #fff4f4; }
+  .link-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; padding: 0; color: var(--primary); font-size: 14px; font-weight: 600; cursor: pointer; }
+  .link-btn:hover { text-decoration: underline; }
+  .cust-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+
+  .drop { border: 2px dashed #c6c6c6; border-radius: 6px; background: #fafafa; padding: 30px 20px; text-align: center; cursor: pointer; transition: background .15s, border-color .15s; }
+  .drop:hover, .drop.over { border-color: var(--primary); background: var(--primary-lightest); }
+  .drop i { font-size: 34px; color: #b5b5b5; }
+  .drop.over i { color: var(--primary); }
+  .drop .t { font-weight: 700; font-size: 16px; margin-top: 10px; }
+  .drop .t u { color: var(--primary); text-decoration: none; }
+  .drop .s { font-size: 13.5px; color: var(--muted); margin-top: 4px; }
+  .drop.busy { pointer-events: none; opacity: .7; }
+  .err { color: var(--danger); font-size: 14px; margin-top: 8px; display: none; }
+  .err.show { display: block; }
+
+  .file-box { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .thumbs { display: flex; gap: 16px; padding: 16px; background: #f7f7f7; border-bottom: 1px solid var(--border); justify-content: center; }
+  .thumb { text-align: center; }
+  .thumb .frame { background: #fff; border: 1px solid #ccc; box-shadow: 0 1px 3px rgba(0,0,0,.12); display: grid; place-items: center; overflow: hidden; }
+  .thumb canvas { display: block; }
+  .thumb .cap { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .thumb .none { width: 96px; height: 152px; border: 1.5px dashed #ccc; display: grid; place-items: center; color: #aaa; font-size: 12px; padding: 6px; }
+  .file-row { display: flex; gap: 11px; align-items: flex-start; padding: 12px 13px; }
+  .file-row .fa-file-pdf { color: var(--pdf-red); font-size: 24px; margin-top: 1px; }
+  .file-row > div { min-width: 0; flex: 1; }
+  .file-name { display: flex; font-weight: 700; font-size: 16px; white-space: nowrap; min-width: 0; }
+  .file-name .stem { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .file-name .ext { flex-shrink: 0; }
+  .file-meta { color: var(--muted); font-size: 13.5px; margin-top: 3px; }
+  .file-actions { display: flex; }
+  .file-actions .gbtn + .gbtn { border-left: 1px solid var(--border); }
+
+  .found { border: 1px solid var(--border); border-radius: 4px; }
+  .found-head { display: flex; align-items: center; justify-content: space-between; padding: 10px 13px; background: var(--card-head); border-bottom: 1px solid var(--border); font-weight: 700; font-size: 15.5px; }
+  .found-head span { font-weight: 600; font-size: 13.5px; color: var(--muted); }
+  .found ul { list-style: none; margin: 0; padding: 4px 0; max-height: 330px; overflow: auto; }
+  .found li { display: flex; align-items: center; gap: 10px; padding: 7px 13px; font-size: 14.5px; }
+  .found li code { font-weight: 600; }
+  .found li .note { margin-left: auto; font-size: 13px; color: var(--muted); text-align: right; }
+  .found li.ok i { color: #6aa000; }
+  .found li.warn { background: var(--warning-bg); }
+  .found li.warn i { color: #d08a00; }
+  .found li.warn .note { color: #8a6500; }
+  .found .empty { padding: 14px 13px; font-size: 14px; color: var(--muted); }
+
+  .bisbtn { font-family: "Segoe UI", -apple-system, system-ui, sans-serif; font-size: 16px; font-weight: 600; line-height: 1.5; padding: 8px 18px; border-radius: 4px; border: 1px solid transparent; cursor: pointer; color: #19191a; }
+  .bisbtn-tertiary { background: transparent; }
+  .bisbtn-tertiary:hover { background: #f1f1f2; }
+  .bisbtn-secondary { background: #fff; border-color: var(--primary); color: var(--primary); }
+  .bisbtn-secondary:hover { background: var(--primary-lightest); }
+  .bisbtn-primary { background: #0078b3; border-color: #0078b3; color: #fff; }
+  .bisbtn-primary:hover { background: #00669a; }
+  .bisbtn-primary:disabled { background: #9cc8de; border-color: #9cc8de; pointer-events: none; }
+  .bisbtn-danger { background: #cc2222; border-color: #cc2222; color: #fff; }
+  .bisbtn-danger:hover { background: #b01d1d; }
+
+  /* ---------- NEW: predefined field reference ---------- */
+  .ref { margin-top: 22px; border: 1px solid var(--border); border-radius: 4px; }
+  .ref-head { display: flex; align-items: center; gap: 12px; padding: 10px 13px; background: var(--card-head); border-bottom: 1px solid var(--border); }
+  .ref-head b { font-size: 16px; }
+  .ref-head .sp { flex: 1; }
+  .ref.collapsed .ref-body { display: none; }
+  .ref.collapsed .ref-head { border-bottom: 0; }
+  .ref-body { padding: 12px 13px 14px; }
+  .ref-body p { margin: 0 0 12px; font-size: 14px; color: #444; line-height: 1.5; }
+  .filters { display: flex; gap: 6px; margin-bottom: 10px; }
+  .filters button { border: 1px solid #ccc; background: #fff; border-radius: 14px; padding: 3px 12px; font-size: 13.5px; font-weight: 600; cursor: pointer; color: #444; }
+  .filters button[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: #fff; }
+  table.fields { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.fields th { text-align: left; font-size: 12.5px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
+  table.fields td { padding: 8px; border-bottom: 1px solid #eee; vertical-align: top; }
+  table.fields tr.hit td { background: rgba(166,207,74,.12); }
+  table.fields .nm { display: inline-flex; align-items: center; gap: 6px; }
+  table.fields .copy { border: 0; background: none; color: #888; cursor: pointer; padding: 2px 4px; font-size: 13px; }
+  table.fields .copy:hover { color: var(--primary); }
+  table.fields .ty { white-space: nowrap; color: #555; }
+  table.fields .ty i { width: 16px; color: #888; }
+  .ref-foot { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+  /* ---------- Confirm modal: BisModal (design system), default variant, size lg ---------- */
+  .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; align-items: center; justify-content: center; z-index: 9999; }
+  .backdrop.show { display: flex; }
+  .bismodal { background: #fefefe; width: 600px; max-width: calc(100% - 32px); border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.1); font-family: "Segoe UI", -apple-system, system-ui, sans-serif; color: #19191a; }
+  .bismodal.xl { width: 860px; }
+  .bismodal-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 20px 6px; }
+  .bismodal-header h3 { margin: 0; font-size: 22px; font-weight: 600; }
+  .bismodal-close { border: 0; background: none; color: #afafb5; font-size: 22px; cursor: pointer; padding: 0; }
+  .bismodal-body { padding: 8px 20px 16px; font-size: 16px; line-height: 1.55; }
+  .bismodal-body p { margin: 0 0 10px; }
+  .bismodal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 12px 20px 16px; }
+
+  /* Preview modal content */
+  .pv { display: flex; gap: 24px; align-items: flex-start; }
+  .pv-pages { display: flex; gap: 16px; flex-wrap: wrap; }
+  .pv-pages .pg { text-align: center; }
+  .pv-pages canvas, .pv-pages .mockpg { border: 1px solid #ccc; box-shadow: 0 1px 4px rgba(0,0,0,.15); display: block; background: #fff; }
+  .pv-pages .cap { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .pv-data { flex: 1; min-width: 220px; font-size: 14px; }
+  .pv-data h4 { margin: 0 0 8px; font-size: 15px; }
+  .pv-data dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; }
+  .pv-data dt { color: var(--muted); }
+  .pv-data dd { margin: 0; }
+
+  /* ---------- Success message: ModalService.success (design system) ---------- */
+  .ms-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; align-items: center; justify-content: center; z-index: 10000; }
+  .ms-backdrop.show { display: flex; }
+  .ms { position: relative; background: #fefefe; width: 500px; max-width: calc(100% - 32px); border-radius: 8px; padding: 28px 24px 24px; text-align: center; font-family: "Segoe UI", -apple-system, system-ui, sans-serif; color: #19191a; box-shadow: 0 2px 10px rgba(0,0,0,.1); }
+  .ms-close { position: absolute; top: 14px; right: 14px; width: 16px; height: 16px; border: 0; background: none; padding: 0; cursor: pointer; }
+  .ms-close svg { width: 12px; height: 12px; stroke: #636368; stroke-width: 2; }
+  .ms-icon { width: 66px; height: 66px; margin: 0 auto 20px; border: 3px solid #167b00; border-radius: 50%; display: grid; place-items: center; }
+  .ms-icon svg { width: 46px; height: 46px; fill: none; stroke: #167b00; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; animation: ms-check .45s .1s ease-out forwards; }
+  @keyframes ms-check { to { stroke-dashoffset: 0; } }
+  .ms h2 { margin: 0 0 8px; font-size: 24px; font-weight: 600; line-height: 32px; }
+  .ms p { margin: 0 0 22px; font-size: 16px; line-height: 1.5; }
+  .ms p[hidden] + .ms-footer { margin-top: 18px; }
+  .ms-footer { display: flex; justify-content: center; gap: 12px; }
+
+  /* ---------- Toast (prototype-only notes) ---------- */
+  .toast { position: fixed; top: 186px; right: 270px; background: #333; color: #fff; padding: 11px 17px; border-radius: 4px; font-size: 15px; box-shadow: 0 3px 10px rgba(0,0,0,.2); opacity: 0; transform: translateY(-6px); transition: all .2s; z-index: 60; pointer-events: none; }
+  .toast.show { opacity: 1; transform: none; }
+
+  .footer { position: fixed; bottom: 0; left: 0; right: 0; height: 46px; background: #3a3a3a; color: #ddd; font-size: 12.5px; display: flex; align-items: center; justify-content: flex-end; gap: 28px; padding-right: 22px; z-index: 5; }
+
+  /* ---------- Prototype helper (not part of the product) ---------- */
+  .proto { position: fixed; left: 14px; bottom: 58px; background: #fffbe6; border: 1px solid #e8d48a; border-radius: 6px; padding: 11px 13px; font-size: 13.5px; width: 290px; box-shadow: 0 2px 8px rgba(0,0,0,.12); z-index: 40; }
+  .proto b { display: block; margin-bottom: 5px; font-size: 14px; }
+  .proto p { margin: 0 0 9px; color: #665; line-height: 1.4; }
+  .proto .row { display: flex; gap: 7px; }
+  .proto .row button { flex: 1; font-size: 13px; padding: 5px 7px; border: 1px solid #d6c27a; background: #fff; border-radius: 3px; cursor: pointer; }
+  .proto .close { position: absolute; top: 5px; right: 7px; border: 0; background: none; padding: 0; color: #998; cursor: pointer; }
+
+  @media (max-width: 1100px) {
+    .grid, .cust-grid { display: flex; flex-direction: column; }
+    .col, .third { width: 100%; }
+    .menu { display: none; }
+    .main { padding-right: 16px; }
+    .navrow { overflow-x: auto; gap: 24px; }
+    .design-tabs { flex-direction: column; }
+    .dtab { width: 100%; border-radius: 6px; border-bottom: 1.5px solid #dcdcdc; }
+    .dtab + .dtab { margin: 8px 0 0; }
+    .dtab[aria-selected="true"] { margin-bottom: 8px; padding-bottom: 12px; border-bottom: 1.5px solid var(--primary); }
+    .panel { border-radius: 6px; }
+    .pv { flex-direction: column; }
+    .toast { right: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ Top chrome (replica) ============ -->
+<div class="topbar">
+  <div class="logo">
+    <svg class="shield" viewBox="0 0 24 26" aria-hidden="true"><path d="M12 1 2 5v7c0 6.5 4.3 11 10 13 5.7-2 10-6.5 10-13V5L12 1z" fill="#5a5d8f"/><path d="M12 6 7 8.5V12c0 3.6 2.2 6 5 7.2 2.8-1.2 5-3.6 5-7.2V8.5L12 6z" fill="#fff"/></svg>
+    <span class="word">BIS</span>
+    <span class="env">QAQC Test<br>Environment</span>
+  </div>
+  <div class="spacer"></div>
+  <div class="search-user"><input placeholder="Search User" aria-label="Search user"><span><i class="fas fa-search"></i></span></div>
+  <div class="top-icons">
+    <span class="circ"><i class="fas fa-sync-alt" style="color:#3a8a3a"></i></span>
+    <span class="circ"><i class="fas fa-question"></i></span>
+    <span class="circ"><i class="fas fa-user"></i></span>
+    Log Out <i class="fas fa-chevron-right" style="font-size:13px"></i>
+  </div>
+</div>
+<nav class="navrow">
+  <span>Home</span><span>Profile</span><span>Store</span><span>Rewards</span><span>Purchases</span><span>Users</span><span>Reporting</span><span>Calendar</span><span>Equipment</span><span>Folders</span><span>QR</span><span>Admin</span>
+  <span class="i-tab"><i class="fas fa-info"></i></span>
+</nav>
+<div class="titlebar">
+  <h1>Company Settings</h1>
+  <span class="company">BIS QAQC Test Environment</span>
+  <button class="back"><i class="fas fa-chevron-left"></i> Back</button>
+</div>
+
+<div class="layout">
+<main class="main">
+
+  <section class="section" aria-labelledby="idb-title">
+    <div class="section-head"><span id="idb-title">ID Badges</span><i class="fas fa-chevron-up"></i></div>
+    <div class="section-body">
+      <div class="info"><i class="fas fa-info-circle"></i>Choose how ID badges are made. Switching keeps your saved settings and template.</div>
+
+      <!-- ===== NEW: status banner (only when a template exists) ===== -->
+      <div class="banner draft" id="draftBanner" role="status" hidden>
+        <i class="fas fa-exclamation-circle"></i>
+        <span class="msg"><b>Your custom template isn't in use yet</b><span>Preview it, then use it to apply it to all ID badges.</span></span>
+        <span class="sp"></span>
+        <button class="bisbtn bisbtn-tertiary" id="discardBtn">Cancel</button>
+        <button class="bisbtn bisbtn-primary" id="useCusBtn"><i class="fas fa-check"></i> Use custom template</button>
+      </div>
+      <div class="banner live" id="liveBanner" role="status" hidden>
+        <i class="fas fa-check-circle"></i>
+        <span class="msg"><b>Custom template is in use</b><span>All ID badges use your PDF. Switch back any time; your template is kept.</span></span>
+        <span class="sp"></span>
+        <button class="bisbtn bisbtn-secondary" id="useStdBtn">Use standard layout</button>
+      </div>
+
+      <!-- ===== NEW: design tabs ===== -->
+      <div class="design-tabs" role="tablist" aria-label="Badge design">
+        <button class="dtab" role="tab" id="tabStd" aria-controls="panelStd" aria-selected="true">
+          <span class="ic"><i class="far fa-id-badge"></i></span>
+          <span><span class="t">Standard layout <span class="chip live" id="chipStd"><i class="fas fa-check"></i>In use</span></span>
+          <span class="d">The BIS badge. Choose which fields appear.</span></span>
+        </button>
+        <button class="dtab" role="tab" id="tabCus" aria-controls="panelCus" aria-selected="false">
+          <span class="ic"><i class="far fa-file-pdf"></i></span>
+          <span><span class="t">Custom PDF template <span class="chip live" id="chipCus" hidden><i class="fas fa-check"></i>In use</span><span class="chip draft" id="chipCusDraft" hidden><i class="fas fa-clock"></i>Not in use yet</span></span>
+          <span class="d">Your own badge PDF, filled in for each user.</span></span>
+        </button>
+      </div>
+
+      <!-- ===== Standard panel (existing settings, unchanged) ===== -->
+      <div class="panel" role="tabpanel" id="panelStd" aria-labelledby="tabStd">
+        <div class="info" id="stdNote" style="margin-bottom:14px" hidden><i class="fas fa-info-circle"></i>A custom template is in use. Changes here apply when you switch back to the standard layout.</div>
+        <div class="grid">
+          <div class="col">
+            <div class="card collapsed">
+              <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="Company Role"></button>Company Role</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+              <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Show or hide users' company roles from their accounts on their ID badges.</div></div>
+            </div>
+            <div class="card collapsed">
+              <div class="card-head"><div class="card-title"><i class="far fa-image img-ico"></i>ID Badge Logo</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+              <div class="card-body">
+                <div class="info"><i class="fas fa-info-circle"></i>Upload a unique logo to add to ID badges, which may differ from this portal's logo.</div>
+                <div class="logo-box"><div class="preview"><div class="img"><div></div></div><div class="x"><i class="fas fa-times"></i></div></div><button class="gbtn"><i class="fas fa-file-upload"></i> Upload</button></div>
+              </div>
+            </div>
+            <div class="card collapsed">
+              <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="Employee ID"></button>Employee ID</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+              <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Show or hide users' employee ID from their accounts on their ID badges.</div></div>
+            </div>
+            <div class="card collapsed">
+              <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="Start Date"></button>Start Date</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+              <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Show or hide users' start date from their accounts on their ID badges.</div></div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card collapsed">
+              <div class="card-head"><div class="card-title"><button class="toggle" role="switch" aria-checked="false" aria-label="Company Name"></button>Company Name</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+              <div class="card-body">
+                <div class="info"><i class="fas fa-info-circle"></i>The name option selected below will appear on user ID Badge.</div>
+                <div class="radios"><label><span class="dot sel"></span>Portal Name</label><label><span class="dot"></span>Company Name in Profile</label><label><span class="dot"></span>Custom Field in Location</label></div>
+              </div>
+            </div>
+            <div class="card collapsed">
+              <div class="card-head"><div class="card-title"><button class="toggle disabled" role="switch" aria-checked="false" aria-disabled="true" aria-label="Display Driver's Licence"></button>Display Driver's Licence</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+              <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>ID badges will show users' driver's licence numbers only if driver's licence security is turned off.</div></div>
+            </div>
+            <div class="card collapsed">
+              <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="Print Landscape Format"></button>Print Landscape Format</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+              <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Set ID badges to Landscape (horizontal) or Portrait (vertical) orientation.</div></div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card collapsed">
+              <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="Company Logo"></button>Company Logo</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+              <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Show or hide the company logo uploaded in your portal branding settings from ID badges.</div></div>
+            </div>
+            <div class="card collapsed">
+              <div class="card-head"><div class="card-title"><button class="toggle" role="switch" aria-checked="false" aria-label="Company Location"></button>Company Location</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+              <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Display users' location in your company structure shown on the User Administration page (click <b>Users</b> in your portal menu).</div></div>
+            </div>
+            <div class="card collapsed">
+              <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="ID Badge Back Panel"></button>ID Badge Back Panel</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+              <div class="card-body">
+                <div class="info"><i class="fas fa-info-circle"></i>Enable and customize text to be shown at the back of your ID Badge.</div>
+                <div class="rte-label">Text</div>
+                <div class="rte"><div class="rte-bar"><b>B</b><i>I</i><span>A ▾</span><span>12pt ▾</span><i class="fas fa-align-left"></i><i class="fas fa-align-center"></i><i class="fas fa-link"></i><i class="fas fa-list-ul"></i></div><div class="rte-area">certified QA/QC tester extrodinaire</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== NEW: Custom panel ===== -->
+      <div class="panel" role="tabpanel" id="panelCus" aria-labelledby="tabCus" hidden>
+        <div class="cust-top">
+          <span class="lbl">Badge Template</span>
+          <span class="chip off" id="cusStatus">Not in use</span>
+          <span class="sp"></span>
+          <a class="link-btn" id="sampleBtn" href="BIS-ID-Badge-Sample-Template.pdf" download><i class="fas fa-download"></i> Download sample template</a>
+          <a class="guide-btn" id="guideBtn" href="Adobe-ID-Badge-Field-Template.pdf" target="_blank" rel="noopener" style="text-decoration:none"><i class="fas fa-file-pdf"></i> PDF ID Badge Guide</a>
+        </div>
+
+        <div class="cust-grid">
+          <div>
+            <!-- Empty state -->
+            <div id="emptyState">
+              <div class="drop" id="drop" role="button" tabindex="0" aria-describedby="dropHelp">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <div class="t">Drop a PDF here or <u>browse</u></div>
+                <div class="s" id="dropHelp">PDF only, max 5 MB · Page 1 is the front, page 2 the back (optional)</div>
+              </div>
+              <input type="file" id="fileInput" accept=".pdf,application/pdf" hidden>
+              <div class="err" id="fileErr" role="alert"></div>
+            </div>
+            <!-- Uploaded state -->
+            <div id="fileState" hidden>
+              <div class="file-box">
+                <div class="thumbs" id="thumbs"></div>
+                <div class="file-row">
+                  <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                  <div>
+                    <div class="file-name" id="fileName"></div>
+                    <div class="file-meta" id="fileMeta"></div>
+                  </div>
+                </div>
+                <div class="file-actions">
+                  <button class="gbtn" id="previewBtn"><i class="fas fa-eye"></i> Preview</button>
+                  <button class="gbtn" id="replaceBtn"><i class="fas fa-file-upload"></i> Replace</button>
+                  <button class="gbtn" id="removeBtn"><i class="fas fa-trash"></i> Remove</button>
+                </div>
+              </div>
+              <div class="err" id="replaceErr" role="alert"></div>
+            </div>
+          </div>
+
+          <div class="found" id="found" aria-live="polite">
+            <div class="found-head">Fields found in this PDF <span id="foundCount"></span></div>
+            <div class="empty" id="foundEmpty">Upload a template to check its field names.</div>
+            <ul id="foundList" hidden></ul>
+          </div>
+        </div>
+
+
+        <!-- Field reference -->
+        <div class="ref" id="ref">
+          <div class="ref-head">
+            <b>Predefined PDF fields</b>
+            <span class="chip off">15 fields</span>
+            <span class="sp"></span>
+            <button class="card-chev" id="refChev" aria-expanded="true" aria-controls="refBody" aria-label="Collapse field list" style="width:auto"><i class="fas fa-chevron-up"></i></button>
+          </div>
+          <div class="ref-body" id="refBody">
+            <p>Name your PDF form fields exactly as below (case-sensitive). Use text fields for text and image (button) fields for pictures. Fields you leave out don't print. Other names stay blank.</p>
+            <div class="filters" role="group" aria-label="Filter fields">
+              <button aria-pressed="true" data-f="All">All</button>
+              <button aria-pressed="false" data-f="Text">Text</button>
+              <button aria-pressed="false" data-f="Image">Image</button>
+            </div>
+            <table class="fields">
+              <thead><tr><th style="width:26%">PDF field name</th><th style="width:11%">Type</th><th>What it shows</th><th style="width:20%">Example</th></tr></thead>
+              <tbody id="fieldRows"></tbody>
+            </table>
+            <div class="ref-foot">Images scale to fit their box and keep their proportions. Text uses the font, size and alignment set on the field in your PDF.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Applies to both designs ===== -->
+      <div class="group-label">Applies to both designs</div>
+      <div class="grid">
+        <div class="col">
+          <div class="card collapsed">
+            <div class="card-head"><div class="card-title"><button class="toggle" role="switch" aria-checked="false" aria-label="Lock Profile Image"></button>Lock Profile Image</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>If the profile image is locked, users cannot update a previously uploaded profile photo.</div></div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card collapsed">
+            <div class="card-head"><div class="card-title"><button class="toggle on" role="switch" aria-checked="true" aria-label="Folder Document and Forms"></button>Folder Document and Forms</div><button class="card-chev" aria-label="Expand"><i class="fas fa-chevron-down"></i></button></div>
+            <div class="card-body"><div class="info"><i class="fas fa-info-circle"></i>Any forms and documents from folders that the user has completed is shown when the QR code on their ID badge is scanned.</div></div>
+          </div>
+        </div>
+        <div class="col"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section orange"><div class="section-head"><span>Purchase Order Management Systems</span><i class="fas fa-chevron-down"></i></div></section>
+  <section class="section blue"><div class="section-head"><span class="lead"><span class="toggle on" aria-hidden="true"></span>Invoice Management</span><i class="fas fa-chevron-down"></i></div></section>
+</main>
+
+<aside class="menu">
+  <h3>Menu <i class="far fa-arrow-alt-circle-right"></i></h3>
+  <div class="msearch">Search <i class="fas fa-search" style="color:#333"></i></div>
+  <a><i class="fas fa-info"></i>Company Information</a>
+  <a><i class="fas fa-tools"></i>Settings</a>
+  <a><i class="fas fa-puzzle-piece"></i>System Modules</a>
+  <a class="active"><i class="fas fa-desktop"></i>System Management</a>
+  <a><i class="fas fa-th"></i>Course Management</a>
+  <a><i class="fas fa-sliders-h"></i>Integration</a>
+  <a><i class="fas fa-lock"></i>BIS Admin</a>
+  <a class="notes"><i class="far fa-sticky-note"></i>Notes</a>
+</aside>
+</div>
+
+<div class="footer"><span>Copyright © 2026</span><span>Privacy Policy</span><span>Terms and Conditions</span><span>System Requirements</span><span>Pay Online</span><span>Certificate Verification</span><span>Credit Card Receipt Lookup</span></div>
+
+<!-- ============ Confirm / preview modal (BisModal) ============ -->
+<div class="backdrop" id="backdrop">
+  <div class="bismodal" id="bismodal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div class="bismodal-header"><h3 id="mTitle"></h3><button class="bismodal-close" id="mClose" aria-label="Close modal"><i class="fas fa-times"></i></button></div>
+    <div class="bismodal-body" id="mBody"></div>
+    <div class="bismodal-footer"><button class="bisbtn bisbtn-tertiary" id="mCancel">Cancel</button><button class="bisbtn bisbtn-primary" id="mOk"></button></div>
+  </div>
+</div>
+
+<!-- ============ Success (ModalService.success) ============ -->
+<div class="ms-backdrop" id="msBackdrop">
+  <div class="ms" role="dialog" aria-modal="true" aria-labelledby="msTitle" aria-describedby="msMsg">
+    <button class="ms-close" id="msClose" aria-label="Close dialog"><svg viewBox="0 0 12 12"><path d="M1 1 L11 11 M11 1 L1 11" stroke-linecap="round"/></svg></button>
+    <div class="ms-icon"><svg viewBox="0 0 52 52"><path d="M14 27l7.5 7.5L38 17"/></svg></div>
+    <h2 id="msTitle"></h2>
+    <p id="msMsg"></p>
+    <div class="ms-footer"><button class="bisbtn bisbtn-primary" id="msOk">OK</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<!-- ============ Prototype helper (not part of the product) ============ -->
+<div class="proto" id="proto">
+  <button class="close" id="protoClose" aria-label="Hide prototype panel">✕</button>
+  <b>Prototype v2 · TKT-21462</b>
+  <p>Open <em>Custom PDF template</em>. Drop a real fillable PDF (read in your browser, never uploaded), try the sample template, or simulate one.</p>
+  <div class="row"><button id="simBtn">Simulate upload</button><button id="resetBtn">Reset</button></div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+
+  // ---- Predefined fields (Sachin's list) ----
+  const FIELDS = [
+    ['FirstName', 'Text', "User's first name", 'Jordan'],
+    ['LastName', 'Text', "User's last name", 'Sample'],
+    ['FullName', 'Text', 'First and last name together', 'Jordan Sample'],
+    ['ProfileImage', 'Image', "User's profile photo", '—'],
+    ['PortalName', 'Text', 'Name of this portal', 'BIS QAQC Test Environment'],
+    ['EmployerName', 'Text', "Company name in the user's profile", 'Acme Safety Ltd.'],
+    ['LocationCustomField', 'Text', 'Location custom field used for company name', 'Site 4 – North'],
+    ['CompanyLogo', 'Image', 'Logo from portal branding settings', '—'],
+    ['IDBadgeLogo', 'Image', 'Logo uploaded for ID badges', '—'],
+    ['CompanyRole', 'Text', "User's role in the company", 'Site Supervisor'],
+    ['CompanyLocation', 'Text', "User's location in the company structure", 'Calgary / Plant 2'],
+    ['EmployeeID', 'Text', "User's employee ID", 'EMP-0042'],
+    ['DriversLicence', 'Text', "Driver's licence number. Blank when driver's licence security is on", 'D1234-56789'],
+    ['StartDate', 'Text', "User's start date", '2024-03-18'],
+    ['QRCode', 'Image', "Scan to see the user's training and, if turned on, completed folder documents and forms", '—'],
+  ];
+  const FIELD_TYPE = Object.fromEntries(FIELDS.map(f => [f[0], f[1]]));
+  const SAMPLE = Object.fromEntries(FIELDS.filter(f => f[1] === 'Text').map(f => [f[0], f[3]]));
+  const MAX_MB = 5;
+
+  const state = { file: null, live: 'standard', tab: 'standard', filter: 'All' };
+  // file: { name, url, pdf (pdf.js doc or null), pages, sizeLabel, found: [{name, type, ok, note}] , uploaded }
+
+  // ---------- pdf.js ----------
+  const pdfjs = window.pdfjsLib;
+  if (pdfjs) pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  async function readPdf(file) {
+    if (!pdfjs) throw { kind: 'nolib' };
+    const data = new Uint8Array(await file.arrayBuffer());
+    let pdf;
+    try { pdf = await pdfjs.getDocument({ data }).promise; }
+    catch (e) { throw { kind: e && e.name === 'PasswordException' ? 'password' : 'invalid' }; }
+    const p1 = await pdf.getPage(1);
+    const [x0, y0, x1, y1] = p1.view;
+    const rot = (p1.rotate || 0) % 180 !== 0;
+    const wPt = rot ? y1 - y0 : x1 - x0, hPt = rot ? x1 - x0 : y1 - y0;
+    const mm = v => Math.round(v / 72 * 25.4);
+    const fields = (await pdf.getFieldObjects()) || {};
+    return { pdf, pages: pdf.numPages, w: mm(wPt), h: mm(hPt), orient: hPt >= wPt ? 'Portrait' : 'Landscape', fields };
+  }
+
+  function checkFields(fieldObjs) {
+    const out = [];
+    for (const [name, objs] of Object.entries(fieldObjs)) {
+      const type = (objs[0] && objs[0].type) || 'text';
+      const known = FIELD_TYPE[name];
+      if (!known) out.push({ name, ok: false, note: 'Not a predefined field, will be blank' });
+      else if (known === 'Image' && type !== 'button') out.push({ name, ok: false, note: 'Should be an image (button) field' });
+      else if (known === 'Text' && type !== 'text') out.push({ name, ok: false, note: 'Should be a text field' });
+      else out.push({ name, ok: true, note: 'Recognized' });
+    }
+    return out.sort((a, b) => (a.ok === b.ok ? a.name.localeCompare(b.name) : a.ok ? -1 : 1));
+  }
+
+  // Render a page, optionally filled with sample data (text via form storage; images as placeholders)
+  async function renderPage(pdf, num, targetW, fill, fieldObjs) {
+    const page = await pdf.getPage(num);
+    const base = page.getViewport({ scale: 1 });
+    const vp = page.getViewport({ scale: targetW / base.width });
+    const c = document.createElement('canvas');
+    const dpr = window.devicePixelRatio || 1;
+    c.width = Math.round(vp.width * dpr); c.height = Math.round(vp.height * dpr);
+    c.style.width = Math.round(vp.width) + 'px'; c.style.height = Math.round(vp.height) + 'px';
+    const ctx = c.getContext('2d');
+    ctx.scale(dpr, dpr);
+    if (fill && fieldObjs) {
+      for (const [name, objs] of Object.entries(fieldObjs)) {
+        if (SAMPLE[name] !== undefined) objs.forEach(o => o.id && pdf.annotationStorage.setValue(o.id, { value: SAMPLE[name] }));
+      }
+    }
+    await page.render({ canvasContext: ctx, viewport: vp, annotationMode: fill ? pdfjs.AnnotationMode.ENABLE_STORAGE : pdfjs.AnnotationMode.ENABLE }).promise;
+    if (fill && fieldObjs) {
+      for (const [name, objs] of Object.entries(fieldObjs)) {
+        if (FIELD_TYPE[name] !== 'Image') continue;
+        objs.filter(o => o.page === num - 1 && o.rect).forEach(o => {
+          const [ax, ay, bx, by] = vp.convertToViewportRectangle(o.rect);
+          drawPlaceholder(ctx, name, Math.min(ax, bx), Math.min(ay, by), Math.abs(bx - ax), Math.abs(by - ay));
+        });
+      }
+    }
+    return c;
+  }
+
+  function drawPlaceholder(ctx, name, x, y, w, h) {
+    ctx.save();
+    ctx.fillStyle = '#e9eef2'; ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = '#9fb3c2'; ctx.lineWidth = 1; ctx.strokeRect(x + .5, y + .5, w - 1, h - 1);
+    const s = Math.min(w, h);
+    if (name === 'QRCode') {
+      const n = 9, cell = s / n, ox = x + (w - s) / 2, oy = y + (h - s) / 2;
+      ctx.fillStyle = '#222';
+      for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if ((i * 7 + j * 3 + i * j) % 3 === 0 || (i < 3 && j < 3) || (i > 5 && j < 3) || (i < 3 && j > 5)) ctx.fillRect(ox + i * cell, oy + j * cell, cell, cell);
+    } else if (name === 'ProfileImage') {
+      ctx.fillStyle = '#9fb3c2';
+      ctx.beginPath(); ctx.arc(x + w / 2, y + h * .38, s * .2, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(x + w / 2, y + h * .92, s * .36, s * .3, 0, Math.PI, 0); ctx.fill();
+    } else {
+      ctx.fillStyle = '#5a6f80'; ctx.font = `700 ${Math.max(8, s * .28)}px Segoe UI, sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('LOGO', x + w / 2, y + h / 2);
+    }
+    ctx.restore();
+  }
+
+  // Simulated template (no real PDF): a drawn badge front + back
+  function mockPage(side, w) {
+    const h = Math.round(w * 86 / 54);
+    const c = document.createElement('canvas');
+    const dpr = window.devicePixelRatio || 1;
+    c.width = w * dpr; c.height = h * dpr; c.style.width = w + 'px'; c.style.height = h + 'px';
+    const ctx = c.getContext('2d'); ctx.scale(dpr, dpr);
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = '#0b4f6c'; ctx.fillRect(0, 0, w, h * .2);
+    const f = px => `${px}px Segoe UI, sans-serif`;
+    if (side === 'front') {
+      drawPlaceholder(ctx, 'IDBadgeLogo', w * .3, h * .04, w * .4, h * .12);
+      drawPlaceholder(ctx, 'ProfileImage', w * .28, h * .25, w * .44, h * .3);
+      ctx.fillStyle = '#111'; ctx.textAlign = 'center';
+      ctx.font = '700 ' + f(Math.max(8, w * .09)); ctx.fillText(SAMPLE.FullName, w / 2, h * .63);
+      ctx.font = f(Math.max(7, w * .065)); ctx.fillStyle = '#444'; ctx.fillText(SAMPLE.CompanyRole, w / 2, h * .7);
+      ctx.fillText(SAMPLE.EmployerName, w / 2, h * .76);
+      drawPlaceholder(ctx, 'QRCode', w * .36, h * .8, w * .28, w * .28 * .9);
+    } else {
+      ctx.fillStyle = '#111'; ctx.textAlign = 'left'; ctx.font = f(Math.max(7, w * .065));
+      [['Employee ID', SAMPLE.EmployeeID], ['Start date', SAMPLE.StartDate], ['Location', SAMPLE.CompanyLocation]].forEach(([k, v], i) => {
+        ctx.fillStyle = '#777'; ctx.fillText(k, w * .1, h * (.32 + i * .14));
+        ctx.fillStyle = '#111'; ctx.fillText(v, w * .1, h * (.38 + i * .14));
+      });
+    }
+    return c;
+  }
+
+  // ---------- rendering ----------
+  function setTab(tab) {
+    state.tab = tab;
+    $('tabStd').setAttribute('aria-selected', tab === 'standard');
+    $('tabCus').setAttribute('aria-selected', tab === 'custom');
+    $('panelStd').hidden = tab !== 'standard';
+    $('panelCus').hidden = tab !== 'custom';
+  }
+
+  function renderStatus() {
+    const custom = state.live === 'custom';
+    $('chipStd').hidden = custom;
+    $('chipCus').hidden = !custom;
+    const has = !!state.file;
+    $('stdNote').hidden = !custom;
+    $('draftBanner').hidden = !has || custom;
+    $('chipCusDraft').hidden = !has || custom;
+    $('liveBanner').hidden = !custom;
+    $('cusStatus').className = 'chip ' + (custom ? 'live' : 'off');
+    $('cusStatus').textContent = custom ? 'In use' : has ? 'Not in use yet' : 'No template';
+  }
+
+  async function renderFile() {
+    const f = state.file, has = !!f;
+    $('emptyState').hidden = has;
+    $('fileState').hidden = !has;
+    $('foundEmpty').hidden = has;
+    $('foundList').hidden = !has;
+    if (!has) { $('foundCount').textContent = ''; renderRows(); renderStatus(); return; }
+
+    // name: one line, ellipsis, ".pdf" always visible
+    const dot = f.name.lastIndexOf('.');
+    const fn = $('fileName'); fn.innerHTML = ''; fn.title = f.name;
+    const st = document.createElement('span'); st.className = 'stem'; st.textContent = dot > 0 ? f.name.slice(0, dot) : f.name;
+    const ex = document.createElement('span'); ex.className = 'ext'; ex.textContent = '.pdf';
+    fn.append(st, ex);
+    const date = f.uploaded.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    $('fileMeta').textContent = `${f.pages} page${f.pages > 1 ? 's' : ''} · ${f.w} × ${f.h} mm · ${f.orient} · Uploaded ${date} by Mikaela Yeo (myeo6)`;
+
+    // fields found
+    const ok = f.found.filter(x => x.ok).length;
+    $('foundCount').textContent = f.found.length ? `${ok} of ${f.found.length} recognized` : '';
+    const ul = $('foundList'); ul.innerHTML = '';
+    if (!f.found.length) {
+      const li = document.createElement('li'); li.className = 'warn';
+      li.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>No form fields found. Badges will print the PDF as-is.</span>';
+      ul.append(li);
+    }
+    f.found.forEach(x => {
+      const li = document.createElement('li'); li.className = x.ok ? 'ok' : 'warn';
+      li.innerHTML = `<i class="fas ${x.ok ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i><code></code><span class="note"></span>`;
+      li.querySelector('code').textContent = x.name; li.querySelector('.note').textContent = x.note;
+      ul.append(li);
+    });
+    if (f.pages > 2) {
+      const li = document.createElement('li'); li.className = 'warn';
+      li.innerHTML = `<i class="fas fa-exclamation-triangle"></i><span>This PDF has ${f.pages} pages. Only pages 1–2 are used.</span>`;
+      ul.prepend(li);
+    }
+
+    // thumbnails
+    const th = $('thumbs'); th.innerHTML = '';
+    const tw = f.orient === 'Landscape' ? 150 : 96;
+    for (const [i, label] of [[1, 'Front · p.1'], [2, 'Back · p.2']]) {
+      const wrap = document.createElement('div'); wrap.className = 'thumb';
+      if (i <= f.pages) {
+        const frame = document.createElement('div'); frame.className = 'frame';
+        frame.append(f.pdf ? await renderPage(f.pdf, i, tw, false) : mockPage(i === 1 ? 'front' : 'back', tw));
+        wrap.append(frame);
+      } else {
+        const none = document.createElement('div'); none.className = 'none'; none.textContent = 'No back page';
+        wrap.append(none);
+      }
+      const cap = document.createElement('div'); cap.className = 'cap'; cap.textContent = label;
+      wrap.append(cap); th.append(wrap);
+    }
+    renderRows(); renderStatus();
+  }
+
+  function renderRows() {
+    const hits = new Set(state.file ? state.file.found.filter(x => x.ok).map(x => x.name) : []);
+    const tb = $('fieldRows'); tb.innerHTML = '';
+    FIELDS.filter(f => state.filter === 'All' || f[1] === state.filter).forEach(([name, type, desc, ex]) => {
+      const tr = document.createElement('tr'); if (hits.has(name)) tr.className = 'hit';
+      tr.innerHTML = `<td><span class="nm"><code></code><button class="copy" aria-label="Copy ${name}"><i class="far fa-copy"></i></button>${hits.has(name) ? ' <i class="fas fa-check-circle" style="color:#6aa000" title="In your PDF"></i>' : ''}</span></td>
+        <td class="ty"><i class="${type === 'Image' ? 'far fa-image' : 'fas fa-font'}"></i> ${type}</td><td></td><td></td>`;
+      tr.querySelector('code').textContent = name;
+      tr.children[2].textContent = desc; tr.children[3].textContent = ex;
+      tr.querySelector('.copy').onclick = e => {
+        const b = e.currentTarget;
+        navigator.clipboard && navigator.clipboard.writeText(name).catch(() => {});
+        b.innerHTML = '<i class="fas fa-check"></i>'; setTimeout(() => (b.innerHTML = '<i class="far fa-copy"></i>'), 1200);
+      };
+      tb.append(tr);
+    });
+  }
+
+  // ---------- modals ----------
+  let onOk = null;
+  function openModal({ title, body, ok, variant = 'primary', wide = false, cancel = 'Cancel' }) {
+    $('mTitle').textContent = title;
+    $('mBody').innerHTML = '';
+    if (typeof body === 'string') $('mBody').innerHTML = body; else $('mBody').append(body);
+    $('bismodal').classList.toggle('xl', wide);
+    const okBtn = $('mOk'); okBtn.textContent = ok; okBtn.className = 'bisbtn bisbtn-' + variant;
+    $('mCancel').textContent = cancel;
+    $('backdrop').classList.add('show');
+    okBtn.focus();
+  }
+  function closeModal() { $('backdrop').classList.remove('show'); onOk = null; }
+  $('mOk').onclick = () => { const fn = onOk; closeModal(); fn && fn(); };
+  $('mCancel').onclick = $('mClose').onclick = closeModal;
+  $('backdrop').onclick = e => { if (e.target.id === 'backdrop') closeModal(); };
+
+  function success(title, message) {
+    $('msTitle').textContent = title;
+    $('msMsg').textContent = message || ''; $('msMsg').hidden = !message;
+    const icon = document.querySelector('.ms-icon svg'); icon.style.animation = 'none'; void icon.offsetWidth; icon.style.animation = '';
+    $('msBackdrop').classList.add('show'); $('msOk').focus();
+  }
+  const closeSuccess = () => $('msBackdrop').classList.remove('show');
+  $('msOk').onclick = $('msClose').onclick = closeSuccess;
+  $('msBackdrop').onclick = e => { if (e.target.id === 'msBackdrop') closeSuccess(); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeSuccess(); } });
+
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  // ---------- upload ----------
+  let replacing = false;
+  function showErr(msg) {
+    const el = replacing ? $('replaceErr') : $('fileErr');
+    el.innerHTML = msg ? '<i class="fas fa-exclamation-circle"></i> ' + msg : '';
+    el.classList.toggle('show', !!msg);
+  }
+  const ERRORS = {
+    type: 'Only PDF files are accepted.',
+    size: `This file is over ${MAX_MB} MB.`,
+    invalid: "This PDF can't be opened. Save it again from Adobe Acrobat and retry.",
+    password: 'This PDF is password-protected. Remove the password and retry.',
+    nolib: "The PDF reader didn't load. Check your connection and retry.",
+  };
+
+  async function handleFile(file) {
+    showErr('');
+    if (!file) return;
+    if (!(file.type === 'application/pdf' || /\.pdf$/i.test(file.name))) return showErr(ERRORS.type);
+    if (file.size > MAX_MB * 1024 * 1024) return showErr(ERRORS.size);
+    $('drop').classList.add('busy');
+    try {
+      const info = await readPdf(file);
+      if (state.file && state.file.url) URL.revokeObjectURL(state.file.url);
+      const wasReplace = replacing;
+      state.file = { name: file.name, url: URL.createObjectURL(file), uploaded: new Date(), ...info, found: checkFields(info.fields) };
+      replacing = false;
+      await renderFile();
+      success(wasReplace ? 'Template replaced' : 'Template uploaded', wasReplace && state.live === 'custom' ? 'ID badges now use the new file.' : 'Preview it, then click Use custom template at the top.');
+    } catch (e) {
+      showErr(ERRORS[e.kind] || ERRORS.invalid);
+    } finally {
+      $('drop').classList.remove('busy');
+    }
+  }
+
+  const drop = $('drop'), input = $('fileInput');
+  drop.onclick = () => { replacing = false; input.click(); };
+  drop.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); drop.click(); } };
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
+  input.onchange = () => { const f = input.files[0]; input.value = ''; handleFile(f); };
+
+  // ---------- file actions ----------
+  $('previewBtn').onclick = async () => {
+    const f = state.file;
+    const box = document.createElement('div'); box.className = 'pv';
+    const pages = document.createElement('div'); pages.className = 'pv-pages';
+    const pw = f.orient === 'Landscape' ? 320 : 220;
+    for (const i of [1, 2]) {
+      if (i > f.pages) continue;
+      const pg = document.createElement('div'); pg.className = 'pg';
+      pg.append(f.pdf ? await renderPage(f.pdf, i, pw, true, f.fields) : mockPage(i === 1 ? 'front' : 'back', pw));
+      const cap = document.createElement('div'); cap.className = 'cap'; cap.textContent = i === 1 ? 'Front' : 'Back';
+      pg.append(cap); pages.append(pg);
+    }
+    const data = document.createElement('div'); data.className = 'pv-data';
+    data.innerHTML = '<h4>Sample data</h4><dl></dl><p style="color:#666;font-size:13px;margin-top:12px">Pictures show as placeholders. Real badges use each user\'s photo, logo and QR code.</p>';
+    [['Name', SAMPLE.FullName], ['Role', SAMPLE.CompanyRole], ['Employer', SAMPLE.EmployerName], ['Employee ID', SAMPLE.EmployeeID], ['Start date', SAMPLE.StartDate], ['Location', SAMPLE.CompanyLocation]]
+      .forEach(([k, v]) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; data.querySelector('dl').append(dt, dd); });
+    box.append(pages, data);
+    onOk = () => toast('Downloading test badge (sample data)…');
+    openModal({ title: 'Preview with sample data', body: box, ok: 'Download test badge', wide: true, cancel: 'Close' });
+  };
+
+  function pickReplacement() { replacing = true; showErr(''); input.click(); }
+  $('replaceBtn').onclick = () => {
+    if (state.live !== 'custom') return pickReplacement();
+    onOk = pickReplacement;
+    openModal({ title: 'Replace template in use?', ok: 'Replace',
+      body: '<p>All ID badges will use the new file right away. Preview it after upload.</p>' });
+  };
+
+  function doRemove() {
+    if (state.file && state.file.url) URL.revokeObjectURL(state.file.url);
+    state.file = null; state.live = 'standard';
+    renderFile();
+  }
+  $('removeBtn').onclick = () => {
+    if (state.live !== 'custom') { doRemove(); success('Template removed'); return; }
+    onOk = () => { doRemove(); success('Template removed', 'ID badges use the standard layout.'); };
+    openModal({ title: 'Remove template?', ok: 'Remove', variant: 'danger',
+      body: '<p>This template is in use. ID badges will go back to the standard layout.</p>' });
+  };
+
+  // ---------- go live / switch back (confirming saves immediately: no Save/Cancel bar) ----------
+  $('useCusBtn').onclick = () => {
+    onOk = () => { state.live = 'custom'; renderStatus(); window.scrollTo({ top: 0, behavior: 'smooth' }); success('Custom template in use', 'ID badges now use your template.'); };
+    openModal({ title: 'Use custom template?', ok: 'Use template',
+      body: '<p>All ID badges will use your template. Standard layout settings stop applying until you switch back.</p>' });
+  };
+  $('discardBtn').onclick = () => { doRemove(); success('Template discarded', 'ID badges keep the standard layout.'); };
+  $('useStdBtn').onclick = () => {
+    onOk = () => { state.live = 'standard'; renderStatus(); success('Standard layout in use', 'ID badges use the standard layout.'); };
+    openModal({ title: 'Use standard layout?', ok: 'Use standard',
+      body: '<p>ID badges go back to the standard layout. Your template is kept.</p>' });
+  };
+
+  // ---------- misc controls ----------
+  $('tabStd').onclick = () => setTab('standard');
+  $('tabCus').onclick = () => setTab('custom');
+  document.querySelector('.design-tabs').addEventListener('keydown', e => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const next = state.tab === 'standard' ? 'custom' : 'standard';
+    setTab(next); $(next === 'standard' ? 'tabStd' : 'tabCus').focus();
+  });
+  document.querySelectorAll('.card').forEach(c => {
+    const btn = c.querySelector('.card-chev');
+    btn.addEventListener('click', () => {
+      const open = c.classList.contains('collapsed');
+      c.classList.toggle('collapsed', !open);
+      btn.innerHTML = open ? '<i class="fas fa-chevron-up"></i>' : '<i class="fas fa-chevron-down"></i>';
+      btn.setAttribute('aria-label', open ? 'Collapse' : 'Expand');
+    });
+  });
+  $('refChev').onclick = () => {
+    const ref = $('ref'), open = ref.classList.contains('collapsed');
+    ref.classList.toggle('collapsed', !open);
+    $('refChev').setAttribute('aria-expanded', open);
+    $('refChev').innerHTML = open ? '<i class="fas fa-chevron-up"></i>' : '<i class="fas fa-chevron-down"></i>';
+  };
+  document.querySelectorAll('.filters button').forEach(b => b.onclick = () => {
+    state.filter = b.dataset.f;
+    document.querySelectorAll('.filters button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    renderRows();
+  });
+
+  // ---------- prototype helper ----------
+  $('simBtn').onclick = async () => {
+    setTab('custom'); showErr('');
+    state.file = {
+      name: 'excelsior-safety-solutions-employee-id-badge-template-final-v3.pdf', url: null, pdf: null, uploaded: new Date(),
+      pages: 2, w: 54, h: 86, orient: 'Portrait', fields: null,
+      found: checkFields({ FullName: [{ type: 'text' }], ProfileImage: [{ type: 'button' }], EmployerName: [{ type: 'text' }], IDBadgeLogo: [{ type: 'button' }],
+        CompanyRole: [{ type: 'text' }], EmployeeID: [{ type: 'text' }], StartDate: [{ type: 'text' }], QRCode: [{ type: 'button' }], Badge_Title: [{ type: 'text' }] }),
+    };
+    await renderFile();
+  };
+  $('resetBtn').onclick = () => { doRemove(); showErr(''); setTab('standard'); renderStatus(); };
+  $('protoClose').onclick = () => $('proto').remove();
+
+  renderRows(); renderStatus();
+})();
+</script>
+</body>
+</html>

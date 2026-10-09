@@ -52,9 +52,19 @@
       "date": "2026-10-02",
       "children": [
         {
+          "title": "Proposal v2",
+          "path": "showcase/wireframes/tkt-21462-custom-id-badge/TKT-21462-proposal-v2.html",
+          "date": "2026-10-09"
+        },
+        {
           "title": "Proposal",
           "path": "showcase/wireframes/tkt-21462-custom-id-badge/TKT-21462-proposal.html",
           "date": "2026-10-02"
+        },
+        {
+          "title": "Prototype v2",
+          "path": "showcase/wireframes/tkt-21462-custom-id-badge/TKT-21462-prototype-v2.html",
+          "date": "2026-10-09"
         },
         {
           "title": "Prototype",

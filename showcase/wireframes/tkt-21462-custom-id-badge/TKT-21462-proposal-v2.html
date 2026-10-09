@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TKT-21462 — Custom Mapped ID Badge Template — Proposal v2</title>
+  <style>
+    /* === BIStrainer UI Library design tokens === */
+    :root {
+      --surface-primary: #0078b3;
+      --surface-primary-lightest: #f2fcff;
+      --icon-primary: #009acb;
+      --surface-error: #cc2222;
+      --surface-error-lightest: #fff2f2;
+      --icon-error: #cc2222;
+      --text-error: #cc2222;
+      --surface-warning: #a1851f;
+      --surface-warning-light: #e8b203;
+      --surface-warning-lightest: #fffcf2;
+      --icon-warning: #c29c14;
+      --text-warning: #a1851f;
+      --surface-success: #167b00;
+      --surface-success-lightest: #fafff2;
+      --icon-success: #167b00;
+      --text-success: #167b00;
+      --text-default: #191919;
+      --text-on-surface: #feffff;
+      --surface-default: #feffff;
+      --surface-secondary-subtle: #f8f8f9;
+      --stroke-default: #b2b2b3;
+      --stroke-default-light: #e2e2e3;
+      --stroke-default-dark: #4d4c4c;
+      --text-secondary: #666666;
+      --bis-red: #b81f2d;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Segoe UI", system-ui, sans-serif; font-size: 14px; background: var(--surface-secondary-subtle); color: var(--text-default); line-height: 1.5; }
+    html { scroll-behavior: smooth; scroll-padding-top: 58px; }
+
+    /* --- template chrome --- */
+    .topbar { background: var(--surface-default); border-bottom: 1px solid var(--stroke-default-light); display: flex; align-items: center; gap: 10px; padding: 6px 16px; flex-wrap: wrap; position: sticky; top: 0; z-index: 10; }
+    .t-ticket { font-size: 16px; font-weight: 600; }
+    .t-project { font-size: 14px; }
+    .t-date { font-size: 12px; }
+    .badge-pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; box-shadow: 0 0 4px rgba(0,0,0,.15); white-space: nowrap; }
+    .badge-pill.success { background: var(--surface-success-lightest); color: var(--surface-success); }
+
+    .page { max-width: 1280px; margin: 0 auto; padding: 20px 24px 60px; display: flex; gap: 28px; align-items: flex-start; }
+    .content { flex: 1; min-width: 0; max-width: 940px; }
+
+    .toc { width: 218px; flex-shrink: 0; position: sticky; top: 58px; }
+    .toc-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-secondary); padding: 0 10px 8px; }
+    .toc a { display: block; font-size: 12.5px; color: #556; padding: 6px 10px; border-left: 2px solid transparent; border-radius: 0 4px 4px 0; text-decoration: none; line-height: 1.35; }
+    .toc a:hover { background: var(--surface-secondary-subtle); color: var(--text-default); }
+    .toc a.active { color: var(--surface-primary); border-left-color: var(--surface-primary); background: var(--surface-primary-lightest); font-weight: 600; }
+    .toc a .l { display: inline-block; width: 15px; color: #99a; font-weight: 700; }
+    .toc a.active .l { color: var(--surface-primary); }
+    @media (max-width: 860px) { .page { flex-direction: column; } .toc { position: static; width: 100%; display: flex; flex-wrap: wrap; gap: 2px; } .toc-head { width: 100%; } }
+
+    .page-header { margin-bottom: 14px; }
+    .page-header .sub { font-size: 13.5px; color: #444; }
+    .page-header .meta { font-size: 12px; color: #666; margin-top: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .badge { display: inline-block; font-size: 11.5px; font-weight: 500; background: var(--surface-secondary-subtle); border: 1px solid var(--stroke-default-light); color: #556; border-radius: 4px; padding: 4px 9px; }
+    a.badge { color: var(--surface-primary); text-decoration: none; font-weight: 600; }
+    a.badge:hover { text-decoration: underline; }
+
+    .changed { background: #fff; border: 1px solid var(--stroke-default-light); border-left: 4px solid var(--surface-primary); border-radius: 6px; padding: 12px 16px; margin-bottom: 14px; font-size: 12.5px; }
+    .changed h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #556; margin-bottom: 6px; }
+    .changed ul { margin: 6px 0 0 18px; }
+    .changed li { margin-bottom: 3px; }
+
+    .legend { display: flex; gap: 18px; flex-wrap: wrap; background: var(--surface-default); border: 1px solid var(--stroke-default-light); border-radius: 6px; padding: 10px 14px; margin: 0 0 22px; font-size: 12px; color: #444; }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .dot.reused { background: var(--surface-success); }
+    .dot.new { background: var(--surface-primary); }
+    .dot.open { background: var(--surface-warning-light); }
+
+    .section { background: var(--surface-default); border: 1px solid var(--stroke-default-light); border-radius: 6px; overflow: hidden; margin-bottom: 20px; }
+    .section__title { background: var(--surface-secondary-subtle); border-bottom: 1px solid var(--stroke-default-light); padding: 10px 16px; font-size: 13.5px; font-weight: 700; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .section__title .sp { flex: 1; }
+    .tag { display: inline-flex; align-items: center; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; border-radius: 12px; padding: 2px 9px; white-space: nowrap; box-shadow: 0 0 4px rgba(0,0,0,.15); }
+    .tag.reused, .tag.ok { background: var(--surface-success-lightest); color: var(--surface-success); }
+    .tag.new { background: var(--surface-primary-lightest); color: var(--surface-primary); }
+    .tag.open { background: var(--surface-warning-lightest); color: var(--surface-warning); }
+    .section__body { padding: 16px; }
+    .section__note { font-size: 12px; color: #555; padding: 11px 16px; background: var(--surface-secondary-subtle); border-top: 1px dashed var(--stroke-default-light); }
+    .section__note b { color: #333; }
+    .lede { font-size: 12.5px; color: #555; margin-bottom: 14px; }
+    .sub-h { font-size: 12px; font-weight: 700; color: #556; margin: 16px 0 8px; text-transform: uppercase; letter-spacing: .03em; }
+    .stack-h { font-size: 12px; font-weight: 700; margin: 4px 0 6px; }
+    .sync { font-size: 11.5px; color: #667; margin-top: 12px; }
+    .sync a { color: var(--surface-primary); }
+
+    .ds-banner { display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; font-size: 12.5px; border-left: 4px solid; border-radius: 4px; margin: 10px 0; }
+    .ds-banner .ico { flex-shrink: 0; font-size: 14px; line-height: 1.35; }
+    .ds-banner.info { background: var(--surface-primary-lightest); border-color: var(--surface-primary); color: #0c5460; }
+    .ds-banner.warning { background: var(--surface-warning-lightest); border-color: var(--surface-warning); color: #6b5800; }
+    .ds-banner.error { background: var(--surface-error-lightest); border-color: var(--surface-error); color: #7a1f1f; }
+
+    /* ===== BisModal (design system) — default variant, size=lg ===== */
+    .bm-frame { background: rgba(0,0,0,.5); border-radius: 6px; padding: 24px 16px; display: flex; justify-content: center; margin-bottom: 12px; }
+    .bismodal { width: 600px; max-width: 100%; background: #fefefe; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.1); font-family: "Segoe UI", system-ui, sans-serif; color: #19191a; overflow: hidden; }
+    .bismodal.xl { width: 780px; }
+    .bm-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 14px 20px 6px; background: #fff; }
+    .bm-head h3 { font-size: 22px; font-weight: 600; line-height: 1.3; }
+    .bm-close { width: 20px; height: 20px; color: #afafb5; flex-shrink: 0; margin-top: 3px; }
+    .bm-body { padding: 8px 20px 12px; font-size: 16px; line-height: 1.45; }
+    .bm-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 8px 20px 16px; }
+    .bisbtn-tertiary, .bisbtn-primary, .bisbtn-danger { font-family: "Segoe UI", system-ui, sans-serif; font-size: 16px; font-weight: 600; padding: 8px 18px; border-radius: 4px; border: none; cursor: default; }
+    .bisbtn-tertiary { background: transparent; color: #19191a; }
+    .bisbtn-primary { background: #0078b3; color: #fff; }
+    .bisbtn-danger { background: #cc2222; color: #fff; }
+    .ds-ref { font-size: 12px; background: var(--surface-secondary-subtle); border: 1px solid var(--stroke-default-light); border-radius: 6px; padding: 8px 12px; margin-bottom: 14px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+    .ds-ref code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11.5px; background: #f1f3f5; padding: 1px 5px; border-radius: 3px; }
+    .ds-ref a { color: var(--surface-primary); }
+
+    /* ===== ModalService.success ===== */
+    .successmodal { position: relative; width: 500px; max-width: 100%; background: #fefefe; border-radius: 8px; padding: 24px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,.1); font-family: "Segoe UI", system-ui, sans-serif; color: #19191a; }
+    .sm-close { position: absolute; top: 14px; right: 14px; width: 20px; height: 20px; color: #636368; }
+    .sm-check { width: 66px; height: 66px; border: 3px solid #167b00; border-radius: 50%; margin: 6px auto 20px; display: flex; align-items: center; justify-content: center; color: #167b00; }
+    .sm-check svg { width: 40px; height: 40px; }
+    .successmodal h2 { font-size: 24px; font-weight: 600; line-height: 1.3; }
+    .successmodal p { font-size: 16px; line-height: 1.45; margin-top: 8px; }
+    .successmodal .bisbtn-primary { margin-top: 20px; min-width: 80px; }
+
+    table.wording-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    table.wording-table th { text-align: left; background: var(--surface-secondary-subtle); border: 1px solid var(--stroke-default-light); padding: 7px 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .03em; color: #556; }
+    table.wording-table td { border: 1px solid var(--stroke-default-light); padding: 7px 10px; vertical-align: top; }
+    table.wording-table tr.hit td { background: rgba(166,207,74,.14); }
+    code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; background: #f1f3f5; padding: 1px 5px; border-radius: 3px; }
+    .src-note { font-size: 11.5px; color: #667; margin-top: 8px; font-style: italic; }
+
+    .checklist { display: flex; gap: 8px; flex-wrap: wrap; }
+    .cl-step { flex: 1; min-width: 150px; border: 1px solid #e2e6ea; border-radius: 6px; padding: 9px 12px; font-size: 12px; background: #fff; }
+    .cl-step .h { font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .cl-step .s { font-size: 11.5px; margin-top: 3px; color: #667; }
+    .cl-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--surface-primary); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
+
+    .els { list-style: none; margin-top: 14px; font-size: 12px; }
+    .els li { display: flex; gap: 10px; align-items: baseline; padding: 5px 0; border-bottom: 1px dashed var(--stroke-default-light); }
+    .els li:last-child { border-bottom: none; }
+    .els .tag { flex-shrink: 0; min-width: 52px; justify-content: center; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+
+    /* ===== ID Badges page mock ===== */
+    .idb { border: 1px solid #ddd; border-top: 3px solid #4cae1c; border-radius: 4px; background: #fff; padding: 10px 12px 14px; margin-bottom: 12px; }
+    .idb-title { display: flex; align-items: center; font-size: 15px; font-weight: 600; color: #222; margin-bottom: 8px; }
+    .chev { display: inline-block; width: 7px; height: 7px; border-top: 2px solid #666; border-left: 2px solid #666; transform: rotate(45deg); margin-left: auto; margin-top: 3px; flex-shrink: 0; }
+    .chev.down { transform: rotate(225deg); margin-top: -2px; }
+    .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-items: start; }
+    .col { display: flex; flex-direction: column; gap: 8px; }
+    .scard { border: 1px solid #d6d6d6; border-radius: 4px; background: #fff; }
+    .scard-h { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: #f1f1f1; border-radius: 4px; font-size: 12.5px; font-weight: 600; color: #222; }
+    .info { display: flex; gap: 6px; align-items: flex-start; background: #ececec; border-radius: 3px; padding: 5px 8px; font-size: 11.5px; font-style: italic; color: #444; line-height: 1.4; }
+    .info .i { flex-shrink: 0; width: 11px; height: 11px; border-radius: 50%; background: #555; color: #fff; font-style: normal; font-size: 8px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-top: 2px; }
+    .tg { width: 32px; height: 17px; border-radius: 9px; background: #4a4a4a; position: relative; flex-shrink: 0; }
+    .tg::after { content: ''; position: absolute; width: 13px; height: 13px; background: #fff; border-radius: 50%; top: 2px; left: 2px; }
+    .tg.on { background: #a6cc4a; } .tg.on::after { left: 17px; }
+    .tg.dis { background: #d4d4d4; }
+    .group-label { font-size: 11px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: .04em; margin: 12px 0 6px; }
+
+    .dtabs { display: flex; gap: 6px; margin-top: 10px; }
+    .dtab { flex: 0 1 330px; display: flex; gap: 8px; align-items: flex-start; padding: 8px 10px; border: 1.5px solid #dcdcdc; border-bottom: 0; border-radius: 6px 6px 0 0; background: #f6f6f6; }
+    .dtab.sel { background: #fff; border-color: var(--surface-primary); margin-bottom: -1.5px; position: relative; z-index: 2; }
+    .dtab .ic { width: 28px; height: 28px; border-radius: 6px; background: #e9e9e9; color: #555; display: grid; place-items: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+    .dtab.sel .ic { background: var(--surface-primary-lightest); color: var(--surface-primary); }
+    .dtab .t { font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .dtab .d { font-size: 11px; color: #666; margin-top: 1px; line-height: 1.35; }
+    .chip { display: inline-flex; align-items: center; font-size: 10.5px; font-weight: 700; padding: 1px 8px; border-radius: 10px; white-space: nowrap; }
+    .chip.live { background: #f1f8e6; color: var(--surface-success); }
+    .chip.off { background: #eee; color: #666; }
+    .chip.draft { background: #fff8e6; color: #8a6500; border: 1px solid #f0d48a; }
+    .panel { border: 1.5px solid var(--surface-primary); border-radius: 0 6px 6px 6px; padding: 10px; position: relative; z-index: 1; background: #fff; }
+
+    .sbanner { display: flex; align-items: center; gap: 10px; border-radius: 5px; padding: 8px 12px; margin-top: 10px; border: 1px solid; font-size: 12px; }
+    .sbanner .bi { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+    .sbanner b { display: block; font-size: 12.5px; }
+    .sbanner span.m { color: #444; }
+    .sbanner .sp { flex: 1; }
+    .sbanner.draft { background: #fff8e6; border-color: #f0d48a; } .sbanner.draft .bi { background: #c29c14; }
+    .sbanner.live { background: #f1f8e6; border-color: #bcdca0; } .sbanner.live .bi { background: var(--surface-success); }
+    .mbtn { font-family: inherit; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 4px; border: 1px solid transparent; white-space: nowrap; }
+    .mbtn.tert { background: transparent; color: #19191a; }
+    .mbtn.prim { background: #0078b3; color: #fff; }
+    .mbtn.sec { background: #fff; border-color: var(--surface-primary); color: var(--surface-primary); }
+
+    .cust-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .cust-top .lbl { font-weight: 700; font-size: 13px; }
+    .cust-top .sp { flex: 1; }
+    .link-sm { font-size: 11.5px; color: var(--surface-primary); font-weight: 600; text-decoration: none; }
+    .link-sm:hover { text-decoration: underline; }
+    .guide2 { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #d9262c; border-radius: 4px; padding: 2px 8px 2px 6px; font-size: 11.5px; font-weight: 600; color: #333; background: #fff; text-decoration: none; }
+    .guide2 .ic { color: #d9262c; }
+    .ic { width: 13px; height: 13px; vertical-align: -2px; flex-shrink: 0; }
+    .ic.pdf { width: 16px; height: 20px; color: #d9262c; vertical-align: 0; margin-top: 1px; }
+    .cust-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+
+    .drop { border: 2px dashed #c6c6c6; border-radius: 6px; background: #fafafa; text-align: center; padding: 20px 12px; }
+    .drop .t { font-weight: 700; font-size: 13px; margin-top: 4px; }
+    .drop .t u { color: var(--surface-primary); text-decoration: none; }
+    .drop .s { font-size: 11.5px; color: #666; margin-top: 3px; }
+    .drop .cloud { font-size: 24px; color: #b5b5b5; line-height: 1; }
+    .err { display: flex; gap: 6px; color: var(--surface-error); font-size: 12px; margin-top: 6px; }
+
+    .fbox { border: 1px solid #d0d0d0; border-radius: 4px; overflow: hidden; background: #fff; }
+    .thumbs { display: flex; gap: 14px; padding: 10px; background: #f7f7f7; border-bottom: 1px solid #d0d0d0; justify-content: center; }
+    .thumb { text-align: center; font-size: 11px; color: #666; }
+    .pgt { width: 56px; height: 89px; background: #fff; border: 1px solid #ccc; box-shadow: 0 1px 3px rgba(0,0,0,.12); position: relative; margin: 0 auto 4px; overflow: hidden; }
+    .pgt::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 18%; background: #0b4f6c; }
+    .pgt i { position: absolute; display: block; }
+    .pgt .ph { left: 26%; top: 26%; width: 48%; height: 28%; background: #e9eef2; border: 1px solid #9fb3c2; }
+    .pgt .l1 { left: 14%; top: 60%; width: 72%; height: 3px; background: #333; }
+    .pgt .l2 { left: 22%; top: 67%; width: 56%; height: 2px; background: #999; }
+    .pgt .qr { left: 34%; top: 76%; width: 32%; height: 17%; background: repeating-conic-gradient(#333 0 25%, #fff 0 50%) 0 0 / 5px 5px; }
+    .pgt.back .b1 { left: 12%; width: 50%; height: 2px; background: #999; }
+    .pgt.lg { width: 130px; height: 207px; }
+    .pgt.lg .l1 { height: 5px; } .pgt.lg .qr { background-size: 9px 9px; }
+    .pgt .txt { position: absolute; left: 0; right: 0; text-align: center; font-size: 9px; color: #111; }
+    .file-row { display: flex; gap: 8px; align-items: flex-start; padding: 9px 10px; }
+    .file-row > div { min-width: 0; flex: 1; }
+    .nm { display: flex; min-width: 0; font-size: 13px; font-weight: 700; white-space: nowrap; line-height: 1.25; }
+    .nm .base { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .nm .ext { flex-shrink: 0; }
+    .mt { font-size: 11px; color: #666; margin-top: 3px; }
+    .facts { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid #d0d0d0; background: #f1f1f1; }
+    .facts span { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 7px; font-size: 12.5px; font-weight: 600; color: #555; }
+    .facts span + span { border-left: 1px solid #d0d0d0; }
+
+    .found { border: 1px solid #d0d0d0; border-radius: 4px; }
+    .found-head { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; background: #f5f5f5; border-bottom: 1px solid #d0d0d0; font-weight: 700; font-size: 12.5px; }
+    .found-head span { font-weight: 600; font-size: 11.5px; color: #666; }
+    .found ul { list-style: none; padding: 3px 0; }
+    .found li { display: flex; align-items: center; gap: 8px; padding: 4px 10px; font-size: 12px; }
+    .found li code { background: none; padding: 0; font-weight: 600; }
+    .found li .note { margin-left: auto; font-size: 11px; color: #666; text-align: right; }
+    .found li .g { width: 14px; text-align: center; font-weight: 800; }
+    .found li.ok .g { color: #6aa000; }
+    .found li.warn { background: #fff8e6; } .found li.warn .g { color: #d08a00; } .found li.warn .note { color: #8a6500; }
+    .found .empty { padding: 10px; font-size: 12px; color: #666; }
+
+    .pv { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+    .pv .pg { text-align: center; font-size: 11.5px; color: #666; }
+    .pv dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 13px; }
+    .pv dt { color: #666; }
+    .pv h4 { font-size: 14px; margin-bottom: 6px; }
+
+    .filters { display: flex; gap: 6px; margin-bottom: 8px; }
+    .filters span { border: 1px solid #ccc; border-radius: 14px; padding: 2px 11px; font-size: 12px; font-weight: 600; color: #444; background: #fff; }
+    .filters span.on { background: var(--surface-primary); border-color: var(--surface-primary); color: #fff; }
+    .copy { color: #888; font-size: 11px; margin-left: 4px; }
+    .okc { color: #6aa000; font-weight: 800; margin-left: 4px; }
+
+    .docpages { display: flex; gap: 12px; flex-wrap: wrap; }
+    .docpg { width: 200px; min-height: 250px; border: 1px solid #ccc; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.1); padding: 10px; font-size: 10px; }
+    .docpg .logo { background: #b81f2d; color: #fff; font-weight: 800; font-size: 9px; padding: 3px 8px; display: inline-block; border-radius: 2px 2px 8px 2px; margin-bottom: 8px; }
+    .docpg h5 { font-size: 11.5px; margin-bottom: 5px; }
+    .docpg ol { margin: 0 0 0 14px; }
+    .docpg ol li { margin-bottom: 2px; }
+    .docpg .r { display: grid; grid-template-columns: 1.3fr .7fr 1.6fr; gap: 2px 4px; border-bottom: 1px solid #eee; padding: 2px 0; }
+    .docpg .r.h { font-weight: 700; color: #666; }
+    .docpg .r span:first-child { font-family: ui-monospace, Consolas, monospace; }
+    .deliv { border: 1px solid var(--stroke-default-light); border-radius: 6px; padding: 12px 14px; margin-bottom: 12px; }
+    .deliv h4 { font-size: 13px; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .deliv p { font-size: 12.5px; color: #444; margin-bottom: 8px; }
+    .deliv a.dl { font-size: 12px; font-weight: 600; color: var(--surface-primary); }
+
+    @media (max-width: 720px) { .cols, .two-col, .cust-grid { grid-template-columns: 1fr; } .dtabs { flex-direction: column; } }
+  </style>
+</head>
+<body>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-pdf" viewBox="0 0 16 20"><path fill="currentColor" d="M2 1h8l4 4v14H2z"/><path fill="#fff" opacity=".4" d="M10 1l4 4h-4z"/><text x="8" y="15.5" font-size="5.4" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif">PDF</text></symbol>
+    <symbol id="i-upload" viewBox="0 0 16 16"><path fill="currentColor" d="M3 1h6l4 4v10H3z"/><path fill="#fff" d="M8 6 5.5 8.8h1.7V12h1.6V8.8h1.7z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 16 16"><path fill="currentColor" d="M5 1h6l1 2h3v2H1V3h3l1-2zM2.5 6h11l-.8 9H3.3z"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 16 16"><path fill="currentColor" d="M8 3C4.5 3 1.7 5.3 1 8c.7 2.7 3.5 5 7 5s6.3-2.3 7-5c-.7-2.7-3.5-5-7-5zm0 8a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0-4.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></symbol>
+    <symbol id="i-download" viewBox="0 0 16 16"><path fill="currentColor" d="M7 1h2v6h2.6L8 11 4.4 7H7zM2 12h12v2.5H2z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 20 20"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 4l12 12M16 4 4 16"/></symbol>
+    <symbol id="i-check" viewBox="0 0 40 40"><path fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" d="M9 21l8 8 14-16"/></symbol>
+  </svg>
+
+  <div class="topbar">
+    <span class="t-ticket">TKT-21462</span>
+    <span class="t-project">Custom Mapped ID Badge Template</span>
+    <span class="badge-pill success">Proposal Document - v2</span>
+    <span class="t-date">October 09, 2026 Generated</span>
+  </div>
+
+  <div class="page">
+
+  <aside class="toc" id="toc">
+    <div class="toc-head">On this page</div>
+    <a href="#sec-a"><span class="l">A</span>How it works</a>
+    <a href="#sec-b"><span class="l">B</span>Tabs and layout</a>
+    <a href="#sec-c"><span class="l">C</span>Upload and check</a>
+    <a href="#sec-d"><span class="l">D</span>Go live / switch back</a>
+    <a href="#sec-e"><span class="l">E</span>Preview, replace, remove</a>
+    <a href="#sec-f"><span class="l">F</span>Field reference</a>
+    <a href="#sec-g"><span class="l">G</span>Guide and sample</a>
+    <a href="#sec-h"><span class="l">H</span>Decisions &amp; open questions</a>
+  </aside>
+
+  <main class="content">
+
+  <div class="page-header">
+    <div class="sub">Ticket TKT-21462 (Excelsior Safety Solutions) — let admins upload their own fillable Adobe PDF as the ID badge template, instead of being limited to the system-generated layout. Company Settings &rarr; System Management &rarr; ID Badges.</div>
+    <div class="meta">
+      <span class="badge">v2 — Sachin's tabs + PDF tooling (signed off by Mika)</span>
+      <span class="badge">Prepared for: design review + dev (Sachin Verma)</span>
+      <span class="badge">Target: 2026-10-30</span>
+      <span style="color:#888;">2026-10-09</span>
+      <a class="badge" href="TKT-21462-proposal.html">v1 proposal</a>
+      <a class="badge" href="TKT-21462-prototype-v2.html" target="_blank" rel="noopener">Prototype v2</a>
+      <a class="badge" href="TKT-21462-prototype.html" target="_blank" rel="noopener">Prototype v1</a>
+    </div>
+  </div>
+
+  <div class="changed">
+    <h4>What changed from v1</h4>
+    <b>v1</b> used a single "Custom ID Badge" toggle card; turning it on locked the other settings. <b>v2</b> uses <b>Sachin's tabs</b> (Standard layout / Custom PDF template, adopted Oct 9, 2026) <b>plus the PDF tooling</b>: a field check on upload, a preview with sample data, Sachin's 15 predefined field names, and a guide and sample template.
+    <ul>
+      <li><b>Mika's changes to Sachin's mock:</b> tabs only change the view and never switch the live design (you must confirm); Lock Profile Image moved to "Applies to both designs"; a status banner at the top; a "Not in use yet" chip.</li>
+      <li><b>Settles v1 questions:</b> page 2 of the PDF is the back (replaces the Back Panel question); badge size comes from the PDF page size; field names are now Sachin's list, not v1's guesses.</li>
+    </ul>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot reused"></span> Reused — already live / design-system component</span>
+    <span><span class="dot new"></span> New — being proposed</span>
+    <span><span class="dot open"></span> Open — needs a dev answer</span>
+  </div>
+
+  <!-- ========================= A ========================= -->
+  <div class="section" id="sec-a">
+    <div class="section__title">A. How It Works <span class="sp"></span><span class="tag reused">Reused pattern</span><span class="tag new">PDF tooling</span></div>
+    <div class="section__body">
+      <p class="lede">Excelsior needs their own branded badge, an optional profile photo, and free placement of the QR code, logo, text and photo. Admins design the badge anywhere, make it a <b>fillable PDF</b> in Adobe Acrobat, and upload it. There is <b>no visual editor</b> (Sachin's approach, Aug 11, about 32 h dev). Badges are still downloaded from each user's profile; that flow doesn't change.</p>
+      <div class="checklist">
+        <div class="cl-step"><div class="h"><span class="cl-dot">1</span> Download the sample</div><div class="s">A fillable 54 × 86 mm badge with all 15 fields placed, or start from your own artwork.</div></div>
+        <div class="cl-step"><div class="h"><span class="cl-dot">2</span> Name the fields</div><div class="s">In Acrobat, name each form field exactly as in section F. Text fields for text, image (button) fields for pictures.</div></div>
+        <div class="cl-step"><div class="h"><span class="cl-dot">3</span> Upload and check</div><div class="s">The page shows "N of M recognized" and a preview with sample data (sections C, E).</div></div>
+        <div class="cl-step"><div class="h"><span class="cl-dot">4</span> Use custom template</div><div class="s">Confirm once and all badges use the PDF. Switch back any time.</div></div>
+      </div>
+      <ul class="els">
+        <li><span class="tag new">New</span><span><b>Page 1 is the front, page 2 the back (optional).</b> Size and orientation come from the PDF page. Images scale to fit and keep their proportions; text uses the font set on the field in the PDF.</span></li>
+        <li><span class="tag new">New</span><span><b>No photo box means no photo.</b> Leave <code>ProfileImage</code> out and no photo prints — this covers "photo optional".</span></li>
+        <li><span class="tag reused">Reused</span><span>The approach follows the Adobe Embedded certificate templates on TRM Edit Course.</span></li>
+      </ul>
+      <div class="sync">In the prototype: open <a href="TKT-21462-prototype-v2.html" target="_blank" rel="noopener">Prototype v2</a> and go to the <i>Custom PDF template</i> tab.</div>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> one PDF template per portal; any field without data, or with a name not in the list, prints blank.</div>
+  </div>
+
+  <!-- ========================= B ========================= -->
+  <div class="section" id="sec-b">
+    <div class="section__title">B. Tabs and Layout — Standard Live, No Template <span class="sp"></span><span class="tag new">Tabs</span><span class="tag reused">Existing cards</span></div>
+    <div class="section__body">
+      <p class="lede">Two tabs sit at the top of ID Badges. <b>Clicking a tab only changes what you are looking at</b> — it never changes which design is live. The <b>"In use"</b> chip marks the live design. The Standard tab holds today's cards, unchanged except that <b>Lock Profile Image has moved out</b>. Below both tabs, <b>"Applies to both designs"</b> holds the two settings that work the same either way.</p>
+
+      <div class="idb">
+        <div class="idb-title">ID Badges <span class="chev"></span></div>
+        <div class="info"><span class="i">i</span>Choose how ID badges are made. Switching keeps your saved settings and template.</div>
+        <div class="dtabs">
+          <div class="dtab sel"><span class="ic">ID</span><div><div class="t">Standard layout <span class="chip live">&#10003; In use</span></div><div class="d">The BIS badge. Choose which fields appear.</div></div></div>
+          <div class="dtab"><span class="ic">PDF</span><div><div class="t">Custom PDF template</div><div class="d">Your own badge PDF, filled in for each user.</div></div></div>
+        </div>
+        <div class="panel">
+          <div class="cols">
+            <div class="col">
+              <div class="scard"><div class="scard-h"><span class="tg on"></span>Company Role <span class="chev down"></span></div></div>
+              <div class="scard"><div class="scard-h">ID Badge Logo <span class="chev down"></span></div></div>
+              <div class="scard"><div class="scard-h"><span class="tg on"></span>Employee ID <span class="chev down"></span></div></div>
+              <div class="scard"><div class="scard-h"><span class="tg on"></span>Start Date <span class="chev down"></span></div></div>
+            </div>
+            <div class="col">
+              <div class="scard"><div class="scard-h"><span class="tg"></span>Company Name <span class="chev down"></span></div></div>
+              <div class="scard"><div class="scard-h"><span class="tg dis"></span>Display Driver's Licence <span class="chev down"></span></div></div>
+              <div class="scard"><div class="scard-h"><span class="tg on"></span>Print Landscape Format <span class="chev down"></span></div></div>
+            </div>
+            <div class="col">
+              <div class="scard"><div class="scard-h"><span class="tg on"></span>Company Logo <span class="chev down"></span></div></div>
+              <div class="scard"><div class="scard-h"><span class="tg"></span>Company Location <span class="chev down"></span></div></div>
+              <div class="scard"><div class="scard-h"><span class="tg on"></span>ID Badge Back Panel <span class="chev down"></span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="group-label">Applies to both designs</div>
+        <div class="cols">
+          <div class="scard"><div class="scard-h"><span class="tg"></span>Lock Profile Image <span class="chev down"></span></div></div>
+          <div class="scard"><div class="scard-h"><span class="tg on"></span>Folder Document and Forms <span class="chev down"></span></div></div>
+          <div></div>
+        </div>
+      </div>
+
+      <ul class="els">
+        <li><span class="tag new">New</span><span><b>Tabs</b> "Standard layout" and "Custom PDF template", with the chip showing which one is live. With no template uploaded the Custom tab has no chip.</span></li>
+        <li><span class="tag reused">Reused</span><span><b>The 10 Standard cards</b> — unchanged. The Back Panel stays here because the custom design carries its back as page 2.</span></li>
+        <li><span class="tag new">New</span><span><b>"Applies to both designs"</b> group: Lock Profile Image (a permission) and Folder Document and Forms (what a QR scan shows) are not layout settings.</span></li>
+        <li><span class="tag new">New</span><span><b>Standard-tab note while Custom is live</b> (section D): "A custom template is in use. Changes here apply when you switch back to the standard layout."</span></li>
+      </ul>
+      <div class="sync">In the prototype: the page opens on the Standard tab; click the Custom tab and back — nothing goes live.</div>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> tabs never switch the live design (Mika's change to Sachin's mock) — you must confirm in the banner, so a stray click can't change every user's badge.</div>
+  </div>
+
+  <!-- ========================= C ========================= -->
+  <div class="section" id="sec-c">
+    <div class="section__title">C. Upload and Check — the Draft State <span class="sp"></span><span class="tag new">New</span><span class="tag reused">Reused uploader pattern</span><span class="tag open">Backend checks</span></div>
+    <div class="section__body">
+      <p class="lede">The Custom tab opens on a <b>drop zone</b>. Once a PDF is uploaded, it is in a <b>draft</b>: a yellow banner and an amber <b>"Not in use yet"</b> chip say so, nothing changes for users, and the page checks the PDF's field names for you.</p>
+
+      <div class="stack-h">C1 — Custom tab, empty</div>
+      <div class="panel" style="border-radius:6px; margin-bottom:12px;">
+        <div class="cust-top"><span class="lbl">Badge Template</span><span class="chip off">No template</span><span class="sp"></span><a class="link-sm" href="BIS-ID-Badge-Sample-Template.pdf" download>&#8681; Download sample template</a><a class="guide2" href="Adobe-ID-Badge-Field-Template.pdf" target="_blank" rel="noopener"><svg class="ic" style="width:11px;height:14px;"><use href="#i-pdf"/></svg>PDF ID Badge Guide</a></div>
+        <div class="cust-grid">
+          <div class="drop"><div class="cloud">&#9729;</div><div class="t">Drop a PDF here or <u>browse</u></div><div class="s">PDF only, max 5 MB · Page 1 is the front, page 2 the back (optional)</div></div>
+          <div class="found"><div class="found-head">Fields found in this PDF</div><div class="empty">Upload a template to check its field names.</div></div>
+        </div>
+      </div>
+
+      <div class="stack-h">C2 — After upload: draft banner, "Not in use yet", file box, fields found</div>
+      <div class="idb">
+        <div class="idb-title">ID Badges <span class="chev"></span></div>
+        <div class="info"><span class="i">i</span>Choose how ID badges are made. Switching keeps your saved settings and template.</div>
+        <div class="sbanner draft"><span class="bi">!</span><span class="m"><b>Your custom template isn't in use yet</b>Preview it, then use it to apply it to all ID badges.</span><span class="sp"></span><button class="mbtn tert">Cancel</button><button class="mbtn prim">&#10003; Use custom template</button></div>
+        <div class="dtabs">
+          <div class="dtab"><span class="ic">ID</span><div><div class="t">Standard layout <span class="chip live">&#10003; In use</span></div><div class="d">The BIS badge. Choose which fields appear.</div></div></div>
+          <div class="dtab sel"><span class="ic">PDF</span><div><div class="t">Custom PDF template <span class="chip draft">Not in use yet</span></div><div class="d">Your own badge PDF, filled in for each user.</div></div></div>
+        </div>
+        <div class="panel">
+          <div class="cust-top"><span class="lbl">Badge Template</span><span class="chip off">Not in use yet</span><span class="sp"></span><a class="link-sm" href="BIS-ID-Badge-Sample-Template.pdf" download>&#8681; Download sample template</a><a class="guide2" href="Adobe-ID-Badge-Field-Template.pdf" target="_blank" rel="noopener"><svg class="ic" style="width:11px;height:14px;"><use href="#i-pdf"/></svg>PDF ID Badge Guide</a></div>
+          <div class="cust-grid">
+            <div class="fbox">
+              <div class="thumbs">
+                <div class="thumb"><div class="pgt"><i class="ph"></i><i class="l1"></i><i class="l2"></i><i class="qr"></i></div>Front · p.1</div>
+                <div class="thumb"><div class="pgt back"><i class="b1" style="top:34%"></i><i class="b1" style="top:48%"></i><i class="b1" style="top:62%"></i></div>Back · p.2</div>
+              </div>
+              <div class="file-row">
+                <svg class="ic pdf"><use href="#i-pdf"/></svg>
+                <div>
+                  <div class="nm" title="excelsior-safety-solutions-employee-id-badge-template-final-v3.pdf"><span class="base">excelsior-safety-solutions-employee-id-badge-template-final-v3</span><span class="ext">.pdf</span></div>
+                  <div class="mt">2 pages · 54 × 86 mm · Portrait · Uploaded Oct 9, 2026 by Mikaela Yeo (myeo6)</div>
+                </div>
+              </div>
+              <div class="facts"><span><svg class="ic"><use href="#i-eye"/></svg>Preview</span><span><svg class="ic"><use href="#i-upload"/></svg>Replace</span><span><svg class="ic"><use href="#i-trash"/></svg>Remove</span></div>
+            </div>
+            <div class="found">
+              <div class="found-head">Fields found in this PDF <span>8 of 9 recognized</span></div>
+              <ul>
+                <li class="warn"><span class="g">!</span><code>Badge_Title</code><span class="note">Not a predefined field, will be blank</span></li>
+                <li class="ok"><span class="g">&#10003;</span><code>CompanyRole</code><span class="note">Recognized</span></li>
+                <li class="ok"><span class="g">&#10003;</span><code>EmployeeID</code><span class="note">Recognized</span></li>
+                <li class="ok"><span class="g">&#10003;</span><code>EmployerName</code><span class="note">Recognized</span></li>
+                <li class="ok"><span class="g">&#10003;</span><code>FullName</code><span class="note">Recognized</span></li>
+                <li class="ok"><span class="g">&#10003;</span><code>IDBadgeLogo</code><span class="note">Recognized</span></li>
+                <li class="ok"><span class="g">&#10003;</span><code>ProfileImage</code><span class="note">Recognized</span></li>
+                <li class="ok"><span class="g">&#10003;</span><code>QRCode</code><span class="note">Recognized</span></li>
+                <li class="ok"><span class="g">&#10003;</span><code>StartDate</code><span class="note">Recognized</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-h">Fields-found messages</div>
+      <table class="wording-table">
+        <thead><tr><th style="width:34%">Message</th><th>When</th></tr></thead>
+        <tbody>
+          <tr><td>&#10003; Recognized</td><td>Name matches the list and the field type is right.</td></tr>
+          <tr><td>&#9888; Not a predefined field, will be blank</td><td>Name isn't one of the 15.</td></tr>
+          <tr><td>&#9888; Should be an image (button) field</td><td>A picture field (<code>ProfileImage</code>, <code>CompanyLogo</code>, <code>IDBadgeLogo</code>, <code>QRCode</code>) was drawn as text.</td></tr>
+          <tr><td>&#9888; Should be a text field</td><td>A text field was drawn as an image field.</td></tr>
+          <tr><td>&#9888; No form fields found. Badges will print the PDF as-is.</td><td>The PDF has no fillable fields.</td></tr>
+          <tr><td>&#9888; This PDF has N pages. Only pages 1–2 are used.</td><td>More than two pages.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sub-h">Upload errors (inline, under the drop zone)</div>
+      <table class="wording-table">
+        <thead><tr><th style="width:34%">When</th><th>Message</th></tr></thead>
+        <tbody>
+          <tr><td>Wrong file type</td><td>Only PDF files are accepted.</td></tr>
+          <tr><td>Over 5 MB</td><td>This file is over 5 MB.</td></tr>
+          <tr><td>Corrupt or unreadable</td><td>This PDF can't be opened. Save it again from Adobe Acrobat and retry.</td></tr>
+          <tr><td>Password-protected</td><td>This PDF is password-protected. Remove the password and retry.</td></tr>
+        </tbody>
+      </table>
+      <div class="err" style="margin-top:8px;">&#9888; Only PDF files are accepted. <span style="color:#667;">(shown inline under the drop zone, red)</span></div>
+
+      <ul class="els">
+        <li><span class="tag new">New</span><span><b>Drop zone</b> — "Drop a PDF here or browse · PDF only, max 5 MB · Page 1 is the front, page 2 the back (optional)".</span></li>
+        <li><span class="tag new">New</span><span><b>File box</b> — front and back thumbnails, a one-line filename that truncates with "…" and <b>always ends in .pdf</b> (full name on hover), and "2 pages · 54 × 86 mm · Portrait · Uploaded &lt;date&gt; by &lt;name&gt; (&lt;username&gt;)".</span></li>
+        <li><span class="tag reused">Reused</span><span><b>PDF ID Badge Guide</b> button — red PDF icon, red 1px border: the "PDF Certificate Guide" pattern from TRM Edit Course.</span></li>
+        <li><span class="tag open">Open</span><span><b>Backend checks:</b> detecting invalid, password-protected or over-5 MB files, the fields-found report, and storing the upload date and uploader (questions 3 and 5).</span></li>
+      </ul>
+      <div class="sync">In the prototype: <i>Custom PDF template</i> tab &rarr; <i>Simulate upload</i> (or drop a real fillable PDF). Try a non-PDF file for the error.</div>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> uploading is a draft: users see no change until the admin confirms (section D). Cancel in the banner discards the upload, then shows "Template discarded".</div>
+  </div>
+
+  <!-- ========================= D ========================= -->
+  <div class="section" id="sec-d">
+    <div class="section__title">D. Go Live and Switch Back <span class="sp"></span><span class="tag reused">BisModal</span><span class="tag reused">ModalService.success</span><span class="tag open">Instant save</span></div>
+    <div class="section__body">
+      <p class="lede">The banner at the top of ID Badges is the single place to go live or go back. <b>Use custom template</b> asks for confirmation, then shows a success message; the banner turns green. <b>Use standard layout</b> does the same in reverse. Every action saves immediately — there is no Save / Cancel bar.</p>
+
+      <div class="stack-h">D1 — Custom live: green banner, chips moved, Standard tab shows a note</div>
+      <div class="idb">
+        <div class="idb-title">ID Badges <span class="chev"></span></div>
+        <div class="info"><span class="i">i</span>Choose how ID badges are made. Switching keeps your saved settings and template.</div>
+        <div class="sbanner live"><span class="bi">&#10003;</span><span class="m"><b>Custom template is in use</b>All ID badges use your PDF. Switch back any time; your template is kept.</span><span class="sp"></span><button class="mbtn sec">Use standard layout</button></div>
+        <div class="dtabs">
+          <div class="dtab sel"><span class="ic">ID</span><div><div class="t">Standard layout</div><div class="d">The BIS badge. Choose which fields appear.</div></div></div>
+          <div class="dtab"><span class="ic">PDF</span><div><div class="t">Custom PDF template <span class="chip live">&#10003; In use</span></div><div class="d">Your own badge PDF, filled in for each user.</div></div></div>
+        </div>
+        <div class="panel">
+          <div class="info" style="margin-bottom:8px;"><span class="i">i</span>A custom template is in use. Changes here apply when you switch back to the standard layout.</div>
+          <div class="cols">
+            <div class="scard"><div class="scard-h"><span class="tg on"></span>Company Role <span class="chev down"></span></div></div>
+            <div class="scard"><div class="scard-h"><span class="tg"></span>Company Name <span class="chev down"></span></div></div>
+            <div class="scard"><div class="scard-h"><span class="tg on"></span>Company Logo <span class="chev down"></span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-ref"><span class="tag reused">Reused</span><span><b>Confirms use BisModal (design system) · default variant · size=lg</b> — <code>@bistrainingsolutions/design-system/dist/components/BisModal</code>. White header, tertiary Cancel, primary Confirm.</span></div>
+
+      <div class="stack-h">D2 — Use custom template? (confirm)</div>
+      <div class="bm-frame"><div class="bismodal">
+        <div class="bm-head"><h3>Use custom template?</h3><svg class="bm-close"><use href="#i-x"/></svg></div>
+        <div class="bm-body">All ID badges will use your template. Standard layout settings stop applying until you switch back.</div>
+        <div class="bm-foot"><button class="bisbtn-tertiary">Cancel</button><button class="bisbtn-primary">Use template</button></div>
+      </div></div>
+
+      <div class="ds-ref"><span class="tag reused">Reused</span><span><b>Success uses ModalService.success</b> — <code>@bistrainingsolutions/design-system/dist/services/ModalService</code> (<a href="https://pre.storybook.bissafety.app/?path=/docs/feedback-modalservice--docs">Storybook</a>). Centered card, green check ring, one OK button.</span></div>
+      <div class="bm-frame"><div class="successmodal">
+        <svg class="sm-close"><use href="#i-x"/></svg>
+        <div class="sm-check"><svg><use href="#i-check"/></svg></div>
+        <h2>Custom template in use</h2>
+        <p>ID badges now use your template.</p>
+        <button class="bisbtn-primary">OK</button>
+      </div></div>
+
+      <div class="stack-h">D3 — Use standard layout? (confirm)</div>
+      <div class="bm-frame"><div class="bismodal">
+        <div class="bm-head"><h3>Use standard layout?</h3><svg class="bm-close"><use href="#i-x"/></svg></div>
+        <div class="bm-body">ID badges go back to the standard layout. Your template is kept.</div>
+        <div class="bm-foot"><button class="bisbtn-tertiary">Cancel</button><button class="bisbtn-primary">Use standard</button></div>
+      </div></div>
+
+      <div class="sub-h">Success messages</div>
+      <table class="wording-table">
+        <thead><tr><th style="width:26%">When</th><th style="width:30%">Title</th><th>Message</th></tr></thead>
+        <tbody>
+          <tr><td>Template uploaded</td><td>Template uploaded</td><td>Preview it, then click Use custom template at the top.</td></tr>
+          <tr><td>Template replaced</td><td>Template replaced</td><td>In use: "ID badges now use the new file." Not in use: same as upload.</td></tr>
+          <tr><td>Cancel in the draft banner</td><td>Template discarded</td><td>ID badges keep the standard layout.</td></tr>
+          <tr><td>Use custom template</td><td>Custom template in use</td><td>ID badges now use your template.</td></tr>
+          <tr><td>Use standard layout</td><td>Standard layout in use</td><td>ID badges use the standard layout.</td></tr>
+          <tr><td>Template removed</td><td>Template removed</td><td>While in use: "ID badges use the standard layout." Not in use: no message.</td></tr>
+        </tbody>
+      </table>
+      <div class="sync">In the prototype: upload (or simulate), then click <i>Use custom template</i> in the yellow banner; then <i>Use standard layout</i> in the green one.</div>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> both directions confirm, then show a success message. The template is never deleted by switching back. <b>Open:</b> instant save with no Save / Cancel bar needs dev confirmation (question 6).</div>
+  </div>
+
+  <!-- ========================= E ========================= -->
+  <div class="section" id="sec-e">
+    <div class="section__title">E. Preview, Replace, Remove <span class="sp"></span><span class="tag new">New</span><span class="tag reused">BisModal</span><span class="tag open">Test badge</span></div>
+    <div class="section__body">
+      <p class="lede">The file box footer is <b>Preview | Replace | Remove</b>. This replaces v1's Test Badge button and v1's missing Replace.</p>
+
+      <div class="stack-h">E1 — Preview (sample data) with "Download test badge"</div>
+      <div class="bm-frame"><div class="bismodal xl">
+        <div class="bm-head"><h3>Preview with sample data</h3><svg class="bm-close"><use href="#i-x"/></svg></div>
+        <div class="bm-body">
+          <div class="pv">
+            <div style="display:flex; gap:14px;">
+              <div class="pg"><div class="pgt lg"><i class="ph"></i><div class="txt" style="top:56%;font-weight:700;">Jordan Sample</div><div class="txt" style="top:64%;color:#555;">Site Supervisor</div><div class="txt" style="top:70%;color:#555;">Acme Safety Ltd.</div><i class="qr" style="top:78%;"></i></div>Front</div>
+              <div class="pg"><div class="pgt lg back"><div class="txt" style="top:30%;text-align:left;padding-left:14%;color:#777;">Employee ID</div><div class="txt" style="top:36%;text-align:left;padding-left:14%;">EMP-0042</div><div class="txt" style="top:48%;text-align:left;padding-left:14%;color:#777;">Start date</div><div class="txt" style="top:54%;text-align:left;padding-left:14%;">2024-03-18</div></div>Back</div>
+            </div>
+            <div style="flex:1; min-width:200px;">
+              <h4>Sample data</h4>
+              <dl><dt>Name</dt><dd>Jordan Sample</dd><dt>Role</dt><dd>Site Supervisor</dd><dt>Employer</dt><dd>Acme Safety Ltd.</dd><dt>Employee ID</dt><dd>EMP-0042</dd><dt>Start date</dt><dd>2024-03-18</dd><dt>Location</dt><dd>Calgary / Plant 2</dd></dl>
+              <p style="color:#666;font-size:12.5px;margin-top:10px;">Pictures show as placeholders. Real badges use each user's photo, logo and QR code.</p>
+            </div>
+          </div>
+        </div>
+        <div class="bm-foot"><button class="bisbtn-tertiary">Close</button><button class="bisbtn-primary">Download test badge</button></div>
+      </div></div>
+
+      <div class="two-col">
+        <div>
+          <div class="stack-h">E2 — Replace while in use (confirm first)</div>
+          <div class="bm-frame" style="padding:20px 10px;"><div class="bismodal" style="width:100%;">
+            <div class="bm-head"><h3>Replace template in use?</h3><svg class="bm-close"><use href="#i-x"/></svg></div>
+            <div class="bm-body">All ID badges will use the new file right away. Preview it after upload.</div>
+            <div class="bm-foot"><button class="bisbtn-tertiary">Cancel</button><button class="bisbtn-primary">Replace</button></div>
+          </div></div>
+        </div>
+        <div>
+          <div class="stack-h">E3 — Remove while in use (danger)</div>
+          <div class="bm-frame" style="padding:20px 10px;"><div class="bismodal" style="width:100%;">
+            <div class="bm-head"><h3>Remove template?</h3><svg class="bm-close"><use href="#i-x"/></svg></div>
+            <div class="bm-body">This template is in use. ID badges will go back to the standard layout.</div>
+            <div class="bm-foot"><button class="bisbtn-tertiary">Cancel</button><button class="bisbtn-danger">Remove</button></div>
+          </div></div>
+        </div>
+      </div>
+      <div style="font-size:11.5px;color:#667;">E2 and E3 are shown two-up and narrower than the real size (lg, 600 px).</div>
+
+      <ul class="els">
+        <li><span class="tag new">New</span><span><b>Preview</b> renders the uploaded PDF with sample data (Jordan Sample, EMP-0042…). Pictures are placeholders. "Download test badge" saves it.</span></li>
+        <li><span class="tag new">New</span><span><b>Replace</b> opens the file picker. While in use it confirms first; the new file applies as soon as it uploads.</span></li>
+        <li><span class="tag reused">Reused</span><span><b>Remove</b> not in use: immediate, then "Template removed". In use: <b>danger</b> BisModal, then back to Standard.</span></li>
+        <li><span class="tag open">Open</span><span><b>Preview / test badge with sample data</b> is extra dev effort (question 4).</span></li>
+      </ul>
+      <div class="sync">In the prototype: with a file uploaded, click <i>Preview</i>; use the yellow banner to go live, then try <i>Replace</i> and <i>Remove</i>.</div>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> viewing the raw PDF is dropped — Preview with sample data is the check step. Remove while in use always reverts to Standard.</div>
+  </div>
+
+  <!-- ========================= F ========================= -->
+  <div class="section" id="sec-f">
+    <div class="section__title">F. Predefined PDF Fields <span class="sp"></span><span class="tag reused">3 exist on certificates</span><span class="tag new">Sachin's list</span><span class="tag open">Names final?</span></div>
+    <div class="section__body">
+      <p class="lede">The 15 field names are <b>Sachin's list</b> and replace v1's guessed names. Names are case-sensitive. Text fields for text, image (button) fields for pictures. A reference table sits at the bottom of the Custom tab with a <b>copy</b> button per name, an <b>All / Text / Image</b> filter, and a <b>✓ highlight</b> on fields found in the uploaded PDF.</p>
+      <div class="filters"><span class="on">All</span><span>Text</span><span>Image</span></div>
+      <table class="wording-table">
+        <thead><tr><th style="width:28%">PDF field name</th><th style="width:9%">Type</th><th>What it shows</th><th style="width:22%">Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>FirstName</code><span class="copy">&#10697;</span></td><td>Text</td><td>User's first name</td><td>Jordan</td></tr>
+          <tr><td><code>LastName</code><span class="copy">&#10697;</span></td><td>Text</td><td>User's last name</td><td>Sample</td></tr>
+          <tr class="hit"><td><code>FullName</code><span class="copy">&#10697;</span><span class="okc">&#10003;</span></td><td>Text</td><td>First and last name together</td><td>Jordan Sample</td></tr>
+          <tr class="hit"><td><code>ProfileImage</code><span class="copy">&#10697;</span><span class="okc">&#10003;</span></td><td>Image</td><td>User's profile photo</td><td>—</td></tr>
+          <tr><td><code>PortalName</code><span class="copy">&#10697;</span></td><td>Text</td><td>Name of this portal</td><td>BIS QAQC Test Environment</td></tr>
+          <tr class="hit"><td><code>EmployerName</code><span class="copy">&#10697;</span><span class="okc">&#10003;</span></td><td>Text</td><td>Company name in the user's profile</td><td>Acme Safety Ltd.</td></tr>
+          <tr><td><code>LocationCustomField</code><span class="copy">&#10697;</span></td><td>Text</td><td>Location custom field used for company name</td><td>Site 4 – North</td></tr>
+          <tr><td><code>CompanyLogo</code><span class="copy">&#10697;</span></td><td>Image</td><td>Logo from portal branding settings</td><td>—</td></tr>
+          <tr class="hit"><td><code>IDBadgeLogo</code><span class="copy">&#10697;</span><span class="okc">&#10003;</span></td><td>Image</td><td>Logo uploaded for ID badges</td><td>—</td></tr>
+          <tr class="hit"><td><code>CompanyRole</code><span class="copy">&#10697;</span><span class="okc">&#10003;</span></td><td>Text</td><td>User's role in the company</td><td>Site Supervisor</td></tr>
+          <tr><td><code>CompanyLocation</code><span class="copy">&#10697;</span></td><td>Text</td><td>User's location in the company structure</td><td>Calgary / Plant 2</td></tr>
+          <tr class="hit"><td><code>EmployeeID</code><span class="copy">&#10697;</span><span class="okc">&#10003;</span></td><td>Text</td><td>User's employee ID</td><td>EMP-0042</td></tr>
+          <tr><td><code>DriversLicence</code><span class="copy">&#10697;</span></td><td>Text</td><td>Driver's licence number. Blank when driver's licence security is on</td><td>D1234-56789</td></tr>
+          <tr class="hit"><td><code>StartDate</code><span class="copy">&#10697;</span><span class="okc">&#10003;</span></td><td>Text</td><td>User's start date</td><td>2024-03-18</td></tr>
+          <tr class="hit"><td><code>QRCode</code><span class="copy">&#10697;</span><span class="okc">&#10003;</span></td><td>Image</td><td>Scan to see the user's training and, if turned on, completed folder documents and forms</td><td>—</td></tr>
+        </tbody>
+      </table>
+      <div class="src-note">Images scale to fit their box and keep their proportions. Text uses the font, size and alignment set on the field in your PDF. Fields you leave out don't print. Other names stay blank.</div>
+
+      <ul class="els">
+        <li><span class="tag new">New</span><span><b>Badge size and orientation come from the PDF page size</b> — so the Print Landscape card is Standard-only. <b>Page 2 is the back.</b></span></li>
+        <li><span class="tag open">Open</span><span><b>Names that differ from certificates:</b> <code>ProfileImage</code> (certificates: <code>userProfileImage</code>) and <code>EmployerName</code> (certificates: <code>Employer</code>). <code>FullName</code>, <code>EmployeeID</code> and <code>QRCode</code> match. Intentional? (question 2). Also the <code>StartDate</code> date format (question 1).</span></li>
+        <li><span class="tag open">Open</span><span><b><code>DriversLicence</code></b> must stay blank when driver's licence security is on (question 7). <b><code>QRCode</code></b> must encode the badge QR target; Folder Document and Forms (applies to both) controls what a scan shows (question 8).</span></li>
+      </ul>
+      <div class="sync">In the prototype: bottom of the Custom tab, "Predefined PDF fields". Upload (or simulate) to see the ✓ highlights.</div>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> every field is optional in the PDF — include only what the badge needs.</div>
+  </div>
+
+  <!-- ========================= G ========================= -->
+  <div class="section" id="sec-g">
+    <div class="section__title">G. Guide and Sample Template <span class="sp"></span><span class="tag new">New deliverables</span><span class="tag open">Maintenance owner</span></div>
+    <div class="section__body">
+      <p class="lede">Two files ship with the feature, linked from the Custom tab. The guide answers Luke's question about what the PDF instructions contain.</p>
+
+      <div class="deliv">
+        <h4>Adobe ID Badge Field Template <span class="tag new">New</span><span style="font-weight:400;color:#667;font-size:12px;">PDF · 3 pages</span></h4>
+        <p>Made in the <b>exact format of the existing "Adobe Completion Certificate Field Template"</b>: a logo tab, an instructions block, and a 3-column table (ID Badge Information · Adobe Field Name · Adobe Field for Copying and Pasting) holding all 15 fields as real copyable Adobe form fields, 3 pages. Opened from the red <b>PDF ID Badge Guide</b> button. <a class="dl" href="Adobe-ID-Badge-Field-Template.pdf" target="_blank" rel="noopener">Open Adobe-ID-Badge-Field-Template.pdf</a></p>
+        <div class="docpages">
+          <div class="docpg"><span class="logo">BIS</span><h5>Adobe ID Badge Field Template</h5>
+            <ol><li>Open this file in <b>Acrobat Pro DC</b></li><li>Go to <b>More Tools &rarr; Prepare Form</b></li><li><b>Copy and paste</b> the fields you need from the table</li><li>Right-click a field &rarr; <b>All Properties</b> to set font, size and type</li><li><b>Upload</b> the PDF in ID Badges</li></ol>
+            <p style="margin-top:6px;color:#555;">Page 1 is the front, page 2 the back.</p></div>
+          <div class="docpg"><span class="logo">BIS</span><h5>Fields (1 of 2)</h5>
+            <div class="r h"><span>Field</span><span>Type</span><span>Shows</span></div>
+            <div class="r"><span>FirstName</span><span>Text</span><span>First name</span></div>
+            <div class="r"><span>LastName</span><span>Text</span><span>Last name</span></div>
+            <div class="r"><span>FullName</span><span>Text</span><span>Full name</span></div>
+            <div class="r"><span>ProfileImage</span><span>Image</span><span>Photo</span></div>
+            <div class="r"><span>&hellip;</span><span></span><span></span></div></div>
+          <div class="docpg"><span class="logo">BIS</span><h5>Fields (2 of 2)</h5>
+            <div class="r h"><span>Field</span><span>Type</span><span>Shows</span></div>
+            <div class="r"><span>EmployeeID</span><span>Text</span><span>Employee ID</span></div>
+            <div class="r"><span>DriversLicence</span><span>Text</span><span>Licence no.</span></div>
+            <div class="r"><span>StartDate</span><span>Text</span><span>Start date</span></div>
+            <div class="r"><span>QRCode</span><span>Image</span><span>QR code</span></div></div>
+        </div>
+        <div class="src-note">Page layout above is illustrative; open the PDF for the real file.</div>
+      </div>
+
+      <div class="deliv">
+        <h4>BIS ID Badge Sample Template <span class="tag new">New</span><span style="font-weight:400;color:#667;font-size:12px;">PDF · 54 × 86 mm · front and back</span></h4>
+        <p>A fillable badge with <b>all 15 fields placed</b> — front with the "EMPLOYEE ID" label, back with NAME / START DATE / LOCATION / SITE / DRIVER'S LICENCE labels. Admins copy it and restyle it. Linked as "Download sample template". <a class="dl" href="BIS-ID-Badge-Sample-Template.pdf" download>Download BIS-ID-Badge-Sample-Template.pdf</a></p>
+      </div>
+      <div class="sync">In the prototype: the "Download sample template" link and the red "PDF ID Badge Guide" button at the top of the Custom tab.</div>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> both are built. <b>Open:</b> who keeps the field-template PDF in sync when fields change (question 9).</div>
+  </div>
+
+  <!-- ========================= H ========================= -->
+  <div class="section" id="sec-h">
+    <div class="section__title">H. Decisions Log and Open Questions</div>
+    <div class="section__body">
+      <div class="sub-h" style="margin-top:0;">Decisions log</div>
+      <table class="wording-table">
+        <thead><tr><th style="width:26px">#</th><th style="width:44%">Decision</th><th>Why</th><th style="width:96px">Status</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><b>Adopt Sachin's approach</b>: Standard layout / Custom PDF template tabs plus PDF tooling (adopted Oct 9, 2026). Replaces v1's toggle card.</td><td>Richer, and matches how dev will build it.</td><td><span class="tag ok">Confirmed</span></td></tr>
+          <tr><td>2</td><td><b>Build:</b> admins upload a fillable Adobe PDF; no visual or image editor.</td><td>Sachin's approach (Aug 11), about 32 h dev.</td><td><span class="tag ok">Confirmed</span></td></tr>
+          <tr><td>3</td><td><b>Tabs only change the view</b>; they never switch the live design. You must confirm.</td><td>Mika's change to Sachin's mock: no accidental go-live.</td><td><span class="tag ok">Confirmed</span></td></tr>
+          <tr><td>4</td><td><b>"In use" chip</b> marks the live design; an amber <b>"Not in use yet"</b> chip shows on the Custom tab for an unconfirmed upload.</td><td>Mika's addition: state is visible at a glance.</td><td><span class="tag ok">Confirmed</span></td></tr>
+          <tr><td>5</td><td><b>Standard tab</b> = today's cards, minus Lock Profile Image. A note shows at the top while Custom is live.</td><td>Reuse; the note explains edits won't apply yet.</td><td><span class="tag ok">Confirmed</span></td></tr>
+          <tr><td>6</td><td><b>"Applies to both designs"</b> holds Lock Profile Image and Folder Document and Forms.</td><td>Mika's change: they aren't layout settings.</td><td><span class="tag ok">Confirmed</span> <span class="tag open">Open · dev</span></td></tr>
+          <tr><td>7</td><td><b>Status banner</b> at the top: draft (Cancel / ✓ Use custom template) and live (Use standard layout).</td><td>Mika's addition: one clear place to go live or go back.</td><td><span class="tag ok">Confirmed</span></td></tr>
+          <tr><td>8</td><td><b>Go live and switch back both confirm</b> (BisModal default, lg), then show a success message (ModalService.success). Remove while in use uses the <b>danger</b> variant.</td><td>Design-system patterns; misclicks recoverable.</td><td><span class="tag ok">Confirmed</span></td></tr>
+          <tr><td>9</td><td><b>Every action saves immediately</b>; no Save / Cancel bar.</td><td>Matches the rest of the page.</td><td><span class="tag open">Open · dev</span></td></tr>
+          <tr><td>10</td><td><b>Custom panel:</b> "Badge Template" header and status chip, Download sample template, red PDF ID Badge Guide button.</td><td>Certificate-guide pattern; sample makes starting easy.</td><td><span class="tag ok">Confirmed</span></td></tr>
+          <tr><td>11</td><td><b>Drop zone:</b> PDF only, max 5 MB; page 1 front, page 2 back (optional).</td><td>Settles v1's Back Panel and size questions.</td><td><span class="tag ok">Confirmed</span> <span class="tag open">Open · dev</span></td></tr>
+          <tr><td>12</td><td><b>File box:</b> front and back thumbnails; one-line filename ending in .pdf; "2 pages · 54 × 86 mm · Portrait · Uploaded &lt;date&gt; by &lt;name&gt; (&lt;username&gt;)".</td><td>Long names must not break the card; confirms what was read.</td><td><span class="tag ok">Confirmed</span> <span class="tag open">Open · dev</span></td></tr>
+          <tr><td>13</td><td><b>Footer Preview | Replace | Remove.</b> Preview shows sample data with "Download test badge". Raw PDF viewing is dropped.</td><td>One check step. Replace while in use confirms first.</td><td><span class="tag ok">Confirmed</span> <span class="tag open">Open · dev</span></td></tr>
+          <tr><td>14</td><td><b>"Fields found in this PDF"</b> with "8 of 9 recognized" and per-field warnings.</td><td>Stops silent blanks from misnamed fields.</td><td><span class="tag ok">Confirmed</span> <span class="tag open">Open · dev</span></td></tr>
+          <tr><td>15</td><td><b>15 predefined field names</b> (Sachin's list), replacing v1's guessed names.</td><td>Source of truth is dev's list.</td><td><span class="tag open">Open · dev</span></td></tr>
+          <tr><td>16</td><td><b>Size and orientation from the PDF page; images scale to fit; text uses the field's own font.</b></td><td>No settings needed for these.</td><td><span class="tag ok">Confirmed</span></td></tr>
+          <tr><td>17</td><td><b>Missing or misnamed fields print blank.</b> Leave <code>ProfileImage</code> out for no photo.</td><td>Covers "photo optional"; matches certificates.</td><td><span class="tag ok">Confirmed</span></td></tr>
+          <tr><td>18</td><td><b>Four inline upload errors</b> (wrong type, over 5 MB, can't be opened, password-protected).</td><td>Tells the admin exactly how to fix it.</td><td><span class="tag ok">Confirmed</span> <span class="tag open">Open · dev</span></td></tr>
+          <tr><td>19</td><td><b><code>DriversLicence</code> stays blank</b> when driver's licence security is on.</td><td>Privacy rule must survive the custom path.</td><td><span class="tag open">Open · dev</span></td></tr>
+          <tr><td>20</td><td><b>Ship a guide and a sample template</b> (section G); one template per portal.</td><td>Answers what the instructions contain; reduces mistakes.</td><td><span class="tag ok">Confirmed</span> <span class="tag open">Open · owner</span></td></tr>
+        </tbody>
+      </table>
+      <div class="src-note">Source: Mika's design review (v2 sign-off), Sachin's approach adopted Oct 9, 2026, and Sachin's TKT-21462 comment of Aug 11, 2026.</div>
+
+      <div class="sub-h">Open questions for Sachin (v2)</div>
+      <table class="wording-table">
+        <thead><tr><th style="width:26px">#</th><th>Question</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Are the 15 field names final? What date format does <code>StartDate</code> use?</td></tr>
+          <tr><td>2</td><td>Badge names (<code>ProfileImage</code>, <code>EmployerName</code>) differ from the certificate names (<code>userProfileImage</code>, <code>Employer</code>). Is that intentional?</td></tr>
+          <tr><td>3</td><td>Can the backend detect invalid, password-protected or over-5 MB PDFs, and report the field check ("8 of 9 recognized")?</td></tr>
+          <tr><td>4</td><td>Effort for Preview / test badge with sample data.</td></tr>
+          <tr><td>5</td><td>Can the upload date and uploader (name and username) be stored?</td></tr>
+          <tr><td>6</td><td>Does instant save work, with no Save / Cancel bar?</td></tr>
+          <tr><td>7</td><td>Does driver's licence security still blank <code>DriversLicence</code> on a custom badge?</td></tr>
+          <tr><td>8</td><td>Does Folder Document and Forms apply to the custom <code>QRCode</code>?</td></tr>
+          <tr><td>9</td><td>Who maintains the field template PDF going forward?</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section__note"><b>Confirmed:</b> everything above is within the agreed PDF-template scope except the rows marked Open · dev.</div>
+  </div>
+
+  </main>
+  </div>
+
+  <script>
+    (function(){
+      var HEADER = 54;
+      var links = [].slice.call(document.querySelectorAll('.toc a'));
+      var sections = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+
+      links.forEach(function(a){
+        a.addEventListener('click', function(e){
+          e.preventDefault();
+          var t = document.querySelector(a.getAttribute('href'));
+          if (!t) return;
+          var y = t.getBoundingClientRect().top + window.pageYOffset - HEADER;
+          window.scrollTo({ top: y, behavior: 'smooth' });
+          if (history.replaceState) history.replaceState(null, '', a.getAttribute('href'));
+        });
+      });
+
+      function onScroll(){
+        var y = window.pageYOffset + HEADER + 40, idx = 0;
+        for (var i = 0; i < sections.length; i++){
+          if (sections[i] && sections[i].getBoundingClientRect().top + window.pageYOffset <= y) idx = i;
+        }
+        links.forEach(function(a, i){ a.classList.toggle('active', i === idx); });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+
+</body>
+</html>
