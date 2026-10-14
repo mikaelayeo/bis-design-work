@@ -1,0 +1,641 @@
+.alert-bis-danger, .alert-bis{
+    margin: 0px;
+    border-radius: 0px;
+    border: 0px;
+    padding: 10px 20px;
+}
+.alert-bis-danger i, .alert-bis i{
+    margin-right: 5px;
+    font-size: 1.8rem;
+}
+.noElemAlert{
+    display: none;
+}
+
+.lockbutton{
+    font-size: 20px;
+    margin-top: 5px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+.lockbutton.fa-lock {
+    margin-right: 12px;
+}
+
+.alert-bis-loading{
+    margin: 0px;
+    border-radius: 0px;
+    border: 0px;
+    padding: 10px;
+    text-align: center;
+    display: none;
+}
+
+.wrap-text{
+    white-space: normal;
+    float: left;
+    width: calc(100% - 70px);
+}
+.wrap-action{
+    float: right;
+    width: 70px;
+}
+.language-selection .wrap-text{
+    width: calc(100% - 150px);
+}
+
+.language-selection .wrap-action{
+    width: 150px;
+}
+
+#selectlanguageform select{
+    width: calc(100% - 20px);
+    float: left;
+    height: 25px;
+    padding: 0px;
+}
+
+#selectlanguageform i{
+    width: 20px;
+    margin-top: 4px;
+    cursor: pointer;
+}
+
+.TypesIcon{
+    background-color: #2998bd;
+    border-radius: 3px;
+    color: #FFFFFF;
+    font-weight: bold;
+    padding: 1px 4px 2px;
+}
+
+.course-listing thead tr td:first-child, .course-listing tbody tr td:first-child{
+    padding-left: 10px;
+}
+
+.collapse-arrow {
+    height: 26px;
+    width: 26px;
+    background-image: url(../img/small-icon/down_arrow.png);
+    background-position: right 3px bottom 4px !important;
+    background-size: 80% 80%;
+    background-repeat: no-repeat;
+}
+
+.course-material-icon{
+    width: 25px;
+    height: 25px;
+    background-image: url(../img/small-icon/pdflogo.gif);
+    background-repeat: no-repeat;
+    background-size: 100%;
+    display: inline-block;
+}
+
+.redownloadLink {
+  font-size: 20px;
+  padding-left: 17px;
+}
+
+.course-certificate-icon{
+    width: 39px;
+    height: 39px;
+    background-image: url(../img/small-icon/course-certificate.png);
+    background-repeat: no-repeat;
+    background-size: 100%;
+    display: inline-block;
+}
+
+.course-gold-certificate-icon{
+    width: 39px;
+    height: 39px;
+    background-image: url(../img/small-icon/certificate-proctor.png);
+    background-repeat: no-repeat;
+    background-size: 100%;
+    display: inline-block;
+}
+
+/* BIS-4190 START */
+.selectAllCheckParent input {
+  vertical-align: -2px;
+  margin-right: 3px;
+}
+
+@media screen and (max-width: 514px) {
+    #purchase-forward-certificate-btn span{
+      display: none;
+    }
+}
+/* BIS-4190 END */
+
+/* BEGIN BIS-4109 TV0193 */
+.course-mark-not-achieved-icon{
+    width: 39px;
+    height: 39px;
+    background-image: url(../img/small-icon/certificate-mark-not-achieved.png);
+    background-repeat: no-repeat;
+    background-size: 100%;
+    display: inline-block;
+}
+/* END BIS-4109 TV0193 */
+.tick-icon{
+    width: 20px;
+    height: 25px;
+    background-image: url(../img/small-icon/tick.png);
+    background-repeat: no-repeat;
+    background-size: 100%;
+    display: inline-block;
+}
+
+.delete-icon{
+    width: 20px;
+    height: 20px;
+    background-image: url(../img/small-icon/delete.png);
+    background-repeat: no-repeat;
+    background-size: 100%;
+    display: inline-block;
+}
+
+.body-end{
+    width: 100%;
+    height: 20px;
+    /*border-radius: 0px 0px 5px 5px;*/
+}
+
+.bis-hide{
+    display: none;
+}
+
+.txt-area label{
+    margin-bottom: 0px;
+}
+
+/* Custom Modal for BIS */
+.purchase-order{
+    /*width: 100%;
+    height: 31px;
+    background-color: #FCC131;
+    border-bottom: 2px solid #986600;*/
+}
+.purchase-order .date-label{
+    margin-right: 0.1%;
+}
+.purchase-order .date-value, .purchase-order .order-value{
+    margin-right: 2%;
+}
+.purchase-order .email-label, .purchase-order .receipt-label, .purchase-order .order-label {
+    margin-right: 0.1%;
+}
+
+.purchase-order .email-value, .purchase-order .receipt-value{
+    margin-right: 2%;
+}
+.email-icon{
+    font-size: 16px;
+} 
+.receipt-icon{
+    font-size: 16px;
+}
+
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+    vertical-align: middle;
+}
+.right-sub-section-button{
+    height: 30px;
+}
+
+.dataTables_wrapper div{
+    min-height: 0px !important;
+}
+#completed-course table.dataTable{
+    margin: 0px!important;
+}
+
+.cke_textarea_inline {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+    padding: 6px 12px;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    width: 100%;
+}
+.cke_textarea_inline:focus {
+  border-color: #66AFE9;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(102, 175, 233, 0.6);
+  outline: 0 none;
+}
+.file-group .file{
+  visibility: hidden;
+  position: absolute;
+}
+.browse{
+  cursor: pointer;
+}
+.p-header{
+  margin: 10px 0px 10px 0px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+}
+.toggle-group .btn{
+  padding: 6px 12px 6px 12px;
+}
+.checkbox span{
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+.page-header {
+  margin: 20px 0 20px;
+}
+.action-container{
+  border-top: 1px solid #999;
+  padding-top: 10px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  text-align: right;
+}
+.theme-field-label{
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+#closeBlock{
+    cursor: pointer;
+}
+.modal-body-header{
+  margin-bottom: 20px;
+}
+.modal-body-title{
+  border-bottom: 1px solid #ccc;
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.panel-file-type .fa-large{
+  font-size: 8.4rem;
+}
+.panel-file-type .panel-heading{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.material-wrapper {
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+/* CUSTOMSTYLE CHANGES */ /* START  */
+.content-title a{
+  text-decoration: none;
+}
+.theme-container .page-header h1, .theme-container .page-header h2, .theme-container .page-header h3{
+  margin-bottom: 0px;
+}
+
+.padding-lr30 {
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+#asset-container table{
+  margin-top: 20px
+}
+#asset-container .file-group{
+  margin-bottom: 20px
+}
+#history-container table{
+  margin-top: 20px;
+  margin-bottom: 20px
+}
+.purchase-title{
+  text-overflow: ellipse;
+  overflow: hidden;
+}
+.search-area{
+  font-size: 1.4rem;
+}
+.search-area .input-group{
+  margin-right: 10px;
+}
+.search-area input{
+  padding: 3px;
+  height: 24px;
+  border: 1px solid transparent;
+  border-radius: 4px 0px 0px 4px;
+  color: #000;
+}
+.search-area .search-group-btn{
+  padding: 2px 7px;
+  line-height: 1.35;
+  border: 1px solid transparent;
+}
+.course-type{
+  margin: 10px 0px;
+}
+.course-type li {
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0px 8px;
+  margin: 0px 3px 3px 0px;
+  display: list-item;
+  float: left;
+  list-style-type: none;
+  border-radius: 2px;
+  border: 1px solid #000;
+  line-height: 22px;
+}
+.pagination-container .pagination{
+  float: right;
+  margin: 10px 10px 10px 0px;
+}
+.pagination-container .pagination li a{
+  padding: 2px 12px;
+  line-height: 1.32857;
+}
+.pagination-container .pagination select{
+  padding: 2px;
+  margin: 0px;
+  float: left;
+  margin-left: -1px;
+  border: 1px solid #ddd;
+}
+/* CUSTOMSTYLE CHANGES */ /* END  */
+
+#instruction_head {
+  min-height: 26px;
+}
+.overflow-hidden {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#FlashRequiredModal img{
+  width: 100%;
+}
+.notes-holder {
+  max-height: 100px;
+  overflow-y: auto;
+}
+.tt-menu, .tt-dropdown-menu {
+  color: #000;
+  cursor: pointer;
+  width: 100%;
+  margin: 12px 0;
+  padding: 8px 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  border-radius: 8px;
+  -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+  -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+  box-shadow: 0 5px 10px rgba(0,0,0,.2);
+}
+.tt-suggestion {
+  padding: 3px 20px;
+  font-size: 18px;
+  line-height: 24px;
+}
+.tt-suggestion.tt-selectable:hover {
+  background-color: #999;
+}
+#bs-example-navbar-collapse-1.collapse.menu-section.navbar-collapse.fix-delay.toggle-fix {
+  padding-bottom: 50px !important;
+}
+.c-pointer{
+  cursor: pointer;
+}
+#addCourseForm{
+  width: calc(100% - 135px);
+}
+.input-group-custom{
+  line-height: 26px;
+  margin-top: 3px;
+}
+.input-group-custom .form-control{
+  height: 26px;
+}
+.input-group-custom .input-group-addon{
+  padding: 1px 12px;
+}
+.input-group-custom .btn{
+  height: 26px;
+}
+/*
+@media only screen and (min-width: 768px) {
+.txt-course-voucher{
+    padding: 2px 8px;
+    height: 21px;
+    width: 100px;
+}
+}*/
+@media (min-width: 768px) and (max-width: 991px) {
+  .text-center-sm {
+    text-align: center;
+  }
+}
+@media only screen and (max-width: 767px) {
+  .text-center-xs {
+    text-align: center;
+  }
+}
+#icon-wait-backdrop {
+  z-index: 9900;
+}
+#icon-wait-holder {
+  z-index: 9950;
+}
+.overflow-visible {
+  overflow : visible !important;
+}
+.tooltip {background: none !important;}
+.overflow-auto{
+  overflow: scroll;
+  height: 485px;
+}
+.overflow-y-auto{
+  overflow-y: auto;
+}
+
+.overflow-x-auto{
+  overflow-x: auto;
+}
+
+.overflow-y-hidden{
+  overflow-y: hidden;
+}
+
+.overflow-x-hidden{
+  overflow-x: hidden;
+}
+
+#instruction_wrap #instruction_cont .well {
+    background: #f7f7f7!important;
+    color: #000!important;
+  }
+  .well div p {
+    padding: 10px;
+    margin: 0px;
+    font-size: 14px;
+    letter-spacing: .2px;
+  }
+  .well div li {
+    font-size: 14px;
+    letter-spacing: .2px;   
+  }
+  .well h2 {
+    margin-top: 0px;
+    padding-top: 5px;
+    line-height: 20px;
+    font-size: 18px;
+    padding-bottom: 5px;
+    background-color: #1d9acd;
+    margin-bottom: 0px;
+    height: unset;
+    padding-left: 10px;
+  }
+  .well div iframe {
+    margin: 15px 10px;
+  }
+
+#instruction_cont {
+  font-family: Helvetica !important;
+  font-weight: 300;
+}
+
+#instruction_cont .title-bar {
+  color: #000 !important;
+  background: #f7f7f7 !important;
+  margin-top: 40px !important;
+  font-size: 20px !important;
+  line-height: 24px !important;
+}
+#instruction_cont > div > div:first-of-type .title-bar {
+  margin-top: 0px !important;
+}
+#instruction_cont p, #instruction_cont li {
+  color: #555 !important;
+}
+button:hover i.fad,
+a:hover i.fad ,
+.subtab-holder a:hover i.fas,
+.subtab-holder a:hover i.fad:not(.admin-module-awareness-badge-icon) {
+  --fa-primary-color: #000 !important;
+  --fa-secondary-color: #000 !important;
+  color: #000 !important;
+}
+button.btn-default:hover i.fad,
+a.btn-default:hover i.fad {
+  color: #72b242;
+}
+
+button.btn-primary:hover i.fad,
+a.btn-primary:hover i.fad {
+  color: white;
+}
+
+button.btn-purple {
+  color: #fff;
+  background-color: #ae64b9;
+  border-color: #ae64b9;
+}
+
+button.btn-purple:hover {
+  color: #fff;
+  background-color: #800080;
+  border-color: #800080;
+}
+.bg-lightgray {
+  background-color: #d3d3d3;
+}
+
+.FormDescription{
+  text-align: center;
+  max-height: 120px;
+  margin-left: 5px;
+}
+.mainPdfDownload{
+  font-size: 20px !important;
+  color: red !important;
+}
+.EvaluatorFeedback{
+  text-align: center;
+  max-height: 120px;
+  margin-left: 5px;
+}
+
+/*---- Evaluator Feedback (Menu Open) ----*/
+#evaluator-feedback-message {
+  text-align: center;
+  max-height: 120px;
+  transition: 1s;
+  transition-delay: 0.1s;
+}
+
+.collapse.in {
+  display: block;
+}
+
+.icon-inside-input{
+  float: right;
+  margin-right: 6px;
+  margin-top: -20px;
+  position: relative;
+  z-index: 2;  
+}
+
+#notificationCentre b {
+  font-weight : bold !important;
+}
+.no-padding {
+  padding: 0 !important;
+}
+
+@media only screen and (max-width: 767px) {
+  .inline-subLabels {
+    padding-left: 15px;
+    padding-bottom: 5px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .inline-subLabels:not(.align-default) {
+    text-align: left !important;
+  }
+}
+
+@media only screen and (max-width: 991px) {
+  .input-margintop-sm {
+    padding-top: 5px;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .input-paddingleft-sm {
+    padding-left: 15px !important;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .input-standard-padding-sm {
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+  }
+}
+.printcertificate-container-height{
+  min-height: 100px;
+  padding-top: 15px;
+}
+.printcertificate-container-right-border{
+  border-right: 2px solid #0000001a; 
+}
+.printcertificate-file-epub-icon{
+  width: 60px;
+  height: 71px;
+  vertical-align: bottom;
+}
+
+.printcertificate-file-epub-icon image{
+  width: 54px;
+}

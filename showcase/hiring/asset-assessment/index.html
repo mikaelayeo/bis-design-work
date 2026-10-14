@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UX/UI Designer Assessment</title>
+<style>
+  /* BIS Safety Software design-system tokens. Text colours meet WCAG AA (4.5:1+) on every background they sit on. */
+  :root {
+    --surface-primary: #0078b3;          /* white text on this = 4.8:1 */
+    --surface-primary-lightest: #f2fcff;
+    --surface-success: #167b00;
+    --surface-success-lightest: #f3fbea;
+    --surface-warning-lightest: #fffcf2;
+    --surface-default: #ffffff;
+    --surface-secondary-subtle: #f8f8f9;
+    --text-default: #191919;             /* 17:1 */
+    --text-secondary: #4d4d4d;           /* 8.5:1 on white */
+    --text-link: #00669a;                /* 6.2:1 on white */
+    --text-warning: #6b5612;             /* 6.9:1 on #fffcf2 */
+    --stroke-default: #b2b2b3;
+    --stroke-light: #e2e2e3;
+    --font: "Segoe UI", -apple-system, system-ui, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; font: 16px/1.6 var(--font); color: var(--text-default); background: var(--surface-secondary-subtle); }
+  a { color: var(--text-link); }
+  a:focus-visible, button:focus-visible { outline: 3px solid var(--text-link); outline-offset: 2px; border-radius: 4px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .skip { position: absolute; left: 16px; top: -48px; background: #fff; color: var(--text-link); padding: 8px 12px; border-radius: 4px; z-index: 10; }
+  .skip:focus { top: 12px; }
+
+  /* ---------- Hero ---------- */
+  .hero { background: var(--surface-primary); color: #ffffff; }
+  .wrap { max-width: 860px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+  .hero .wrap { padding-top: 44px; padding-bottom: 40px; }
+  .hero .org { font-size: 15px; font-weight: 600; margin: 0 0 8px; }
+  .hero h1 { font-size: clamp(32px, 5.5vw, 44px); line-height: 1.12; font-weight: 700; margin: 0 0 14px; }
+  .hero .intro { font-size: 19px; line-height: 1.5; margin: 0 0 20px; max-width: 60ch; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .facts li { background: rgba(0, 0, 0, 0.22); color: #ffffff; padding: 6px 12px; border-radius: 999px; font-size: 15px; font-weight: 600; }
+
+  /* ---------- Step nav ---------- */
+  .steps { background: var(--surface-default); border-bottom: 1px solid var(--stroke-light); position: sticky; top: 0; z-index: 5; }
+  .steps ol { display: flex; flex-wrap: wrap; gap: 4px 20px; list-style: none; margin: 0; padding: 12px 0; counter-reset: s; }
+  .steps li { counter-increment: s; }
+  .steps a { display: inline-flex; align-items: center; gap: 8px; padding: 4px 2px; color: var(--text-default); text-decoration: none; font-weight: 600; font-size: 15px; }
+  .steps a::before { content: counter(s); width: 24px; height: 24px; border-radius: 50%; background: var(--surface-primary); color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+  .steps a:hover { color: var(--text-link); text-decoration: underline; }
+
+  /* ---------- Sections ---------- */
+  main .wrap { padding-top: 8px; padding-bottom: 72px; }
+  section.step { padding-top: 36px; scroll-margin-top: 56px; }
+  h2 { font-size: 26px; line-height: 1.25; font-weight: 700; margin: 0 0 6px; display: flex; align-items: center; gap: 12px; }
+  h2 .n { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--surface-primary); color: #fff; display: grid; place-items: center; font-size: 17px; }
+  .section-lede { color: var(--text-secondary); margin: 0 0 18px; }
+  h3 { font-size: 18px; font-weight: 600; margin: 24px 0 8px; }
+  p { margin: 0 0 12px; }
+  ul.bullets { margin: 0 0 12px; padding-left: 22px; }
+  ul.bullets li { margin-bottom: 6px; }
+
+  /* "Your task" highlight */
+  .task { margin: 28px 0 8px; background: var(--surface-primary-lightest); border: 2px solid var(--surface-primary); border-radius: 10px; padding: 20px 22px; }
+  .task-label { display: inline-block; margin: 0 0 10px; background: var(--surface-primary); color: #ffffff; font-size: 14px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 12px; border-radius: 999px; }
+  .task-lead { font-size: 19px; font-weight: 600; line-height: 1.45; margin: 0 0 12px; }
+
+  .card { background: var(--surface-default); border: 1px solid var(--stroke-light); border-radius: 8px; padding: 18px 20px; margin-bottom: 12px; }
+  .story { border-left: 5px solid var(--surface-primary); }
+  .story.optional { border-left-color: #a1851f; }
+  .tag { display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .03em; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; }
+  .tag.required { background: var(--surface-primary-lightest); color: var(--text-link); border: 1px solid var(--surface-primary); }
+  .tag.optional { background: var(--surface-warning-lightest); color: var(--text-warning); border: 1px solid #a1851f; }
+  .story .title { font-weight: 700; font-size: 17px; margin-bottom: 4px; }
+  .story .hint { color: var(--text-secondary); margin: 8px 0 0; padding-left: 20px; }
+
+  /* link tiles */
+  ul.tiles { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  a.tile { display: flex; gap: 16px; align-items: center; padding: 16px 18px; background: var(--surface-default); border: 1px solid var(--stroke-default);
+           border-radius: 8px; color: var(--text-default); text-decoration: none; }
+  a.tile:hover { border-color: var(--surface-primary); background: var(--surface-primary-lightest); }
+  .tile .badge { flex: none; width: 38px; height: 38px; border-radius: 50%; background: var(--surface-primary); color: #fff; display: grid; place-items: center; font-weight: 700; }
+  .tile .text { min-width: 0; }
+  .tile .t { display: block; font-size: 17px; font-weight: 600; }
+  .tile .d { display: block; font-size: 15px; color: var(--text-secondary); }
+  .tile .go { margin-left: auto; color: var(--text-link); font-weight: 600; white-space: nowrap; text-decoration: underline; text-underline-offset: 3px; }
+  .aside { color: var(--text-secondary); font-size: 15px; margin-top: 12px; }
+  .linklike { background: none; border: 0; padding: 0; font: inherit; color: var(--text-link); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .sr-live { font-weight: 600; color: var(--surface-success); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid2 .card h3 { margin-top: 0; }
+  .callout { border-left: 5px solid var(--surface-success); background: var(--surface-success-lightest); border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 16px 0 0; }
+
+  /* send it back */
+  .done { margin-top: 44px; background: var(--surface-primary); color: #fff; border-radius: 12px; padding: 28px 28px 24px; }
+  .done h2 { color: #fff; }
+  .done h2 .n { background: #fff; color: var(--surface-primary); }
+  .done ol { margin: 8px 0 14px; padding-left: 22px; font-size: 17px; }
+  .done li { margin-bottom: 6px; }
+  .done p { margin: 0 0 8px; }
+  .done .small { font-size: 15px; }
+  .done a { color: #fff; }
+  .signoff { margin-top: 24px; color: var(--text-secondary); }
+
+  @media (max-width: 640px) {
+    .grid2 { grid-template-columns: 1fr; }
+    .tile .go { display: none; }
+    .steps { position: static; }
+  }
+  @media (prefers-reduced-motion: no-preference) { a.tile { transition: background-color .15s, border-color .15s; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="org">BIS Safety Software</p>
+    <h1>UX/UI Designer skills assessment</h1>
+    <p class="intro">Here's your skills assessment package! Your task is to redesign a core page of our product, the <strong>Assets</strong> page, with one key user story to focus on: <strong>creating a new asset</strong>.</p>
+    <ul class="facts" aria-label="At a glance">
+      <li>About 90 min – 2 hours</li>
+      <li>Design in Figma</li>
+      <li>AI welcome</li>
+    </ul>
+  </div>
+</header>
+
+<nav class="steps" aria-label="Assessment steps">
+  <div class="wrap">
+    <ol>
+      <li><a href="#brief">The brief</a></li>
+      <li><a href="#screens">Current screens</a></li>
+      <li><a href="#hand-in">What to hand in</a></li>
+      <li><a href="#send">Send it back</a></li>
+    </ol>
+  </div>
+</nav>
+
+<main id="main">
+  <div class="wrap">
+
+    <!-- ================= 1. BRIEF ================= -->
+    <section class="step" id="brief" aria-labelledby="h-brief">
+      <h2 id="h-brief"><span class="n" aria-hidden="true">1</span>The brief</h2>
+      <p class="section-lede">We care more about your reasoning, the questions you ask and the choices you make than about pixel-perfect polish.</p>
+
+      <h3>The context</h3>
+      <p><strong>BIS Safety Software</strong> is a health and safety (EHS) platform used by construction, industrial and energy companies. Its <strong>Assets</strong> module is a register of a company's physical assets: trucks, excavators, forklifts, gas detectors, fire extinguishers and more. Each asset has details such as status, type and contacts, and is linked to the safety <strong>forms</strong> people complete for it, like daily inspections and maintenance checklists.</p>
+      <p>The people who use these screens are usually <strong>safety coordinators, fleet managers and site supervisors</strong> working on a desktop browser. They manage dozens to hundreds of assets, often under time pressure, and need to know which assets are safe to use today.</p>
+
+      <div class="task" role="region" aria-labelledby="h-task">
+        <p class="task-label" id="h-task">Your task</p>
+        <p class="task-lead">Redesign the experience across three screens so the user stories below are easy, clear and hard to get wrong.</p>
+        <ul class="bullets">
+          <li><strong>Asset list</strong> (grid view only): browse assets by category, filter and search, switch between Active and Deactivated.</li>
+          <li><strong>View asset</strong>: see and edit an asset's details, its pending and completed forms, and notes.</li>
+          <li><strong>Add New</strong>: create a new asset.</li>
+        </ul>
+        <p style="margin-bottom:0">You're free to change layout, hierarchy, components, copy and the flow itself. Keep it believable for a BIS product: use the design-system starter sheet as your base and add to it where you need to.</p>
+      </div>
+
+      <h3>User stories</h3>
+      <div class="card story">
+        <span class="tag required">Required</span>
+        <p class="title">Create an asset</p>
+        <p>As a safety coordinator, I want to add a new asset to the right category so that my team can start running inspections against it.</p>
+        <ul class="hint">
+          <li>Start from the Asset list and end with the asset saved and easy to find.</li>
+          <li>Think about what's required vs optional, photo and status, validation, and what happens after saving.</li>
+        </ul>
+      </div>
+      <div class="card story optional">
+        <span class="tag optional">Optional</span>
+        <p><strong>Move an asset to another category.</strong> As a fleet manager, I want to move an asset that was filed in the wrong category (e.g. a forklift sitting under "Vehicles") so that the register stays accurate.</p>
+        <p style="margin-bottom:0"><strong>Deactivate an asset.</strong> As a safety coordinator, I want to deactivate a retired asset so that it moves to the <em>Deactivated</em> tab and stops showing up for my crews, while its history is kept.</p>
+      </div>
+    </section>
+
+    <!-- ================= 2. SCREENS ================= -->
+    <section class="step" id="screens" aria-labelledby="h-screens">
+      <h2 id="h-screens"><span class="n" aria-hidden="true">2</span>Current screens</h2>
+      <p class="section-lede">Working versions of today's screens: the "before". Each opens in a new tab so this page stays open. Click around: filters, dropdowns, the colour picker, Move, Deactivate and Save all work. Anything that would open another page shows a short message explaining what it does.</p>
+      <ul class="tiles">
+        <li><a class="tile" href="asset-list.html" target="_blank" rel="noopener"><span class="badge" aria-hidden="true">A</span><span class="text"><span class="t">Asset list</span><span class="d">Grid of assets, category switcher, filters and search, Active / Deactivated</span></span><span class="go" aria-hidden="true">Open ↗</span><span class="sr-only">(opens in a new tab)</span></a></li>
+        <li><a class="tile" href="asset-view.html?id=v22" target="_blank" rel="noopener"><span class="badge" aria-hidden="true">B</span><span class="text"><span class="t">View an asset</span><span class="d">Details, pending-forms gauge, Move and Deactivate actions</span></span><span class="go" aria-hidden="true">Open ↗</span><span class="sr-only">(opens in a new tab)</span></a></li>
+        <li><a class="tile" href="asset-new.html?cat=vehicles" target="_blank" rel="noopener"><span class="badge" aria-hidden="true">C</span><span class="text"><span class="t">Add New (create an asset)</span><span class="d">The form a user sees after clicking Add New</span></span><span class="go" aria-hidden="true">Open ↗</span><span class="sr-only">(opens in a new tab)</span></a></li>
+      </ul>
+      <p class="aside">The sample data is fictional. Features we removed from the live product (offline mode, QR labels, bulk upload, locations and so on) are out of scope, so don't design them back in.</p>
+      <p class="aside">Changes you make in these screens are saved in your browser. <button type="button" class="linklike" id="reset-data">Reset sample data</button> <span id="reset-done" role="status" class="sr-live"></span></p>
+
+      <h3>Resources</h3>
+      <ul class="tiles">
+        <li><a class="tile" href="design-system.html" target="_blank" rel="noopener"><span class="badge" aria-hidden="true">DS</span><span class="text"><span class="t">Design-system starter sheet</span><span class="d">A taste of BIS Safety Software's Design System: colour tokens, buttons, form fields and status. Build any other components you need yourself.</span></span><span class="go" aria-hidden="true">Open ↗</span><span class="sr-only">(opens in a new tab)</span></a></li>
+        <li><a class="tile" href="downloads/asset-redesign-working-notes.docx" download><span class="badge" aria-hidden="true">✎</span><span class="text"><span class="t">Working notes template</span><span class="d">Word document (.docx, 10 KB): your questions for us, tools and AI, and a blank page for notes</span></span><span class="go" aria-hidden="true">Download</span></a></li>
+      </ul>
+    </section>
+
+    <!-- ================= 3. HAND IN ================= -->
+    <section class="step" id="hand-in" aria-labelledby="h-handin">
+      <h2 id="h-handin"><span class="n" aria-hidden="true">3</span>What to hand in</h2>
+      <p class="section-lede">Two things: your Figma file and your notes doc.</p>
+      <div class="grid2">
+        <div class="card">
+          <h3>Your Figma file</h3>
+          <ul class="bullets">
+            <li>A <strong>new Figma file</strong> with a view link for us.</li>
+            <li>As many or as few pages as you like. One page is fine.</li>
+            <li>Show the <strong>create flow end to end</strong>, plus the optional stories if you get to them.</li>
+            <li>A prototype is welcome but not required.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Your notes doc</h3>
+          <ul class="bullets">
+            <li>Use the template above and fill it in as you go, not at the end.</li>
+            <li><strong>Questions for us:</strong> jot down what you'd ask our developers or product team. You won't get answers during the exercise, so note the screen it relates to or the assumption you made, and keep going.</li>
+            <li>The tools and AI you used, and what you used each one for.</li>
+            <li>A blank notes page for anything else you want to tell us.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Tools &amp; AI</h3>
+      <p>Design in Figma. For everything else, like research, plugins or prototyping, use whatever helps. <strong>AI is allowed at any step</strong>: research, ideation, copy, accessibility checks, generating a prototype, anything. We use AI every day on our team. Just list the tools and AI you used, and what for, in your notes doc.</p>
+
+      <div class="callout"><strong>Timebox:</strong> this shouldn't take you multiple hours. Aim for roughly 90 minutes to 2 hours. We'd rather see clear thinking on the create flow than a polished version of everything. If you run out of time, write down what you'd do next.</div>
+
+      <h3>What we'll look at</h3>
+      <ul class="bullets">
+        <li><strong>The flow:</strong> is creating, moving or deactivating an asset clearer and safer than it is today?</li>
+        <li><strong>Reasoning:</strong> can we see why you made each change? Did you research or reference anything?</li>
+        <li><strong>Fit:</strong> does it feel like a BIS product, and would our developers know how to build it?</li>
+        <li><strong>Communication:</strong> your notes, your questions, and how you explain your work.</li>
+      </ul>
+    </section>
+
+    <!-- ================= 4. SEND IT BACK ================= -->
+    <section class="done" id="send" aria-labelledby="h-send">
+      <h2 id="h-send"><span class="n" aria-hidden="true">4</span>Done? Send it back</h2>
+      <p>Reply to the email that sent you this link, by the date in that email, with:</p>
+      <ol>
+        <li>A <strong>view link to your Figma file</strong></li>
+        <li>Your <strong>completed notes doc</strong></li>
+      </ol>
+      <p class="small">We'll review it and set up a short call for you to walk us through your work. Questions about logistics (not the design)? Just reply to the same email.</p>
+    </section>
+
+    <p class="signoff">Good luck, and have fun with it!<br>BIS Safety Software Product Design team</p>
+  </div>
+</main>
+<script>
+  // Clears what candidates changed in the reference screens (moves, deactivations, edits, new assets)
+  document.getElementById('reset-data').addEventListener('click', () => {
+    try { localStorage.removeItem('bis-asset-proto-v1'); } catch (e) {}
+    document.getElementById('reset-done').textContent = 'Done. Sample data is back to the start.';
+  });
+</script>
+</body>
+</html>

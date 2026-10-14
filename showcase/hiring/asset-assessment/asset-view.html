@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" class=" webkit chrome win js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BIS Safety - Asset Details</title>
+<!-- Icons: Font Awesome Free 6.5.1 (the live app uses Pro; see assets/css/fa-free-shim.css) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/v4-shims.min.css">
+<!-- Live BIS stylesheets, same order as bissafety.app -->
+<link rel="stylesheet" href="assets/css/bis/bootstrap-4.3.1.min.css">
+<link rel="stylesheet" href="assets/css/bis/message-type-tokens.css">
+<link rel="stylesheet" href="assets/css/bis/bis.css">
+<link rel="stylesheet" href="assets/css/bis/custom.css">
+<link rel="stylesheet" href="assets/css/bis/dashboardLayout.css">
+<link rel="stylesheet" href="assets/css/bis/default_settings_layout.css">
+<link rel="stylesheet" href="assets/css/bis/theme-3020.css">
+<link rel="stylesheet" href="assets/css/bis/branding-custom-1.css">
+<link rel="stylesheet" href="assets/css/react-inline.css">
+<link rel="stylesheet" href="assets/css/fa-free-shim.css">
+</head>
+<body>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.10.5/sweetalert2.all.min.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/details.js"></script>
+<script>
+  // asset-view.html?id=v22  (defaults to Ram 1500 #22, the asset in the brief's screenshots)
+  const id = new URLSearchParams(location.search).get('id');
+  BIS_DETAILS.render({ mode: 'view', asset: BIS_DATA.byId(id) || BIS_DATA.byId('v22') });
+</script>
+</body>
+</html>

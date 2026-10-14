@@ -1,0 +1,31 @@
+/*
+  Icon shim.
+  The live app uses Font Awesome Pro 6.5.1 (duotone `fad`, light `fal`, regular `far`).
+  Pro fonts can't be redistributed in a public repo, so these mockups load
+  Font Awesome FREE 6.5.1 from cdnjs and map the Pro styles onto it.
+  Same glyphs, slightly heavier weight. A handful of Pro-only glyphs are swapped
+  for their closest free equivalent (listed at the bottom).
+*/
+.fad, .fal, .far, .fas {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-style: normal;
+  font-variant: normal;
+  display: var(--fa-display, inline-block);
+  line-height: 1;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glyphs that exist in the free Regular set: keep the lighter outline look */
+.fal.fa-list-alt, .far.fa-list-alt,
+.far.fa-file-alt, .fal.fa-file-alt,
+.far.fa-envelope { font-weight: 400; }
+
+/* Pro-only glyphs -> closest free glyph */
+.fa-trash-undo::before       { content: "\f829"; } /* trash-arrow-up */
+.fa-ellipsis-h-alt::before   { content: "\f141"; } /* ellipsis */
+.fa-file-search::before      { content: "\f15c"; } /* file-lines */
+.fa-phone-laptop::before     { content: "\f109"; } /* laptop */
+.fa-file-certificate::before { content: "\f0a3"; } /* certificate */

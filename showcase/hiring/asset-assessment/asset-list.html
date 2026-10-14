@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" class=" webkit chrome win js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BIS Safety - Assets</title>
+<!-- Icons: Font Awesome Free 6.5.1 (the live app uses Pro; see assets/css/fa-free-shim.css) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/v4-shims.min.css">
+<!-- Live BIS stylesheets, same order as bissafety.app -->
+<link rel="stylesheet" href="assets/css/bis/bootstrap-4.3.1.min.css">
+<link rel="stylesheet" href="assets/css/bis/message-type-tokens.css">
+<link rel="stylesheet" href="assets/css/bis/bis.css">
+<link rel="stylesheet" href="assets/css/bis/custom.css">
+<link rel="stylesheet" href="assets/css/bis/dashboardLayout.css">
+<link rel="stylesheet" href="assets/css/bis/default_settings_layout.css">
+<link rel="stylesheet" href="assets/css/bis/theme-3020.css">
+<link rel="stylesheet" href="assets/css/bis/branding-custom-1.css">
+<link rel="stylesheet" href="assets/css/react-inline.css">
+<link rel="stylesheet" href="assets/css/fa-free-shim.css">
+</head>
+<body>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/shell.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.10.5/sweetalert2.all.min.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+(function () {
+  const D = BIS_DATA, CHEVRON = BIS_SHELL.CHEVRON;
+  const params = new URLSearchParams(location.search);
+  const state = {
+    cat: D.categories.some(c => c.id === params.get('cat')) ? params.get('cat') : D.categories[0].id,
+    inactive: params.get('show') === 'deactivated',
+    status: null,     // Select Status
+    type: null,       // Select Type
+    searchBy: null,   // Search By (defaults to Name when empty)
+    q: '',
+  };
+
+  // ---------- react-select (shared behaviour in assets/js/ui.js; classes verbatim from the live control) ----------
+  // Each filter is wrapped in a react-tooltip target, like the live page (tooltip = the filter name)
+  const selectHtml = (key, placeholder, controlCls, indicatorCls, extraContainerCls = "") => `
+    <div data-tip="${placeholder}" data-place="top">
+    <div class="${extraContainerCls} css-b62m3t-container" data-select="${key}">
+      <div class="select__control ${controlCls}">
+        <div class="select__value-container css-1d8n9bt"><div class="select__placeholder css-14el2xx-placeholder" data-value-slot>${placeholder}</div></div>
+        <div class="select__indicators css-1wy0on6"><span class="select__indicator-separator css-1okebmr-indicatorSeparator"></span>
+          <div class="select__indicator select__dropdown-indicator ${indicatorCls}" aria-hidden="true">${CHEVRON}</div></div>
+      </div>
+    </div></div>`;
+
+  function wireSelect(key, placeholder, getOptions, onChange) {
+    const box = document.querySelector(`[data-select="${key}"]`);
+    const api = BIS_UI.select(box, { placeholder, getOptions, getValue: () => state[key], setValue: v => { state[key] = v; }, onChange });
+    box.__paint = api.paint;
+  }
+
+  // ---------- Card (live markup; checkbox, linked-asset and offline icons removed) ----------
+  const card = a => {
+    const bg = a.colour || D.DEFAULT_HEADER;
+    const fg = a.colour ? D.textOn(a.colour) : 'white';
+    const href = `asset-view.html?id=${a.id}`;
+    // Prototype: deactivated assets are view-only cards (there is no deactivated asset page to open)
+    const off = !!a.inactive;
+    const linkTag = off ? `div aria-disabled="true" data-tip="Deactivated assets can't be opened in this prototype." data-place="top"` : `a href="${href}"`;
+    const linkEnd = off ? 'div' : 'a';
+    const badge = a.pending.length ? `<span class="badge badge-secondary"><span><i class="far fa-file-alt mr-1"></i><span class="text-danger">${a.pending.length}</span></span></span>` : '';
+    return `
+    <div class="asset mr-4 my-3 card${off ? ' is-disabled' : ''}">
+      <div class="assetHead text-light card-header" style="background-color: ${bg};">
+        <div class="d-flex justify-content-between align-items-center">
+          <p class="d-inline-flex mb-0 mt-1" style="max-width: 20ch; color: ${fg};"><span class=""> ${a.type}</span></p>
+          ${badge}
+        </div>
+      </div>
+      <div class="p-0 assetBody card-body">
+        <div class="mb-0 p-3 card-title h5">
+          <div class="d-flex justify-content-between align-items-center mb-0">
+            <div><p class="assetStatus mb-0"><span class="text-truncate d-inline-block" style="max-width: 15ch;" data-tip="${a.status}" data-place="bottom">${a.status}</span> </p></div>
+            <div class="statusColorContainer"><span class="statusColor" style="background-color: ${D.statuses[a.status]}; border-color: rgb(187, 187, 187);"></span></div>
+          </div>
+        </div>
+        <${linkTag} class="imageContainer">${a.photo
+          ? `<img class="assetImage" src="${a.photo}" alt="${a.name}">`
+          : `<div class="assetImage d-flex justify-content-between align-items-center"><i class="fal fa-list-alt fa-4x m-auto d-block text-info "></i></div>`}</${linkEnd}>
+      </div>
+      <${off ? 'div aria-disabled="true"' : `a href="${href}"`} class="assetFoot d-flex justify-content-between text-secondary card-footer">
+        <p class="my-0 text-truncate " style="max-width: 20ch;" data-tip="${a.name}" data-place="top">${a.name}</p>
+        <div><i class="far fa-chevron-right text-secondary"></i></div>
+      </${linkEnd}>
+    </div>`;
+  };
+
+  const visible = () => {
+    const field = state.searchBy || 'name';
+    const q = state.q.trim().toLowerCase();
+    return D.assets.filter(a =>
+      a.cat === state.cat && !!a.inactive === state.inactive &&
+      (!state.status || a.status === state.status) &&
+      (!state.type || a.type === state.type) &&
+      (!q || String(a[field] || '').toLowerCase().includes(q)));
+  };
+
+  const page = () => `
+  <div id="headerRow" class="justify-content-between py-3 align-items-center text-sm-left m-0 row">
+    <div class="col-sm-auto col-8"><h1>Assets</h1></div>
+    <div class="ml-auto d-flex align-items-center col-sm-auto col-4"><div class="ml-auto d-flex align-items-center">
+      <button disabled="" type="button" class="ml-3 d-block btn btn-light"><span class="d-none">Back </span><i class="fad fa-backward"></i></button>
+    </div></div>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center CategoryBanner ">
+    <div class="p-3 d-flex align-items-center categoriesButtons" style="width: 100%;">
+      <span class="font-weight-bold mr-2" style="font-size: 1.4rem;">Categories:</span>
+      <div role="group" class="btn-group" id="categorySegments">
+        ${D.categories.map(c => `<button type="button" data-cat="${c.id}" class="btn btn-outline-info${c.id === state.cat ? ' active' : ''}">${c.name}</button>`).join('')}
+      </div>
+    </div>
+    <div class="d-flex">
+      <div role="group" class="mr-3 d-flex align-items-center deactivatedFilter btn-group">
+        <button id="banner-filter-see-active" type="button" class="btn btn-outline-secondary${state.inactive ? '' : ' active'}">Active</button>
+        <button id="banner-filter-see-inactive" type="button" class="btn btn-outline-secondary${state.inactive ? ' active' : ''}">Deactivated</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex flex-column flex-grow-1 pageContainer mb-0 pr-3 container-fluid">
+    <div class="actionsContainer d-flex justify-content-between align-items-center">
+      <div class="d-flex flex-wrap justify-content-center align-items-center mt-2 mt-lg-0 ml-auto">
+        <div role="group" class="mx-1 mt-2 mt-md-0 btn-group">
+          <a id="actioncontainer-button-add-new" href="asset-new.html?cat=${state.cat}" class="btn btn-success">Add New</a>
+        </div>
+      </div>
+    </div>
+    <hr class="mb-0">
+    <div class="d-flex justify-content-between filterSearchContainer mt-3">
+      <div class="my-2 filtersDiv">
+        <div class="filtersContainer">
+          <div style="min-width: 160px;">${selectHtml('status', 'Select Status', 'css-1r1runn-control', 'css-1ubuxye-indicatorContainer')}</div>
+          <div style="min-width: 160px;">${selectHtml('type', 'Select Type', 'css-1r1runn-control', 'css-1ubuxye-indicatorContainer')}</div>
+          <div><button id="filters-clear-all-button" type="button" class="mx-1 mt-2 mt-md-0 btn btn-btn btn-outline-danger">Clear All</button></div>
+        </div>
+      </div>
+      <div class="my-2 searchDiv">
+        <div class="d-flex align-items-center mb-2">
+          <div class="mr-2">${selectHtml('searchBy', 'Search By', 'css-101bpvp-control', 'css-1ubuxye-indicatorContainer', 'basic-select')}</div>
+          <div class="mb-0 searchFormGroup d-flex flex-grow-1 form-group">
+            <input placeholder="Search" type="text" id="assetSearch" class="form-control" value="" aria-label="Search assets">
+            <button type="button" id="assetSearchButton" class="search-btn btn btn-light btn-sm" aria-label="Search"><i class="far fa-search text-secondary"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex flex-column align-content-between justify-content-between flex-grow-1 assetFlexContainer">
+      <div class="my-3 pr-3 assetsOuterContainer "><div class="assetsContainer pr-4 pt-2" id="assetsContainer"></div></div>
+      <div class="ml-auto mt-1 mr-4"><div>
+        <p class="text-center m-0" id="entriesText"></p>
+        <div class="d-flex align-items-center flex-wrap justify-content-center">
+          <div class="p-3 width-11Rem css-b62m3t-container">
+            <div class="select__control css-fs4fqg-control">
+              <div class="select__value-container select__value-container--has-value css-1d8n9bt"><div class="select__single-value css-qc6sy-singleValue">25</div></div>
+              <div class="select__indicators css-1wy0on6"><span class="select__indicator-separator css-1okebmr-indicatorSeparator"></span><div class="select__indicator select__dropdown-indicator css-tlfecz-indicatorContainer" aria-hidden="true">${CHEVRON}</div></div>
+            </div>
+          </div>
+          <ul class="m-0 pagination pagination-lg">
+            <li class="page-item disabled"><span class="page-link">First</span></li>
+            <li class="page-item disabled"><span class="page-link"><i class="fal fa-chevron-left"></i></span></li>
+            <li class="page-item active"><span class="page-link">1<span class="sr-only">(current)</span></span></li>
+            <li class="page-item disabled"><span class="page-link"><i class="fal fa-chevron-right"></i></span></li>
+            <li class="page-item disabled"><span class="page-link">Last</span></li>
+          </ul>
+        </div>
+      </div></div>
+    </div>
+  </div>`;
+
+  function renderCards() {
+    const list = visible();
+    document.getElementById('assetsContainer').innerHTML = list.map(card).join('');
+    document.getElementById('entriesText').textContent =
+      list.length ? `Showing 1 to ${list.length} of ${list.length} entries` : 'Showing 0 to 0 of 0 entries';
+    BIS_UI.tooltips(document.getElementById('assetsContainer'));
+  }
+
+  function syncUrl() {
+    const p = new URLSearchParams({ cat: state.cat });
+    if (state.inactive) p.set('show', 'deactivated');
+    history.replaceState(null, '', '?' + p.toString());
+  }
+
+  BIS_SHELL.mount(page());
+
+  // Options: statuses are portal-wide, types depend on the category
+  wireSelect('status', 'Select Status', () => Object.keys(D.statuses).map(s => ({ value: s, label: s })), renderCards);
+  wireSelect('type', 'Select Type', () => D.types[state.cat].map(t => ({ value: t, label: t })), renderCards);
+  wireSelect('searchBy', 'Search By', () => D.searchFields.map(f => ({ value: f.id, label: f.label })), renderCards);
+  renderCards();
+  BIS_UI.tooltips();
+  BIS_UI.showFlash();
+  // Another tab (view / add) changed the data: reload to pick it up, keeping the current filters in the URL
+  BIS_DATA.onExternalChange(() => location.reload());
+
+  document.getElementById('categorySegments').addEventListener('click', e => {
+    const b = e.target.closest('button[data-cat]'); if (!b) return;
+    state.cat = b.dataset.cat;
+    state.type = null; document.querySelector('[data-select="type"]').__paint();
+    document.querySelectorAll('#categorySegments .btn').forEach(x => x.classList.toggle('active', x === b));
+    document.getElementById('actioncontainer-button-add-new').href = `asset-new.html?cat=${state.cat}`;
+    syncUrl(); renderCards();
+  });
+  [['banner-filter-see-active', false], ['banner-filter-see-inactive', true]].forEach(([id, val]) =>
+    document.getElementById(id).addEventListener('click', () => {
+      state.inactive = val;
+      document.getElementById('banner-filter-see-active').classList.toggle('active', !val);
+      document.getElementById('banner-filter-see-inactive').classList.toggle('active', val);
+      syncUrl(); renderCards();
+    }));
+  const search = document.getElementById('assetSearch');
+  search.addEventListener('input', () => { state.q = search.value; renderCards(); });
+  search.addEventListener('keydown', e => { if (e.key === 'Enter') { state.q = search.value; renderCards(); } });
+  document.getElementById('assetSearchButton').addEventListener('click', () => { state.q = search.value; renderCards(); });
+  document.getElementById('filters-clear-all-button').addEventListener('click', () => {
+    Object.assign(state, { status: null, type: null, searchBy: null, q: '' });
+    search.value = '';
+    document.querySelectorAll('[data-select]').forEach(b => b.__paint());
+    renderCards();
+  });
+})();
+</script>
+</body>
+</html>

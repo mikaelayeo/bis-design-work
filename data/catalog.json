@@ -40,6 +40,10 @@
     {
       "key": "presentations",
       "name": "Presentations"
+    },
+    {
+      "key": "hiring",
+      "name": "Hiring"
     }
   ],
   "items": [
@@ -678,6 +682,41 @@
       "title": "TimePicker",
       "date": "2026-06-09",
       "path": "showcase/design-system/timepicker.html"
+    },
+    {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "hiring",
+      "id": "asset-assessment",
+      "title": "Asset assessment",
+      "date": "2026-10-14",
+      "children": [
+        {
+          "title": "Asset list",
+          "path": "showcase/hiring/asset-assessment/asset-list.html",
+          "date": "2026-10-14"
+        },
+        {
+          "title": "Asset new",
+          "path": "showcase/hiring/asset-assessment/asset-new.html",
+          "date": "2026-10-14"
+        },
+        {
+          "title": "Asset view",
+          "path": "showcase/hiring/asset-assessment/asset-view.html",
+          "date": "2026-10-14"
+        },
+        {
+          "title": "Design system",
+          "path": "showcase/hiring/asset-assessment/design-system.html",
+          "date": "2026-10-14"
+        },
+        {
+          "title": "Index",
+          "path": "showcase/hiring/asset-assessment/index.html",
+          "date": "2026-10-14"
+        }
+      ]
     },
     {
       "kind": "item",

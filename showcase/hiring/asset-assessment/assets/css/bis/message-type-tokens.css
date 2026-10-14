@@ -1,0 +1,6 @@
+/* The single source for message-type presentation. Loaded by bis.css and login.less
+   because login pages do not load bis.css. Change a colour or glyph here only. */
+.master-notification--info{ --mn-bg:#d1ecf1; --mn-fg:#0c5460; --mn-icon:"\f05a"; }
+.master-notification--warning{ --mn-bg:#fff3cd; --mn-fg:#856404; --mn-icon:"\f071"; }
+.master-notification--critical{ --mn-bg:#f8d7da; --mn-fg:#721c24; --mn-icon:"\f06a"; }
+.master-notification--success{ --mn-bg:#d4edda; --mn-fg:#155724; --mn-icon:"\f058"; }
