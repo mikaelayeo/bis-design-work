@@ -505,6 +505,22 @@
       "kind": "folder",
       "audience": "showcase",
       "category": "prototypes",
+      "id": "tkt-21402-instructor-dashboard",
+      "title": "Instructor dashboard",
+      "date": "2026-10-20",
+      "children": [
+        {
+          "title": "Instructor dashboard",
+          "path": "showcase/prototypes/tkt-21402-instructor-dashboard/TKT-21402-instructor-dashboard.html",
+          "date": "2026-10-20"
+        }
+      ],
+      "ticket": "TKT-21402"
+    },
+    {
+      "kind": "folder",
+      "audience": "showcase",
+      "category": "prototypes",
       "id": "likert scale",
       "title": "Likert scale",
       "date": "2026-06-15",

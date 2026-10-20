@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<!--
+  TKT-21402 · Instructor Dashboard (Classroom Calendar) · working prototype v1, 2026-10-20.
+  Built from Mika's wireframes (Figma wireframe nodes 375-7590 default, 375-7588 Progress,
+  375-7589 Results, 375-7594 Present window, 375-7617 Present empty, 375-6528 Documents variants)
+  in the style of the Field Management prototype (Field Management prototype):
+  the token block below is copied from it verbatim (Figma BIStrainer_UI-Library-Guide, Light, desktop).
+  Sample data is invented. LOCAL ONLY.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instructor Dashboard · TKT-21402</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ===================================================================
+   1. DESIGN TOKENS (copied from the FM prototype, Figma BIStrainer_UI-Library-Guide)
+   =================================================================== */
+:root{
+  --font-family-default:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --color-text-default:#19191A; --color-text-default-on-surface:#FEFEFE; --color-text-primary:#0078B3;
+  --color-text-secondary:#636368; --color-text-secondary-light:#AFAFB5; --color-text-disabled:#AFAFB5;
+  --color-text-success:#167B00; --color-text-error:#CC2222; --color-text-notice:#9C6300; --color-text-primary-alt:#3D63A7;
+  --color-surface-background:#F8F8F8; --color-surface-default:#FEFEFE; --color-surface-default-inverse:#19191A;
+  --color-surface-disabled:#F2F2F2; --color-surface-disabled-dark:#AFAFB5; --color-surface-secondary:#636368;
+  --color-surface-secondary-light:#96969D; --color-surface-secondary-lighter:#DFDFE2; --color-surface-secondary-lightest:#F2F2F2;
+  --color-surface-secondary-subtle:#F8F8F8; --color-surface-overlay:rgba(25,25,27,.25);
+  --color-surface-primary:#0078B3; --color-surface-primary-light:#26B1DC; --color-surface-primary-lighter:#F0F9FE;
+  --color-surface-primary-lightest:#F8FEFF; --color-surface-primary-dark:#095F8C;
+  --color-surface-primary-alt-lighter:#E5EDFB;
+  --color-surface-success:#167B00; --color-surface-success-lighter:#EBF8D6;
+  --color-surface-error:#CC2222; --color-surface-error-light:#E95B5B; --color-surface-error-lighter:#FEE3E3; --color-surface-error-lightest:#FFF2F2;
+  --color-surface-notice:#C37900; --color-surface-notice-lighter:#FFF3E1;
+  --color-stroke-default:#AFAFB5; --color-stroke-default-light:#DFDFE2; --color-stroke-default-dark:#4C4C4F;
+  --color-stroke-primary:#009ACB; --color-stroke-primary-lighter:#C9EFFA;
+  --color-stroke-success:#399300; --color-stroke-success-light:#C2E387; --color-stroke-error:#CC2222; --color-stroke-error-light:#F99A9A;
+  --color-stroke-notice-light:#FFD086;
+  --color-icon-default:#4C4C4F; --color-icon-default-light:#AFAFB5; --color-icon-primary:#009ACB;
+  --color-icon-success:#167B00; --color-icon-error:#CC2222; --color-icon-notice:#C37900;
+  --spacing-xxSmall:4px; --spacing-xSmall:6px; --spacing-small:8px; --spacing-base:12px; --spacing-medium:16px; --spacing-large:24px;
+  --border-radius-small:2px; --border-radius-base:4px; --border-radius-medium:8px; --border-radius-large:12px; --border-radius-round:80px;
+  --shadow-L1:0 0 3px 0 rgba(0,0,0,.15); --shadow-L2:0 0 4px 0 rgba(0,0,0,.15); --shadow-L3:0 0 8px 0 rgba(0,0,0,.15); --shadow-L4:0 0 14px 0 rgba(0,0,0,.15);
+  --shadow-menu:0 4px 16px 0 rgba(0,0,0,.08);
+}
+/* client portal theme (sample brand, local only): the calendar icon and the header bar take the portal colour */
+:root{--portal-band:#0099CC; --portal-tint:#E3F4FA;}
+/* aliases, same short names as the FM prototype */
+:root{
+  --font:var(--font-family-default);
+  --text-default:var(--color-text-default); --text-secondary:var(--color-text-secondary); --text-secondary-light:var(--color-text-secondary-light); --text-on:var(--color-text-default-on-surface);
+  --stroke-default:var(--color-stroke-default); --stroke-light:var(--color-stroke-default-light); --stroke-dark:var(--color-stroke-default-dark);
+  --surface-default:var(--color-surface-default); --surface-subtle:var(--color-surface-secondary-subtle); --surface-lightest:var(--color-surface-secondary-lightest);
+  --surface-lighter:var(--color-surface-secondary-lighter); --surface-inverse:var(--color-surface-default-inverse); --surface-background:var(--color-surface-background);
+  --icon-default:var(--color-icon-default-light); --icon-solo:var(--color-icon-default); --icon-primary:var(--color-icon-primary);
+  --r-sm:var(--border-radius-small); --r-base:var(--border-radius-base); --r-md:var(--border-radius-medium); --r-lg:var(--border-radius-large); --r-round:var(--border-radius-round);
+  --primary:var(--color-surface-primary); --primary-hover:var(--color-surface-primary-dark); --primary-tint:var(--color-surface-primary-lighter); --primary-tint-2:var(--color-surface-primary-lightest);
+  --primary-stroke:var(--color-stroke-primary); --primary-text:var(--color-text-primary);
+  --success:var(--color-text-success); --success-tint:var(--color-surface-success-lighter);
+  --danger:var(--color-text-error); --danger-fill:var(--color-surface-error); --danger-tint:var(--color-surface-error-lighter);
+  --warning:var(--color-text-notice); --warning-tint:var(--color-surface-notice-lighter);
+  --info:var(--color-text-primary); --info-tint:var(--color-surface-primary-lighter);
+  --overlay:var(--color-surface-overlay);
+  --h-btn:34px; --h-btn-sm:26px; --h-input:32px; --h-chip-sm:20px;
+}
+
+/* ===================================================================
+   2. BASE
+   =================================================================== */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#e6e6e9}
+body{font:400 14px/20px var(--font);color:var(--text-default);display:flex;flex-direction:column}
+button,input{font:inherit;color:inherit}
+button{background:none;border:none;cursor:pointer;text-align:inherit}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid var(--primary-stroke);outline-offset:2px}
+.mut{color:var(--text-secondary)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* review bar (not product UI) */
+#review{background:#fff;border-bottom:1px solid #dfdfe2;display:flex;align-items:center;gap:16px;padding:4px 12px;font-size:12px;flex-wrap:wrap}
+#review b{font-size:14px}
+#review .rv-f{display:flex;align-items:center;gap:6px;color:#4c4c4f}
+#review .rv-seg{display:inline-flex;border:1px solid #afafb5;border-radius:80px;overflow:hidden}
+#review .rv-seg button{padding:2px 10px;font-size:12px;border-left:1px solid #afafb5}
+#review .rv-seg button:first-child{border-left:0}
+#review .rv-seg button.on{background:#f8feff;color:#0078b3;font-weight:600}
+
+/* ===================================================================
+   3. COMPONENTS (BIS library look-alikes, from the FM prototype)
+   =================================================================== */
+.b{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:var(--h-btn);padding:4px 8px;border-radius:var(--r-base);border:1px solid var(--stroke-default);background:transparent;font-size:16px;line-height:26px;font-weight:600;white-space:nowrap;color:var(--text-secondary)}
+.b:hover{background:var(--surface-lightest)}
+.b i{font-size:15px}
+.b-primary{background:var(--primary);border-color:transparent;color:var(--text-on)}
+.b-primary:hover{background:var(--primary-hover)}
+.b-ghost{border-color:transparent;color:var(--text-default)}
+.b-ghost:hover{background:var(--surface-lightest)}
+.b-sm{height:var(--h-btn-sm);padding:4px 6px;font-size:14px;line-height:18px}
+.b-sm i{font-size:12px}
+.b:disabled{opacity:.45}
+.b-primary:disabled{opacity:1;background:var(--surface-disabled);color:var(--text-secondary-light)}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:var(--r-base);color:var(--icon-solo);font-size:14px;flex-shrink:0}
+.ib:hover{background:var(--surface-lightest)}
+.ib:disabled{color:var(--text-secondary-light)}
+.ib:disabled:hover{background:none}
+.ib-sm{width:24px;height:24px;font-size:13px}
+.colbtn{width:28px;height:28px;border-radius:50%;border:1px solid var(--stroke-default);background:var(--surface-default);display:inline-flex;align-items:center;justify-content:center;color:var(--icon-default);font-size:12px;flex-shrink:0}
+.colbtn:hover{background:var(--surface-lightest);color:var(--icon-solo)}
+.chip{display:inline-flex;align-items:center;gap:4px;height:var(--h-chip-sm);padding:2px 4px;border-radius:var(--r-sm);font-size:12px;line-height:16px;font-weight:600;white-space:nowrap;border:1px solid var(--stroke-default);background:var(--surface-default);color:var(--text-secondary)}
+.chip i{font-size:11px}
+.chip-danger{background:var(--danger-tint);border-color:transparent;color:var(--danger)}
+.chip-warning{background:var(--warning-tint);border-color:transparent;color:var(--warning)}
+.chip-success{background:var(--success-tint);border-color:transparent;color:var(--success)}
+.chip-info{background:var(--info-tint);border-color:transparent;color:var(--info)}
+.chip-grey{background:var(--surface-lightest);border-color:transparent;color:var(--text-secondary)}
+.cnt{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:2px 4px;border-radius:12px;background:var(--surface-lighter);font-size:12px;line-height:16px;font-weight:600;color:var(--text-secondary)}
+.cnt-primary{background:var(--primary);color:var(--text-on)}
+#tip{position:fixed;z-index:3000;display:none;max-width:340px;white-space:pre-line;background:var(--surface-inverse);color:var(--text-on);font-size:14px;line-height:20px;padding:4px 8px;border-radius:var(--r-base);pointer-events:none;box-shadow:var(--shadow-L2)}
+.seg{display:inline-flex;border:1px solid var(--stroke-default);border-radius:var(--r-base);overflow:hidden;background:var(--surface-default);height:30px}
+.seg button{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;font-size:14px;color:var(--text-default)}
+.seg button+button{border-left:1px solid var(--stroke-default)}
+.seg button i{font-size:13px;color:var(--icon-default)}
+.seg button[aria-pressed="true"]{background:var(--primary-tint-2);color:var(--primary-text);font-weight:600}
+.seg button[aria-pressed="true"] i{color:var(--primary-text)}
+.search{position:relative;display:flex;align-items:center;height:var(--h-input);flex:1;min-width:0}
+.search i{position:absolute;left:10px;color:var(--icon-default);font-size:12px;pointer-events:none}
+.search input{width:100%;height:var(--h-input);padding:4px 8px 4px 30px;border:1px solid var(--stroke-default);border-radius:var(--r-base);background:var(--surface-default);font-size:15px;outline:none}
+.search input:focus{border-color:var(--primary-stroke)}
+.cb{width:16px;height:16px;border-radius:2px;border:1.5px solid var(--stroke-dark);background:var(--surface-default);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.cb i{font-size:10px;color:#fff;display:none}
+.cb[aria-checked="true"]{background:var(--icon-primary);border-color:var(--icon-primary)}
+.cb[aria-checked="true"] i{display:block}
+.rd{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:15px;width:100%}
+.rd i.dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--stroke-dark);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.rd[aria-checked="true"] i.dot{border-color:var(--icon-primary)}
+.rd[aria-checked="true"] i.dot::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--icon-primary)}
+.menu{position:fixed;z-index:2500;min-width:230px;background:var(--surface-default);border:1px solid var(--stroke-default);border-radius:var(--r-base);box-shadow:var(--shadow-menu);padding:4px}
+.menu .mhd{padding:8px 12px 4px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary)}
+.menu .mi{display:flex;align-items:center;gap:8px;width:100%;padding:8px 12px;border-radius:var(--r-base);font-size:16px;line-height:24px}
+.menu .mi:hover{background:var(--surface-lightest)}
+.menu .mi.on{color:var(--primary-stroke)}
+.menu .mi .ck{margin-left:auto;font-size:12px}
+.ov{position:fixed;inset:0;background:var(--overlay);z-index:1500;display:flex;align-items:center;justify-content:center;padding:24px}
+.modal{background:var(--surface-default);border-radius:var(--r-base);box-shadow:var(--shadow-L1);width:100%;max-width:525px;display:flex;flex-direction:column;max-height:88vh}
+.modal .mh{display:flex;align-items:center;gap:8px;padding:16px 16px 6px}
+.modal .mh h2{font-size:20px;line-height:28px;font-weight:600;margin-right:auto}
+.modal .mb{padding:12px 16px 16px;overflow:auto;font-size:15px;line-height:22px}
+.modal .mf{display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:12px 16px 16px;border-top:1px solid var(--stroke-light)}
+.modal.wide{max-width:min(1180px,96vw);height:88vh}
+#snack{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:2800;display:flex;flex-direction:column;gap:8px;align-items:center}
+.snack{display:flex;align-items:center;gap:12px;background:var(--surface-default);padding:12px;border-radius:var(--r-md);box-shadow:var(--shadow-L2);font-size:14px;min-width:300px}
+.snack i{color:var(--icon-primary);font-size:16px}
+.es{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:32px 16px}
+.es .es-i{width:48px;height:48px;border-radius:50%;background:var(--surface-lightest);display:flex;align-items:center;justify-content:center;color:var(--icon-default);font-size:20px;margin-bottom:4px}
+.es b{font-size:16px;line-height:24px;font-weight:600}
+.es p{font-size:14px;line-height:20px;color:var(--text-secondary);max-width:300px}
+.es .es-a{margin-top:8px}
+.live{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border:1px solid var(--stroke-default);border-radius:var(--r-round);font-size:13px;font-weight:600;background:var(--surface-default);white-space:nowrap}
+.live .dot{width:10px;height:10px;border-radius:50%;background:var(--color-icon-success);box-shadow:0 0 0 2px var(--surface-lightest);animation:pulse 2s ease-in-out infinite}
+.live small{font-size:12px;font-weight:400;color:var(--text-secondary)}
+.live .fa-rotate{font-size:11px;color:var(--icon-default)}
+.live.spin .fa-rotate{animation:spin .8s linear infinite;color:var(--icon-primary)}
+@keyframes pulse{50%{opacity:.45}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.live .dot,.live.spin .fa-rotate{animation:none}}
+/* status value (FM statusValue): small tinted round icon + text */
+.sv{display:inline-flex;align-items:center;gap:6px}
+.sv .sv-i{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.sv-neg .sv-i{background:var(--danger-tint);color:var(--color-icon-error)}
+.sv-wait .sv-i{background:var(--warning-tint);color:var(--color-icon-notice)}
+.sv-pos .sv-i{background:var(--success-tint);color:var(--color-icon-success)}
+/* progress bar */
+.pb{height:6px;border-radius:6px;background:var(--surface-lightest);overflow:hidden;display:flex}
+.pb span{display:block;height:100%}
+.pb .ok{background:var(--color-surface-success)}
+.pb .bad{background:var(--color-surface-error-light)}
+.pb .on{background:var(--primary-stroke)}
+
+/* ===================================================================
+   4. PAGE SHELL
+   =================================================================== */
+.app{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--surface-default);margin:12px;border:1px solid var(--stroke-light);box-shadow:var(--shadow-L2)}
+.topbar{display:flex;align-items:center;gap:8px;height:48px;padding:0 12px 0 16px;border-bottom:1px solid var(--stroke-light);background:var(--surface-default)}
+.crumb{display:flex;align-items:center;gap:8px;font-size:16px;line-height:24px;color:var(--text-secondary)}
+.crumb button{color:var(--text-secondary)}
+.crumb button:hover{text-decoration:underline;color:var(--primary-text)}
+.crumb .sl{color:var(--text-secondary-light)}
+.crumb b{color:var(--text-default);font-weight:600}
+.topbar .r{margin-left:auto;display:flex;align-items:center;gap:4px}
+.body{flex:1;min-height:0;display:flex}
+.side{flex-shrink:0;background:var(--surface-default);display:flex;flex-direction:column;min-height:0;transition:width .15s}
+.side.left{width:320px;border-right:1px solid var(--stroke-light)}
+.side.right{width:360px;border-left:1px solid var(--stroke-light)}
+.side .full{display:flex;flex-direction:column;min-height:0;flex:1}
+.side.c{width:0;border:0;overflow:hidden}
+/* a dismissed panel leaves only a floating tab on the page edge */
+.body{position:relative}
+.fab{position:absolute;top:50%;transform:translateY(-50%);z-index:20;width:26px;height:56px;display:flex;align-items:center;justify-content:center;background:var(--surface-default);border:1px solid var(--stroke-light);box-shadow:var(--shadow-L3);color:var(--icon-solo);font-size:12px}
+.fab:hover{background:var(--primary-tint);color:var(--primary-text);border-color:var(--primary-stroke)}
+.fab.l{left:0;border-left:0;border-radius:0 var(--r-md) var(--r-md) 0}
+.fab.r{right:0;border-right:0;border-radius:var(--r-md) 0 0 var(--r-md)}
+.sec-h{display:flex;align-items:center;gap:8px;padding:12px 12px 8px}
+.sec-h h3{font-size:16px;line-height:24px;font-weight:600}
+.sec-h .r{margin-left:auto;display:flex;gap:6px;align-items:center}
+.center{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--surface-background)}
+
+/* left: overview cards (FM .blk widget cards) */
+.ovw{padding:0 12px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;border-bottom:1px solid var(--stroke-light)}
+.blk{border:1px solid var(--stroke-light);border-radius:var(--r-md);padding:8px 10px;min-width:0;text-align:left;background:var(--surface-default);position:relative}
+button.blk:hover{border-color:var(--stroke-default);box-shadow:var(--shadow-L1)}
+.blk.wide{grid-column:1/-1}
+.blk .k{display:flex;align-items:center;gap:4px;font-size:11px;line-height:16px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary)}
+.blk .k i{font-size:9px}
+.blk .v{font-size:16px;line-height:24px;margin-top:2px}
+.blk .v b{font-weight:600}
+.blk .v2{font-size:12px;line-height:16px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+/* left: participant list */
+.plist{flex:1;min-height:0;overflow:auto;padding:0 4px 12px}
+.prow{display:flex;align-items:center;gap:10px;width:100%;padding:8px;border-radius:var(--r-base);border-bottom:1px solid var(--stroke-light)}
+.prow:hover{background:var(--surface-subtle)}
+.av{width:30px;height:30px;border-radius:50%;background:var(--color-surface-primary-alt-lighter);color:var(--color-text-primary-alt);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.prow .t{display:block;flex:1;min-width:0}
+.prow .n .chip{height:18px;padding:1px 4px;font-size:11px}
+.prow .n{font-weight:600;font-size:14px;display:flex;align-items:center;gap:6px}
+.prow .s{display:block;font-size:12px;line-height:16px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow .m .wr{color:var(--danger);font-weight:600}
+.prow .m{display:flex;flex-direction:column;align-items:flex-end;gap:4px;width:64px;flex-shrink:0}
+.prow .m .pb{width:64px}
+.prow .m small{font-size:12px;color:var(--text-secondary)}
+
+/* centre: the course header (FM hero, flushed) */
+.hero{background:var(--surface-default);border-bottom:1px solid var(--stroke-light)}
+.hero .hb{height:20px;background:var(--portal-tint);border-bottom:1px solid var(--stroke-light)}
+.hero .hm{display:flex;align-items:flex-start;gap:14px;padding:0 16px 12px}
+.hero .hi{width:48px;height:48px;border-radius:50%;background:var(--surface-default);border:3px solid var(--surface-default);box-shadow:var(--shadow-L2);margin-top:-18px;display:flex;align-items:center;justify-content:center;font-size:19px;color:var(--portal-band);flex-shrink:0}
+.hero .ht{flex:1;min-width:0;padding-top:6px}
+.hero h2{font-size:20px;line-height:28px;font-weight:600}
+.hero .hmeta{font-size:14px;line-height:22px;color:var(--text-secondary);display:flex;gap:6px;flex-wrap:wrap}
+.hero .hmeta b{color:var(--text-default);font-weight:600}
+.hero .hmeta .sep{color:var(--text-secondary-light)}
+.hero .hact{display:flex;gap:8px;padding-top:10px}
+/* centre: preview stage */
+.stage{flex:1;min-height:0;display:flex;flex-direction:column;padding:16px}
+.pv{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--surface-default);border:1px solid var(--stroke-light);border-radius:var(--r-md);overflow:hidden}
+.pv-h{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px;border-bottom:1px solid var(--stroke-light);min-height:50px}
+.pv-h .ti{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.pv-h .ti b{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-h .ti .tyi{color:var(--icon-default)}
+.pv-b{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:var(--surface-lightest);position:relative;overflow:hidden}
+.pv-f{display:flex;align-items:center;gap:8px;padding:6px 12px;border-top:1px solid var(--stroke-light);font-size:13px;color:var(--text-secondary)}
+.pv-f .r{margin-left:auto;display:flex;align-items:center;gap:4px}
+.onair{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:var(--r-round);background:var(--danger-tint);color:var(--danger);font-size:13px;font-weight:600;white-space:nowrap}
+.onair .dot{width:8px;height:8px;border-radius:50%;background:var(--danger-fill);animation:pulse 1.6s ease-in-out infinite}
+/* content renderings (shared by the preview and the second screen) */
+.cv-pdf{width:min(56%,420px);aspect-ratio:8.5/11;background:#fff;box-shadow:var(--shadow-L3);padding:7% 8%;display:flex;flex-direction:column;gap:8px}
+.cv-pdf .l{height:7px;background:#e4e4e8;border-radius:2px}
+.cv-pdf .h{height:14px;width:60%;background:#c9c9ce;border-radius:2px;margin-bottom:8px}
+.cv-media{width:min(84%,760px);aspect-ratio:16/9;background:#26262a;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:44px;position:relative}
+.cv-media small{position:absolute;left:12px;bottom:10px;font-size:13px;opacity:.8}
+.cv-photo{width:min(70%,640px);aspect-ratio:4/3;background:linear-gradient(135deg,#cfe6f1,#e9f3e1);border-radius:4px;display:flex;align-items:center;justify-content:center;color:#7c98a8;font-size:56px}
+.cv-slide{width:min(84%,760px);aspect-ratio:16/9;background:#fff;box-shadow:var(--shadow-L3);display:flex;flex-direction:column;justify-content:center;padding:6%;gap:12px}
+.cv-slide h4{font-size:clamp(18px,2.4vw,34px);line-height:1.2;color:var(--color-surface-primary-dark)}
+.cv-slide p{font-size:clamp(12px,1.2vw,18px);color:var(--text-secondary)}
+.cv-q{width:min(84%,700px);background:#fff;box-shadow:var(--shadow-L3);border-radius:4px;padding:24px}
+.cv-q .qn{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary)}
+.cv-q h4{font-size:20px;line-height:28px;margin:4px 0 14px}
+.cv-q .op{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--stroke-light);border-radius:var(--r-base);margin-top:8px;font-size:15px}
+.cv-q .op span{width:22px;height:22px;border-radius:50%;border:1px solid var(--stroke-default);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text-secondary)}
+.cv-empty{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--text-secondary);text-align:center;padding:24px}
+.cv-empty .es-i{width:56px;height:56px;border-radius:50%;background:var(--surface-default);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--icon-default)}
+.cv-empty b{color:var(--text-default);font-size:16px}
+
+/* right: documents */
+.dtools{display:flex;align-items:center;gap:6px;padding:0 12px 10px}
+.dlist{flex:1;min-height:0;overflow:auto;padding:0 12px 12px}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{border:1px solid var(--stroke-light);border-radius:var(--r-md);background:var(--surface-default);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;position:relative;text-align:left}
+.tile:hover{border-color:var(--stroke-default);box-shadow:var(--shadow-L1)}
+.tile.sel{border-color:var(--primary-stroke);box-shadow:0 0 0 1px var(--primary-stroke)}
+.tile .tn{font-size:13px;line-height:18px;font-weight:600;padding:8px 8px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .th{height:84px;margin:0 8px;border-radius:var(--r-base);background:var(--surface-lightest);display:flex;align-items:center;justify-content:center;color:var(--icon-default);font-size:28px;overflow:hidden}
+.tile .th .mini{width:52px;height:68px;background:#fff;box-shadow:var(--shadow-L1);padding:6px;display:flex;flex-direction:column;gap:4px}
+.tile .th .mini i{display:block;height:3px;background:#e1e1e5;border-radius:1px}
+.tile .tf{display:flex;align-items:center;gap:2px;padding:6px 6px 6px 8px}
+.tile .tf .chip{margin-right:auto}
+.tile.off{background:var(--surface-lightest);cursor:not-allowed}
+.tile.off .tn,.tile.off .chip{color:var(--text-secondary-light)}
+.tile.off .th{opacity:.5}
+.drow{display:flex;align-items:center;gap:8px;padding:8px 6px 8px 8px;border-bottom:1px solid var(--stroke-light);cursor:pointer;border-radius:var(--r-base)}
+.drow:hover{background:var(--surface-subtle)}
+.drow.sel{background:var(--primary-tint)}
+.drow .t{flex:1;min-width:0}
+.drow .n{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drow .s{font-size:12px;line-height:16px;color:var(--text-secondary)}
+.drow.off{background:var(--surface-lightest);cursor:not-allowed}
+.drow.off .n,.drow.off .s{color:var(--text-secondary-light)}
+.warn-i{color:var(--color-icon-notice);font-size:12px}
+.selbar.warnbar{background:var(--warning-tint);border-color:var(--color-stroke-notice-light);color:var(--warning)}
+.selbar.warnbar button{margin-left:auto;font-weight:600;text-decoration:underline;color:var(--warning)}
+.selbar{display:flex;align-items:center;gap:8px;margin:0 12px 10px;padding:6px 10px;border-radius:var(--r-base);background:var(--info-tint);border:1px solid var(--color-stroke-primary-lighter);font-size:13px;color:var(--info)}
+
+/* Progress modal: table */
+.tbl{width:100%;border:1px solid var(--stroke-default);border-radius:var(--r-sm);border-collapse:separate;border-spacing:0;overflow:hidden}
+.tbl th{text-align:left;font-size:14px;font-weight:600;padding:0 10px 0 12px;height:42px;border-bottom:1px solid var(--stroke-default);white-space:nowrap;background:var(--surface-default);position:sticky;top:0}
+.tbl td{padding:8px 10px 8px 12px;border-bottom:1px solid var(--stroke-light);vertical-align:middle;font-size:14px}
+.tbl tr:last-child td{border-bottom:0}
+.tbl .sub{font-size:12px;line-height:16px;color:var(--text-secondary)}
+.tbl th .sub{font-weight:400}
+/* Progress: the table scrolls sideways for many courses; Participant and Wrong answers stay fixed on the left */
+.twrap{overflow:auto;border:1px solid var(--stroke-default);border-radius:var(--r-sm);max-height:calc(88vh - 190px)}
+.twrap .tbl{border:0;border-radius:0;overflow:visible;width:max-content;min-width:100%}
+.ptbl th{z-index:2}
+.ptbl th:nth-child(n+4),.ptbl td:nth-child(n+4){min-width:190px}
+.ptbl th:first-child,.ptbl td:first-child{position:sticky;left:0;z-index:3;background:var(--surface-default);min-width:220px;width:220px;white-space:nowrap}
+.ptbl th:nth-child(2),.ptbl td:nth-child(2){position:sticky;left:220px;z-index:3;background:var(--surface-default);min-width:160px;width:160px}
+.ptbl th:nth-child(3),.ptbl td:nth-child(3){position:sticky;left:380px;z-index:3;background:var(--surface-default);min-width:120px;width:120px;border-right:1px solid var(--stroke-default)}
+.ptbl th:nth-child(-n+3){z-index:4}
+.ptbl tr.hl td{background:var(--primary-tint)}
+/* outlined status chip: neutral text and border, coloured icon */
+.ptbl td+td,.ptbl th+th{border-left:1px solid var(--stroke-light)}
+.oc{display:inline-flex;align-items:center;gap:6px;height:24px;padding:2px 0;font-size:13px;color:var(--text-default);white-space:nowrap;vertical-align:middle}
+.oc i{font-size:12px}
+.ic-ok{color:var(--color-icon-success)} .ic-bad{color:var(--color-icon-error)} .ic-warn{color:var(--color-icon-notice)} .ic-info{color:var(--color-icon-primary)} .ic-mute{color:var(--icon-default)}
+.cell-i{color:var(--color-icon-error);font-size:13px;margin-left:6px;vertical-align:middle;cursor:help}
+.asg{color:var(--text-secondary);font-weight:600;margin-left:4px}
+.asg:hover{color:var(--primary-text)}
+
+/* Results view */
+.res{display:flex;flex:1;min-height:0;border-top:1px solid var(--stroke-light)}
+.res-l{width:270px;flex-shrink:0;border-right:1px solid var(--stroke-light);overflow:auto;padding:8px}
+.pick{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:8px 10px;border-radius:var(--r-base);border:1px solid transparent;margin-bottom:2px}
+.pick:hover{background:var(--surface-lightest)}
+.pick.on{background:var(--primary-tint);border-color:var(--primary-stroke)}
+.pick b{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.pick.on b{color:var(--primary-text)}
+.pick small{font-size:12px;line-height:16px;color:var(--text-secondary)}
+.pick-h{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary);padding:10px 10px 4px}
+.res-r{flex:1;min-width:0;overflow:auto;padding:16px 20px 24px}
+.res-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.res-top h3{font-size:18px;line-height:26px;font-weight:600;margin-right:4px}
+.res-top .r{margin-left:auto;display:flex;gap:8px;align-items:center}
+.res-sum{font-size:14px;color:var(--text-secondary);margin-bottom:12px}
+.private{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary);padding:6px 10px;border-radius:var(--r-base);background:var(--surface-subtle);border:1px solid var(--stroke-light);margin-bottom:12px}
+.newbar{display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:8px;border-radius:var(--r-base);background:var(--info-tint);color:var(--info);font-size:13px;font-weight:600}
+.newbar button{margin-left:auto;color:var(--primary-text);text-decoration:underline}
+.qrow{border:1px solid var(--stroke-light);border-radius:var(--r-md);margin-bottom:8px;background:var(--surface-default);overflow:hidden}
+.ans .at .hot-i{color:var(--color-icon-error);font-size:13px;margin-left:6px}
+.qh .rk{display:flex;align-items:center;justify-content:flex-start;gap:6px}
+.qh .rk .hot-i{color:var(--color-icon-error);font-size:13px}
+.qh{display:grid;grid-template-columns:40px 1fr 190px 20px;gap:12px;align-items:center;width:100%;padding:10px 12px}
+.qh:hover{background:var(--surface-subtle)}
+.qh .rk{font-size:13px;font-weight:600;color:var(--text-secondary);text-align:center}
+.qh .qt{font-size:14px;line-height:20px;font-weight:600}
+.qh .qt small{display:block;font-weight:400;font-size:12px;color:var(--text-secondary)}
+.qh .st{display:flex;flex-direction:column;gap:4px}
+.qh .st span{font-size:13px;display:flex;justify-content:space-between}
+.qh .st span b{font-weight:600}
+.qh .st .pb{height:8px}
+.qh .ch{color:var(--icon-default);font-size:12px;transition:transform .12s}
+.qrow.open .qh .ch{transform:rotate(90deg)}
+.qd{display:none;padding:0 12px 12px 52px}
+.qrow.open .qd{display:block}
+.ans{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:var(--r-base);margin-top:6px;border:1px solid var(--stroke-light)}
+.ans .ltr{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;border:1px solid var(--stroke-default);color:var(--text-secondary)}
+.ans .at{flex:1;min-width:0}
+.ans .at b{font-weight:600;font-size:14px}
+.ans .ppl{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.ans .ct{font-size:13px;font-weight:600;white-space:nowrap}
+.ans.ok{background:var(--success-tint);border-color:var(--color-stroke-success-light)}
+.ans.ok .ltr{background:var(--color-surface-success);border-color:transparent;color:#fff}
+.ans.bad{background:var(--surface-default)}
+.ans.none{border-style:dashed}
+.pchip{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px 0 3px;border-radius:var(--r-round);background:var(--surface-default);border:1px solid var(--stroke-light);font-size:12px;font-weight:600}
+.pchip .av{width:16px;height:16px;font-size:8px}
+.ovsec{margin-bottom:20px}
+.ovsec h4{font-size:15px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.lrow{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--stroke-light);border-radius:var(--r-md);margin-bottom:6px}
+.lrow .n{font-weight:600}
+.lrow .s{font-size:12px;color:var(--text-secondary)}
+.rnd{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:var(--r-md);background:var(--warning-tint);color:var(--warning);font-size:14px}
+
+/* the hide/show tab sits on the panel's edge, in the same spot open or closed */
+.body{--lw:320px;--rw:360px}
+.side.left{width:var(--lw)} .side.right{width:var(--rw)}
+.side.c{width:0}
+.fab.l.open{left:var(--lw)} .fab.r.open{right:var(--rw)}
+.fab{transition:left .15s,right .15s}
+.okbar{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--r-base);background:var(--success-tint);color:var(--success);font-size:13px;font-weight:600}
+.tipu{text-decoration:underline dotted;text-underline-offset:3px;cursor:help;font-weight:600}
+.ov-empty .es i{font-size:20px;color:var(--icon-default)}
+.scrim{display:none}
+
+/* ===================================================================
+   RESPONSIVE
+   =================================================================== */
+.center{container-type:inline-size}
+.hero .hmeta>span{white-space:nowrap}
+@container (max-width:620px){
+  .hero .hm{flex-wrap:wrap}
+  .hero .hact{width:100%;padding-top:0;padding-left:62px}
+  .hero .hmeta .sep{display:none}
+  .hero .hmeta{flex-direction:column;gap:0}
+}
+/* small laptop: slimmer panels */
+@media (max-width:1279px){ .body{--lw:280px;--rw:300px} }
+/* tablet: panels become drawers over the page, one at a time, with a dimmed page behind */
+@media (max-width:1099px){
+  .body{--lw:min(340px,88vw);--rw:min(360px,88vw)}
+  .side{position:absolute;top:0;bottom:0;z-index:30;box-shadow:var(--shadow-L4)}
+  .side.left{left:0} .side.right{right:0}
+  .scrim{display:block;position:absolute;inset:0;z-index:25;background:var(--overlay)}
+  .fab{z-index:31}
+  .body:has(.side.left:not(.c)) .fab.r,.body:has(.side.right:not(.c)) .fab.l{display:none}
+}
+/* tablet and phone: question rows stack the numbers under the question */
+@media (max-width:900px){
+  .qh{grid-template-columns:36px 1fr 14px;gap:8px}
+  .qh .st{grid-column:2;grid-row:2}
+  .qh .ch{grid-column:3;grid-row:1}
+  .qd{padding:0 10px 10px 54px}
+  .res-l{width:220px}
+}
+/* phone */
+@media (max-width:640px){
+  .app{margin:0;border:0}
+  .topbar{padding:0 8px 0 12px}
+  .crumb{font-size:14px}
+  .stage{padding:8px}
+  .hero .hi{width:40px;height:40px;font-size:16px}
+  .hero .hact{padding-left:0}
+  .hero .hact .b{width:100%}
+  .ov{padding:0}
+  .modal,.modal.wide{max-width:none;height:100%;max-height:none;border-radius:0}
+  .res{flex-direction:column}
+  .res-l{width:auto;display:flex;gap:6px;overflow-x:auto;border-right:0;border-bottom:1px solid var(--stroke-light);flex-shrink:0}
+  .res-l .pick-h{display:none}
+  .pick{width:auto;min-width:180px;flex-shrink:0;margin:0}
+  .res-r{padding:12px}
+  .res-top .r{margin-left:0;width:100%}
+  .qd{padding:0 10px 10px}
+  .modal .mf .mut{display:none}
+  .ptbl th:first-child,.ptbl td:first-child{min-width:150px;width:150px}
+  .ptbl th:nth-child(2),.ptbl td:nth-child(2){position:static}
+  .ptbl th:nth-child(3),.ptbl td:nth-child(3){position:static;border-right:0}
+  #review{font-size:11px}
+}
+
+/* present window mock note */
+.qtag{font-size:11px;font-weight:600;color:var(--color-text-primary-alt);background:var(--color-surface-primary-alt-lighter);border-radius:var(--r-sm);padding:1px 5px;margin-left:4px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div id="review">
+  <b>TKT-21402 · Instructor Dashboard</b><span class="mut">Prototype v1 · Oct 20 · sample data</span>
+  <div class="rv-f">Documents <span class="rv-seg"><button id="rv-docs-some" class="on" onclick="setDocs(true)">Some</button><button id="rv-docs-none" onclick="setDocs(false)">None</button></span></div>
+  <div class="rv-f">Courses <span class="rv-seg"><button id="rv-c2" class="on" onclick="setMany(false)">2</button><button id="rv-c10" onclick="setMany(true)">10</button></span></div>
+  <div class="rv-f">Class <span class="rv-seg"><button id="rv-s-live" class="on" onclick="setScen('live')">Mid-exam</button><button id="rv-s-good" onclick="setScen('good')">All good</button><button id="rv-s-empty" onclick="setScen('empty')">Nothing assigned</button></span></div>
+  <div class="rv-f">Live answers <span class="rv-seg"><button id="rv-live-on" class="on" onclick="setLive(true)">On</button><button id="rv-live-off" onclick="setLive(false)">Paused</button></span></div>
+  <div class="rv-f"><button class="b b-sm" onclick="resetAll()"><i class="fa-solid fa-rotate-left"></i>Reset</button></div>
+</div>
+<div class="app" id="app"></div>
+<div id="tip" role="tooltip"></div>
+<div id="layer"></div>
+<div id="snack" aria-live="polite"></div>
+
+<script>
+/* =====================================================================
+   DATA (invented). 8 learners, 2 quizzes pushed through Student Access.
+   ===================================================================== */
+/* Noah Kim, Ella Park and Raj Gill (8, 9, 10) joined the class after the courses were assigned, so nothing is assigned to them (qz.na) */
+const PEOPLE=['Jordan Lee','Priya Shah','Marcus Chen','Aisha Bello','Tom Rivera','Mary Okafor','Sam Patel','Lena Novak','Noah Kim','Ella Park','Raj Gill'];
+const LATE=[8,9,10];
+const ini=n=>n.split(' ').map(x=>x[0]).join('');
+const L='ABCD';
+/* each question: text, options, correct index, wrong = {person index: option picked}; answered = person reached it */
+const QUIZZES=[
+  {id:'kc',name:'WHMIS Knowledge Check',short:'Check',pass:80,final:false,order:'fixed',na:LATE.slice(),
+   qs:[
+    {t:'What does WHMIS stand for?',o:['Workplace Hazardous Materials Information System','Workers Health and Materials Inspection System','Workplace Health Management Information Service','Waste Handling and Materials Information System'],c:0,w:{}},
+    {t:'Which pictogram means a product can catch fire?',o:['Flame','Flame over circle','Exploding bomb','Gas cylinder'],c:0,w:{1:1,3:1,7:1}},
+    {t:'Who must provide the Safety Data Sheet (SDS)?',o:['The supplier','The worker','The safety committee','The fire department'],c:0,w:{2:2}},
+    {t:'How often must WHMIS training be reviewed?',o:['At least once a year','Every five years','Only when you are hired','Never'],c:0,w:{1:1,5:1}},
+    {t:'When do you need a workplace label?',o:['When a product is poured into another container','Only on the original container','Only for liquids','Never, if you know the product'],c:0,w:{2:1}},
+   ],reached:[5,5,5,5,3,5,0,5,0,0,0]},
+  {id:'fe',name:'WHMIS Final Exam',short:'Exam',pass:75,final:true,order:'fixed',na:LATE.slice(),
+   qs:[
+    {t:'Which SDS section lists first-aid measures?',o:['Section 4','Section 2','Section 8','Section 11'],c:0,w:{2:1}},
+    {t:'The skull and crossbones pictogram means…',o:['Acute toxicity: can be fatal or toxic','Corrosive to skin','Long-term health hazard','Harmful to the environment'],c:0,w:{7:2}},
+    {t:'A container’s supplier label is missing. What do you do?',o:['Stop and tell your supervisor','Check the colour of the product','Make your own label from memory','Use it if you know what it is'],c:0,w:{0:2,1:2,3:1,5:2,7:2}},
+    {t:'Where must Safety Data Sheets be kept?',o:['Where workers can easily get them','Locked in the manager’s office','At the supplier','Online only'],c:0,w:{1:3,5:1}},
+    {t:'Which pictogram warns that a product can burn skin or eyes?',o:['Corrosion','Exclamation mark','Flame','Health hazard'],c:0,w:{0:1,1:1,7:2}},
+    {t:'What must a workplace label include?',o:['Product name, safe handling and an SDS reference','The supplier’s phone number only','A pictogram only','The purchase date'],c:0,w:{3:3}},
+    {t:'When must a supplier update an SDS?',o:['Within 90 days of significant new data','Every ten years','Never','Only if a worker asks'],c:0,w:{0:2}},
+    {t:'Who is responsible for WHMIS training at work?',o:['The employer','The supplier','The worker','A government inspector'],c:0,w:{}},
+   ],reached:[8,5,3,8,1,8,0,6,0,0,0]},
+];
+/* review only: "Courses: 10" adds 8 module quizzes (placeholder questions) to show a wide Progress table */
+const MODULES=['Hazard classes','Pictograms','Supplier labels','Workplace labels','SDS sections','Safe storage','Spills','Review'];
+function extraQuizzes(){
+  return MODULES.map((t,k)=>({id:'m'+k,name:`Module ${k+1}: ${t}`,short:'M'+(k+1),pass:80,final:false,order:'fixed',na:LATE.slice(),
+    qs:[1,2,3,4].map(n=>{const w={};PEOPLE.forEach((_,p)=>{if((p+n+k)%4===0)w[p]=1;});return {t:`${t}: practice question ${n}`,o:['Correct choice','Common mistake','Another option','Unlikely option'],c:0,w};}),
+    reached:PEOPLE.map((_,p)=>p>=8?0:Math.min(4,(p*3+k*5)%6))}));
+}
+/* documents in the right panel (course + event assets). kind decides the badge, the icon and what Present can do */
+const DOCS_ALL=[
+  {id:'d1',name:'Points Form Acceptance.pdf',kind:'pdf',assign:false},
+  {id:'d2',name:'WHMIS Knowledge Check',kind:'course',quiz:'kc',assign:true},
+  {id:'d3',name:'WHMIS Overview Slides',kind:'slides',assign:false},
+  {id:'d4',name:'Onboarding Video.mp4',kind:'video',assign:false},
+  {id:'d5',name:'WHMIS Final Exam',kind:'course',quiz:'fe',assign:true},
+  {id:'d6',name:'Spill Kit Photo.jpg',kind:'photo',assign:false},
+  {id:'d7',name:'Label Examples.pptx',kind:'pptx',assign:false},
+  {id:'d8',name:'Emergency Evacuation Plan.pdf',kind:'pdf',assign:false},
+];
+const KIND={pdf:{l:'PDF',i:'fa-regular fa-file-pdf'},course:{l:'Course',i:'fa-solid fa-laptop'},slides:{l:'Slides',i:'fa-regular fa-file-powerpoint'},
+  video:{l:'Video',i:'fa-solid fa-video'},photo:{l:'Photo',i:'fa-regular fa-image'},pptx:{l:'PowerPoint',i:'fa-regular fa-file-powerpoint'}};
+/* the live feed: who answers next and whether they get it wrong (picked option) or right (-1) */
+const FEED=[[1,'fe',-1],[7,'fe',2],[2,'fe',1],[4,'fe',-1],[6,'kc',-1],[1,'fe',-1],[7,'fe',-1],[2,'fe',2],[6,'kc',1],[4,'fe',2],[1,'fe',3],[2,'fe',-1],[6,'kc',-1],[4,'fe',-1],[6,'kc',-1],[2,'fe',-1],[4,'fe',-1],[6,'kc',2],[2,'fe',-1]];
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+let S, Q, MANY=false, SCEN='live';
+/* tablet and phone: the side panels become drawers over the page, closed by default */
+const narrow=()=>matchMedia('(max-width:1099px)').matches;
+function fresh(){
+  const base=JSON.parse(JSON.stringify(QUIZZES));
+  Q=MANY?[base[0],...extraQuizzes(),base[1]]:base;
+  if(SCEN==='good'){Q.forEach(qz=>{qz.na=[];qz.qs.forEach(q=>q.w={});qz.reached=PEOPLE.map(()=>qz.qs.length);});}
+  if(SCEN==='empty') Q=[];
+  const wide=!narrow();
+  S={left:wide,right:wide,docsOn:true,view:'grid',sort:'admin',q:'',pq:'',psort:'az',sel:null,seg:0,assign:false,picked:{},
+     presenting:false,live:true,feed:0,lastUpd:Date.now(),
+     modal:null,res:{pick:'all',sort:'missed',open:{},order:null,pending:false}};
+}
+fresh();
+let PW=null; /* the second-screen window */
+
+/* =====================================================================
+   DERIVED NUMBERS
+   ===================================================================== */
+const answered=(qz,qi,p)=>qz.reached[p]>qi;
+const isNA=(qz,p)=>(qz.na||[]).includes(p);
+const assignedN=qz=>PEOPLE.filter((_,p)=>!isNA(qz,p)).length;
+const missingOf=p=>Q.filter(qz=>isNA(qz,p));
+const lateJoiners=()=>PEOPLE.map((_,p)=>p).filter(p=>missingOf(p).length);
+/* tooltip text: which questions someone got wrong, grouped by course */
+function wrongList(p){
+  return Q.map(qz=>{const qs=qz.qs.map((q,i)=>answered(qz,i,p)&&q.w[p]!==undefined?'Q'+(i+1):null).filter(Boolean);return qs.length?`${qz.name}: ${qs.join(', ')}`:null;}).filter(Boolean).join('\n');
+}
+function qStats(qz,qi){
+  const q=qz.qs[qi]; let n=0,bad=0;
+  PEOPLE.forEach((_,p)=>{if(answered(qz,qi,p)){n++; if(q.w[p]!==undefined) bad++;}});
+  return {n,bad,pct:n?Math.round(bad/n*100):0};
+}
+function personQuiz(qz,p){
+  const r=qz.reached[p], tot=qz.qs.length;
+  if(isNA(qz,p)) return {r:0,tot,wrong:0,score:0,st:'na'};
+  let wrong=0; for(let i=0;i<r;i++) if(qz.qs[i].w[p]!==undefined) wrong++;
+  const score=r?Math.round((r-wrong)/tot*100):0;
+  const st=r===0?'not':r<tot?'prog':(score>=qz.pass?'pass':'fail');
+  return {r,tot,wrong,score,st};
+}
+const wrongTotal=p=>Q.reduce((a,qz)=>a+personQuiz(qz,p).wrong,0);
+function allMissed(){
+  const out=[]; Q.forEach(qz=>qz.qs.forEach((q,i)=>{const s=qStats(qz,i); if(s.bad) out.push({qz,i,q,...s});}));
+  return out.sort((a,b)=>b.bad-a.bad||b.pct-a.pct);
+}
+const needHelp=()=>PEOPLE.map((n,p)=>({p,n,w:wrongTotal(p)})).filter(x=>x.w>=3).sort((a,b)=>b.w-a.w);
+const docs=()=>S.docsOn?DOCS_ALL:[];
+
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const I=c=>`<i class="${c}" aria-hidden="true"></i>`;
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const Av=p=>`<span class="av" aria-hidden="true">${ini(PEOPLE[p])}</span>`;
+const PChip=p=>`<span class="pchip">${Av(p)}${PEOPLE[p]}</span>`;
+function sv(tone,html){const ic={neg:'fa-solid fa-xmark',wait:'fa-solid fa-hourglass-half',pos:'fa-solid fa-check'}[tone];return `<span class="sv sv-${tone}"><span class="sv-i">${I(ic)}</span><span>${html}</span></span>`;}
+function ago(){const s=Math.round((Date.now()-S.lastUpd)/1000);return s<5?'just now':s+'s ago';}
+function snack(msg,icon){
+  const el=document.createElement('div'); el.className='snack'; el.innerHTML=`${I(icon||'fa-solid fa-circle-check')}<span>${msg}</span>`;
+  document.getElementById('snack').appendChild(el); setTimeout(()=>el.remove(),3200);
+}
+
+/* =====================================================================
+   RENDER: page
+   ===================================================================== */
+function render(){
+  const scrim=narrow()&&(S.left||S.right)?`<div class="scrim" onclick="S.left=false;S.right=false;render()"></div>`:'';
+  document.getElementById('app').innerHTML=topbar()+`<div class="body">${leftPanel()}${centre()}${rightPanel()}${scrim}</div>`;
+  renderModal(); syncPresent();
+}
+function topbar(){
+  return `<div class="topbar">
+    <nav class="crumb" aria-label="Breadcrumb"><button onclick="snack('Back to the Classroom Calendar','fa-solid fa-calendar')">Classroom Calendar</button><span class="sl">/</span><b>Dashboard</b></nav>
+    <div class="r">
+      <button class="ib" data-tip="Instructor Dashboard Guide (PDF)" onclick="snack('Opens the Instructor Dashboard Guide in a new tab','fa-regular fa-file-pdf')">${I('fa-solid fa-circle-info')}</button>
+      <button class="b b-ghost b-sm" onclick="snack('Back to the Classroom Calendar','fa-solid fa-calendar')">${I('fa-solid fa-chevron-left')}Back</button>
+    </div></div>`;
+}
+
+/* ---------- left panel: overview + participant list ---------- */
+function leftPanel(){
+  const top=allMissed()[0], nh=needHelp();
+  const finished=p=>{const as=Q.filter(qz=>!isNA(qz,p));return as.length&&as.every(qz=>qz.reached[p]===qz.qs.length);};
+  const done=PEOPLE.filter((_,p)=>finished(p)).length, late=lateJoiners();
+  const card1=top?`<button class="blk wide" onclick="openResults('${top.qz.id}',${top.i})" data-tip="See who picked which answer">
+      <div class="k">Most missed question ${I('fa-solid fa-chevron-right')}</div>
+      <div class="v">${sv('neg',`<b>${top.bad} of ${top.n}</b> <span class="mut" style="font-size:13px">got it wrong</span>`)}</div>
+      <div class="v2">Q${top.i+1} · ${esc(top.q.t)}</div></button>`
+    :`<div class="blk wide"><div class="k">Most missed question</div><div class="v">${Q.some(qz=>qz.reached.some(r=>r>0))?sv('pos','No wrong answers'):sv('pos','None yet')}</div><div class="v2">${Q.some(qz=>qz.reached.some(r=>r>0))?'Everyone got every question right so far':'Shows as answers come in'}</div></div>`;
+  const card2=`<button class="blk" onclick="openResults('all',null,'people')" data-tip="People with 3 or more wrong answers">
+      <div class="k">Needs help ${I('fa-solid fa-chevron-right')}</div>
+      <div class="v">${nh.length?sv('wait',`<b>${nh.length}</b> <span class="mut" style="font-size:13px">people</span>`):sv('pos','Nobody')}</div>
+      <div class="v2">${nh.length?'3+ wrong answers':'Under 3 wrong each'}</div></button>`;
+  const card3=`<button class="blk" onclick="openProgress()" data-tip="People who finished every course assigned to them">
+      <div class="k">Finished ${I('fa-solid fa-chevron-right')}</div>
+      <div class="v"><b>${done}</b> <span class="mut" style="font-size:13px">of ${PEOPLE.length}</span></div>
+      <div class="v2">${PEOPLE.length-done} still going</div></button>`;
+  const lateBar=late.length?`<div class="selbar warnbar">${I('fa-solid fa-triangle-exclamation')}<span>${late.length===1?PEOPLE[late[0]]+' was':`<span class="tipu" tabindex="0" data-tip="${late.map(p=>PEOPLE[p]).join('\n')}">${late.length} people</span> were`} added after courses were assigned</span><button onclick="assignMissing()">Assign</button></div>`:'';
+  const allGood=Q.length&&!top&&!nh.length&&done===PEOPLE.length;
+  const cards=!Q.length
+    ?`<div class="blk wide ov-empty"><div class="es" style="padding:12px 8px">${I('fa-regular fa-clipboard')}<b>Nothing assigned yet</b><p>Assign an online course from Documents. Results show here as people answer.</p></div></div>`
+    :card1+card2+card3+(allGood?`<div class="okbar wide">${I('fa-solid fa-circle-check')}Everyone is on track. No wrong answers to go over.</div>`:'');
+  const fab=`<button class="fab l${S.left?' open':''}" data-tip="${S.left?'Hide':'Show'} overview and participants" aria-expanded="${S.left}" onclick="togSide('left')">${I('fa-solid fa-chevron-'+(S.left?'left':'right'))}</button>`;
+  return fab+`<aside class="side left${S.left?'':' c'}" aria-label="Overview and participants">
+    <div class="full">
+      <div class="sec-h"><h3>Overview</h3>
+        <div class="r"><button class="b b-sm" onclick="openResults('all')">${I('fa-solid fa-chart-simple')}Results</button></div></div>
+      <div class="ovw">${cards}</div>
+      <div class="sec-h"><h3>Participants</h3><span class="cnt">${PEOPLE.length}</span>
+        <div class="r"><button class="b b-sm" ${Q.length?'':'disabled'} onclick="openProgress()">${I('fa-solid fa-users')}Progress</button></div></div>
+      <div class="dtools"><label class="search"><span class="sr">Search participants</span>${I('fa-solid fa-magnifying-glass')}<input id="pq" placeholder="Search people" value="${esc(S.pq)}" oninput="S.pq=this.value;renderPeople()"></label>
+        <button class="ib" data-tip="Sort: ${PSORTS.find(x=>x[0]===S.psort)[1]}" onclick="openSort(this,'people')">${I('fa-solid fa-arrow-down-short-wide')}</button></div>
+      ${lateBar}<div class="plist" id="plist">${peopleBody()}</div>
+    </div></aside>`;
+}
+const PSORTS=[['az','A to Z'],['wrong','Most wrong answers first'],['behind','Least progress first'],['late','Not assigned first']];
+function progressOf(p){const as=Q.filter(qz=>!isNA(qz,p));const tot=as.reduce((a,qz)=>a+qz.qs.length,0);return tot?as.reduce((a,qz)=>a+qz.reached[p],0)/tot:-1;}
+function peopleBody(){
+  const q=S.pq.trim().toLowerCase();
+  let ids=PEOPLE.map((_,p)=>p).filter(p=>PEOPLE[p].toLowerCase().includes(q));
+  const az=(a,b)=>PEOPLE[a].localeCompare(PEOPLE[b]);
+  ids.sort(S.psort==='wrong'?(a,b)=>wrongTotal(b)-wrongTotal(a)||az(a,b):S.psort==='behind'?(a,b)=>progressOf(a)-progressOf(b)||az(a,b):
+    S.psort==='late'?(a,b)=>missingOf(b).length-missingOf(a).length||az(a,b):az);
+  return ids.length?ids.map(pRow).join(''):`<div class="es"><div class="es-i">${I('fa-solid fa-magnifying-glass')}</div><b>Nobody matches “${esc(S.pq)}”</b><p>Try another name.</p></div>`;
+}
+function renderPeople(){document.getElementById('plist').innerHTML=peopleBody();}
+function pRow(p){
+  const xs=Q.map(qz=>({qz,...personQuiz(qz,p)})), as=xs.filter(x=>x.st!=='na'), w=wrongTotal(p), miss=xs.length-as.length;
+  const doneN=as.filter(x=>x.r===x.tot).length, cur=as.find(x=>x.st==='prog');
+  const now=!Q.length?'Nothing assigned yet':!as.length?'Added after courses were assigned':cur?`In ${cur.qz.name} · Q${cur.r+1} of ${cur.tot}`:
+    as.every(x=>x.st==='not')?'Not started':doneN===as.length?'Finished everything':'Waiting to start the next course';
+  return `<button class="prow" onclick="openProgress(${p})">${Av(p)}<span class="t"><span class="n">${PEOPLE[p]}${miss?`<span class="chip chip-warning" data-tip="${miss} course${miss===1?'':'s'} not assigned. They joined after the courses were assigned.">${I('fa-solid fa-triangle-exclamation')}Not assigned</span>`:''}</span>
+      <span class="s">${now}</span></span>
+    <span class="m"><small>${as.length?`${doneN}/${as.length} done`:''}</small>${w?`<small class="wr">${w} wrong</small>`:''}</span></button>`;
+}
+function assignMissing(){const late=lateJoiners();Q.forEach(qz=>qz.na=[]);render();snack(`Assigned the missing courses to ${late.map(p=>PEOPLE[p]).join(', ')}`);}
+function assignPerson(p){const miss=missingOf(p);miss.forEach(qz=>qz.na=qz.na.filter(x=>x!==p));render();snack(`Assigned ${miss.length} courses to ${PEOPLE[p]}`);}
+function assignOne(qid,p){const qz=Q.find(x=>x.id===qid);qz.na=qz.na.filter(x=>x!==p);render();snack(`Assigned ${qz.name} to ${PEOPLE[p]}`);}
+
+/* ---------- centre: course header + preview ---------- */
+function centre(){
+  const d=docs().find(x=>x.id===S.sel);
+  const hero=`<div class="hero"><div class="hb"></div><div class="hm"><div class="hi">${I('fa-solid fa-calendar-days')}</div>
+    <div class="ht"><h2>WHMIS Classroom</h2><div class="hmeta"><span><b>Instructor:</b> Mikaela Yeo</span><span class="sep">•</span><span><b>Starts:</b> Oct 20, 2026, 8:00 AM</span><span class="sep">•</span><span>${PEOPLE.length} participants</span></div></div>
+    <div class="hact"><button class="b" onclick="snack('Opens the Discussion Board','fa-regular fa-comments')">${I('fa-regular fa-comments')}Discussion Board <span class="cnt cnt-primary">1</span></button></div></div></div>`;
+  const head=`<div class="pv-h"><span class="ti">${d?`<span class="tyi">${I(KIND[d.kind].i)}</span><b>${esc(d.name)}</b><span class="chip">${KIND[d.kind].l}</span>`:`<b class="mut" style="font-weight:400">Preview</b>`}</span>
+    ${S.presenting?`<span class="onair"><span class="dot"></span>On the second screen</span><button class="b b-sm" onclick="stopPresent()">${I('fa-solid fa-stop')}Stop</button>`
+      :`<button class="b b-primary" onclick="present()" data-tip="Opens a second window for the projector. Only what you pick here shows there.">${I('fa-solid fa-display')}Present</button>`}</div>`;
+  const foot=d?`<div class="pv-f">${footInfo(d)}<span class="r">
+      <button class="ib ib-sm" data-tip="Previous document" onclick="step(-1)">${I('fa-solid fa-chevron-left')}</button>
+      <button class="ib ib-sm" data-tip="Next document" onclick="step(1)">${I('fa-solid fa-chevron-right')}</button></span></div>`:'';
+  return `<main class="center">${hero}<div class="stage"><div class="pv" aria-label="Preview">${head}<div class="pv-b">${content(d,false)}</div>${foot}</div></div></main>`;
+}
+function footInfo(d){
+  if(d.kind==='course'){const qz=Q.find(x=>x.id===d.quiz);return `<button class="b b-sm" ${S.seg<=0?'disabled':''} onclick="S.seg--;render()">${I('fa-solid fa-backward')}</button><span>Question ${S.seg+1} of ${qz.qs.length}</span><button class="b b-sm" ${S.seg>=qz.qs.length-1?'disabled':''} onclick="S.seg++;render()">${I('fa-solid fa-forward')}</button>`;}
+  if(d.kind==='slides') return `<button class="b b-sm" ${S.seg<=0?'disabled':''} onclick="S.seg--;render()">${I('fa-solid fa-backward')}</button><span>Slide ${S.seg+1} of 3</span><button class="b b-sm" ${S.seg>=2?'disabled':''} onclick="S.seg++;render()">${I('fa-solid fa-forward')}</button>`;
+  if(d.kind==='video') return `<button class="b b-sm">${I('fa-solid fa-play')}</button><span>0:00 / 3:42</span>`;
+  return `<span>${d.kind==='pdf'?'Page 1 of 2':''}</span>`;
+}
+const SLIDES=[['WHMIS 2015','What every worker needs to know'],['Labels','Supplier labels and workplace labels'],['Safety Data Sheets','16 sections · always within reach']];
+/* the same rendering serves the preview and the second screen (big = second screen) */
+function content(d,big){
+  if(!d) return big?`<div class="cv-empty" style="color:#8a8a90"><div class="es-i" style="background:#2c2c30;color:#8a8a90">${I('fa-solid fa-display')}</div><b style="color:#d9d9dd">WHMIS Classroom</b><span>Waiting for the instructor to pick something to show</span></div>`
+    :`<div class="cv-empty"><div class="es-i">${I('fa-regular fa-hand-pointer')}</div><b>Pick a document to preview it</b><span>Click any document on the right. It shows here first,<br>and on the second screen once you present.</span></div>`;
+  if(d.kind==='pdf') return `<div class="cv-pdf"><span class="h"></span>${'<span class="l"></span>'.repeat(4)}<span class="l" style="width:70%"></span><br>${'<span class="l"></span>'.repeat(5)}<span class="l" style="width:40%"></span></div>`;
+  if(d.kind==='video') return `<div class="cv-media">${I('fa-solid fa-circle-play')}<small>${esc(d.name)}</small></div>`;
+  if(d.kind==='photo') return `<div class="cv-photo">${I('fa-regular fa-image')}</div>`;
+  if(d.kind==='slides'){const s=SLIDES[Math.min(S.seg,2)];return `<div class="cv-slide"><h4>${s[0]}</h4><p>${s[1]}</p></div>`;}
+  if(d.kind==='pptx') return `<div class="cv-empty"><div class="es-i" style="color:var(--color-icon-notice)">${I('fa-solid fa-triangle-exclamation')}</div><b>This PowerPoint can’t be shown</b><span>Only PowerPoints saved as HTML5 (.zip) can play here.<br>A .pptx file just downloads.</span></div>`;
+  if(d.kind==='course'){const qz=Q.find(x=>x.id===d.quiz), q=qz.qs[Math.min(S.seg,qz.qs.length-1)];
+    return `<div class="cv-q"><div class="qn">${esc(qz.name)} · Question ${Math.min(S.seg,qz.qs.length-1)+1} of ${qz.qs.length}</div><h4>${esc(q.t)}</h4>${q.o.map((o,i)=>`<div class="op"><span>${L[i]}</span>${esc(o)}</div>`).join('')}</div>`;}
+  return '';
+}
+
+/* ---------- right panel: documents ---------- */
+const SORTS=[['admin','Order set by admin'],['az','A to Z'],['type','By type']];
+function docList(){
+  let list=docs().filter(d=>d.name.toLowerCase().includes(S.q.toLowerCase()));
+  if(S.sort==='az') list=list.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  if(S.sort==='type') list=list.slice().sort((a,b)=>KIND[a.kind].l.localeCompare(KIND[b.kind].l)||a.name.localeCompare(b.name));
+  return list;
+}
+function rightPanel(){
+  const n=Object.keys(S.picked).length, all=docs();
+  const head=S.assign
+    ?`<div class="r"><button class="b b-ghost b-sm" onclick="S.assign=false;S.picked={};render()">Cancel</button><button class="b b-primary b-sm" ${n?'':'disabled'} onclick="openAssign()">${I('fa-solid fa-user-plus')}Assign${n?' '+n:''}</button></div>`
+    :`<div class="r"><button class="b b-sm" ${all.some(d=>d.assign)?'':'disabled'} onclick="S.assign=true;render()" data-tip="Pick documents to give to participants">${I('fa-solid fa-user-plus')}Assign</button></div>`;
+  const tools=`<div class="dtools"><label class="search"><span class="sr">Search documents</span>${I('fa-solid fa-magnifying-glass')}<input id="dq" placeholder="Search" value="${esc(S.q)}" oninput="S.q=this.value;renderDocs()"></label>
+    <div class="seg" role="group" aria-label="View"><button aria-pressed="${S.view==='grid'}" data-tip="Grid" onclick="S.view='grid';render()">${I('fa-solid fa-table-cells-large')}</button><button aria-pressed="${S.view==='list'}" data-tip="List" onclick="S.view='list';render()">${I('fa-solid fa-list')}</button></div>
+    <button class="ib" data-tip="Sort" onclick="openSort(this)">${I('fa-solid fa-arrow-down-short-wide')}</button></div>`;
+  const bar=S.assign?`<div class="selbar">${I('fa-solid fa-circle-info')}<span>${n?n+' selected':'Only online courses and quizzes can be assigned. Everything else can be presented.'}</span></div>`:'';
+  const fab=`<button class="fab r${S.right?' open':''}" data-tip="${S.right?'Hide':'Show'} documents" aria-expanded="${S.right}" onclick="togSide('right')">${I('fa-solid fa-chevron-'+(S.right?'right':'left'))}</button>`;
+  return fab+`<aside class="side right${S.right?'':' c'}" aria-label="Documents">
+    <div class="full">
+      <div class="sec-h"><h3>Documents</h3>${all.length?`<span class="cnt">${all.length}</span>`:''}${head}</div>
+      ${all.length?tools+bar:''}<div class="dlist" id="dlist">${docsBody()}</div></div></aside>`;
+}
+function docsBody(){
+  if(!docs().length) return `<div class="es"><div class="es-i">${I('fa-regular fa-folder-open')}</div><b>No documents yet</b><p>Add PDFs, videos and online courses to this class in the Classroom Course or this event’s Content section.</p><div class="es-a"><button class="b b-sm" onclick="snack('Opens the event’s Content section','fa-solid fa-arrow-up-right-from-square')">${I('fa-solid fa-plus')}Add documents</button></div></div>`;
+  const list=docList();
+  if(!list.length) return `<div class="es"><div class="es-i">${I('fa-solid fa-magnifying-glass')}</div><b>Nothing matches “${esc(S.q)}”</b><p>Try another word.</p></div>`;
+  return S.view==='grid'?`<div class="dgrid">${list.map(tile).join('')}</div>`:list.map(drow).join('');
+}
+function renderDocs(){document.getElementById('dlist').innerHTML=docsBody();}
+function thumb(d){return d.kind==='pdf'?`<span class="mini">${'<i></i>'.repeat(7)}</span>`:I(KIND[d.kind].i);}
+function acts(d,list){
+  const warn=d.kind==='pptx';
+  const pres=`<button class="ib ib-sm" ${warn?'disabled':''} data-tip="${warn?'Can’t present a .pptx. Save it as HTML5 (.zip) first.':'Present on the second screen'}" onclick="event.stopPropagation();pick('${d.id}');present()">${I('fa-solid fa-display')}</button>`;
+  const asg=d.assign?`<button class="ib ib-sm" data-tip="Assign to participants" onclick="event.stopPropagation();S.assign=true;S.picked={'${d.id}':1};render()">${I('fa-solid fa-user-plus')}</button>`:'';
+  return (warn?`<span class="warn-i" data-tip="PowerPoint must be HTML5 (.zip) to play">${I('fa-solid fa-triangle-exclamation')}</span>`:'')+(list?asg+pres:asg+pres);
+}
+function check(d){const on=!!S.picked[d.id];return `<span class="cb" role="checkbox" aria-checked="${on}" aria-label="Select ${esc(d.name)}">${I('fa-solid fa-check')}</span>`;}
+function tile(d){
+  const off=S.assign&&!d.assign, sel=!S.assign&&S.sel===d.id;
+  const on=S.assign?(off?'':`onclick="togPick('${d.id}')"`):`onclick="pick('${d.id}')"`;
+  return `<div class="tile${off?' off':''}${sel?' sel':''}" ${on} ${off?'data-tip="Only online courses and quizzes can be assigned"':''} tabindex="0">
+    <div class="tn" title="${esc(d.name)}">${esc(d.name)}</div><div class="th">${thumb(d)}</div>
+    <div class="tf"><span class="chip">${KIND[d.kind].l}</span>${S.assign?(off?'':check(d)):acts(d)}</div></div>`;
+}
+function drow(d){
+  const off=S.assign&&!d.assign, sel=!S.assign&&S.sel===d.id;
+  const on=S.assign?(off?'':`onclick="togPick('${d.id}')"`):`onclick="pick('${d.id}')"`;
+  return `<div class="drow${off?' off':''}${sel?' sel':''}" ${on} tabindex="0"><span class="t"><div class="n">${esc(d.name)}</div><div class="s">Type: ${KIND[d.kind].l}</div></span>${S.assign?(off?'':check(d)):acts(d,true)}</div>`;
+}
+/* on tablet and phone only one drawer is open at a time */
+function togSide(k){S[k]=!S[k];if(S[k]&&narrow())S[k==='left'?'right':'left']=false;render();}
+function pick(id){S.sel=id;S.seg=0;render();}
+function togPick(id){S.picked[id]?delete S.picked[id]:S.picked[id]=1;render();}
+function step(n){const l=docList(), i=l.findIndex(x=>x.id===S.sel);const nx=l[(i+n+l.length)%l.length];if(nx)pick(nx.id);}
+function openSort(btn,which){
+  const r=btn.getBoundingClientRect(), ppl=which==='people', list=ppl?PSORTS:SORTS, key=ppl?'psort':'sort';
+  document.getElementById('layer').innerHTML=`<div class="menu" role="menu" style="top:${r.bottom+4}px;left:${Math.max(8,Math.min(innerWidth-268,r.right-260))}px"><div class="mhd">Sort ${ppl?'participants':'documents'}</div>
+    ${list.map(([k,l])=>`<button class="mi${S[key]===k?' on':''}" role="menuitemradio" aria-checked="${S[key]===k}" onclick="S.${key}='${k}';closeLayer();render()">${l}${S[key]===k?`<span class="ck">${I('fa-solid fa-check')}</span>`:''}</button>`).join('')}</div>`;
+  setTimeout(()=>document.addEventListener('click',closeLayer,{once:true}),0);
+}
+function closeLayer(){document.getElementById('layer').innerHTML='';}
+
+/* =====================================================================
+   PRESENT: a second window for the projector. Only the picked item shows there.
+   ===================================================================== */
+function present(){
+  if(PW&&!PW.closed){PW.focus();S.presenting=true;render();return;}
+  PW=window.open('','bis-present','width=1100,height=680');
+  if(!PW){snack('Your browser blocked the second window. Allow pop-ups for this site.','fa-solid fa-triangle-exclamation');return;}
+  const css=[...document.styleSheets].map(s=>{try{return [...s.cssRules].map(r=>r.cssText).join('\n');}catch(e){return '';}}).join('\n');
+  PW.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>WHMIS Classroom · Present</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"><style>${css}
+    html,body{background:#1d1d20;height:100%} body{display:flex;flex-direction:column}
+    .pw-h{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#2a2a2e;color:#e8e8ec;font-weight:600}
+    .pw-h button{margin-left:auto;color:#e8e8ec;border-color:#5c5c62} .pw-h button:hover{background:#38383d}
+    .pw-b{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;overflow:hidden}
+    .pw-b .cv-pdf{width:min(46%,560px)} .pw-b .cv-media,.pw-b .cv-slide,.pw-b .cv-q{width:min(90%,1200px)}</style></head>
+    <body><div class="pw-h"><span id="pw-t">WHMIS Classroom</span><button class="b b-sm" onclick="document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()"><i class="fa-solid fa-expand"></i>Full screen</button></div><div class="pw-b" id="pw-b"></div></body></html>`);
+  PW.document.close();
+  S.presenting=true; render();
+  const t=setInterval(()=>{if(!PW||PW.closed){clearInterval(t);if(S.presenting){S.presenting=false;render();}}},800);
+}
+function stopPresent(){if(PW&&!PW.closed)PW.close();PW=null;S.presenting=false;render();}
+function syncPresent(){
+  if(!S.presenting||!PW||PW.closed) return;
+  const d=docs().find(x=>x.id===S.sel), b=PW.document.getElementById('pw-b');
+  if(!b) return;
+  b.innerHTML=content(d,true);
+  PW.document.getElementById('pw-t').textContent='WHMIS Classroom'+(d?' · '+d.name:'');
+}
+
+/* =====================================================================
+   MODALS: Assign, Progress, Results
+   ===================================================================== */
+function renderModal(){
+  const L=document.getElementById('modal-root')||Object.assign(document.body.appendChild(document.createElement('div')),{id:'modal-root'});
+  if(!S.modal){L.innerHTML='';return;}
+  const keepScroll=L.querySelector('.res-r')?.scrollTop||0;
+  L.innerHTML=`<div class="ov" onclick="if(event.target===this)closeModal()">${S.modal.k==='assign'?assignModal():S.modal.k==='progress'?progressModal():resultsModal()}</div>`;
+  const rr=L.querySelector('.res-r'); if(rr) rr.scrollTop=keepScroll;
+}
+function closeModal(){S.modal=null;render();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.getElementById('layer').innerHTML)closeLayer();else if(S.modal)closeModal();}});
+
+/* ---------- Assign ---------- */
+function openAssign(){S.modal={k:'assign',who:'all',ppl:{}};render();}
+function assignModal(){
+  const m=S.modal, names=Object.keys(S.picked).map(id=>DOCS_ALL.find(d=>d.id===id).name);
+  const nppl=m.who==='all'?PEOPLE.length:Object.keys(m.ppl).length;
+  return `<div class="modal" role="dialog" aria-modal="true" aria-label="Assign"><div class="mh"><h2>Assign ${names.length===1?'1 course':names.length+' courses'}</h2><button class="ib" aria-label="Close" onclick="closeModal()">${I('fa-solid fa-xmark')}</button></div>
+    <div class="mb"><div class="mut" style="font-size:14px;margin-bottom:8px">${names.map(esc).join(' · ')}</div>
+      <button class="rd" role="radio" aria-checked="${m.who==='all'}" onclick="S.modal.who='all';render()"><i class="dot"></i>Everyone in this class (${PEOPLE.length})</button>
+      <button class="rd" role="radio" aria-checked="${m.who==='some'}" onclick="S.modal.who='some';render()"><i class="dot"></i>Only some people</button>
+      ${m.who==='some'?`<div style="margin:4px 0 0 26px;max-height:180px;overflow:auto">${PEOPLE.map((n,p)=>`<button class="rd" style="font-size:14px;padding:4px 0" onclick="S.modal.ppl[${p}]?delete S.modal.ppl[${p}]:S.modal.ppl[${p}]=1;render()"><span class="cb" aria-checked="${!!m.ppl[p]}">${I('fa-solid fa-check')}</span>${n}</button>`).join('')}</div>`:''}
+      <div class="mut" style="font-size:13px;margin-top:10px">${I('fa-solid fa-circle-info')} It shows in their Home tab, and their answers appear in Results. People already assigned won’t get a second copy. Anyone who joins the class later needs to be assigned again.</div></div>
+    <div class="mf"><button class="b b-ghost" onclick="closeModal()">Cancel</button><button class="b b-primary" ${nppl?'':'disabled'} onclick="doAssign(${nppl})">Assign to ${nppl} ${nppl===1?'person':'people'}</button></div></div>`;
+}
+function doAssign(n){const k=Object.keys(S.picked).length;S.modal=null;S.assign=false;S.picked={};render();snack(`Assigned ${k===1?'1 course':k+' courses'} to ${n} ${n===1?'person':'people'}. It shows in their Home tab.`);}
+
+/* ---------- Progress ---------- */
+function openProgress(p){S.modal={k:'progress',hl:p===undefined?null:p,sort:'name'};render();}
+function cell(qz,p){
+  const x=personQuiz(qz,p);
+  /* outlined chips: the colour lives in the icon only */
+  if(x.st==='na') return `<span class="oc" data-tip="Added after this course was assigned">${I('fa-solid fa-triangle-exclamation ic-warn')}Not assigned</span><button class="b b-ghost b-sm asg" onclick="assignOne('${qz.id}',${p})">Assign</button>`;
+  if(x.st==='not') return `<span class="oc">${I('fa-regular fa-circle ic-mute')}Not started</span>`;
+  if(x.st==='prog') return `<span class="oc">${I('fa-solid fa-spinner ic-info')}Question ${x.r+1} of ${x.tot}</span>${x.wrong?`<span class="hot-i cell-i" tabindex="0" data-tip="${x.wrong} wrong so far">${I('fa-solid fa-circle-exclamation')}</span>`:''}`;
+  return x.st==='pass'?`<span class="oc">${I('fa-solid fa-circle-check ic-ok')}Passed · ${x.score}%</span>`:`<span class="oc">${I('fa-solid fa-circle-xmark ic-bad')}Failed · ${x.score}%</span>`;
+}
+/* overall status across every course assigned to the person */
+function statusCell(p){
+  const as=Q.filter(qz=>!isNA(qz,p)), done=as.filter(qz=>qz.reached[p]===qz.qs.length).length, started=as.some(qz=>qz.reached[p]>0);
+  if(!as.length) return `<span class="oc">${I('fa-solid fa-triangle-exclamation ic-warn')}Not assigned</span>`;
+  if(done===as.length) return `<span class="oc">${I('fa-solid fa-circle-check ic-ok')}Completed</span>`;
+  if(!started) return `<span class="oc">${I('fa-regular fa-circle ic-mute')}Not started</span>`;
+  return `<span class="oc">${I('fa-solid fa-spinner ic-info')}In progress · ${done} of ${as.length}</span>`;
+}
+function progressModal(){
+  const m=S.modal; let ids=PEOPLE.map((_,p)=>p);
+  if(m.sort==='wrong') ids.sort((a,b)=>wrongTotal(b)-wrongTotal(a));
+  if(m.sort==='name') ids.sort((a,b)=>PEOPLE[a].localeCompare(PEOPLE[b]));
+  return `<div class="modal wide" role="dialog" aria-modal="true" aria-label="Progress"><div class="mh"><h2>Progress</h2>${liveChip()}<button class="ib" aria-label="Close" onclick="closeModal()">${I('fa-solid fa-xmark')}</button></div>
+    <div class="mb" style="flex:1">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span class="mut" style="font-size:14px">Everyone’s progress on the online courses assigned in this class.</span>
+        <span style="margin-left:auto" class="mut">Sort</span><div class="seg"><button aria-pressed="${m.sort==='name'}" onclick="S.modal.sort='name';render()">A to Z</button><button aria-pressed="${m.sort==='wrong'}" onclick="S.modal.sort='wrong';render()">Most wrong first</button></div></div>
+      <div class="twrap"><table class="tbl ptbl"><thead><tr><th>Participant</th><th>Status</th><th>Wrong answers</th>${Q.map(qz=>`<th>${esc(qz.name)}<div class="sub">${qz.qs.length} questions · pass ${qz.pass}%${qz.final?' · final exam':''}</div></th>`).join('')}</tr></thead>
+      <tbody>${ids.map(p=>{const miss=missingOf(p);return `<tr${m.hl===p?' class="hl"':''}><td><span style="display:flex;align-items:center;gap:8px">${Av(p)}<b style="font-weight:600">${PEOPLE[p]}</b>${miss.length>1?`<button class="b b-ghost b-sm asg" style="margin-left:auto" data-tip="Assign all ${miss.length} missing courses" onclick="assignPerson(${p})">Assign all</button>`:''}</span></td>
+        <td>${statusCell(p)}</td>
+        <td>${wrongTotal(p)?`<span class="oc" tabindex="0" data-tip="${esc(wrongList(p))}">${I('fa-solid fa-circle-xmark ic-bad')}${wrongTotal(p)} wrong</span>`:'<span class="mut">None</span>'}</td>${Q.map(qz=>`<td>${cell(qz,p)}</td>`).join('')}</tr>`;}).join('')}</tbody></table></div></div>
+    <div class="mf"><button class="b b-ghost" onclick="closeModal()">Close</button></div></div>`;
+}
+
+/* ---------- Results (with Most Challenging Questions) ---------- */
+function openResults(pick,qi,focus){
+  S.res.pick=pick||'all'; S.res.open={}; S.res.order=null; S.res.pending=false;
+  if(qi!==null&&qi!==undefined) S.res.open[pick+':'+qi]=1;
+  S.modal={k:'results',focus:focus||null}; render();
+  if(focus==='people') setTimeout(()=>document.getElementById('sec-people')?.scrollIntoView({block:'start'}),30);
+}
+function liveChip(){return `<span class="live${S.live?'':' snap'}" id="livechip">${S.live?'<span class="dot"></span>Live':I('fa-solid fa-pause')+'Paused'} <small>updated ${ago()}</small><button class="ib ib-sm" style="width:18px;height:18px" data-tip="Refresh now" onclick="tick(true)">${I('fa-solid fa-rotate')}</button></span>`;}
+function resultsModal(){
+  const r=S.res, mis=allMissed();
+  const picks=`<div class="pick-h">View</div><button class="pick${r.pick==='all'?' on':''}" onclick="openResults('all')"><b>${I('fa-solid fa-ranking-star')}All courses</b><small>Most missed questions and who needs help</small></button>
+    <div class="pick-h">Online courses</div>${Q.map(qz=>{const st=qz.qs.map((_,i)=>qStats(qz,i)), hard=st.filter(s=>s.bad&&s.pct>=50).length, started=PEOPLE.filter((_,p)=>qz.reached[p]>0).length;
+      return `<button class="pick${r.pick===qz.id?' on':''}" onclick="openResults('${qz.id}')"><b>${esc(qz.name)}</b><small>${started} of ${assignedN(qz)} started${hard?` · <span style="color:var(--danger);font-weight:600" data-tip="Hard = half or more of the people who answered got it wrong (to confirm)">${hard} hard question${hard===1?'':'s'}</span>`:''}</small></button>`;}).join('')}`;
+  return `<div class="modal wide" role="dialog" aria-modal="true" aria-label="Results"><div class="mh"><h2>Results</h2>${liveChip()}<button class="ib" aria-label="Close" onclick="closeModal()">${I('fa-solid fa-xmark')}</button></div>
+    <div class="res"><nav class="res-l" aria-label="Pick a course">${picks}</nav><div class="res-r">${r.pick==='all'?resAll(mis):resQuiz(Q.find(x=>x.id===r.pick))}</div></div>
+    <div class="mf"><span class="mut" style="font-size:13px;margin-right:auto">${I('fa-solid fa-lock')} Only you see this. The second screen only shows what you present.</span><button class="b b-ghost" onclick="closeModal()">Close</button></div></div>`;
+}
+function resAll(mis){
+  const nh=needHelp();
+  return `<div class="res-top"><h3>All courses</h3></div><div class="res-sum">Where the class is struggling, across ${Q.length} online courses.</div>
+    <div class="ovsec"><h4>Most missed questions <span class="cnt">${Math.min(mis.length,5)}</span></h4>
+      ${mis.length?mis.slice(0,5).map((m,k)=>qRow(m.qz,m.i,k+1,true)).join(''):`<div class="es"><div class="es-i">${I('fa-regular fa-face-smile')}</div><b>No wrong answers yet</b></div>`}</div>
+    <div class="ovsec" id="sec-people"><h4>People who may need help <span class="cnt">${nh.length}</span><span class="mut" style="font-weight:400;font-size:13px">3 or more wrong answers</span></h4>
+      ${nh.map(x=>{const qs=[];Q.forEach(qz=>qz.qs.forEach((q,i)=>{if(q.w[x.p]!==undefined&&answered(qz,i,x.p))qs.push(qz.short+' Q'+(i+1));}));
+        return `<div class="lrow">${Av(x.p)}<span><div class="n">${x.n}</div><div class="s">Missed: ${qs.join(', ')}</div></span><span class="chip chip-danger">${x.w} wrong</span></div>`;}).join('')||'<div class="mut">Nobody yet.</div>'}</div>`;
+}
+function resQuiz(qz){
+  const r=S.res, st=qz.qs.map((_,i)=>qStats(qz,i));
+  if(qz.order==='random') return `<div class="res-top"><h3>${esc(qz.name)}</h3></div><div class="rnd">${I('fa-solid fa-shuffle')}<span>This course shuffles its questions. Results show here as people answer.</span></div>`;
+  let order=qz.qs.map((_,i)=>i);
+  const ranked=order.slice().sort((a,b)=>st[b].bad-st[a].bad||st[b].pct-st[a].pct||a-b);
+  if(r.sort==='missed'){ if(!r.order||r.order.qz!==qz.id) r.order={qz:qz.id,ids:ranked}; order=r.order.ids; }
+  const started=PEOPLE.filter((_,p)=>qz.reached[p]>0).length, done=PEOPLE.filter((_,p)=>qz.reached[p]===qz.qs.length).length, na=(qz.na||[]).length;
+  const changed=r.sort==='missed'&&r.order&&r.order.ids.join()!==ranked.join();
+  return `<div class="res-top"><h3>${esc(qz.name)}</h3>${qz.final?'<span class="chip chip-info">Final exam</span>':''}<span class="chip">Pass ${qz.pass}%</span>
+      <span class="r"><span class="mut">Sort</span><div class="seg"><button aria-pressed="${r.sort==='missed'}" onclick="S.res.sort='missed';S.res.order=null;render()">Most missed first</button><button aria-pressed="${r.sort==='course'}" onclick="S.res.sort='course';render()">Course order</button></div></span></div>
+    <div class="res-sum">${started} of ${assignedN(qz)} started · ${done} finished${na?` · <span style="color:var(--warning);font-weight:600">${na} not assigned</span>`:''} · click a question to see who picked what</div>
+    ${changed?`<div class="newbar">${I('fa-solid fa-arrow-down-up-across-line')}New answers changed the order<button onclick="S.res.order=null;render()">Update order</button></div>`:''}
+    ${order.map((i,k)=>qRow(qz,i,r.sort==='missed'?k+1:i+1,false)).join('')}`;
+}
+function qRow(qz,i,rank,showQuiz){
+  const q=qz.qs[i], s=qStats(qz,i), key=qz.id+':'+i, open=!!S.res.open[key];
+  const okN=s.n-s.bad, notYet=PEOPLE.map((_,p)=>p).filter(p=>!answered(qz,i,p)&&!isNA(qz,p)), naP=qz.na||[];
+  const right=PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p)&&q.w[p]===undefined);
+  const wrongBy=q.o.map((_,o)=>PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p)&&q.w[p]===o));
+  const hot=s.n&&s.pct>=50, topWrong=Math.max(0,...wrongBy.filter((_,o)=>o!==q.c).map(x=>x.length));
+  const det=`<div class="qd">
+      <div class="ans ok"><span class="ltr">${L[q.c]}</span><span class="at"><b>${esc(q.o[q.c])}</b> <span class="mut" style="font-size:12px">correct answer</span><div class="ppl">${right.map(PChip).join('')||'<span class="mut" style="font-size:12px">Nobody yet</span>'}</div></span><span class="ct">${right.length}</span></div>
+      ${q.o.map((o,oi)=>oi===q.c||!wrongBy[oi].length?'':`<div class="ans bad"><span class="ltr">${L[oi]}</span><span class="at"><b>${esc(o)}</b>${hot&&wrongBy[oi].length===topWrong?`<span class="hot-i" data-tip="Most picked wrong answer: the main reason this question is flagged">${I('fa-solid fa-circle-exclamation')}</span>`:''}<div class="ppl">${wrongBy[oi].map(PChip).join('')}</div></span><span class="ct">${wrongBy[oi].length}</span></div>`).join('')}
+      ${notYet.length?`<div class="ans none"><span class="ltr">${I('fa-regular fa-clock')}</span><span class="at"><b class="mut">Not answered yet</b><div class="ppl">${notYet.map(PChip).join('')}</div></span><span class="ct mut">${notYet.length}</span></div>`:''}
+      ${naP.length?`<div class="ans none"><span class="ltr">${I('fa-solid fa-user-clock')}</span><span class="at"><b class="mut">Not assigned (joined later)</b><div class="ppl">${naP.map(PChip).join('')}</div></span><button class="b b-sm" onclick="event.stopPropagation();${naP.map(p=>`assignOne('${qz.id}',${p})`).join(';')}">Assign</button></div>`:''}
+    </div>`;
+  return `<div class="qrow${open?' open':''}"><button class="qh" aria-expanded="${open}" onclick="S.res.open['${key}']?delete S.res.open['${key}']:S.res.open['${key}']=1;render()">
+      <span class="rk">${rank}${hot?`<span class="hot-i" data-tip="Hard question: half or more got it wrong">${I('fa-solid fa-circle-exclamation')}</span>`:''}</span><span class="qt">${esc(q.t)}<small>${showQuiz?esc(qz.name)+' · ':''}Question ${i+1}</small></span>
+      <span class="st"><span><b style="color:${s.bad?'var(--danger)':'var(--text-secondary)'}">${s.n?`${s.bad} of ${s.n} wrong`:'No answers yet'}</b><span class="mut">${s.n?s.pct+'%':''}</span></span>
+        <span class="pb"><span class="bad" style="width:${s.n?s.bad/PEOPLE.length*100:0}%"></span><span class="ok" style="width:${s.n?okN/PEOPLE.length*100:0}%"></span></span></span>
+      <span class="ch">${I('fa-solid fa-chevron-right')}</span></button>${det}</div>`;
+}
+
+/* =====================================================================
+   LIVE: every 10 seconds a learner answers the next question (sample feed)
+   ===================================================================== */
+function tick(manual){
+  if(manual){const c=document.getElementById('livechip');if(c)c.classList.add('spin');setTimeout(()=>{S.lastUpd=Date.now();render();},500);return;}
+  if(!S.live) return;
+  const f=FEED[S.feed]; if(!f){S.lastUpd=Date.now();render();return;}
+  S.feed++;
+  const [p,qid,wrong]=f, qz=Q.find(x=>x.id===qid);
+  if(qz.reached[p]<qz.qs.length){ if(wrong>=0) qz.qs[qz.reached[p]].w[p]=wrong; qz.reached[p]++; }
+  const c=document.getElementById('livechip'); if(c) c.classList.add('spin');
+  setTimeout(()=>{S.lastUpd=Date.now();render();},500);
+}
+setInterval(()=>tick(false),10000);
+setInterval(()=>{const c=document.getElementById('livechip');if(c&&!c.classList.contains('spin')){const sm=c.querySelector('small');if(sm)sm.textContent='updated '+ago();}},1000);
+
+/* review bar */
+function setDocs(on){S.docsOn=on;S.sel=null;S.assign=false;S.picked={};document.getElementById('rv-docs-some').classList.toggle('on',on);document.getElementById('rv-docs-none').classList.toggle('on',!on);render();}
+function setLive(on){S.live=on;document.getElementById('rv-live-on').classList.toggle('on',on);document.getElementById('rv-live-off').classList.toggle('on',!on);render();}
+function setMany(on){MANY=on;const m=S.modal;fresh();S.modal=m;document.getElementById('rv-c2').classList.toggle('on',!on);document.getElementById('rv-c10').classList.toggle('on',on);render();}
+function setScen(k){SCEN=k;fresh();['live','good','empty'].forEach(x=>document.getElementById('rv-s-'+x).classList.toggle('on',x===k));render();}
+function resetAll(){stopPresent();MANY=false;SCEN='live';setScen('live');setMany(false);setDocs(true);setLive(true);}
+/* crossing into tablet width closes the drawers; back to desktop opens both panels */
+let wasNarrow=narrow();
+addEventListener('resize',()=>{const n=narrow();if(n!==wasNarrow){wasNarrow=n;S.left=S.right=!n;render();}});
+
+/* tooltips (data-tip) */
+const tip=document.getElementById('tip');
+document.addEventListener('mouseover',e=>{const t=e.target.closest('[data-tip]');if(!t){tip.style.display='none';return;}
+  tip.textContent=t.dataset.tip;tip.style.display='block';const r=t.getBoundingClientRect(),w=tip.offsetWidth;
+  tip.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left+r.width/2-w/2))+'px';tip.style.top=(r.bottom+6+tip.offsetHeight>innerHeight?r.top-tip.offsetHeight-6:r.bottom+6)+'px';});
+document.addEventListener('focusin',e=>{if(!e.target.closest('[data-tip]'))tip.style.display='none';});
+
+render();
+</script>
+</body>
+</html>
