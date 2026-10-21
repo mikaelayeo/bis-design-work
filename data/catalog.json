@@ -639,14 +639,6 @@
       "kind": "item",
       "audience": "showcase",
       "category": "docs",
-      "title": "Site management roadmap",
-      "date": "2026-08-26",
-      "path": "showcase/docs/site-management-roadmap.html"
-    },
-    {
-      "kind": "item",
-      "audience": "showcase",
-      "category": "docs",
       "title": "Wayfinding & the Back Button",
       "date": "2026-08-21",
       "path": "showcase/docs/wayfinding-and-the-back-button.html"
@@ -736,131 +728,19 @@
     },
     {
       "kind": "item",
-      "audience": "studio",
-      "category": "docs",
-      "title": "BIS Summer Olympics Dashboard",
-      "date": "2026-06-17",
-      "path": "studio/docs/bis%20olympics/index.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "docs",
-      "title": "Building what matters",
-      "date": "2026-06-12",
-      "path": "studio/docs/building-what-matters.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
+      "audience": "showcase",
       "category": "docs",
       "title": "Mobile Release Train",
       "date": "2026-10-02",
-      "path": "studio/docs/mobile-release-train.html"
+      "path": "showcase/docs/mobile-release-train.html"
     },
     {
       "kind": "item",
-      "audience": "studio",
+      "audience": "showcase",
       "category": "docs",
-      "title": "Product trio",
-      "date": "2026-05-20",
-      "path": "studio/docs/product-trio.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "docs",
-      "title": "Sprint process",
-      "date": "2026-06-10",
-      "path": "studio/docs/sprint-process.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "docs",
-      "title": "Upper bound notes 2",
-      "date": "2026-06-15",
-      "path": "studio/docs/upper-bound-notes-2.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "analysis",
-      "title": "Mika Workflow Timeline",
-      "date": "2026-06-15",
-      "path": "studio/analysis/Mika%20Workflow%20Timeline.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "analysis",
-      "title": "Park paving — site visit",
-      "date": "2026-06-05",
-      "path": "studio/analysis/park-paving-site-visit/index.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "analysis",
-      "title": "Q1 solution testing roadmap",
-      "date": "2026-06-15",
-      "path": "studio/analysis/q1-solution-testing-roadmap.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "analysis",
-      "title": "Ticket timeline",
-      "date": "2026-06-15",
-      "path": "studio/analysis/ticket-timeline.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "analysis",
-      "title": "Toggl deep dive",
-      "date": "2026-06-15",
-      "path": "studio/analysis/toggl-deep-dive.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "presentations",
-      "title": "Design value team structure learnings",
-      "date": "2026-06-15",
-      "path": "studio/presentations/design-value-team-structure-learnings.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "presentations",
-      "title": "Dev sync component system",
-      "date": "2026-06-15",
-      "path": "studio/presentations/dev-sync-component-system.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "presentations",
-      "title": "Park paving index",
-      "date": "2026-06-15",
-      "path": "studio/presentations/park-paving-index.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "presentations",
-      "title": "Presentation day mika",
-      "date": "2026-06-15",
-      "path": "studio/presentations/presentation-day-mika.html"
-    },
-    {
-      "kind": "item",
-      "audience": "studio",
-      "category": "presentations",
-      "title": "Sprint planning proposal",
-      "date": "2026-06-15",
-      "path": "studio/presentations/sprint-planning-proposal.html"
+      "title": "Site management roadmap",
+      "date": "2026-08-26",
+      "path": "showcase/docs/site-management-roadmap.html"
     }
   ]
 }
