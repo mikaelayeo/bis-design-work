@@ -622,6 +622,14 @@
       "kind": "item",
       "audience": "showcase",
       "category": "docs",
+      "title": "Mobile Release Train",
+      "date": "2026-10-02",
+      "path": "showcase/docs/mobile-release-train.html"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "docs",
       "title": "Notification documentation",
       "date": "2026-06-15",
       "path": "showcase/docs/TKT-19627-notification-documentation.html",
@@ -634,6 +642,14 @@
       "title": "Notification system spec",
       "date": "2026-06-15",
       "path": "showcase/docs/notification-system-spec.html"
+    },
+    {
+      "kind": "item",
+      "audience": "showcase",
+      "category": "docs",
+      "title": "Site management roadmap",
+      "date": "2026-08-26",
+      "path": "showcase/docs/site-management-roadmap.html"
     },
     {
       "kind": "item",
@@ -725,22 +741,6 @@
           "date": "2026-10-14"
         }
       ]
-    },
-    {
-      "kind": "item",
-      "audience": "showcase",
-      "category": "docs",
-      "title": "Mobile Release Train",
-      "date": "2026-10-02",
-      "path": "showcase/docs/mobile-release-train.html"
-    },
-    {
-      "kind": "item",
-      "audience": "showcase",
-      "category": "docs",
-      "title": "Site management roadmap",
-      "date": "2026-08-26",
-      "path": "showcase/docs/site-management-roadmap.html"
     }
   ]
 }
