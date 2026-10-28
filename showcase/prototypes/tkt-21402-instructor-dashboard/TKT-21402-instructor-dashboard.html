@@ -94,6 +94,7 @@ body:not(.rv-on) #review{display:none}
    3. COMPONENTS (BIS library look-alikes, from the FM prototype)
    =================================================================== */
 .b{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:var(--h-btn);padding:4px 8px;border-radius:var(--r-base);border:1px solid var(--stroke-default);background:transparent;font-size:16px;line-height:26px;font-weight:600;white-space:nowrap;color:var(--text-secondary)}
+.b.b-icon{width:var(--h-btn);padding:0}
 .b:hover{background:var(--surface-lightest)}
 .b i{font-size:15px}
 .b-primary{background:var(--primary);border-color:transparent;color:var(--text-on)}
@@ -379,6 +380,37 @@ button.blk:hover{border-color:var(--stroke-default);box-shadow:var(--shadow-L1)}
 .spq{padding:8px 0 2px;border-top:1px solid var(--stroke-light);margin-top:6px}
 .spt{font-size:13px;font-weight:600}.spt small{display:block;font-weight:400;font-size:12px;color:var(--text-secondary)}
 .spa{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--text-secondary);margin-top:4px}.spa b{color:var(--text-primary);font-weight:600}.spa .mq-ok{color:var(--color-text-success,var(--text-primary))}
+/* single screen */
+.ptbl.mini th:nth-child(3),.ptbl.mini td:nth-child(3){position:static;min-width:220px;width:220px;border-right:0}
+.ptbl.mini th:nth-child(2),.ptbl.mini td:nth-child(2){border-right:1px solid var(--stroke-default)}
+.prow .m .oc{font-size:12px;white-space:nowrap}
+.blk .v.vq{font-size:14px;line-height:20px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.scr-chip{display:inline-flex;align-items:center;gap:4px}
+.hero .hact .scr-chip{align-self:center}
+.scr-mi{align-items:flex-start;gap:10px;white-space:normal;text-align:left}
+.scr-mi>i{margin-top:3px}
+.scr-mi b{display:block;font-weight:600}.scr-mi small{display:block;font-size:12px;line-height:16px;color:var(--text-secondary)}
+.modal{position:relative}
+.modal.priv>*:not(.mh):not(.mf):not(.cover){filter:blur(9px);pointer-events:none;user-select:none}
+.cover{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--surface-default);border:1px solid var(--stroke-light);border-radius:var(--r-md);box-shadow:var(--shadow-L1);padding:24px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;max-width:360px}
+.cover .es-i{font-size:20px}.cover b{font-size:16px}.cover p{font-size:14px;color:var(--text-secondary);margin:0 0 6px}
+#pres1{position:fixed;inset:0;z-index:300;background:#1d1d20;display:flex;flex-direction:column}
+#pres1 .pw-h{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#2a2a2e;color:#e8e8ec;font-weight:600}
+#pres1 .pw-h .r{margin-left:auto;display:flex;gap:6px}#pres1 .pw-h button{color:#e8e8ec;border-color:#5c5c62;background:transparent}#pres1 .pw-h button.on{background:#38383d}
+#pres1 .p1-b{flex:1;display:flex;min-height:0}
+.p1-docs{width:300px;flex-shrink:0;background:#2a2a2e;border-left:1px solid #3a3a3f;overflow:auto;padding:8px}
+.p1-h{color:#a9a9b0;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:6px 8px}
+.p1-d{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 8px;border-radius:8px;color:#e8e8ec;min-height:48px}
+.p1-d:hover{background:#34343a}.p1-d.on{background:#3d4a57}
+.p1-d b{display:block;font-size:14px;font-weight:600}.p1-d small{font-size:12px;color:#a9a9b0}
+.p1-d .tyi{width:28px;text-align:center;color:#a9a9b0}
+.res-gen{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;border:1px dashed var(--stroke-default);border-radius:var(--r-md);font-size:14px;margin:6px 0}
+.res-gen .b{margin-left:auto}
+.mq-oh .b{margin-left:10px;text-transform:none;letter-spacing:0;font-weight:400}
+.scr-badge{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border-radius:var(--r-round);border:1px solid var(--stroke-light);background:var(--surface-lightest);color:var(--text-secondary);font-size:11px;font-weight:400;white-space:nowrap;flex-shrink:0}
+.scr-badge i{font-size:10px;opacity:.8}.scr-badge:hover{border-color:var(--stroke-default)}
+#pres1 .pw-b{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;overflow:hidden}
+#pres1 .pw-b .cv-pdf{width:min(46%,560px)} #pres1 .pw-b .cv-media,#pres1 .pw-b .cv-slide,#pres1 .pw-b .cv-q{width:min(90%,1200px)}
 /* drag a document onto the preview */
 .stage.drop .pv{outline:2px dashed var(--primary-stroke,#1a73e8);outline-offset:-2px}
 .stage.drop .pv-b::after{content:'Drop to preview';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.8);font-weight:600;font-size:16px;color:var(--primary-text)}
@@ -580,7 +612,7 @@ function fresh(){
   if(SCEN==='empty') Q=[];
   const wide=!narrow();
   S={left:wide,right:wide,docsOn:true,view:'grid',sort:'admin',q:'',pq:'',psort:'az',sel:null,seg:0,assign:false,picked:{},
-     presenting:false,live:true,feed:0,lastUpd:Date.now(),
+     presenting:false,single:false,showProg:false,rev:{},docs1:false,live:true,feed:0,lastUpd:Date.now(),
      modal:null,res:{pick:'all',sort:'missed',open:{},order:null,pending:false}};
 }
 fresh();
@@ -626,9 +658,9 @@ const I=c=>`<i class="${c}" aria-hidden="true"></i>`;
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const Av=p=>`<span class="av" aria-hidden="true">${ini(PEOPLE[p])}</span>`;
 const wa=n=>n+' wrong answer'+(n===1?'':'s');
-/* a name chip jumps to that person in the participant list */
-function goPerson(p){closeModal();S.left=true;S.pq='';render();const r=document.querySelector(`.prow[data-p="${p}"]`);if(r){r.scrollIntoView({block:'center'});r.classList.add('flash');setTimeout(()=>r.classList.remove('flash'),1800);}}
-const PChip=p=>`<button class="pchip" data-tip="Show in the participant list" onclick="event.stopPropagation();goPerson(${p})">${Av(p)}${PEOPLE[p]}</button>`;
+/* a name chip opens Progress with that person's row highlighted */
+function goPerson(p){S.rev={};openProgress(p);setTimeout(()=>document.querySelector('.ptbl tr.hl')?.scrollIntoView({block:'center'}),30);}
+const PChip=p=>`<button class="pchip" data-tip="Show in Progress" onclick="event.stopPropagation();goPerson(${p})">${Av(p)}${PEOPLE[p]}</button>`;
 function sv(tone,html){const ic={neg:'fa-solid fa-xmark',wait:'fa-solid fa-hourglass-half',pos:'fa-solid fa-check'}[tone];return `<span class="sv sv-${tone}"><span class="sv-i">${I(ic)}</span><span>${html}</span></span>`;}
 function ago(){const s=Math.round((Date.now()-S.lastUpd)/1000);return s<5?'just now':s+'s ago';}
 function snack(msg,icon){
@@ -642,7 +674,7 @@ function snack(msg,icon){
 function render(){
   const scrim=narrow()&&(S.left||S.right)?`<div class="scrim" onclick="S.left=false;S.right=false;render()"></div>`:'';
   document.getElementById('app').innerHTML=topbar()+`<div class="body">${leftPanel()}${centre()}${rightPanel()}${scrim}</div>`;
-  renderModal(); syncPresent();
+  renderModal(); syncPresent(); renderPres1();
 }
 function topbar(){
   return `<div class="topbar">
@@ -660,8 +692,8 @@ function leftPanel(){
   const done=PEOPLE.filter((_,p)=>finished(p)).length, late=lateJoiners();
   const card1=top?`<button class="blk wide" onclick="openResults('all')" data-tip="See who chose which answer">
       <div class="k">Most challenging question ${I('fa-solid fa-chevron-right')}</div>
-      <div class="v">${sv('wait',`<b>${top.bad} of ${top.n}</b> <span class="mut" style="font-size:13px">chose a wrong answer</span>`)}</div>
-      <div class="v2">Q${top.i+1} · ${esc(top.q.t)}</div></button>`
+      <div class="v vq">${esc(top.q.t)}</div>
+      <div class="v2">${top.bad} of ${top.n} chose a wrong answer · ${esc(top.qz.short)} Q${top.i+1}</div></button>`
     :`<div class="blk wide"><div class="k">Most challenging question</div><div class="v">${Q.some(qz=>qz.reached.some(r=>r>0))?sv('pos','All correct so far'):sv('pos','None yet')}</div><div class="v2">${Q.some(qz=>qz.reached.some(r=>r>0))?'Everyone chose the correct answer so far':'Shows as answers come in'}</div></div>`;
   const card2=`<button class="blk" onclick="openResults('people')" data-tip="People with 3 or more wrong answers">
       <div class="k">Students who need help ${I('fa-solid fa-chevron-right')}</div>
@@ -682,7 +714,7 @@ function leftPanel(){
       <div class="sec-h"><h3>Overview</h3>
         <div class="r"><button class="b b-sm" onclick="openResults('all')">${I('fa-solid fa-chart-simple')}Results</button></div></div>
       <div class="ovw">${cards}</div>
-      <div class="sec-h"><h3>Participants</h3><span class="cnt">${PEOPLE.length}</span>
+      <div class="sec-h"><h3>Participants</h3>${S.single?'':`<span class="cnt">${PEOPLE.length}</span>`}
         <div class="r"><button class="b b-sm" ${Q.length?'':'disabled'} onclick="openProgress()">${I('fa-solid fa-users')}Progress</button></div></div>
       <div class="dtools"><label class="search"><span class="sr">Search participants</span>${I('fa-solid fa-magnifying-glass')}<input id="pq" placeholder="Search people" value="${esc(S.pq)}" oninput="S.pq=this.value;renderPeople()"></label>
         <button class="ib" data-tip="Sort: ${PSORTS.find(x=>x[0]===S.psort)[1]}" onclick="openSort(this,'people')">${I('fa-solid fa-arrow-down-short-wide')}</button></div>
@@ -703,13 +735,14 @@ function peopleBody(){
 }
 function renderPeople(){document.getElementById('plist').innerHTML=peopleBody();}
 function pRow(p){
+  if(S.single) return `<button class="prow" data-p="${p}" onclick="openProgress(${p})">${Av(p)}<span class="t"><span class="n">${PEOPLE[p]}</span></span><span class="m"><small>${miniStatus(p)}</small></span></button>`;
   const xs=Q.map(qz=>({qz,...personQuiz(qz,p)})), as=xs.filter(x=>x.st!=='na'), w=wrongTotal(p), miss=xs.length-as.length;
   const doneN=as.filter(x=>x.r===x.tot).length, cur=as.find(x=>x.st==='prog');
   const now=!Q.length?'Nothing assigned yet':!as.length?'Added after courses were assigned':cur?`In ${cur.qz.name} · Q${cur.r+1} of ${cur.tot}`:
     as.every(x=>x.st==='not')?'Not started':doneN===as.length?'Finished everything':'Waiting to start the next course';
   return `<button class="prow" data-p="${p}" onclick="openProgress(${p})">${Av(p)}<span class="t"><span class="n">${PEOPLE[p]}${miss?`<span class="na-t" data-tip="${miss} course${miss===1?'':'s'} not assigned. They joined after the courses were assigned.">Not assigned</span>`:''}</span>
       <span class="s">${now}</span></span>
-    <span class="m"><small>${as.length?`${doneN}/${as.length} done`:''}</small>${w?`<small class="wr">${wa(w)}</small>`:''}</span></button>`;
+    <span class="m"><small>${as.length?`${doneN}/${as.length} done`:''}</small></span></button>`;
 }
 function assignMissing(){const late=lateJoiners();Q.forEach(qz=>qz.na=[]);render();snack(`Assigned the missing courses to ${late.map(p=>PEOPLE[p]).join(', ')}`);}
 function assignPerson(p){const miss=missingOf(p);miss.forEach(qz=>qz.na=qz.na.filter(x=>x!==p));render();snack(`Assigned ${miss.length} courses to ${PEOPLE[p]}`);}
@@ -720,8 +753,8 @@ function centre(){
   const d=docs().find(x=>x.id===S.sel);
   const hero=`<div class="hero"><div class="hb"></div><div class="hm"><div class="hi">${I('fa-solid fa-calendar-days')}</div>
     <div class="ht"><h2>WHMIS Classroom</h2><div class="hmeta"><span><b>Instructor:</b> Mikaela Yeo</span><span class="sep">•</span><span><b>Starts:</b> Oct 20, 2026, 8:00 AM</span><span class="sep">•</span><span>${PEOPLE.length} participants</span></div></div>
-    <div class="hact"><button class="b" onclick="snack('Opens the Discussion Board','fa-regular fa-comments')">${I('fa-regular fa-comments')}Discussion Board <span class="cnt cnt-primary">1</span></button></div></div></div>`;
-  const head=`<div class="pv-h"><span class="ti">${d?`<span class="tyi">${I(KIND[d.kind].i)}</span><b>${esc(d.name)}</b><span class="chip">${KIND[d.kind].l}</span>`:`<b class="mut" style="font-weight:400">Preview</b>`}</span>
+    <div class="hact"><button class="b b-icon" data-tip="Screen setup" aria-label="Screen setup" onclick="event.stopPropagation();openScreen(this)">${I('fa-solid fa-gear')}</button><button class="b" onclick="snack('Opens the Discussion Board','fa-regular fa-comments')">${I('fa-regular fa-comments')}Discussion Board <span class="cnt cnt-primary">1</span></button></div></div></div>`;
+  const head=`<div class="pv-h"><span class="ti">${d?`<span class="tyi">${I(KIND[d.kind].i)}</span><b>${esc(d.name)}</b><span class="chip">${KIND[d.kind].l}</span>`:`<b class="mut" style="font-weight:400">Preview</b>`}${scrBadge()}</span>
     ${S.presenting?`<span class="onair"><span class="dot"></span>On the second screen</span><button class="b b-sm" onclick="stopPresent()">${I('fa-solid fa-stop')}Stop</button>`
       :`<button class="b b-primary" onclick="present()" data-tip="Opens a second window for the projector. Only what you pick here shows there.">${I('fa-solid fa-display')}Present</button>`}</div>`;
   const foot=d?`<div class="pv-f">${footInfo(d)}<span class="r">
@@ -784,7 +817,7 @@ function thumb(d){return d.kind==='pdf'?`<span class="mini">${'<i></i>'.repeat(7
 function acts(d,list){
   const warn=d.kind==='pptx';
   const pres=`<button class="ib ib-sm" ${warn?'disabled':''} data-tip="${warn?'Can’t present a .pptx. Save it as HTML5 (.zip) first.':'Present on the second screen'}" onclick="event.stopPropagation();pick('${d.id}');present()">${I('fa-solid fa-display')}</button>`;
-  const asg=d.assign?`<button class="ib ib-sm" data-tip="Assign to participants" onclick="event.stopPropagation();S.assign=true;S.picked={'${d.id}':1};render()">${I('fa-solid fa-user-plus')}</button>`:'';
+  const asg=d.assign?`<button class="ib ib-sm" data-tip="Assign to participants" onclick="event.stopPropagation();S.picked={'${d.id}':1};openAssign()">${I('fa-solid fa-user-plus')}</button>`:'';
   return (warn?`<span class="warn-i" data-tip="PowerPoint must be HTML5 (.zip) to play">${I('fa-solid fa-triangle-exclamation')}</span>`:'')+(list?asg+pres:asg+pres);
 }
 /* click or drag a document onto the centre panel to preview it (not while picking for Assign) */
@@ -819,6 +852,7 @@ function closeLayer(){document.getElementById('layer').innerHTML='';}
    PRESENT: a second window for the projector. Only the picked item shows there.
    ===================================================================== */
 function present(){
+  if(S.single){S.presenting=true;render();return;}
   if(PW&&!PW.closed){PW.focus();S.presenting=true;render();return;}
   PW=window.open('','bis-present','width=1100,height=680');
   if(!PW){snack('Your browser blocked the second window. Allow pop-ups for this site.','fa-solid fa-triangle-exclamation');return;}
@@ -836,20 +870,43 @@ function present(){
 }
 function presentQ(qid,i){S.presQ={qid,i};present();}
 function stopPresent(){S.presQ=null;if(PW&&!PW.closed)PW.close();PW=null;S.presenting=false;render();}
-function syncPresent(){
-  if(!S.presenting||!PW||PW.closed) return;
-  const d=docs().find(x=>x.id===S.sel), b=PW.document.getElementById('pw-b');
-  if(!b) return;
-  if(S.presQ){ /* a question for the class: answer counts only, never names */
+/* what the class sees: the picked document, or a question with answer counts only (never names) */
+function presInner(){
+  const d=docs().find(x=>x.id===S.sel);
+  if(S.presQ){
     const qz=Q.find(x=>x.id===S.presQ.qid), i=S.presQ.i, q=qz.qs[i];
-    b.innerHTML=`<div class="pq"><div class="pq-k">Let’s review · Question ${i+1}</div><h2>${esc(q.t)}</h2>${q.o.map((o,oi)=>{
+    return {t:'WHMIS Classroom · '+qz.name,h:`<div class="pq"><div class="pq-k">Let’s review · Question ${i+1}</div><h2>${esc(q.t)}</h2>${q.o.map((o,oi)=>{
       const n=PEOPLE.filter((_,p)=>answered(qz,i,p)&&(oi===q.c?q.w[p]===undefined:q.w[p]===oi)).length;
-      return `<div class="pq-o${oi===q.c?' ok':''}"><span class="ltr">${L[oi]}</span><span class="t">${esc(o)}${oi===q.c?'<small>Correct answer</small>':''}</span><span class="n">${n}</span></div>`;}).join('')}</div>`;
-    PW.document.getElementById('pw-t').textContent='WHMIS Classroom · '+qz.name;
-    return;
+      return `<div class="pq-o${oi===q.c?' ok':''}"><span class="ltr">${L[oi]}</span><span class="t">${esc(o)}${oi===q.c?'<small>Correct answer</small>':''}</span><span class="n">${n}</span></div>`;}).join('')}</div>`};
   }
-  b.innerHTML=content(d,true);
-  PW.document.getElementById('pw-t').textContent='WHMIS Classroom'+(d?' · '+d.name:'');
+  return {t:'WHMIS Classroom'+(d?' · '+d.name:''),h:content(d,true)};
+}
+function syncPresent(){
+  if(S.single||!S.presenting||!PW||PW.closed) return;
+  const b=PW.document.getElementById('pw-b'); if(!b) return;
+  const p=presInner(); b.innerHTML=p.h; PW.document.getElementById('pw-t').textContent=p.t;
+}
+/* single screen: Present fills this screen; the instructor exits to get the dashboard back */
+function renderPres1(){
+  let el=document.getElementById('pres1');
+  if(!(S.single&&S.presenting)){if(el)el.remove();return;}
+  if(!el){el=document.body.appendChild(document.createElement('div'));el.id='pres1';}
+  const p=presInner();
+  const list=docs().filter(d=>d.kind!=='pptx');
+  el.innerHTML=`<div class="pw-h"><span>${esc(p.t)}</span><span class="r"><button class="b b-sm${S.docs1?' on':''}" onclick="S.docs1=!S.docs1;render()">${I('fa-regular fa-folder-open')}Documents</button><button class="b b-sm" onclick="stopPresent()">${I('fa-solid fa-xmark')}Exit presenting</button></span></div><div class="p1-b"><div class="pw-b">${p.h}</div>${S.docs1?`<aside class="p1-docs" aria-label="Documents"><div class="p1-h">Documents</div>${list.map(d=>`<button class="p1-d${!S.presQ&&S.sel===d.id?' on':''}" onclick="pick('${d.id}')"><span class="tyi">${I(KIND[d.kind].i)}</span><span><b>${esc(d.name)}</b><small>${KIND[d.kind].l}</small></span></button>`).join('')}</aside>`:''}</div>`;
+}
+/* screen setup: extended (projector as a second window) or single (one shared touch screen) */
+/* single screen: names stay hidden until the instructor shows them for one item; they hide again when the modal closes */
+/* low-key badge in the preview bar: which screen setup is on */
+const scrBadge=()=>`<button class="scr-badge" data-tip="Screen setup" onclick="event.stopPropagation();openScreen(this)">${I(S.single?'fa-solid fa-tv':'fa-solid fa-display')}${S.single?'Single screen':'Extended screen'}</button>`;
+const masked=k=>S.single&&!S.rev[k];
+const showBtn=(k,l)=>S.rev[k]?`<button class="b b-sm" onclick="event.stopPropagation();delete S.rev['${k}'];render()">${I('fa-solid fa-eye-slash')}${(l||'Show names').replace('Show','Hide')}</button>`:`<button class="b b-sm" onclick="event.stopPropagation();S.rev['${k}']=1;render()">${I('fa-solid fa-eye')}${l||'Show names'}</button>`;
+const Ppl=(k,arr)=>masked(k)?'':arr.map(PChip).join('');
+function setScreen(single){if(S.presenting)stopPresent();S.single=single;S.rev={};S.showProg=false;closeLayer();render();snack(single?'Single screen: names stay hidden until you show them':'Extended screen: Present opens a second window');}
+function openScreen(btn){
+  const r=btn.getBoundingClientRect(), opt=(v,ic,l,sub)=>`<button class="mi scr-mi${S.single===v?' on':''}" role="menuitemradio" aria-checked="${S.single===v}" onclick="setScreen(${v})">${I(ic)}<span><b>${l}</b><small>${sub}</small></span>${S.single===v?`<span class="ck">${I('fa-solid fa-check')}</span>`:''}</button>`;
+  document.getElementById('layer').innerHTML=`<div class="menu" role="menu" style="width:320px;top:${r.bottom+4}px;left:${Math.max(8,Math.min(innerWidth-328,r.right-320))}px"><div class="mhd">Screen setup</div>${opt(false,'fa-solid fa-display','Extended screen','Laptop plus a projector. Present opens a second window for the class.')}${opt(true,'fa-solid fa-tv','Single screen','One touch screen the class can see. Names stay hidden until you show them, and Present uses this screen.')}</div>`;
+  setTimeout(()=>document.addEventListener('click',closeLayer,{once:true}),0);
 }
 
 /* =====================================================================
@@ -862,7 +919,7 @@ function renderModal(){
   L.innerHTML=`<div class="ov" onclick="if(event.target===this)closeModal()">${S.modal.k==='assign'?assignModal():S.modal.k==='progress'?progressModal():resultsModal()}</div>`;
   const rr=L.querySelector('.res-r'); if(rr) rr.scrollTop=keepScroll;
 }
-function closeModal(){S.modal=null;render();}
+function closeModal(){if(S.modal?.k==='assign'&&!S.assign)S.picked={};S.modal=null;S.rev={};S.showProg=false;render();}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.getElementById('layer').innerHTML)closeLayer();else if(S.modal)closeModal();}});
 
 /* ---------- Assign ---------- */
@@ -890,6 +947,10 @@ function cell(qz,p){
   if(x.st==='prog') return `<span class="oc">${I('fa-solid fa-spinner ic-info')}Question ${x.r+1} of ${x.tot}</span>${x.wrong?`<span class="hot-i cell-i" tabindex="0" data-tip="${wa(x.wrong)} so far">${I('fa-solid fa-flag')}</span>`:''}`;
   return x.st==='pass'?`<span class="oc">${I('fa-solid fa-circle-check ic-ok')}Passed · ${x.score}%</span>`:`<span class="oc">${I('fa-solid fa-circle-xmark ic-bad')}Failed · ${x.score}%</span>`;
 }
+/* simple overall status: Not started / In progress / Completed */
+function miniStatus(p){const as=Q.filter(qz=>!isNA(qz,p));if(!as.length)return `<span class="oc mut">Not assigned</span>`;
+  if(as.every(qz=>qz.reached[p]===qz.qs.length))return `<span class="oc">${I('fa-solid fa-circle-check ic-ok')}Completed</span>`;
+  return as.some(qz=>qz.reached[p]>0)?`<span class="oc">${I('fa-solid fa-spinner ic-info')}In progress</span>`:`<span class="oc">${I('fa-regular fa-circle ic-mute')}Not started</span>`;}
 /* overall status across every course assigned to the person */
 function statusCell(p){
   const as=Q.filter(qz=>!isNA(qz,p)), done=as.filter(qz=>qz.reached[p]===qz.qs.length).length, started=as.some(qz=>qz.reached[p]>0);
@@ -898,18 +959,25 @@ function statusCell(p){
   if(!started) return `<span class="oc">${I('fa-regular fa-circle ic-mute')}Not started</span>`;
   return `<span class="oc">${I('fa-solid fa-spinner ic-info')}${done}/${as.length} done</span>`;
 }
+/* single screen: a minimal Progress (status only, nothing negative) until the instructor asks for more */
+function miniCell(qz,p){const x=personQuiz(qz,p);
+  if(x.st==='na') return `<span class="oc mut">Not assigned</span>`;
+  if(x.st==='not') return `<span class="oc">${I('fa-regular fa-circle ic-mute')}Not started</span>`;
+  if(x.st==='prog') return `<span class="oc">${I('fa-solid fa-spinner ic-info')}In progress</span>`;
+  return `<span class="oc">${I('fa-solid fa-circle-check ic-ok')}Completed</span>`;}
 function progressModal(){
-  const m=S.modal; let ids=PEOPLE.map((_,p)=>p);
+  const m=S.modal, mini=S.single&&!S.showProg; let ids=PEOPLE.map((_,p)=>p);
+  if(mini&&m.sort==='wrong') m.sort='name';
   if(m.sort==='wrong') ids.sort((a,b)=>wrongTotal(b)-wrongTotal(a));
   if(m.sort==='name') ids.sort((a,b)=>PEOPLE[a].localeCompare(PEOPLE[b]));
   return `<div class="modal wide" role="dialog" aria-modal="true" aria-label="Progress"><div class="mh"><h2>Progress</h2>${liveChip()}<button class="ib" aria-label="Close" onclick="closeModal()">${I('fa-solid fa-xmark')}</button></div>
     <div class="mb" style="flex:1">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span class="mut" style="font-size:14px">Everyone’s progress on the online courses assigned in this class.</span>
-        <span style="margin-left:auto" class="mut">Sort</span><div class="seg"><button aria-pressed="${m.sort==='name'}" onclick="S.modal.sort='name';render()">A to Z</button><button aria-pressed="${m.sort==='wrong'}" onclick="S.modal.sort='wrong';render()">Most wrong answers first</button></div></div>
-      <div class="twrap"><table class="tbl ptbl"><thead><tr><th>Participant</th><th>Status</th><th>Wrong answers</th>${Q.map(qz=>`<th>${esc(qz.name)}<div class="sub">${qz.qs.length} questions · pass ${qz.pass}%${qz.final?' · final exam':''}</div></th>`).join('')}<th class="fill"></th></tr></thead>
+        <span style="margin-left:auto"></span>${S.single?`<button class="b b-sm" onclick="S.showProg=!S.showProg;render()">${I(mini?'fa-solid fa-eye':'fa-solid fa-eye-slash')}${mini?'Show more':'Show less'}</button>`:''}${mini?'':`<span class="mut">Sort</span><div class="seg"><button aria-pressed="${m.sort==='name'}" onclick="S.modal.sort='name';render()">A to Z</button><button aria-pressed="${m.sort==='wrong'}" onclick="S.modal.sort='wrong';render()">Most wrong answers first</button></div>`}</div>
+      <div class="twrap"><table class="tbl ptbl${mini?' mini':''}"><thead><tr><th>Participant</th><th>Status</th>${mini?'':'<th>Wrong answers</th>'}${Q.map(qz=>`<th>${esc(qz.name)}<div class="sub">${qz.qs.length} questions${mini?'':` · pass ${qz.pass}%`}${qz.final?' · final exam':''}</div></th>`).join('')}<th class="fill"></th></tr></thead>
       <tbody>${ids.map(p=>{const miss=missingOf(p);return `<tr${m.hl===p?' class="hl"':''}><td><span style="display:flex;align-items:center;gap:8px">${Av(p)}<b style="font-weight:600">${PEOPLE[p]}</b>${miss.length>1?`<button class="b b-ghost b-sm asg" style="margin-left:auto" data-tip="Assign all ${miss.length} missing courses" onclick="assignPerson(${p})">Assign all</button>`:''}</span></td>
-        <td>${statusCell(p)}</td>
-        <td>${wrongTotal(p)?`<span class="oc" tabindex="0" data-tip="${esc(wrongList(p))}">${I('fa-solid fa-flag')}${wrongTotal(p)}</span>`:'<span class="mut">0</span>'}</td>${Q.map(qz=>`<td>${cell(qz,p)}</td>`).join('')}<td class="fill"></td></tr>`;}).join('')}</tbody></table></div></div>
+        <td>${mini?miniStatus(p):statusCell(p)}</td>
+        ${mini?'':`<td>${wrongTotal(p)?`<span class="oc" tabindex="0" data-tip="${esc(wrongList(p))}">${I('fa-solid fa-flag')}${wrongTotal(p)}</span>`:'<span class="mut">0</span>'}</td>`}${Q.map(qz=>`<td>${mini?miniCell(qz,p):cell(qz,p)}</td>`).join('')}<td class="fill"></td></tr>`;}).join('')}</tbody></table></div></div>
     <div class="mf"><button class="b b-ghost" onclick="closeModal()">Close</button></div></div>`;
 }
 
@@ -929,7 +997,7 @@ function resultsModal(){
       return `<button class="pick${r.pick===qz.id?' on':''}" onclick="openResults('${qz.id}')"><b>${esc(qz.name)}</b><small>${started} of ${assignedN(qz)} started${hard?` · <span style="font-weight:600" data-tip="Challenging = half or more of the people who answered chose a wrong answer (to confirm)">${hard} challenging</span>`:''}</small></button>`;}).join('')}`;
   return `<div class="modal wide" role="dialog" aria-modal="true" aria-label="Results"><div class="mh"><h2>Results</h2>${liveChip()}<button class="ib" aria-label="Close" onclick="closeModal()">${I('fa-solid fa-xmark')}</button></div>
     <div class="res"><nav class="res-l" aria-label="Pick a course">${picks}</nav><div class="res-r">${r.pick==='all'?resMCQ(mis):r.pick==='people'?resPeople(nh):resQuiz(Q.find(x=>x.id===r.pick))}</div></div>
-    <div class="mf"><span class="mut" style="font-size:13px;margin-right:auto">${I('fa-solid fa-lock')} Only you see this. The second screen only shows what you present.</span><button class="b b-ghost" onclick="closeModal()">Close</button></div></div>`;
+    <div class="mf"><span class="mut" style="font-size:13px;margin-right:auto">${S.single?I('fa-solid fa-tv')+' Single screen: the class can see this screen.':I('fa-solid fa-lock')+' Only you see this. The second screen only shows what you present.'}</span><button class="b b-ghost" onclick="closeModal()">Close</button></div></div>`;
 }
 /* Overview tab 1 (Figma 412:365): every question with mistakes, all open, hardest first */
 function resMCQ(mis){
@@ -938,14 +1006,14 @@ function resMCQ(mis){
       return `<div class="mcq"><span class="no">${k+1}.</span><div class="mq-b">
         <div class="mq-h"><b>${esc(q.t)}</b><span class="chip chip-warning">${m.bad} of ${m.n} chose a wrong answer</span><button class="ib ib-sm" data-tip="Present this question: answer counts only, no names" onclick="presentQ('${m.qz.id}',${m.i})">${I('fa-solid fa-display')}</button></div>
         <div class="mq-sub">Course: <button class="lnk" onclick="openResults('${m.qz.id}',${m.i})">${esc(m.qz.name)}</button> · Correct answer: <b class="mq-ok">${L[q.c]}. ${esc(q.o[q.c])}</b></div>
-        <div class="mq-oh">Wrong options chosen</div>
-        ${wrongPicks(m.qz,m.i).map(x=>`<div class="mq-opt"><div class="mq-oh2"><b>${L[x.o]}. ${esc(q.o[x.o])}</b><span class="chip">${x.ppl.length} chose this</span></div><div class="mq-s">Students who chose this option:</div><div class="mq-ppl">${x.ppl.map(PChip).join('')}</div></div>`).join('')}
+        <div class="mq-oh">Wrong options chosen${S.single?showBtn(m.qz.id+':'+m.i):''}</div>
+        ${wrongPicks(m.qz,m.i).map(x=>`<div class="mq-opt"><div class="mq-oh2"><b>${L[x.o]}. ${esc(q.o[x.o])}</b><span class="chip">${x.ppl.length} chose this</span></div>${masked(m.qz.id+':'+m.i)?'':`<div class="mq-s">Students who chose this option:</div><div class="mq-ppl">${x.ppl.map(PChip).join('')}</div>`}</div>`).join('')}
       </div></div>`;}).join(''):`<div class="es"><div class="es-i">${I('fa-regular fa-face-smile')}</div><b>No wrong answers yet</b></div>`}`;
 }
 /* Overview tab 2: students who need help */
 function resPeople(nh){
   return `<div class="res-top"><h3>Students who need help</h3></div><div class="res-sum">People with 3 or more wrong answers, across all the assigned courses.</div>
-      ${nh.map(x=>{const qs=[];Q.forEach(qz=>qz.qs.forEach((q,i)=>{if(q.w[x.p]!==undefined&&answered(qz,i,x.p))qs.push({qz,q,i,o:q.w[x.p]});}));
+      ${S.single&&!S.rev.people?`<div class="res-gen"><b>${nh.length} ${nh.length===1?'student has':'students have'} 3 or more wrong answers.</b>${showBtn('people','Show students')}</div>`:(S.single?`<div class="res-gen"><b>${nh.length} ${nh.length===1?'student has':'students have'} 3 or more wrong answers.</b>${showBtn('people','Show students')}</div>`:'')+nh.map(x=>{const qs=[];Q.forEach(qz=>qz.qs.forEach((q,i)=>{if(q.w[x.p]!==undefined&&answered(qz,i,x.p))qs.push({qz,q,i,o:q.w[x.p]});}));
         /* one card per person: each question to go over, the option they chose and the correct one */
         return `<div class="mq-opt sp"><div class="mq-oh2">${Av(x.p)}<b>${x.n}</b><span class="chip">${wa(x.w)}</span></div>
           <details class="spd" ${S.res.sp?.[x.p]?'open':''} ontoggle="(S.res.sp=S.res.sp||{})[${x.p}]=this.open"><summary>${I('fa-solid fa-chevron-right')}See wrong questions</summary>${qs.map(y=>`<div class="spq"><div class="spt">${esc(y.q.t)}<small>${esc(y.qz.name)} · Question ${y.i+1}</small></div>
@@ -972,10 +1040,10 @@ function qRow(qz,i,rank,showQuiz){
   const right=PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p)&&q.w[p]===undefined);
   const wrongBy=q.o.map((_,o)=>PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p)&&q.w[p]===o));
   const hot=s.n&&s.pct>=50, topWrong=Math.max(0,...wrongBy.filter((_,o)=>o!==q.c).map(x=>x.length));
-  const det=`<div class="qd">
-      <div class="ans ok"><span class="ltr">${L[q.c]}</span><span class="at"><b>${esc(q.o[q.c])}</b> <span class="mut" style="font-size:12px">correct answer</span><div class="ppl">${right.map(PChip).join('')||'<span class="mut" style="font-size:12px">Nobody yet</span>'}</div></span><span class="ct">${right.length}</span></div>
-      ${q.o.map((o,oi)=>oi===q.c||!wrongBy[oi].length?'':`<div class="ans bad"><span class="ltr">${L[oi]}</span><span class="at"><b>${esc(o)}</b>${hot&&wrongBy[oi].length===topWrong?`<span class="hot-i" data-tip="Most chosen wrong answer: the main reason this question is challenging">${I('fa-solid fa-circle-exclamation')}</span>`:''}<div class="ppl">${wrongBy[oi].map(PChip).join('')}</div></span><span class="ct">${wrongBy[oi].length} chose this</span></div>`).join('')}
-      ${notYet.length?`<div class="ans none"><span class="ltr">${I('fa-regular fa-clock')}</span><span class="at"><b class="mut">Not answered yet</b><div class="ppl">${notYet.map(PChip).join('')}</div></span><span class="ct mut">${notYet.length}</span></div>`:''}
+  const det=`<div class="qd">${S.single?`<div class="res-gen">${masked(key)?'Names are hidden on a shared screen.':'Names are showing.'}${showBtn(key)}</div>`:''}
+      <div class="ans ok"><span class="ltr">${L[q.c]}</span><span class="at"><b>${esc(q.o[q.c])}</b> <span class="mut" style="font-size:12px">correct answer</span><div class="ppl">${masked(key)?'':right.map(PChip).join('')||'<span class="mut" style="font-size:12px">Nobody yet</span>'}</div></span><span class="ct">${right.length}</span></div>
+      ${q.o.map((o,oi)=>oi===q.c||!wrongBy[oi].length?'':`<div class="ans bad"><span class="ltr">${L[oi]}</span><span class="at"><b>${esc(o)}</b>${hot&&wrongBy[oi].length===topWrong?`<span class="hot-i" data-tip="Most chosen wrong answer: the main reason this question is challenging">${I('fa-solid fa-circle-exclamation')}</span>`:''}<div class="ppl">${Ppl(key,wrongBy[oi])}</div></span><span class="ct">${wrongBy[oi].length} chose this</span></div>`).join('')}
+      ${notYet.length?`<div class="ans none"><span class="ltr">${I('fa-regular fa-clock')}</span><span class="at"><b class="mut">Not answered yet</b><div class="ppl">${Ppl(key,notYet)}</div></span><span class="ct mut">${notYet.length}</span></div>`:''}
       
     </div>`;
   return `<div class="qrow${open?' open':''}"><button class="qh" aria-expanded="${open}" onclick="S.res.open['${key}']=${open?0:1};render()">
