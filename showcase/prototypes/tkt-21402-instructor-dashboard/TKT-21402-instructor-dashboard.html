@@ -80,6 +80,10 @@ button:disabled{cursor:not-allowed}
 /* review bar (not product UI) */
 #review{background:#fff;border-bottom:1px solid #dfdfe2;display:flex;align-items:center;gap:16px;padding:4px 12px;font-size:12px;flex-wrap:wrap}
 #review b{font-size:14px}
+/* hidden by default so it doesn't read as part of the design; a small pill bottom-left shows it */
+body:not(.rv-on) #review{display:none}
+#rv-tog{position:fixed;left:10px;bottom:10px;z-index:200;font-size:12px;padding:4px 10px;border-radius:80px;background:#2a2a2e;color:#fff;opacity:.35;display:inline-flex;align-items:center;gap:6px}
+#rv-tog:hover,body.rv-on #rv-tog{opacity:1}
 #review .rv-f{display:flex;align-items:center;gap:6px;color:#4c4c4f}
 #review .rv-seg{display:inline-flex;border:1px solid #afafb5;border-radius:80px;overflow:hidden}
 #review .rv-seg button{padding:2px 10px;font-size:12px;border-left:1px solid #afafb5}
@@ -147,7 +151,7 @@ button:disabled{cursor:not-allowed}
 .modal .mh h2{font-size:20px;line-height:28px;font-weight:600;margin-right:auto}
 .modal .mb{padding:12px 16px 16px;overflow:auto;font-size:15px;line-height:22px}
 .modal .mf{display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:12px 16px 16px;border-top:1px solid var(--stroke-light)}
-.modal.wide{max-width:min(1180px,96vw);height:88vh}
+.modal.wide{width:94vw;max-width:94vw;height:88vh}
 #snack{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:2800;display:flex;flex-direction:column;gap:8px;align-items:center}
 .snack{display:flex;align-items:center;gap:12px;background:var(--surface-default);padding:12px;border-radius:var(--r-md);box-shadow:var(--shadow-L2);font-size:14px;min-width:300px}
 .snack i{color:var(--icon-primary);font-size:16px}
@@ -174,7 +178,7 @@ button:disabled{cursor:not-allowed}
 .pb{height:6px;border-radius:6px;background:var(--surface-lightest);overflow:hidden;display:flex}
 .pb span{display:block;height:100%}
 .pb .ok{background:var(--color-surface-success)}
-.pb .bad{background:var(--color-surface-error-light)}
+.pb .bad{background:var(--stroke-default)}
 .pb .on{background:var(--primary-stroke)}
 
 /* ===================================================================
@@ -224,7 +228,18 @@ button.blk:hover{border-color:var(--stroke-default);box-shadow:var(--shadow-L1)}
 .prow .n .chip{height:18px;padding:1px 4px;font-size:11px}
 .prow .n{font-weight:600;font-size:14px;display:flex;align-items:center;gap:6px}
 .prow .s{display:block;font-size:12px;line-height:16px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.prow .m .wr{color:var(--danger);font-weight:600}
+.prow .m small{white-space:nowrap}
+.prow .m .wr{color:var(--text-secondary);font-weight:600}
+/* present window: a question for the class, counts only */
+.pq{width:min(90%,900px);background:#fff;border-radius:12px;padding:28px 32px;color:var(--text-primary)}
+.pq-k{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary)}
+.pq h2{font-size:26px;line-height:34px;margin:6px 0 16px}
+.pq-o{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--stroke-light);border-radius:8px;margin-top:8px;font-size:18px}
+.pq-o .t{flex:1}.pq-o .t small{display:block;font-size:13px;color:var(--text-secondary)}
+.pq-o .n{font-weight:600}
+.pq-o .ltr{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--stroke-default);font-weight:600;flex-shrink:0}
+.pq-o.ok{background:var(--success-tint);border-color:var(--color-stroke-success-light)}
+.pq-o.ok .ltr{background:var(--color-surface-success);color:#fff;border-color:transparent}
 .prow .m{display:flex;flex-direction:column;align-items:flex-end;gap:4px;width:64px;flex-shrink:0}
 .prow .m .pb{width:64px}
 .prow .m small{font-size:12px;color:var(--text-secondary)}
@@ -296,6 +311,7 @@ button.blk:hover{border-color:var(--stroke-default);box-shadow:var(--shadow-L1)}
 .drow.off{background:var(--surface-lightest);cursor:not-allowed}
 .drow.off .n,.drow.off .s{color:var(--text-secondary-light)}
 .warn-i{color:var(--color-icon-notice);font-size:12px}
+.na-t{font-size:12px;font-weight:400;color:var(--text-secondary);margin-left:6px}
 .selbar.warnbar{background:var(--warning-tint);border-color:var(--color-stroke-notice-light);color:var(--warning)}
 .selbar.warnbar button{margin-left:auto;font-weight:600;text-decoration:underline;color:var(--warning)}
 .selbar{display:flex;align-items:center;gap:8px;margin:0 12px 10px;padding:6px 10px;border-radius:var(--r-base);background:var(--info-tint);border:1px solid var(--color-stroke-primary-lighter);font-size:13px;color:var(--info)}
@@ -307,14 +323,16 @@ button.blk:hover{border-color:var(--stroke-default);box-shadow:var(--shadow-L1)}
 .tbl tr:last-child td{border-bottom:0}
 .tbl .sub{font-size:12px;line-height:16px;color:var(--text-secondary)}
 .tbl th .sub{font-weight:400}
-/* Progress: the table scrolls sideways for many courses; Participant and Wrong answers stay fixed on the left */
+/* Progress: the table scrolls sideways for many courses; Participant and To review stay fixed on the left */
 .twrap{overflow:auto;border:1px solid var(--stroke-default);border-radius:var(--r-sm);max-height:calc(88vh - 190px)}
 .twrap .tbl{border:0;border-radius:0;overflow:visible;width:max-content;min-width:100%}
 .ptbl th{z-index:2}
-.ptbl th:nth-child(n+4),.ptbl td:nth-child(n+4){min-width:190px}
+.ptbl th:nth-child(n+4),.ptbl td:nth-child(n+4){min-width:220px;width:220px}
+/* an empty last column takes the spare width, so the table fills the modal while course columns stay left */
+.ptbl th.fill,.ptbl td.fill{width:auto;min-width:0;padding:0}
 .ptbl th:first-child,.ptbl td:first-child{position:sticky;left:0;z-index:3;background:var(--surface-default);min-width:220px;width:220px;white-space:nowrap}
-.ptbl th:nth-child(2),.ptbl td:nth-child(2){position:sticky;left:220px;z-index:3;background:var(--surface-default);min-width:160px;width:160px}
-.ptbl th:nth-child(3),.ptbl td:nth-child(3){position:sticky;left:380px;z-index:3;background:var(--surface-default);min-width:120px;width:120px;border-right:1px solid var(--stroke-default)}
+.ptbl th:nth-child(2),.ptbl td:nth-child(2){position:sticky;left:220px;z-index:3;background:var(--surface-default);min-width:130px;width:130px}
+.ptbl th:nth-child(3),.ptbl td:nth-child(3){position:sticky;left:350px;z-index:3;background:var(--surface-default);min-width:100px;width:100px;border-right:1px solid var(--stroke-default)}
 .ptbl th:nth-child(-n+3){z-index:4}
 .ptbl tr.hl td{background:var(--primary-tint)}
 /* outlined status chip: neutral text and border, coloured icon */
@@ -335,7 +353,35 @@ button.blk:hover{border-color:var(--stroke-default);box-shadow:var(--shadow-L1)}
 .pick b{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
 .pick.on b{color:var(--primary-text)}
 .pick small{font-size:12px;line-height:16px;color:var(--text-secondary)}
-.pick-h{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary);padding:10px 10px 4px}
+.pick-h{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary);padding:10px 10px 4px;display:flex}
+.pick-h span{margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0;font-size:12px}
+.pick.ovp{flex-direction:row;align-items:center;padding:12px 10px}
+.pick.ovp .cnt{margin-left:auto}
+/* Most Challenging Questions: every question open, options picked instead with names */
+.mcq{display:flex;gap:10px;padding:4px 0 16px}
+.mcq .no{font-size:13px;color:var(--text-secondary);padding-top:2px;width:18px;flex-shrink:0}
+.mcq .mq-b{flex:1;min-width:0}
+.mcq .mq-h{display:flex;align-items:center;gap:8px}
+.mcq .mq-h b{font-size:15px;font-weight:600;margin-right:auto}
+.mcq .mq-sub{font-size:13px;color:var(--text-secondary);margin-top:2px}
+.mcq .mq-ok{color:var(--color-text-success,var(--text-primary));font-weight:600}
+.lnk{color:var(--primary-text);font-size:inherit}.lnk:hover{text-decoration:underline}
+.mcq .mq-oh{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary);margin:12px 0 6px}
+.mcq .mq-opt{border:1px solid var(--stroke-light);border-radius:var(--r-md);padding:9px;margin-bottom:8px}
+.mcq .mq-oh2{display:flex;align-items:center;gap:8px}.mcq .mq-oh2 b{font-size:14px;font-weight:600;margin-right:auto}
+.mcq .mq-opt .mq-s{font-size:13px;color:var(--text-secondary);margin:6px 0 4px}
+.mcq .mq-ppl{display:flex;flex-wrap:wrap;gap:6px}
+/* Students who need help: one card per person */
+.sp{margin-bottom:10px;border:1px solid var(--stroke-light);border-radius:var(--r-md);padding:10px 12px}.sp .mq-oh2{display:flex;align-items:center;gap:8px;margin-bottom:4px}.sp .mq-oh2 b{font-size:14px;font-weight:600;margin-right:auto}
+.spd summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--primary-text);padding:2px 0}
+.spd summary::-webkit-details-marker{display:none}
+.spd summary i{font-size:10px;transition:transform .12s}.spd[open] summary i{transform:rotate(90deg)}
+.spq{padding:8px 0 2px;border-top:1px solid var(--stroke-light);margin-top:6px}
+.spt{font-size:13px;font-weight:600}.spt small{display:block;font-weight:400;font-size:12px;color:var(--text-secondary)}
+.spa{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--text-secondary);margin-top:4px}.spa b{color:var(--text-primary);font-weight:600}.spa .mq-ok{color:var(--color-text-success,var(--text-primary))}
+/* drag a document onto the preview */
+.stage.drop .pv{outline:2px dashed var(--primary-stroke,#1a73e8);outline-offset:-2px}
+.stage.drop .pv-b::after{content:'Drop to preview';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.8);font-weight:600;font-size:16px;color:var(--primary-text)}
 .res-r{flex:1;min-width:0;overflow:auto;padding:16px 20px 24px}
 .res-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
 .res-top h3{font-size:18px;line-height:26px;font-weight:600;margin-right:4px}
@@ -345,9 +391,9 @@ button.blk:hover{border-color:var(--stroke-default);box-shadow:var(--shadow-L1)}
 .newbar{display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:8px;border-radius:var(--r-base);background:var(--info-tint);color:var(--info);font-size:13px;font-weight:600}
 .newbar button{margin-left:auto;color:var(--primary-text);text-decoration:underline}
 .qrow{border:1px solid var(--stroke-light);border-radius:var(--r-md);margin-bottom:8px;background:var(--surface-default);overflow:hidden}
-.ans .at .hot-i{color:var(--color-icon-error);font-size:13px;margin-left:6px}
+.ans .at .hot-i{color:var(--color-icon-warning,var(--warning));font-size:13px;margin-left:6px}
 .qh .rk{display:flex;align-items:center;justify-content:flex-start;gap:6px}
-.qh .rk .hot-i{color:var(--color-icon-error);font-size:13px}
+.qh .rk .hot-i{color:var(--color-icon-warning,var(--warning));font-size:13px}
 .qh{display:grid;grid-template-columns:40px 1fr 190px 20px;gap:12px;align-items:center;width:100%;padding:10px 12px}
 .qh:hover{background:var(--surface-subtle)}
 .qh .rk{font-size:13px;font-weight:600;color:var(--text-secondary);text-align:center}
@@ -367,11 +413,13 @@ button.blk:hover{border-color:var(--stroke-default);box-shadow:var(--shadow-L1)}
 .ans .at b{font-weight:600;font-size:14px}
 .ans .ppl{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
 .ans .ct{font-size:13px;font-weight:600;white-space:nowrap}
-.ans.ok{background:var(--success-tint);border-color:var(--color-stroke-success-light)}
+.ans.ok{}
 .ans.ok .ltr{background:var(--color-surface-success);border-color:transparent;color:#fff}
 .ans.bad{background:var(--surface-default)}
 .ans.none{border-style:dashed}
-.pchip{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px 0 3px;border-radius:var(--r-round);background:var(--surface-default);border:1px solid var(--stroke-light);font-size:12px;font-weight:600}
+.pchip:hover{border-color:var(--primary-stroke);background:var(--primary-tint)}
+.prow.flash{background:var(--primary-tint);box-shadow:inset 3px 0 0 var(--primary-stroke)}
+.pchip{cursor:pointer;display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px 0 3px;border-radius:var(--r-round);background:var(--surface-default);border:1px solid var(--stroke-light);font-size:12px;font-weight:600}
 .pchip .av{width:16px;height:16px;font-size:8px}
 .ovsec{margin-bottom:20px}
 .ovsec h4{font-size:15px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px}
@@ -459,6 +507,7 @@ button.blk:hover{border-color:var(--stroke-default);box-shadow:var(--shadow-L1)}
   <div class="rv-f">Live answers <span class="rv-seg"><button id="rv-live-on" class="on" onclick="setLive(true)">On</button><button id="rv-live-off" onclick="setLive(false)">Paused</button></span></div>
   <div class="rv-f"><button class="b b-sm" onclick="resetAll()"><i class="fa-solid fa-rotate-left"></i>Reset</button></div>
 </div>
+<button id="rv-tog" onclick="document.body.classList.toggle('rv-on');render()"><i class="fa-solid fa-sliders"></i>Prototype controls</button>
 <div class="app" id="app"></div>
 <div id="tip" role="tooltip"></div>
 <div id="layer"></div>
@@ -576,7 +625,10 @@ const docs=()=>S.docsOn?DOCS_ALL:[];
 const I=c=>`<i class="${c}" aria-hidden="true"></i>`;
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const Av=p=>`<span class="av" aria-hidden="true">${ini(PEOPLE[p])}</span>`;
-const PChip=p=>`<span class="pchip">${Av(p)}${PEOPLE[p]}</span>`;
+const wa=n=>n+' wrong answer'+(n===1?'':'s');
+/* a name chip jumps to that person in the participant list */
+function goPerson(p){closeModal();S.left=true;S.pq='';render();const r=document.querySelector(`.prow[data-p="${p}"]`);if(r){r.scrollIntoView({block:'center'});r.classList.add('flash');setTimeout(()=>r.classList.remove('flash'),1800);}}
+const PChip=p=>`<button class="pchip" data-tip="Show in the participant list" onclick="event.stopPropagation();goPerson(${p})">${Av(p)}${PEOPLE[p]}</button>`;
 function sv(tone,html){const ic={neg:'fa-solid fa-xmark',wait:'fa-solid fa-hourglass-half',pos:'fa-solid fa-check'}[tone];return `<span class="sv sv-${tone}"><span class="sv-i">${I(ic)}</span><span>${html}</span></span>`;}
 function ago(){const s=Math.round((Date.now()-S.lastUpd)/1000);return s<5?'just now':s+'s ago';}
 function snack(msg,icon){
@@ -606,24 +658,24 @@ function leftPanel(){
   const top=allMissed()[0], nh=needHelp();
   const finished=p=>{const as=Q.filter(qz=>!isNA(qz,p));return as.length&&as.every(qz=>qz.reached[p]===qz.qs.length);};
   const done=PEOPLE.filter((_,p)=>finished(p)).length, late=lateJoiners();
-  const card1=top?`<button class="blk wide" onclick="openResults('${top.qz.id}',${top.i})" data-tip="See who picked which answer">
-      <div class="k">Most missed question ${I('fa-solid fa-chevron-right')}</div>
-      <div class="v">${sv('neg',`<b>${top.bad} of ${top.n}</b> <span class="mut" style="font-size:13px">got it wrong</span>`)}</div>
+  const card1=top?`<button class="blk wide" onclick="openResults('all')" data-tip="See who chose which answer">
+      <div class="k">Most challenging question ${I('fa-solid fa-chevron-right')}</div>
+      <div class="v">${sv('wait',`<b>${top.bad} of ${top.n}</b> <span class="mut" style="font-size:13px">chose a wrong answer</span>`)}</div>
       <div class="v2">Q${top.i+1} · ${esc(top.q.t)}</div></button>`
-    :`<div class="blk wide"><div class="k">Most missed question</div><div class="v">${Q.some(qz=>qz.reached.some(r=>r>0))?sv('pos','No wrong answers'):sv('pos','None yet')}</div><div class="v2">${Q.some(qz=>qz.reached.some(r=>r>0))?'Everyone got every question right so far':'Shows as answers come in'}</div></div>`;
-  const card2=`<button class="blk" onclick="openResults('all',null,'people')" data-tip="People with 3 or more wrong answers">
-      <div class="k">Needs help ${I('fa-solid fa-chevron-right')}</div>
+    :`<div class="blk wide"><div class="k">Most challenging question</div><div class="v">${Q.some(qz=>qz.reached.some(r=>r>0))?sv('pos','All correct so far'):sv('pos','None yet')}</div><div class="v2">${Q.some(qz=>qz.reached.some(r=>r>0))?'Everyone chose the correct answer so far':'Shows as answers come in'}</div></div>`;
+  const card2=`<button class="blk" onclick="openResults('people')" data-tip="People with 3 or more wrong answers">
+      <div class="k">Students who need help ${I('fa-solid fa-chevron-right')}</div>
       <div class="v">${nh.length?sv('wait',`<b>${nh.length}</b> <span class="mut" style="font-size:13px">people</span>`):sv('pos','Nobody')}</div>
-      <div class="v2">${nh.length?'3+ wrong answers':'Under 3 wrong each'}</div></button>`;
+      <div class="v2">${nh.length?'3+ wrong answers':'Everyone is on track'}</div></button>`;
   const card3=`<button class="blk" onclick="openProgress()" data-tip="People who finished every course assigned to them">
       <div class="k">Finished ${I('fa-solid fa-chevron-right')}</div>
       <div class="v"><b>${done}</b> <span class="mut" style="font-size:13px">of ${PEOPLE.length}</span></div>
       <div class="v2">${PEOPLE.length-done} still going</div></button>`;
-  const lateBar=late.length?`<div class="selbar warnbar">${I('fa-solid fa-triangle-exclamation')}<span>${late.length===1?PEOPLE[late[0]]+' was':`<span class="tipu" tabindex="0" data-tip="${late.map(p=>PEOPLE[p]).join('\n')}">${late.length} people</span> were`} added after courses were assigned</span><button onclick="assignMissing()">Assign</button></div>`:'';
+  const lateBar=late.length?`<div class="selbar">${I('fa-solid fa-circle-info')}<span>${late.length===1?PEOPLE[late[0]]+' was':`<span class="tipu" tabindex="0" data-tip="${late.map(p=>PEOPLE[p]).join('\n')}">${late.length} people</span> were`} added after courses were assigned</span><button onclick="assignMissing()">Assign</button></div>`:'';
   const allGood=Q.length&&!top&&!nh.length&&done===PEOPLE.length;
   const cards=!Q.length
     ?`<div class="blk wide ov-empty"><div class="es" style="padding:12px 8px">${I('fa-regular fa-clipboard')}<b>Nothing assigned yet</b><p>Assign an online course from Documents. Results show here as people answer.</p></div></div>`
-    :card1+card2+card3+(allGood?`<div class="okbar wide">${I('fa-solid fa-circle-check')}Everyone is on track. No wrong answers to go over.</div>`:'');
+    :card1+card2+card3+(allGood?`<div class="okbar wide">${I('fa-solid fa-circle-check')}Everyone is on track. No wrong answers yet.</div>`:'');
   const fab=`<button class="fab l${S.left?' open':''}" data-tip="${S.left?'Hide':'Show'} overview and participants" aria-expanded="${S.left}" onclick="togSide('left')">${I('fa-solid fa-chevron-'+(S.left?'left':'right'))}</button>`;
   return fab+`<aside class="side left${S.left?'':' c'}" aria-label="Overview and participants">
     <div class="full">
@@ -637,6 +689,8 @@ function leftPanel(){
       ${lateBar}<div class="plist" id="plist">${peopleBody()}</div>
     </div></aside>`;
 }
+/* wrong answers for one question, most picked first, with who picked each */
+const wrongPicks=(qz,i)=>{const q=qz.qs[i];return q.o.map((_,o)=>({o,ppl:PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p)&&q.w[p]===o)})).filter(x=>x.o!==q.c&&x.ppl.length).sort((a,b)=>b.ppl.length-a.ppl.length);};
 const PSORTS=[['az','A to Z'],['wrong','Most wrong answers first'],['behind','Least progress first'],['late','Not assigned first']];
 function progressOf(p){const as=Q.filter(qz=>!isNA(qz,p));const tot=as.reduce((a,qz)=>a+qz.qs.length,0);return tot?as.reduce((a,qz)=>a+qz.reached[p],0)/tot:-1;}
 function peopleBody(){
@@ -653,9 +707,9 @@ function pRow(p){
   const doneN=as.filter(x=>x.r===x.tot).length, cur=as.find(x=>x.st==='prog');
   const now=!Q.length?'Nothing assigned yet':!as.length?'Added after courses were assigned':cur?`In ${cur.qz.name} · Q${cur.r+1} of ${cur.tot}`:
     as.every(x=>x.st==='not')?'Not started':doneN===as.length?'Finished everything':'Waiting to start the next course';
-  return `<button class="prow" onclick="openProgress(${p})">${Av(p)}<span class="t"><span class="n">${PEOPLE[p]}${miss?`<span class="chip chip-warning" data-tip="${miss} course${miss===1?'':'s'} not assigned. They joined after the courses were assigned.">${I('fa-solid fa-triangle-exclamation')}Not assigned</span>`:''}</span>
+  return `<button class="prow" data-p="${p}" onclick="openProgress(${p})">${Av(p)}<span class="t"><span class="n">${PEOPLE[p]}${miss?`<span class="na-t" data-tip="${miss} course${miss===1?'':'s'} not assigned. They joined after the courses were assigned.">Not assigned</span>`:''}</span>
       <span class="s">${now}</span></span>
-    <span class="m"><small>${as.length?`${doneN}/${as.length} done`:''}</small>${w?`<small class="wr">${w} wrong</small>`:''}</span></button>`;
+    <span class="m"><small>${as.length?`${doneN}/${as.length} done`:''}</small>${w?`<small class="wr">${wa(w)}</small>`:''}</span></button>`;
 }
 function assignMissing(){const late=lateJoiners();Q.forEach(qz=>qz.na=[]);render();snack(`Assigned the missing courses to ${late.map(p=>PEOPLE[p]).join(', ')}`);}
 function assignPerson(p){const miss=missingOf(p);miss.forEach(qz=>qz.na=qz.na.filter(x=>x!==p));render();snack(`Assigned ${miss.length} courses to ${PEOPLE[p]}`);}
@@ -673,7 +727,7 @@ function centre(){
   const foot=d?`<div class="pv-f">${footInfo(d)}<span class="r">
       <button class="ib ib-sm" data-tip="Previous document" onclick="step(-1)">${I('fa-solid fa-chevron-left')}</button>
       <button class="ib ib-sm" data-tip="Next document" onclick="step(1)">${I('fa-solid fa-chevron-right')}</button></span></div>`:'';
-  return `<main class="center">${hero}<div class="stage"><div class="pv" aria-label="Preview">${head}<div class="pv-b">${content(d,false)}</div>${foot}</div></div></main>`;
+  return `<main class="center">${hero}<div class="stage" ondragover="if(S.drag){event.preventDefault();this.classList.add('drop')}" ondragleave="if(!this.contains(event.relatedTarget))this.classList.remove('drop')" ondrop="event.preventDefault();this.classList.remove('drop');if(S.drag)pick(S.drag);S.drag=null"><div class="pv" aria-label="Preview">${head}<div class="pv-b">${content(d,false)}</div>${foot}</div></div></main>`;
 }
 function footInfo(d){
   if(d.kind==='course'){const qz=Q.find(x=>x.id===d.quiz);return `<button class="b b-sm" ${S.seg<=0?'disabled':''} onclick="S.seg--;render()">${I('fa-solid fa-backward')}</button><span>Question ${S.seg+1} of ${qz.qs.length}</span><button class="b b-sm" ${S.seg>=qz.qs.length-1?'disabled':''} onclick="S.seg++;render()">${I('fa-solid fa-forward')}</button>`;}
@@ -685,7 +739,7 @@ const SLIDES=[['WHMIS 2015','What every worker needs to know'],['Labels','Suppli
 /* the same rendering serves the preview and the second screen (big = second screen) */
 function content(d,big){
   if(!d) return big?`<div class="cv-empty" style="color:#8a8a90"><div class="es-i" style="background:#2c2c30;color:#8a8a90">${I('fa-solid fa-display')}</div><b style="color:#d9d9dd">WHMIS Classroom</b><span>Waiting for the instructor to pick something to show</span></div>`
-    :`<div class="cv-empty"><div class="es-i">${I('fa-regular fa-hand-pointer')}</div><b>Pick a document to preview it</b><span>Click any document on the right. It shows here first,<br>and on the second screen once you present.</span></div>`;
+    :`<div class="cv-empty"><div class="es-i">${I('fa-regular fa-hand-pointer')}</div><b>Click or drag a document here to view it</b><span>Only you see it until you press Present.</span></div>`;
   if(d.kind==='pdf') return `<div class="cv-pdf"><span class="h"></span>${'<span class="l"></span>'.repeat(4)}<span class="l" style="width:70%"></span><br>${'<span class="l"></span>'.repeat(5)}<span class="l" style="width:40%"></span></div>`;
   if(d.kind==='video') return `<div class="cv-media">${I('fa-solid fa-circle-play')}<small>${esc(d.name)}</small></div>`;
   if(d.kind==='photo') return `<div class="cv-photo">${I('fa-regular fa-image')}</div>`;
@@ -733,22 +787,24 @@ function acts(d,list){
   const asg=d.assign?`<button class="ib ib-sm" data-tip="Assign to participants" onclick="event.stopPropagation();S.assign=true;S.picked={'${d.id}':1};render()">${I('fa-solid fa-user-plus')}</button>`:'';
   return (warn?`<span class="warn-i" data-tip="PowerPoint must be HTML5 (.zip) to play">${I('fa-solid fa-triangle-exclamation')}</span>`:'')+(list?asg+pres:asg+pres);
 }
+/* click or drag a document onto the centre panel to preview it (not while picking for Assign) */
+const dragAttrs=d=>S.assign?'':`draggable="true" ondragstart="S.drag='${d.id}';event.dataTransfer.effectAllowed='copy';event.dataTransfer.setData('text/plain','${d.id}')" ondragend="S.drag=null;document.querySelector('.stage')?.classList.remove('drop')"`;
 function check(d){const on=!!S.picked[d.id];return `<span class="cb" role="checkbox" aria-checked="${on}" aria-label="Select ${esc(d.name)}">${I('fa-solid fa-check')}</span>`;}
 function tile(d){
   const off=S.assign&&!d.assign, sel=!S.assign&&S.sel===d.id;
   const on=S.assign?(off?'':`onclick="togPick('${d.id}')"`):`onclick="pick('${d.id}')"`;
-  return `<div class="tile${off?' off':''}${sel?' sel':''}" ${on} ${off?'data-tip="Only online courses and quizzes can be assigned"':''} tabindex="0">
+  return `<div class="tile${off?' off':''}${sel?' sel':''}" ${on} ${dragAttrs(d)}${off?'data-tip="Only online courses and quizzes can be assigned"':''} tabindex="0">
     <div class="tn" title="${esc(d.name)}">${esc(d.name)}</div><div class="th">${thumb(d)}</div>
     <div class="tf"><span class="chip">${KIND[d.kind].l}</span>${S.assign?(off?'':check(d)):acts(d)}</div></div>`;
 }
 function drow(d){
   const off=S.assign&&!d.assign, sel=!S.assign&&S.sel===d.id;
   const on=S.assign?(off?'':`onclick="togPick('${d.id}')"`):`onclick="pick('${d.id}')"`;
-  return `<div class="drow${off?' off':''}${sel?' sel':''}" ${on} tabindex="0"><span class="t"><div class="n">${esc(d.name)}</div><div class="s">Type: ${KIND[d.kind].l}</div></span>${S.assign?(off?'':check(d)):acts(d,true)}</div>`;
+  return `<div class="drow${off?' off':''}${sel?' sel':''}" ${on} ${dragAttrs(d)} tabindex="0"><span class="t"><div class="n">${esc(d.name)}</div><div class="s">Type: ${KIND[d.kind].l}</div></span>${S.assign?(off?'':check(d)):acts(d,true)}</div>`;
 }
 /* on tablet and phone only one drawer is open at a time */
 function togSide(k){S[k]=!S[k];if(S[k]&&narrow())S[k==='left'?'right':'left']=false;render();}
-function pick(id){S.sel=id;S.seg=0;render();}
+function pick(id){S.presQ=null;S.sel=id;S.seg=0;render();}
 function togPick(id){S.picked[id]?delete S.picked[id]:S.picked[id]=1;render();}
 function step(n){const l=docList(), i=l.findIndex(x=>x.id===S.sel);const nx=l[(i+n+l.length)%l.length];if(nx)pick(nx.id);}
 function openSort(btn,which){
@@ -778,11 +834,20 @@ function present(){
   S.presenting=true; render();
   const t=setInterval(()=>{if(!PW||PW.closed){clearInterval(t);if(S.presenting){S.presenting=false;render();}}},800);
 }
-function stopPresent(){if(PW&&!PW.closed)PW.close();PW=null;S.presenting=false;render();}
+function presentQ(qid,i){S.presQ={qid,i};present();}
+function stopPresent(){S.presQ=null;if(PW&&!PW.closed)PW.close();PW=null;S.presenting=false;render();}
 function syncPresent(){
   if(!S.presenting||!PW||PW.closed) return;
   const d=docs().find(x=>x.id===S.sel), b=PW.document.getElementById('pw-b');
   if(!b) return;
+  if(S.presQ){ /* a question for the class: answer counts only, never names */
+    const qz=Q.find(x=>x.id===S.presQ.qid), i=S.presQ.i, q=qz.qs[i];
+    b.innerHTML=`<div class="pq"><div class="pq-k">Let’s review · Question ${i+1}</div><h2>${esc(q.t)}</h2>${q.o.map((o,oi)=>{
+      const n=PEOPLE.filter((_,p)=>answered(qz,i,p)&&(oi===q.c?q.w[p]===undefined:q.w[p]===oi)).length;
+      return `<div class="pq-o${oi===q.c?' ok':''}"><span class="ltr">${L[oi]}</span><span class="t">${esc(o)}${oi===q.c?'<small>Correct answer</small>':''}</span><span class="n">${n}</span></div>`;}).join('')}</div>`;
+    PW.document.getElementById('pw-t').textContent='WHMIS Classroom · '+qz.name;
+    return;
+  }
   b.innerHTML=content(d,true);
   PW.document.getElementById('pw-t').textContent='WHMIS Classroom'+(d?' · '+d.name:'');
 }
@@ -820,18 +885,18 @@ function openProgress(p){S.modal={k:'progress',hl:p===undefined?null:p,sort:'nam
 function cell(qz,p){
   const x=personQuiz(qz,p);
   /* outlined chips: the colour lives in the icon only */
-  if(x.st==='na') return `<span class="oc" data-tip="Added after this course was assigned">${I('fa-solid fa-triangle-exclamation ic-warn')}Not assigned</span><button class="b b-ghost b-sm asg" onclick="assignOne('${qz.id}',${p})">Assign</button>`;
+  if(x.st==='na') return `<span class="oc mut" data-tip="Added after this course was assigned">Not assigned</span><button class="b b-ghost b-sm asg" onclick="assignOne('${qz.id}',${p})">Assign</button>`;
   if(x.st==='not') return `<span class="oc">${I('fa-regular fa-circle ic-mute')}Not started</span>`;
-  if(x.st==='prog') return `<span class="oc">${I('fa-solid fa-spinner ic-info')}Question ${x.r+1} of ${x.tot}</span>${x.wrong?`<span class="hot-i cell-i" tabindex="0" data-tip="${x.wrong} wrong so far">${I('fa-solid fa-circle-exclamation')}</span>`:''}`;
+  if(x.st==='prog') return `<span class="oc">${I('fa-solid fa-spinner ic-info')}Question ${x.r+1} of ${x.tot}</span>${x.wrong?`<span class="hot-i cell-i" tabindex="0" data-tip="${wa(x.wrong)} so far">${I('fa-solid fa-flag')}</span>`:''}`;
   return x.st==='pass'?`<span class="oc">${I('fa-solid fa-circle-check ic-ok')}Passed · ${x.score}%</span>`:`<span class="oc">${I('fa-solid fa-circle-xmark ic-bad')}Failed · ${x.score}%</span>`;
 }
 /* overall status across every course assigned to the person */
 function statusCell(p){
   const as=Q.filter(qz=>!isNA(qz,p)), done=as.filter(qz=>qz.reached[p]===qz.qs.length).length, started=as.some(qz=>qz.reached[p]>0);
-  if(!as.length) return `<span class="oc">${I('fa-solid fa-triangle-exclamation ic-warn')}Not assigned</span>`;
+  if(!as.length) return `<span class="oc mut">Not assigned</span>`;
   if(done===as.length) return `<span class="oc">${I('fa-solid fa-circle-check ic-ok')}Completed</span>`;
   if(!started) return `<span class="oc">${I('fa-regular fa-circle ic-mute')}Not started</span>`;
-  return `<span class="oc">${I('fa-solid fa-spinner ic-info')}In progress · ${done} of ${as.length}</span>`;
+  return `<span class="oc">${I('fa-solid fa-spinner ic-info')}${done}/${as.length} done</span>`;
 }
 function progressModal(){
   const m=S.modal; let ids=PEOPLE.map((_,p)=>p);
@@ -840,11 +905,11 @@ function progressModal(){
   return `<div class="modal wide" role="dialog" aria-modal="true" aria-label="Progress"><div class="mh"><h2>Progress</h2>${liveChip()}<button class="ib" aria-label="Close" onclick="closeModal()">${I('fa-solid fa-xmark')}</button></div>
     <div class="mb" style="flex:1">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span class="mut" style="font-size:14px">Everyone’s progress on the online courses assigned in this class.</span>
-        <span style="margin-left:auto" class="mut">Sort</span><div class="seg"><button aria-pressed="${m.sort==='name'}" onclick="S.modal.sort='name';render()">A to Z</button><button aria-pressed="${m.sort==='wrong'}" onclick="S.modal.sort='wrong';render()">Most wrong first</button></div></div>
-      <div class="twrap"><table class="tbl ptbl"><thead><tr><th>Participant</th><th>Status</th><th>Wrong answers</th>${Q.map(qz=>`<th>${esc(qz.name)}<div class="sub">${qz.qs.length} questions · pass ${qz.pass}%${qz.final?' · final exam':''}</div></th>`).join('')}</tr></thead>
+        <span style="margin-left:auto" class="mut">Sort</span><div class="seg"><button aria-pressed="${m.sort==='name'}" onclick="S.modal.sort='name';render()">A to Z</button><button aria-pressed="${m.sort==='wrong'}" onclick="S.modal.sort='wrong';render()">Most wrong answers first</button></div></div>
+      <div class="twrap"><table class="tbl ptbl"><thead><tr><th>Participant</th><th>Status</th><th>Wrong answers</th>${Q.map(qz=>`<th>${esc(qz.name)}<div class="sub">${qz.qs.length} questions · pass ${qz.pass}%${qz.final?' · final exam':''}</div></th>`).join('')}<th class="fill"></th></tr></thead>
       <tbody>${ids.map(p=>{const miss=missingOf(p);return `<tr${m.hl===p?' class="hl"':''}><td><span style="display:flex;align-items:center;gap:8px">${Av(p)}<b style="font-weight:600">${PEOPLE[p]}</b>${miss.length>1?`<button class="b b-ghost b-sm asg" style="margin-left:auto" data-tip="Assign all ${miss.length} missing courses" onclick="assignPerson(${p})">Assign all</button>`:''}</span></td>
         <td>${statusCell(p)}</td>
-        <td>${wrongTotal(p)?`<span class="oc" tabindex="0" data-tip="${esc(wrongList(p))}">${I('fa-solid fa-circle-xmark ic-bad')}${wrongTotal(p)} wrong</span>`:'<span class="mut">None</span>'}</td>${Q.map(qz=>`<td>${cell(qz,p)}</td>`).join('')}</tr>`;}).join('')}</tbody></table></div></div>
+        <td>${wrongTotal(p)?`<span class="oc" tabindex="0" data-tip="${esc(wrongList(p))}">${I('fa-solid fa-flag')}${wrongTotal(p)}</span>`:'<span class="mut">0</span>'}</td>${Q.map(qz=>`<td>${cell(qz,p)}</td>`).join('')}<td class="fill"></td></tr>`;}).join('')}</tbody></table></div></div>
     <div class="mf"><button class="b b-ghost" onclick="closeModal()">Close</button></div></div>`;
 }
 
@@ -852,27 +917,39 @@ function progressModal(){
 function openResults(pick,qi,focus){
   S.res.pick=pick||'all'; S.res.open={}; S.res.order=null; S.res.pending=false;
   if(qi!==null&&qi!==undefined) S.res.open[pick+':'+qi]=1;
-  S.modal={k:'results',focus:focus||null}; render();
-  if(focus==='people') setTimeout(()=>document.getElementById('sec-people')?.scrollIntoView({block:'start'}),30);
+  S.modal={k:'results'}; render();
 }
 function liveChip(){return `<span class="live${S.live?'':' snap'}" id="livechip">${S.live?'<span class="dot"></span>Live':I('fa-solid fa-pause')+'Paused'} <small>updated ${ago()}</small><button class="ib ib-sm" style="width:18px;height:18px" data-tip="Refresh now" onclick="tick(true)">${I('fa-solid fa-rotate')}</button></span>`;}
 function resultsModal(){
   const r=S.res, mis=allMissed();
-  const picks=`<div class="pick-h">View</div><button class="pick${r.pick==='all'?' on':''}" onclick="openResults('all')"><b>${I('fa-solid fa-ranking-star')}All courses</b><small>Most missed questions and who needs help</small></button>
-    <div class="pick-h">Online courses</div>${Q.map(qz=>{const st=qz.qs.map((_,i)=>qStats(qz,i)), hard=st.filter(s=>s.bad&&s.pct>=50).length, started=PEOPLE.filter((_,p)=>qz.reached[p]>0).length;
-      return `<button class="pick${r.pick===qz.id?' on':''}" onclick="openResults('${qz.id}')"><b>${esc(qz.name)}</b><small>${started} of ${assignedN(qz)} started${hard?` · <span style="color:var(--danger);font-weight:600" data-tip="Hard = half or more of the people who answered got it wrong (to confirm)">${hard} hard question${hard===1?'':'s'}</span>`:''}</small></button>`;}).join('')}`;
+  const nh=needHelp();
+  const ov=(id,ic,label,n)=>`<button class="pick ovp${r.pick===id?' on':''}" onclick="openResults('${id}')"><b>${I(ic)}${label}</b><span class="cnt">${n}</span></button>`;
+  const picks=`<div class="pick-h">Overview</div>${ov('all','fa-solid fa-circle-exclamation','Most Challenging Questions',mis.length)}${ov('people','fa-solid fa-user-group','Students who need help',nh.length)}
+    <div class="pick-h">Online courses<span>${Q.length} course${Q.length===1?'':'s'}</span></div>${Q.map(qz=>{const st=qz.qs.map((_,i)=>qStats(qz,i)), hard=st.filter(s=>s.bad&&s.pct>=50).length, started=PEOPLE.filter((_,p)=>qz.reached[p]>0).length;
+      return `<button class="pick${r.pick===qz.id?' on':''}" onclick="openResults('${qz.id}')"><b>${esc(qz.name)}</b><small>${started} of ${assignedN(qz)} started${hard?` · <span style="font-weight:600" data-tip="Challenging = half or more of the people who answered chose a wrong answer (to confirm)">${hard} challenging</span>`:''}</small></button>`;}).join('')}`;
   return `<div class="modal wide" role="dialog" aria-modal="true" aria-label="Results"><div class="mh"><h2>Results</h2>${liveChip()}<button class="ib" aria-label="Close" onclick="closeModal()">${I('fa-solid fa-xmark')}</button></div>
-    <div class="res"><nav class="res-l" aria-label="Pick a course">${picks}</nav><div class="res-r">${r.pick==='all'?resAll(mis):resQuiz(Q.find(x=>x.id===r.pick))}</div></div>
+    <div class="res"><nav class="res-l" aria-label="Pick a course">${picks}</nav><div class="res-r">${r.pick==='all'?resMCQ(mis):r.pick==='people'?resPeople(nh):resQuiz(Q.find(x=>x.id===r.pick))}</div></div>
     <div class="mf"><span class="mut" style="font-size:13px;margin-right:auto">${I('fa-solid fa-lock')} Only you see this. The second screen only shows what you present.</span><button class="b b-ghost" onclick="closeModal()">Close</button></div></div>`;
 }
-function resAll(mis){
-  const nh=needHelp();
-  return `<div class="res-top"><h3>All courses</h3></div><div class="res-sum">Where the class is struggling, across ${Q.length} online courses.</div>
-    <div class="ovsec"><h4>Most missed questions <span class="cnt">${Math.min(mis.length,5)}</span></h4>
-      ${mis.length?mis.slice(0,5).map((m,k)=>qRow(m.qz,m.i,k+1,true)).join(''):`<div class="es"><div class="es-i">${I('fa-regular fa-face-smile')}</div><b>No wrong answers yet</b></div>`}</div>
-    <div class="ovsec" id="sec-people"><h4>People who may need help <span class="cnt">${nh.length}</span><span class="mut" style="font-weight:400;font-size:13px">3 or more wrong answers</span></h4>
-      ${nh.map(x=>{const qs=[];Q.forEach(qz=>qz.qs.forEach((q,i)=>{if(q.w[x.p]!==undefined&&answered(qz,i,x.p))qs.push(qz.short+' Q'+(i+1));}));
-        return `<div class="lrow">${Av(x.p)}<span><div class="n">${x.n}</div><div class="s">Missed: ${qs.join(', ')}</div></span><span class="chip chip-danger">${x.w} wrong</span></div>`;}).join('')||'<div class="mut">Nobody yet.</div>'}</div>`;
+/* Overview tab 1 (Figma 412:365): every question with mistakes, all open, hardest first */
+function resMCQ(mis){
+  return `<div class="res-top"><h3>Most Challenging Questions</h3></div><div class="res-sum">The most challenging questions across all the assigned courses.</div>
+    ${mis.length?mis.map((m,k)=>{const q=m.q;
+      return `<div class="mcq"><span class="no">${k+1}.</span><div class="mq-b">
+        <div class="mq-h"><b>${esc(q.t)}</b><span class="chip chip-warning">${m.bad} of ${m.n} chose a wrong answer</span><button class="ib ib-sm" data-tip="Present this question: answer counts only, no names" onclick="presentQ('${m.qz.id}',${m.i})">${I('fa-solid fa-display')}</button></div>
+        <div class="mq-sub">Course: <button class="lnk" onclick="openResults('${m.qz.id}',${m.i})">${esc(m.qz.name)}</button> · Correct answer: <b class="mq-ok">${L[q.c]}. ${esc(q.o[q.c])}</b></div>
+        <div class="mq-oh">Wrong options chosen</div>
+        ${wrongPicks(m.qz,m.i).map(x=>`<div class="mq-opt"><div class="mq-oh2"><b>${L[x.o]}. ${esc(q.o[x.o])}</b><span class="chip">${x.ppl.length} chose this</span></div><div class="mq-s">Students who chose this option:</div><div class="mq-ppl">${x.ppl.map(PChip).join('')}</div></div>`).join('')}
+      </div></div>`;}).join(''):`<div class="es"><div class="es-i">${I('fa-regular fa-face-smile')}</div><b>No wrong answers yet</b></div>`}`;
+}
+/* Overview tab 2: students who need help */
+function resPeople(nh){
+  return `<div class="res-top"><h3>Students who need help</h3></div><div class="res-sum">People with 3 or more wrong answers, across all the assigned courses.</div>
+      ${nh.map(x=>{const qs=[];Q.forEach(qz=>qz.qs.forEach((q,i)=>{if(q.w[x.p]!==undefined&&answered(qz,i,x.p))qs.push({qz,q,i,o:q.w[x.p]});}));
+        /* one card per person: each question to go over, the option they chose and the correct one */
+        return `<div class="mq-opt sp"><div class="mq-oh2">${Av(x.p)}<b>${x.n}</b><span class="chip">${wa(x.w)}</span></div>
+          <details class="spd" ${S.res.sp?.[x.p]?'open':''} ontoggle="(S.res.sp=S.res.sp||{})[${x.p}]=this.open"><summary>${I('fa-solid fa-chevron-right')}See wrong questions</summary>${qs.map(y=>`<div class="spq"><div class="spt">${esc(y.q.t)}<small>${esc(y.qz.name)} · Question ${y.i+1}</small></div>
+            <div class="spa"><span>Chose <b>${L[y.o]}. ${esc(y.q.o[y.o])}</b></span><span>Correct <b class="mq-ok">${L[y.q.c]}. ${esc(y.q.o[y.q.c])}</b></span></div></div>`).join('')}</details></div>`;}).join('')||'<div class="mut">Nobody yet.</div>'}`;
 }
 function resQuiz(qz){
   const r=S.res, st=qz.qs.map((_,i)=>qStats(qz,i));
@@ -883,26 +960,27 @@ function resQuiz(qz){
   const started=PEOPLE.filter((_,p)=>qz.reached[p]>0).length, done=PEOPLE.filter((_,p)=>qz.reached[p]===qz.qs.length).length, na=(qz.na||[]).length;
   const changed=r.sort==='missed'&&r.order&&r.order.ids.join()!==ranked.join();
   return `<div class="res-top"><h3>${esc(qz.name)}</h3>${qz.final?'<span class="chip chip-info">Final exam</span>':''}<span class="chip">Pass ${qz.pass}%</span>
-      <span class="r"><span class="mut">Sort</span><div class="seg"><button aria-pressed="${r.sort==='missed'}" onclick="S.res.sort='missed';S.res.order=null;render()">Most missed first</button><button aria-pressed="${r.sort==='course'}" onclick="S.res.sort='course';render()">Course order</button></div></span></div>
-    <div class="res-sum">${started} of ${assignedN(qz)} started · ${done} finished${na?` · <span style="color:var(--warning);font-weight:600">${na} not assigned</span>`:''} · click a question to see who picked what</div>
+      <span class="r"><span class="mut">Sort</span><div class="seg"><button aria-pressed="${r.sort==='missed'}" onclick="S.res.sort='missed';S.res.order=null;render()">Most wrong answers first</button><button aria-pressed="${r.sort==='course'}" onclick="S.res.sort='course';render()">Course order</button></div></span></div>
+    <div class="res-sum">${started} of ${assignedN(qz)} started · ${done} finished · click a question to see who chose what</div>
     ${changed?`<div class="newbar">${I('fa-solid fa-arrow-down-up-across-line')}New answers changed the order<button onclick="S.res.order=null;render()">Update order</button></div>`:''}
     ${order.map((i,k)=>qRow(qz,i,r.sort==='missed'?k+1:i+1,false)).join('')}`;
 }
 function qRow(qz,i,rank,showQuiz){
-  const q=qz.qs[i], s=qStats(qz,i), key=qz.id+':'+i, open=!!S.res.open[key];
+  /* the top-ranked question starts open so its answers and names show at a glance */
+  const q=qz.qs[i], s=qStats(qz,i), key=qz.id+':'+i, open=key in S.res.open?!!S.res.open[key]:(showQuiz||S.res.sort==='missed')&&rank===1;
   const okN=s.n-s.bad, notYet=PEOPLE.map((_,p)=>p).filter(p=>!answered(qz,i,p)&&!isNA(qz,p)), naP=qz.na||[];
   const right=PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p)&&q.w[p]===undefined);
   const wrongBy=q.o.map((_,o)=>PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p)&&q.w[p]===o));
   const hot=s.n&&s.pct>=50, topWrong=Math.max(0,...wrongBy.filter((_,o)=>o!==q.c).map(x=>x.length));
   const det=`<div class="qd">
       <div class="ans ok"><span class="ltr">${L[q.c]}</span><span class="at"><b>${esc(q.o[q.c])}</b> <span class="mut" style="font-size:12px">correct answer</span><div class="ppl">${right.map(PChip).join('')||'<span class="mut" style="font-size:12px">Nobody yet</span>'}</div></span><span class="ct">${right.length}</span></div>
-      ${q.o.map((o,oi)=>oi===q.c||!wrongBy[oi].length?'':`<div class="ans bad"><span class="ltr">${L[oi]}</span><span class="at"><b>${esc(o)}</b>${hot&&wrongBy[oi].length===topWrong?`<span class="hot-i" data-tip="Most picked wrong answer: the main reason this question is flagged">${I('fa-solid fa-circle-exclamation')}</span>`:''}<div class="ppl">${wrongBy[oi].map(PChip).join('')}</div></span><span class="ct">${wrongBy[oi].length}</span></div>`).join('')}
+      ${q.o.map((o,oi)=>oi===q.c||!wrongBy[oi].length?'':`<div class="ans bad"><span class="ltr">${L[oi]}</span><span class="at"><b>${esc(o)}</b>${hot&&wrongBy[oi].length===topWrong?`<span class="hot-i" data-tip="Most chosen wrong answer: the main reason this question is challenging">${I('fa-solid fa-circle-exclamation')}</span>`:''}<div class="ppl">${wrongBy[oi].map(PChip).join('')}</div></span><span class="ct">${wrongBy[oi].length} chose this</span></div>`).join('')}
       ${notYet.length?`<div class="ans none"><span class="ltr">${I('fa-regular fa-clock')}</span><span class="at"><b class="mut">Not answered yet</b><div class="ppl">${notYet.map(PChip).join('')}</div></span><span class="ct mut">${notYet.length}</span></div>`:''}
-      ${naP.length?`<div class="ans none"><span class="ltr">${I('fa-solid fa-user-clock')}</span><span class="at"><b class="mut">Not assigned (joined later)</b><div class="ppl">${naP.map(PChip).join('')}</div></span><button class="b b-sm" onclick="event.stopPropagation();${naP.map(p=>`assignOne('${qz.id}',${p})`).join(';')}">Assign</button></div>`:''}
+      
     </div>`;
-  return `<div class="qrow${open?' open':''}"><button class="qh" aria-expanded="${open}" onclick="S.res.open['${key}']?delete S.res.open['${key}']:S.res.open['${key}']=1;render()">
-      <span class="rk">${rank}${hot?`<span class="hot-i" data-tip="Hard question: half or more got it wrong">${I('fa-solid fa-circle-exclamation')}</span>`:''}</span><span class="qt">${esc(q.t)}<small>${showQuiz?esc(qz.name)+' · ':''}Question ${i+1}</small></span>
-      <span class="st"><span><b style="color:${s.bad?'var(--danger)':'var(--text-secondary)'}">${s.n?`${s.bad} of ${s.n} wrong`:'No answers yet'}</b><span class="mut">${s.n?s.pct+'%':''}</span></span>
+  return `<div class="qrow${open?' open':''}"><button class="qh" aria-expanded="${open}" onclick="S.res.open['${key}']=${open?0:1};render()">
+      <span class="rk">${rank}${hot?`<span class="hot-i" data-tip="Challenging: half or more chose a wrong answer">${I('fa-solid fa-flag')}</span>`:''}</span><span class="qt">${esc(q.t)}<small>${showQuiz?esc(qz.name)+' · ':''}Question ${i+1}</small></span>
+      <span class="st"><span><b>${s.n?`${okN} of ${s.n} correct`:'No answers yet'}</b><span class="mut">${s.n?wa(s.bad):''}</span></span>
         <span class="pb"><span class="bad" style="width:${s.n?s.bad/PEOPLE.length*100:0}%"></span><span class="ok" style="width:${s.n?okN/PEOPLE.length*100:0}%"></span></span></span>
       <span class="ch">${I('fa-solid fa-chevron-right')}</span></button>${det}</div>`;
 }
