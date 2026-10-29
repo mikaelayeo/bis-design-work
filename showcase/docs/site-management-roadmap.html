@@ -64,7 +64,7 @@
   split ticket is still ONE ticket: the same number goes on every slice node.
 
   ── ⏳ PENDING, AND WHY NOTHING HERE ANSWERS IT ───────────────────────────────
-  Seven questions are deliberately unresolved and waiting on product leadership.
+  Six questions are deliberately unresolved and waiting on product leadership.
   They live in a top-level `pending` array, surface as an amber chip on every
   card they land on, and are stated in full in the About view. They are NOT
   conflicts — a conflict is the plan disagreeing with itself; these are questions
@@ -72,7 +72,8 @@
 
   The Oct 1 check-in answered three of the previous eight outright — what happens
   to the access feature, where training comes from, and whether a group level is
-  built — and narrowed a fourth to its timing. Two of the seven that remain are
+  built — and narrowed a fourth to its timing. Locations was answered on Oct 13 (a one-time
+  import of names, no live link). Two of the six that remain are
   company decisions rather than product calls, and they are carried here all the
   same: a question nobody has answered is a question nobody has answered.
 
@@ -982,15 +983,6 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
   "conflicts": [],
   "pending": [
     {
-      "id": "locations",
-      "title": "Locations — import names, import with people, or a live link?",
-      "affects": [
-        "SM-01"
-      ],
-      "what": "The MVP has no Location import: a Site is deliberately a place that is not a Location, and copying Locations in would duplicate every one of them once a live link lands. The room then leaned back towards importing Location names, optionally with their people, and possibly a live link instead.",
-      "state": "This is the known day-one gap. A client whose places are all Locations — one has 52 branches — gets less on day one until live-linked Locations land, and they cannot slip far behind the MVP."
-    },
-    {
       "id": "external-platform-wide",
       "title": "External people as a platform-wide record — and how it is charged",
       "affects": [
@@ -1313,7 +1305,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
         "Sign-in on any Site or Job — picking one from the list is the sign-in, and it is what makes that day's rituals owed",
         "Owner, manager and supervisor as information-only fields — nothing is assigned, permitted or routed through them",
         "Counting — a form counts toward the most specific work context and rolls up; a Job spanning Sites counts toward the Job only",
-        "Setup — create from scratch, or import from Assets by name only, leaving the original Asset untouched. Sites and Jobs are created on the web in the MVP",
+        "Setup — create from scratch, import from Assets by name only (leaving the original Asset untouched), or import Location names once as Sites, with no live link: later changes to a Location don't change its Site. Sites and Jobs are created on the web in the MVP",
         "No archiving a Site or closing a Job while anything is outstanding — the admin cleans up first"
       ],
       "actionFlag": null,
@@ -2172,7 +2164,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
       "dependsOn": ["SM-01", "SM-03"],
       "priority": null,
       "pending": false,
-      "flag": "Importing Locations is ⏳ pending"
+      "flag": null
     },
     {
       "n": 4,
@@ -2540,7 +2532,7 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
           <h2>&#9203; Waiting on product leadership</h2>
           <hr class="rule">
           <p class="standfirst">
-            Seven questions are deliberately open. They are not oversights and they are not
+            Six questions are deliberately open. They are not oversights and they are not
             disagreements &mdash; each one needs a call that hasn&rsquo;t been made, and the core of
             the plan is locked for prototyping around them. <b>Nothing on this page answers any of
             them</b>, and a pending chip appears on every card a question lands on so the map
@@ -2551,7 +2543,8 @@ code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
             happens to the access feature, where training comes from, and whether a group level
             gets built &mdash; and narrowed a fourth to its timing. It also took the provisional
             flag off a tier placement: the training ticket is in Tier&nbsp;A for real now, as a
-            compliance badge read from the training matrix. Two of the seven below are company
+            compliance badge read from the training matrix. Locations followed on Oct&nbsp;13: a one-time import of names, with no live link.
+            Two of the six below are company
             decisions rather than product calls, and they are carried here all the same.
           </p>
           <div id="about-pending"></div>

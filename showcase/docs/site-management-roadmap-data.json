@@ -129,15 +129,6 @@
   "conflicts": [],
   "pending": [
     {
-      "id": "locations",
-      "title": "Locations — import names, import with people, or a live link?",
-      "affects": [
-        "SM-01"
-      ],
-      "what": "The MVP has no Location import: a Site is deliberately a place that is not a Location, and copying Locations in would duplicate every one of them once a live link lands. The room then leaned back towards importing Location names, optionally with their people, and possibly a live link instead.",
-      "state": "This is the known day-one gap. A client whose places are all Locations — one has 52 branches — gets less on day one until live-linked Locations land, and they cannot slip far behind the MVP."
-    },
-    {
       "id": "external-platform-wide",
       "title": "External people as a platform-wide record — and how it is charged",
       "affects": [
@@ -460,7 +451,7 @@
         "Sign-in on any Site or Job — picking one from the list is the sign-in, and it is what makes that day's rituals owed",
         "Owner, manager and supervisor as information-only fields — nothing is assigned, permitted or routed through them",
         "Counting — a form counts toward the most specific work context and rolls up; a Job spanning Sites counts toward the Job only",
-        "Setup — create from scratch, or import from Assets by name only, leaving the original Asset untouched. Sites and Jobs are created on the web in the MVP",
+        "Setup — create from scratch, import from Assets by name only (leaving the original Asset untouched), or import Location names once as Sites, with no live link: later changes to a Location don't change its Site. Sites and Jobs are created on the web in the MVP",
         "No archiving a Site or closing a Job while anything is outstanding — the admin cleans up first"
       ],
       "actionFlag": null,
