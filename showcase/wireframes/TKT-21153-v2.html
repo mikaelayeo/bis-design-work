@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TKT-21153 — Demo/Trial Mode — Design Proposal v2</title>
+  <style>
+    /* BIStrainer UI Library design tokens */
+    :root {
+      --surface-primary: #0078b3; --surface-primary-lightest: #f2fcff;
+      --surface-error: #cc2222; --surface-error-lightest: #fff2f2; --text-error: #cc2222;
+      --surface-warning-lightest: #fffcf2;
+      --surface-success: #167b00;
+      --text-default: #191919; --text-on-surface: #feffff; --surface-default: #feffff;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; font-size: 14px; background: #f0f0f0; color: #111; padding: 24px; line-height: 1.5; }
+    .page-header { margin: 0 auto 20px; padding-bottom: 12px; border-bottom: 2px solid #bbb; max-width: 920px; }
+    .page-header h1 { font-size: 18px; font-weight: 700; color: #333; }
+    .page-header .sub { font-size: 13px; color: #555; margin-top: 4px; }
+    .page-header .meta { font-size: 12px; color: #666; margin-top: 6px; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 600; background: #ddd; color: #444; border-radius: 3px; padding: 1px 6px; margin-right: 6px; }
+    .main-col { display: flex; flex-direction: column; gap: 18px; width: 100%; max-width: 920px; margin: 0 auto; }
+    .section { background: #fff; border: 1px solid #ccc; border-radius: 4px; overflow: hidden; }
+    .section__title { background: #e2e2e2; border-bottom: 1px solid #ccc; padding: 9px 14px; font-size: 13px; font-weight: 700; color: #333; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; border-radius: 3px; padding: 2px 7px; white-space: nowrap; }
+    .tag.changed { background: #dbe9f5; color: #2f6fa8; border: 1px solid #aecfe8; }
+    .tag.kept { background: #e2f0e2; color: #2f6b2f; border: 1px solid #b8dab8; }
+    .tag.removed { background: #f5e0e0; color: #9b2c2c; border: 1px solid #e2b3b3; }
+    .tag.open { background: #fff3cd; color: #7a5c00; border: 1px solid #e8d98a; }
+    .section__body { padding: 14px; }
+    .section__note { font-size: 12px; color: #666; padding: 10px 14px; background: #f7f7f7; border-top: 1px dashed #ddd; }
+    p.lead { font-size: 12px; color: #666; margin-bottom: 10px; }
+    p.cap { font-size: 12px; font-weight: 600; color: #555; margin: 16px 0 6px; }
+    p.cap:first-of-type { margin-top: 0; }
+
+    .ds-banner { display: flex; align-items: center; gap: 16px; padding: 12px; font-family: "Segoe UI", system-ui, sans-serif; }
+    .ds-banner__main { flex: 1 1 0; display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .ds-banner__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .ds-banner__label { font-size: 14px; font-weight: 600; line-height: 18px; }
+    .ds-banner__desc { font-size: 12px; line-height: 20px; }
+    .ds-banner__actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .ds-banner.info { background: var(--surface-primary-lightest); }
+    .ds-banner.warning { background: var(--surface-warning-lightest); }
+    .ds-banner.error { background: var(--surface-error-lightest); }
+    .mock-header { background: #46405f; color: #fff; font-size: 14px; font-weight: 600; padding: 12px 16px; font-family: "Segoe UI", system-ui, sans-serif; }
+    .flush-wrap { border: 1px solid #ddd; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+
+    .ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; flex-shrink: 0; font-family: "Segoe UI", system-ui, sans-serif; font-size: 15px; font-weight: 600; line-height: 24px; white-space: nowrap; }
+    .ds-btn--success { background: var(--surface-success); color: var(--text-on-surface); }
+    .ds-btn--blue { background: var(--surface-primary); color: var(--text-on-surface); }
+    .ds-btn--error { background: var(--surface-error); color: var(--text-on-surface); }
+    .ds-btn--outline-error { background: #fff; border: 1px solid var(--surface-error); color: var(--text-error); }
+    .ds-btn--tertiary { background: transparent; color: var(--text-default); }
+
+    .ds-modal-frame { background: #eaeaea; border: 1px solid #ccc; border-radius: 4px; padding: 24px; display: flex; justify-content: center; }
+    .ds-modal { background: var(--surface-default); border-radius: 4px; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.15); width: 525px; max-width: 100%; overflow: hidden; font-family: "Segoe UI", system-ui, sans-serif; }
+    .ds-modal__header { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 6px; gap: 8px; }
+    .ds-modal__title-group { display: flex; align-items: center; gap: 8px; }
+    .ds-modal__icon { width: 22px; height: 20px; flex-shrink: 0; display: flex; }
+    .ds-modal__title { font-size: 20px; font-weight: 600; line-height: 28px; }
+    .ds-modal__banner { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--surface-error-lightest); font-size: 14px; font-weight: 600; line-height: 20px; }
+    .ds-modal__body { padding: 16px; font-size: 16px; line-height: 24px; }
+    .ds-modal__body p + p { margin-top: 10px; }
+    .ds-modal__footer { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 16px; }
+    .ds-modal.center { text-align: center; }
+    .ds-modal.center .ds-modal__body { padding-top: 8px; }
+    .ds-modal.center .ds-modal__footer { justify-content: center; }
+    .price-box { border: 1px solid #e0e0e0; border-radius: 4px; background: #fafafa; padding: 10px 12px; margin-top: 12px; font-size: 14px; text-align: left; }
+    .price-row { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+    .price-row.total { border-top: 1px solid #e0e0e0; margin-top: 4px; padding-top: 7px; font-weight: 700; }
+    .price-fine { font-size: 12px; color: #666; margin-top: 8px; line-height: 1.45; text-align: left; }
+    .samples { font-size: 11px; color: #8a6d1a; margin-top: 8px; font-style: italic; }
+
+    table.t { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
+    table.t th { background: #e5e5e5; border: 1px solid #ccc; padding: 6px 8px; text-align: left; font-weight: 600; color: #444; }
+    table.t td { border: 1px solid #ddd; padding: 6px 8px; color: #333; vertical-align: top; }
+    ul.plain { padding-left: 18px; font-size: 12px; color: #333; }
+    ul.plain li { margin-bottom: 6px; }
+    .email { border: 1px solid #ddd; border-radius: 4px; background: #fafafa; padding: 12px 14px; font-size: 12px; color: #333; line-height: 1.55; }
+    a { color: #2f6fa8; }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>Demo / Trial Mode — Design Proposal v2</h1>
+    <div class="sub">Ticket TKT-21153 — self-serve Add Module / End Trial, updated after the Oct 6 recap and the Nov 2 meeting. Replaces the earlier proposal (the previous page stays up for reference).</div>
+    <div class="meta">
+      <span class="badge">v2</span>
+      <span class="badge">Prepared for: Lexis, Dan, Luke, Sam, Sachin</span>
+      <span style="font-size:12px; color:#888;">Updated 2026-11-02</span>
+    </div>
+  </div>
+
+  <div class="main-col">
+
+    <!-- Summary -->
+    <div class="section">
+      <div class="section__title">What changed from the first proposal</div>
+      <div class="section__body">
+        <table class="t">
+          <thead><tr><th>First proposal</th><th>This version</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>"Notify Account Manager" button</td><td>Banner has <strong>End Trial</strong> and <strong>Add Module</strong>, with the price in the banner text</td><td><span class="tag changed">Changed</span></td></tr>
+            <tr><td>Closeable "Trial Expired" pop-up at day 90</td><td>After expiry, admin screens are locked behind one pop-up with <strong>Return</strong>, <strong>Delete Module</strong> and <strong>+ Add Module</strong></td><td><span class="tag changed">Changed</span></td></tr>
+            <tr><td>Countdown banner at the top of the page</td><td>Countdown is a banner <strong>inside the pop-up</strong>: "All Forms data will be deleted in {n} days if no action is taken."</td><td><span class="tag changed">Changed</span></td></tr>
+            <tr><td>Manual amendment email</td><td>Automatic email to all client admins when a module is added</td><td><span class="tag changed">Changed</span></td></tr>
+            <tr><td>Trial Override, Lone Worker web view, staff colours</td><td>Out of scope for this ticket (Nov 2)</td><td><span class="tag removed">Out of scope</span></td></tr>
+            <tr><td>Banner colours and wording</td><td>Stay in this ticket (blue, amber, red)</td><td><span class="tag kept">Kept</span></td></tr>
+          </tbody>
+        </table>
+        <p class="lead" style="margin-top:10px;">Figma: <a href="https://www.figma.com/design/qUnRjzU6RgTBt5kzYO7aTX/BIStrainer_Board-20?node-id=453-496">v3-110226 frames</a></p>
+      </div>
+    </div>
+
+    <!-- Rules -->
+    <div class="section">
+      <div class="section__title">Pop-up rules (apply to every pop-up below)</div>
+      <div class="section__body">
+        <ul class="plain">
+          <li><strong>Icon colour:</strong> blue while the trial is running, amber once it has ended. Red is only for the countdown banner and the delete confirmation.</li>
+          <li><strong>Footer order:</strong> dismiss, then <strong>Delete Module</strong> if shown, then the primary on the right.</li>
+          <li><strong>Primary button:</strong> <strong>Confirm</strong> only on a second step, after the user already pressed a named button (Add Module, End Trial, Delete Module). A first prompt names the action: <strong>+ Add Module</strong>.</li>
+          <li><strong>Dismiss button:</strong> <strong>Cancel</strong> when it only closes the pop-up. <strong>Return</strong> only on the locked in-module pop-up, where it takes the admin away from the page.</li>
+          <li><strong>Delete Module</strong> appears only while data still exists (the 60 days).</li>
+          <li>The price box (cost per user per month, billable users, added monthly cost, billing note) is identical everywhere it appears.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- A banners -->
+    <div class="section">
+      <div class="section__title">A. Trial Banner — End Trial / Add Module <span class="tag changed">Changed</span></div>
+      <div class="section__body">
+        <p class="lead">Same Banner component and escalating colours. The price sits in the banner text; the full breakdown is in the pop-up.</p>
+
+        <p class="cap">More than 14 days left</p>
+        <div class="flush-wrap">
+          <div class="mock-header">Forms</div>
+          <div class="ds-banner info">
+            <div class="ds-banner__main">
+              <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#009acb"/><rect x="7.1" y="7" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="4.6" r="1.05" fill="#fff"/></svg>
+              <span class="ds-banner__text">
+                <span class="ds-banner__label">Your Forms module is in trial mode until October 12, 2026.</span>
+                <span class="ds-banner__desc">Add it to your account for $0.27 per user, per month, or end the trial.</span>
+              </span>
+            </div>
+            <div class="ds-banner__actions">
+              <button class="ds-btn ds-btn--outline-error">End Trial</button>
+              <button class="ds-btn ds-btn--success"><svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add Module</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="cap">3–14 days left</p>
+        <div class="ds-banner warning">
+          <div class="ds-banner__main">
+            <svg viewBox="0 0 16 15" width="16" height="15"><path d="M8 0.5 L15.5 14 L0.5 14 Z" fill="#c29c14"/><rect x="7.1" y="5" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="12.2" r="1.05" fill="#fff"/></svg>
+            <span class="ds-banner__text">
+              <span class="ds-banner__label">Your Forms module's trial ends in 6 days, on October 12, 2026.</span>
+              <span class="ds-banner__desc">Add it now for $0.27 per user, per month to keep admin access, or end the trial.</span>
+            </span>
+          </div>
+          <div class="ds-banner__actions">
+            <button class="ds-btn ds-btn--outline-error">End Trial</button>
+            <button class="ds-btn ds-btn--success"><svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add Module</button>
+          </div>
+        </div>
+
+        <p class="cap">Less than 3 days left</p>
+        <div class="ds-banner error">
+          <div class="ds-banner__main">
+            <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg>
+            <span class="ds-banner__text">
+              <span class="ds-banner__label">Your Forms module's trial ends tomorrow, October 12, 2026.</span>
+              <span class="ds-banner__desc">Add it today for $0.27 per user, per month to avoid losing admin access, or end the trial.</span>
+            </span>
+          </div>
+          <div class="ds-banner__actions">
+            <button class="ds-btn ds-btn--outline-error">End Trial</button>
+            <button class="ds-btn ds-btn--success"><svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add Module</button>
+          </div>
+        </div>
+      </div>
+      <div class="section__note">Applies to every module with a banner today: Forms, Classroom Calendar, LMS, TRMS, Folders, Assets, Rewards, Playbooks and Driver Management. The module name is written out ("Your Forms module..."). Lone Worker has no admin page, so it uses a modal instead (section E).</div>
+    </div>
+
+    <!-- B mid-trial -->
+    <div class="section">
+      <div class="section__title">B. During the Trial — Add Module and End Trial <span class="tag changed">Changed</span></div>
+      <div class="section__body">
+        <p class="lead">Both open from the banner, so both are second steps and end in <strong>Cancel / Confirm</strong>. Both are closeable.</p>
+
+        <p class="cap">1. Add Module</p>
+        <div class="ds-modal-frame">
+          <div class="ds-modal">
+            <div class="ds-modal__header">
+              <div class="ds-modal__title-group">
+                <span class="ds-modal__icon"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#009acb"/><rect x="9" y="4.5" width="2" height="6.5" rx="1" fill="#fff"/><circle cx="10" cy="14.5" r="1.3" fill="#fff"/></svg></span>
+                <span class="ds-modal__title">Add the Forms module</span>
+              </div>
+              <svg viewBox="0 0 20 20" width="20" height="20"><path d="M4.5 4.5 L15.5 15.5 M15.5 4.5 L4.5 15.5" stroke="#191919" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <div class="ds-modal__body">
+              <p>Adding Forms to your account means you'll keep everything you've built during the trial.</p>
+              <div class="price-box">
+                <div class="price-row"><span>Added cost per user, per month</span><strong>$0.27</strong></div>
+                <div class="price-row"><span>Billable users today</span><strong>120</strong></div>
+                <div class="price-row total"><span>Added monthly cost</span><span>$32.40</span></div>
+              </div>
+              <p class="price-fine">Added in the first 10 days of your billing cycle: billed this month. Added after day 10: billing starts next month. All client admins will be emailed when you add this module.</p>
+            </div>
+            <div class="ds-modal__footer">
+              <button class="ds-btn ds-btn--tertiary">Cancel</button>
+              <button class="ds-btn ds-btn--success">Confirm</button>
+            </div>
+          </div>
+        </div>
+        <p class="samples">Sample values ($0.27, 120 users). Real price and billable user count come from the portal's billing data.</p>
+
+        <p class="cap">2. Module added</p>
+        <div class="ds-modal-frame">
+          <div class="ds-modal center">
+            <div class="ds-modal__body">
+              <svg viewBox="0 0 44 44" width="44" height="44"><circle cx="22" cy="22" r="20" fill="none" stroke="#167b00" stroke-width="3"/><path d="M13 22.5 L19.5 29 L31 15.5" stroke="#167b00" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <div style="font-size:20px;font-weight:600;margin:8px 0;">Forms module added</div>
+              <p>The Forms module is now active on your account. We've let your other admins know.</p>
+            </div>
+            <div class="ds-modal__footer"><button class="ds-btn ds-btn--blue">Okay</button></div>
+          </div>
+        </div>
+
+        <p class="cap">3. End Trial</p>
+        <div class="ds-modal-frame">
+          <div class="ds-modal">
+            <div class="ds-modal__header">
+              <div class="ds-modal__title-group">
+                <span class="ds-modal__icon"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#cc2222"/><rect x="9" y="4.5" width="2" height="6.5" rx="1" fill="#fff"/><circle cx="10" cy="14.5" r="1.3" fill="#fff"/></svg></span>
+                <span class="ds-modal__title">End your Forms trial?</span>
+              </div>
+              <svg viewBox="0 0 20 20" width="20" height="20"><path d="M4.5 4.5 L15.5 15.5 M15.5 4.5 L4.5 15.5" stroke="#191919" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <div class="ds-modal__body"><p>Ending the trial deletes the Forms module and everything you built in it. This can't be undone.</p></div>
+            <div class="ds-modal__footer">
+              <button class="ds-btn ds-btn--tertiary">Cancel</button>
+              <button class="ds-btn ds-btn--error">Confirm</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="cap">4. Trial ended — lands on the admin page</p>
+        <div class="ds-modal-frame">
+          <div class="ds-modal center">
+            <div class="ds-modal__body">
+              <svg viewBox="0 0 44 44" width="44" height="44"><circle cx="22" cy="22" r="20" fill="none" stroke="#167b00" stroke-width="3"/><path d="M13 22.5 L19.5 29 L31 15.5" stroke="#167b00" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <div style="font-size:20px;font-weight:600;margin:8px 0;">Forms trial ended</div>
+              <p>Your Forms module has been deleted along with the forms and data built in it. It now shows as Trial Ended under Other Available Modules.</p>
+            </div>
+            <div class="ds-modal__footer"><button class="ds-btn ds-btn--blue">Okay</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="section__note">After ending the trial, the module moves to Other Available Modules with a red "Trial Ended" badge. Deletion does only what an admin can already do by hand; there is no new purge logic.</div>
+    </div>
+
+    <!-- C 60 days -->
+    <div class="section">
+      <div class="section__title">C. After Expiry, First 60 Days — Locked <span class="tag changed">Changed</span></div>
+      <div class="section__body">
+        <p class="lead">When the trial ends, admins are locked out of the module's admin screens. Learners can still use the module and never see these pop-ups. The module's data still exists and is deleted automatically after 60 days. The countdown is a live value that ticks down daily, and an email goes out too in case an admin doesn't log in for a while.</p>
+
+        <p class="cap">1. Inside the module (admin screens locked)</p>
+        <div class="ds-modal-frame">
+          <div class="ds-modal">
+            <div class="ds-modal__header">
+              <div class="ds-modal__title-group">
+                <span class="ds-modal__icon"><svg viewBox="0 0 22 20" width="22" height="20"><path d="M11 1.5 L20.5 18.5 L1.5 18.5 Z" fill="none" stroke="#c29c14" stroke-width="1.6" stroke-linejoin="round"/><rect x="10.1" y="7" width="1.8" height="6" rx="0.9" fill="#c29c14"/><circle cx="11" cy="16" r="1.05" fill="#c29c14"/></svg></span>
+                <span class="ds-modal__title">Forms trial has ended</span>
+              </div>
+            </div>
+            <div class="ds-modal__banner">
+              <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg>
+              <span>All Forms data will be deleted in 42 days if no action is taken.</span>
+            </div>
+            <div class="ds-modal__body">
+              <p>Your trial has ended and admin features are locked. Add Forms to your account to keep your data and unlock them, or delete the module.</p>
+              <div class="price-box">
+                <div class="price-row"><span>Added cost per user, per month</span><strong>$0.27</strong></div>
+                <div class="price-row"><span>Billable users today</span><strong>120</strong></div>
+                <div class="price-row total"><span>Added monthly cost</span><span>$32.40</span></div>
+              </div>
+              <p class="price-fine">Added in the first 10 days of your billing cycle: billed this month. Added after day 10: billing starts next month.</p>
+            </div>
+            <div class="ds-modal__footer">
+              <button class="ds-btn ds-btn--tertiary">Return</button>
+              <button class="ds-btn ds-btn--outline-error">Delete Module</button>
+              <button class="ds-btn ds-btn--success"><svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add Module</button>
+            </div>
+          </div>
+        </div>
+        <p class="samples">"42 days" is a live value counting down daily from 60.</p>
+
+        <p class="cap">2. From Company Settings > System Modules (admin turns the module on)</p>
+        <div class="ds-modal-frame">
+          <div class="ds-modal">
+            <div class="ds-modal__header">
+              <div class="ds-modal__title-group">
+                <span class="ds-modal__icon"><svg viewBox="0 0 22 20" width="22" height="20"><path d="M11 1.5 L20.5 18.5 L1.5 18.5 Z" fill="none" stroke="#c29c14" stroke-width="1.6" stroke-linejoin="round"/><rect x="10.1" y="7" width="1.8" height="6" rx="0.9" fill="#c29c14"/><circle cx="11" cy="16" r="1.05" fill="#c29c14"/></svg></span>
+                <span class="ds-modal__title">Forms trial has ended</span>
+              </div>
+              <svg viewBox="0 0 20 20" width="20" height="20"><path d="M4.5 4.5 L15.5 15.5 M15.5 4.5 L4.5 15.5" stroke="#191919" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <div class="ds-modal__banner">
+              <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg>
+              <span>All Forms data will be deleted in 42 days if no action is taken.</span>
+            </div>
+            <div class="ds-modal__body">
+              <p>Your Forms trial has ended. To turn the module on and keep your data, add it to your account.</p>
+              <div class="price-box">
+                <div class="price-row"><span>Added cost per user, per month</span><strong>$0.27</strong></div>
+                <div class="price-row"><span>Billable users today</span><strong>120</strong></div>
+                <div class="price-row total"><span>Added monthly cost</span><span>$32.40</span></div>
+              </div>
+              <p class="price-fine">Added in the first 10 days of your billing cycle: billed this month. Added after day 10: billing starts next month.</p>
+            </div>
+            <div class="ds-modal__footer">
+              <button class="ds-btn ds-btn--tertiary">Cancel</button>
+              <button class="ds-btn ds-btn--outline-error">Delete Module</button>
+              <button class="ds-btn ds-btn--success"><svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add Module</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="cap">3. Delete Module — confirm</p>
+        <div class="ds-modal-frame">
+          <div class="ds-modal">
+            <div class="ds-modal__header">
+              <div class="ds-modal__title-group">
+                <span class="ds-modal__icon"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#cc2222"/><rect x="9" y="4.5" width="2" height="6.5" rx="1" fill="#fff"/><circle cx="10" cy="14.5" r="1.3" fill="#fff"/></svg></span>
+                <span class="ds-modal__title">Delete the Forms module?</span>
+              </div>
+              <svg viewBox="0 0 20 20" width="20" height="20"><path d="M4.5 4.5 L15.5 15.5 M15.5 4.5 L4.5 15.5" stroke="#191919" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <div class="ds-modal__body"><p>This deletes the Forms module and everything in it. This can't be undone.</p></div>
+            <div class="ds-modal__footer">
+              <button class="ds-btn ds-btn--tertiary">Cancel</button>
+              <button class="ds-btn ds-btn--error">Confirm</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section__note">Open: how the Company Settings toggle shows during these 60 days (on-but-locked or off). Needs a dev answer.</div>
+    </div>
+
+    <!-- D after 60 days -->
+    <div class="section">
+      <div class="section__title">D. After the 60 Days — Module Deleted <span class="tag changed">Changed</span></div>
+      <div class="section__body">
+        <p class="lead">The module returns to Other Available Modules with a "Trial Ended" badge. It can't be trialed again automatically. Clicking it, or turning it on in Company Settings, opens this pop-up. There's no countdown and no Delete Module, since the data is gone.</p>
+        <div class="ds-modal-frame">
+          <div class="ds-modal">
+            <div class="ds-modal__header">
+              <div class="ds-modal__title-group">
+                <span class="ds-modal__icon"><svg viewBox="0 0 22 20" width="22" height="20"><path d="M11 1.5 L20.5 18.5 L1.5 18.5 Z" fill="none" stroke="#c29c14" stroke-width="1.6" stroke-linejoin="round"/><rect x="10.1" y="7" width="1.8" height="6" rx="0.9" fill="#c29c14"/><circle cx="11" cy="16" r="1.05" fill="#c29c14"/></svg></span>
+                <span class="ds-modal__title">Forms trial has ended</span>
+              </div>
+              <svg viewBox="0 0 20 20" width="20" height="20"><path d="M4.5 4.5 L15.5 15.5 M15.5 4.5 L4.5 15.5" stroke="#191919" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <div class="ds-modal__body">
+              <p>You've already trialed the Forms module, and its trial data has been deleted. To use it again, add it to your account.</p>
+              <div class="price-box">
+                <div class="price-row"><span>Added cost per user, per month</span><strong>$0.27</strong></div>
+                <div class="price-row"><span>Billable users today</span><strong>120</strong></div>
+                <div class="price-row total"><span>Added monthly cost</span><span>$32.40</span></div>
+              </div>
+              <p class="price-fine">Added in the first 10 days of your billing cycle: billed this month. Added after day 10: billing starts next month.</p>
+            </div>
+            <div class="ds-modal__footer">
+              <button class="ds-btn ds-btn--tertiary">Cancel</button>
+              <button class="ds-btn ds-btn--success"><svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add Module</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section__note">Open: whether re-adding at the paid price is the right path, or the admin should contact the account manager to trial again. The Nov 2 meeting floated both; this version assumes re-adding.</div>
+    </div>
+
+    <!-- E Lone Worker -->
+    <div class="section">
+      <div class="section__title">E. Lone Worker — Modal <span class="tag changed">Changed</span></div>
+      <div class="section__body">
+        <p class="lead">Lone Worker has no admin page, so a modal opens from its tile and replaces the banner. The tile carries a "Trial Mode" badge in the same three colours. The modal has the same price breakdown and the same two actions as the banner.</p>
+        <div class="ds-modal-frame">
+          <div class="ds-modal">
+            <div class="ds-modal__header">
+              <div class="ds-modal__title-group">
+                <span class="ds-modal__icon"><svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#009acb"/><rect x="9" y="4.5" width="2" height="6.5" rx="1" fill="#fff"/><circle cx="10" cy="14.5" r="1.3" fill="#fff"/></svg></span>
+                <span class="ds-modal__title">Trial Mode</span>
+              </div>
+              <svg viewBox="0 0 20 20" width="20" height="20"><path d="M4.5 4.5 L15.5 15.5 M15.5 4.5 L4.5 15.5" stroke="#191919" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <div class="ds-modal__body">
+              <p>Your Lone Worker module is in trial mode until October 12, 2026. Add it to your account to keep using it after the trial ends, or end the trial.</p>
+              <div class="price-box">
+                <div class="price-row"><span>Added cost per user, per month</span><strong>$0.27</strong></div>
+                <div class="price-row"><span>Billable users today</span><strong>120</strong></div>
+                <div class="price-row total"><span>Added monthly cost</span><span>$32.40</span></div>
+              </div>
+              <p class="price-fine">Added in the first 10 days of your billing cycle: billed this month. Added after day 10: billing starts next month. All client admins will be emailed when you add this module.</p>
+            </div>
+            <div class="ds-modal__footer">
+              <button class="ds-btn ds-btn--tertiary">Cancel</button>
+              <button class="ds-btn ds-btn--outline-error">End Trial</button>
+              <button class="ds-btn ds-btn--success"><svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add Module</button>
+            </div>
+          </div>
+        </div>
+        <ul class="plain" style="margin-top:10px;">
+          <li><strong>3–14 days (amber icon):</strong> "Your Lone Worker module's trial ends in 6 days, on October 12, 2026. Add it now to keep admin access, or end the trial."</li>
+          <li><strong>Under 3 days (red icon):</strong> "Your Lone Worker module's trial ends tomorrow, October 12, 2026. Add it today to avoid losing admin access, or end the trial."</li>
+          <li><strong>Add Module</strong> adds directly, since the price is already on screen. <strong>End Trial</strong> swaps this modal to the "End your Lone Worker trial?" Cancel / Confirm step, with no second pop-up on top.</li>
+          <li><strong>After expiry:</strong> clicking the tile shows the same pop-ups as sections C and D, naming Lone Worker.</li>
+          <li><strong>Mobile:</strong> the Working Alone "Trial Mode" chip and minimized banner are unchanged and informational. Admins only.</li>
+        </ul>
+      </div>
+      <div class="section__note">This replaces Lone Worker's current live modal ("available in the BIS Safety mobile app...").</div>
+    </div>
+
+    <!-- F custom -->
+    <div class="section">
+      <div class="section__title">F. Custom-priced Modules <span class="tag changed">Changed</span></div>
+      <div class="section__body">
+        <p class="lead">For modules without standard pricing (for example Driver Management), every price box above is replaced by this line. Add Module is still enabled, and accounting sends a price before any billing starts.</p>
+        <div class="ds-modal-frame">
+          <div class="ds-modal">
+            <div class="ds-modal__header">
+              <div class="ds-modal__title-group">
+                <span class="ds-modal__icon"><svg viewBox="0 0 22 20" width="22" height="20"><path d="M11 1.5 L20.5 18.5 L1.5 18.5 Z" fill="none" stroke="#c29c14" stroke-width="1.6" stroke-linejoin="round"/><rect x="10.1" y="7" width="1.8" height="6" rx="0.9" fill="#c29c14"/><circle cx="11" cy="16" r="1.05" fill="#c29c14"/></svg></span>
+                <span class="ds-modal__title">Driver Management trial has ended</span>
+              </div>
+            </div>
+            <div class="ds-modal__banner">
+              <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg>
+              <span>All Driver Management data will be deleted in 42 days if no action is taken.</span>
+            </div>
+            <div class="ds-modal__body">
+              <p>Your trial has ended and admin features are locked. Add Driver Management to your account to keep your data and unlock them, or delete the module.</p>
+              <p>This module has custom pricing. Our accounting team will contact you with a price before any billing begins, so you can safely add it now.</p>
+            </div>
+            <div class="ds-modal__footer">
+              <button class="ds-btn ds-btn--tertiary">Return</button>
+              <button class="ds-btn ds-btn--outline-error">Delete Module</button>
+              <button class="ds-btn ds-btn--success"><svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add Module</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- G email, existing -->
+    <div class="section">
+      <div class="section__title">G. Email When a Module Is Added <span class="tag changed">Changed</span></div>
+      <div class="section__body">
+        <p class="lead">Goes to all client admins, including the contract admin, whenever any admin adds a module. It replaces the manual amendment email.</p>
+        <div class="email">
+          <div><strong>Subject:</strong> {ModuleName} was added to your account</div>
+          <div style="margin-top:6px; white-space:pre-line;">Hi {ClientAdminFirstName},
+
+{AdminName} added the {ModuleName} module to your account on {Date}. It's now available to use.
+
+If you have questions about billing for this module, please contact your BIS Account Manager.</div>
+        </div>
+        <p class="lead" style="margin-top:10px;">The deletion-countdown email (in case admins don't log in for months) is not drafted yet.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section__title">H. Existing Trial-mode Clients <span class="tag open">Partly open</span></div>
+      <div class="section__body">
+        <ul class="plain">
+          <li><strong>Decided:</strong> trial start dates reset to the feature go-live date, so every existing client gets a fresh 90-day window.</li>
+          <li><strong>Proposed:</strong> a notification to portals already in trial mode saying their trial has now formally started.</li>
+          <li><strong>Before go-live:</strong> long-running trial clients are contacted. Sales, CE and CS are briefed.</li>
+          <li><strong>Still open:</strong> original trial start date, go-live date, or last-launch date for existing clients.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section__title">I. Open Questions and Out of Scope <span class="tag open">Needs answers</span></div>
+      <div class="section__body">
+        <ul class="plain">
+          <li><strong>60-day auto-delete vs Oct 6:</strong> the Oct 6 recap says auto-purge is out of scope; the Nov 2 meeting kept a 60-day automatic delete with a live countdown and email. Confirm for this ticket.</li>
+          <li><strong>Re-adding a deleted module:</strong> add at the paid price (this version), or contact the account manager to trial again?</li>
+          <li><strong>Company Settings toggle</strong> during the 60 days: on-but-locked or off?</li>
+          <li><strong>Forms in a folder</strong> when Forms is deactivated: does the form disappear or persist? (Dan is testing.)</li>
+          <li><strong>Custom-priced modules:</strong> which ones count as non-standard?</li>
+          <li><strong>Out of scope:</strong> Trial Override, internal staff company-list colours, Lone Worker web view, and watermarks for modules without them.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
