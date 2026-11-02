@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<!--
+  TKT-21402 · Instructor Dashboard · PRD (lean v4 scope), 2026-11-02. Built with the prd-builder skill (Variant A).
+  Embeds the v4 lean prototype that sits next to this file.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instructor Dashboard PRD</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.0.0/css/all.min.css">
+<style>
+  :root{
+    --ink:#1a1d23; --ink-2:#555b66; --ink-3:#8a909a; --line:#e4e7ec; --line-2:#d0d5dd;
+    --bg:#f6f7f9; --surface:#ffffff; --accent:#0078b3; --accent-soft:#eaf6fb;
+    --primary-lightest:#f2fcff; --t-primary:#0078b3;
+    --notice-lightest:#fffaf2; --t-notice:#c37900;
+    --success-lightest:#fafff2; --t-success:#167b00;
+    --error-lightest:#fff2f2; --t-error:#cc2222;
+    --secondary-subtle:#f8f8f9; --secondary-lightest:#f2f2f2; --stroke:#b2b2b3; --stroke-light:#e2e2e3;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px 120px;}
+  .cover{background:linear-gradient(135deg,#0a3a54,#0078b3);color:#fff;padding:48px 0 40px;}
+  .cover .wrap{padding-bottom:40px;}
+  .eyebrow{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;opacity:.8;font-weight:600;}
+  .cover h1{font-size:40px;font-weight:700;margin:8px 0 6px;letter-spacing:-.5px;}
+  .cover .sub{font-size:18px;opacity:.9;margin-bottom:22px;}
+  .meta{display:flex;flex-wrap:wrap;gap:10px 28px;font-size:13.5px;}
+  .meta b{opacity:.7;font-weight:600;display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+  .pending-banner{margin-top:22px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:12px 16px;font-size:14px;display:flex;gap:10px;align-items:center;}
+  .doc{display:grid;grid-template-columns:200px 1fr;gap:40px;margin-top:36px;}
+  nav.toc{position:sticky;top:24px;align-self:start;font-size:13.5px;}
+  nav.toc a{display:block;color:var(--ink-2);text-decoration:none;padding:5px 10px;border-left:2px solid transparent;border-radius:0 4px 4px 0;}
+  nav.toc a:hover{color:var(--accent);background:var(--accent-soft);}
+  nav.toc .toc-h{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-3);font-weight:700;margin:16px 0 4px 10px;}
+  main{min-width:0;}
+  section{margin-bottom:44px;scroll-margin-top:20px;}
+  h2{font-size:26px;font-weight:700;letter-spacing:-.3px;padding-bottom:8px;border-bottom:2px solid var(--accent);margin-bottom:16px;}
+  h2 .num{color:var(--accent);font-weight:700;margin-right:8px;}
+  h3{font-size:17px;font-weight:700;margin:22px 0 8px;color:var(--ink);}
+  p{margin-bottom:12px;color:var(--ink-2);}
+  ul{margin:0 0 14px 22px;} li{margin-bottom:6px;color:var(--ink-2);}
+  .lead{font-size:16px;color:var(--ink);}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:20px;letter-spacing:.3px;vertical-align:middle;white-space:nowrap;}
+  .p-ok{background:#e7f6ec;color:#1b7a3d;} .p-chg{background:#fff4e0;color:#9a6400;}
+  .p-new{background:#e9f0ff;color:#2456b8;} .p-drop{background:#fdeaea;color:#b3261e;} .p-pend{background:#f2ecfb;color:#6b3fb0;}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:20px;}
+  .callout{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:8px;padding:12px 16px;margin:14px 0;font-size:14px;color:#0a3a54;}
+  .callout.warn{border-color:#d9a300;background:#fff8e8;color:#7a5600;}
+  .tw{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;margin:8px 0 18px;font-size:13.5px;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  th{background:#0e3a56;color:#fff;text-align:left;padding:9px 12px;font-size:12px;letter-spacing:.3px;font-weight:600;}
+  td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top;color:var(--ink-2);}
+  tr:nth-child(even) td{background:#fafbfc;}
+  .qid{font-family:ui-monospace,monospace;font-size:12px;color:var(--accent);font-weight:600;white-space:nowrap;}
+  .embed-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .embed-head a{font-size:13px;color:var(--accent);text-decoration:none;font-weight:600;}
+  .frame{border:1px solid var(--line-2);border-radius:12px;overflow:hidden;background:#ececed;box-shadow:0 6px 24px rgba(0,0,0,.08);}
+  .frame .bar{height:30px;background:#e9ebee;display:flex;align-items:center;gap:6px;padding:0 12px;border-bottom:1px solid var(--line);}
+  .frame .bar i{width:9px;height:9px;border-radius:50%;background:#cdd2d8;display:inline-block;}
+  .frame iframe{width:100%;height:600px;border:0;display:block;background:#ececed;}
+  /* component visuals, BIS tokens */
+  .viz{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px;}
+  .viz .cap{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-3);font-weight:700;margin-bottom:10px;}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:2px;box-shadow:0 0 4px rgba(0,0,0,.12);font:600 12px/1.3 "Segoe UI";}
+  .badge.f{background:var(--primary-lightest);color:var(--t-primary);} .badge.o{background:var(--notice-lightest);color:var(--t-notice);}
+  .badge.v{background:var(--success-lightest);color:var(--t-success);} .badge.h{background:var(--error-lightest);color:var(--t-error);}
+  .ty{display:inline-flex;flex-direction:column;align-items:center;gap:4px;width:74px;font-size:12px;color:var(--ink-2);}
+  .ty i{font-size:24px;}
+  .prow{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid var(--stroke-light);max-width:340px;}
+  .av{width:30px;height:30px;border-radius:50%;background:#dcebfb;display:inline-flex;align-items:center;justify-content:center;color:#1f5fae;font-size:12px;font-weight:600;flex-shrink:0;}
+  .prow .t{flex:1;min-width:0;font-size:14px;font-weight:600;} .prow .t small{display:block;font-weight:400;font-size:12px;color:var(--ink-2);}
+  .prow .m{font-size:12px;color:var(--ink-2);white-space:nowrap;} .ok{color:var(--t-success);font-weight:600;}
+  .st{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--ink);}
+  .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--stroke);border-radius:4px;background:#fff;padding:4px 10px;font:600 13px "Segoe UI";color:var(--ink);}
+  .btn.pri{background:var(--t-primary);border-color:var(--t-primary);color:#fff;}
+  .chipname{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px 0 3px;border-radius:20px;border:1px solid var(--stroke-light);font-size:12px;font-weight:600;background:#fff;}
+  .chipname .av{width:16px;height:16px;font-size:8px;}
+  footer{border-top:1px solid var(--line);margin-top:40px;padding-top:18px;font-size:13px;color:var(--ink-3);}
+  footer a{color:var(--accent);}
+  @media(max-width:780px){ .doc{grid-template-columns:1fr;} nav.toc{display:none;} .cover h1{font-size:30px;} .wrap{padding:0 16px 80px;} }
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="wrap">
+    <div class="eyebrow">Product Requirements · Classroom Calendar</div>
+    <h1>Instructor Dashboard</h1>
+    <div class="sub">A cleaner look for the live classroom dashboard, plus one new feature: the Results list of wrong answers.</div>
+    <div class="meta">
+      <div><b>Ticket</b>TKT-21402 (RailPros)</div>
+      <div><b>Status</b>Design review · lean scope</div>
+      <div><b>Audience</b>Dev · PM · QA · Writer</div>
+      <div><b>Updated</b>Nov 2, 2026</div>
+      <div><b>Owner</b>Mikaela Yeo</div>
+    </div>
+    <div class="pending-banner"><i class="fa-solid fa-circle-info"></i>
+      <span><b>One thing pending:</b> final UI copy (Section 6) is with the technical writer.</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="doc">
+    <nav class="toc">
+      <div class="toc-h">Contents</div>
+      <a href="#live">Live prototype</a>
+      <a href="#scope">1 · Scope</a>
+      <a href="#decisions">2 · Key decisions</a>
+      <a href="#anatomy">3 · Anatomy</a>
+      <a href="#visuals">4 · Component visuals</a>
+      <a href="#behaviour">5 · Behaviour (QA)</a>
+      <a href="#copy">6 · Copy <span class="pill p-pend">Pending</span></a>
+      <a href="#open">7 · Open questions</a>
+    </nav>
+
+    <main>
+      <div class="legend">
+        <span><span class="pill p-ok">✓ Confirmed</span> as today / in scope</span>
+        <span><span class="pill p-chg">✎ Changed</span> from today's page or the ticket</span>
+        <span><span class="pill p-new">+ New</span> this design</span>
+        <span><span class="pill p-drop">✕ Dropped</span> moved to a later ticket</span>
+        <span><span class="pill p-pend">Pending</span> writer review</span>
+      </div>
+
+      <section id="live">
+        <h2>Live prototype</h2>
+        <p>The working prototype (v4, lean). The <b>Prototype controls</b> pill at the bottom left switches sample data: number of courses, mid-exam vs all good vs nothing assigned, and documents on or off. Sample names and data are invented.</p>
+        <div class="embed-head">
+          <span style="font-size:13px;color:var(--ink-3)">TKT-21402 Instructor Dashboard · v4 lean · Nov 2, 2026</span>
+          <a href="TKT-21402-instructor-dashboard-v4-lean.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full screen</a>
+        </div>
+        <div class="frame"><div class="bar"><i></i><i></i><i></i></div>
+          <iframe src="TKT-21402-instructor-dashboard-v4-lean.html" title="Instructor Dashboard prototype" loading="lazy"></iframe>
+        </div>
+      </section>
+
+      <section id="scope"><h2><span class="num">1</span>Scope</h2>
+        <p class="lead">RailPros instructors need to see, during a live classroom exam, which questions the class is getting wrong, which answers people chose and who chose them. Then they can go over a question while people are still taking the exam. This ticket gives the existing Instructor Dashboard (Classroom Calendar → Bookings → Dashboard) a cleaner look and adds <b>one new feature: Results</b>.</p>
+        <div class="callout"><b>Scope rule (Dan, Nov 2):</b> the new look plus the Results list only. Anything today's page doesn't already do is out of this ticket, so it can ship in a couple of weeks. The rest goes to a later ticket, once we have feedback from the clients using the dashboard.</div>
+        <h3>In scope</h3>
+        <ul>
+          <li>New look for the whole page: header, three panels, course header, Preview, Documents.</li>
+          <li>Participant list with profile pictures and a short status per person.</li>
+          <li>Documents with a coloured icon per type, in grid or list view (as today).</li>
+          <li>Preview and Present, in two screen setups: Extended (laptop plus projector) and Single (one touch screen).</li>
+          <li>Progress window, replacing today's Summary.</li>
+          <li><b>Results window (new):</b> Most Challenging Questions, Students who need help, and results per course.</li>
+          <li>Manual refresh, as today.</li>
+        </ul>
+        <h3>Moved to a later ticket <span class="pill p-drop">✕ Dropped</span></h3>
+        <ul>
+          <li>Overview cards in the left panel (Most challenging question, Students who need help, Finished).</li>
+          <li>Search and sort for participants and documents.</li>
+          <li>Assigning straight from a document card.</li>
+          <li>Results updating on its own every 10 seconds, and the "Update order" prompt.</li>
+          <li>Clicking a name in Results to open Progress.</li>
+          <li>Sort options inside Progress and Results.</li>
+          <li>The "added after courses were assigned" note and per-person Assign (courses already reach everyone).</li>
+        </ul>
+        <h3>Out of scope</h3>
+        <ul>
+          <li>The separate "Course Overview" tab from the original July request (replaced by this one-dashboard design).</li>
+          <li>Assigning PDFs, videos or photos. Only online courses and quizzes can be assigned.</li>
+          <li>PowerPoint conversion or any file-handling changes.</li>
+          <li>Opening the second window on the projector automatically.</li>
+          <li>Grading or messaging tools.</li>
+        </ul>
+        <h3>Goals and success measures</h3>
+        <ul>
+          <li>An instructor can find the most-missed question, and who missed it, in two clicks from the dashboard.</li>
+          <li>An instructor can see who needs help without leaving the classroom session.</li>
+          <li>Ships within RailPros' timeline (about two weeks from Nov 2) with no new back-end features beyond Results.</li>
+          <li>Follow-up: feedback from Astec, RailPros and one other client using the dashboard decides the later ticket.</li>
+        </ul>
+      </section>
+
+      <section id="decisions"><h2><span class="num">2</span>Key decisions</h2>
+        <div class="tw"><table><tr><th style="width:26%">Decision</th><th>Resolution</th><th style="width:9%"></th></tr>
+          <tr><td>One dashboard, not a new tab</td><td>Redesign the existing Instructor Dashboard as one view, instead of the July ticket's separate "Course Overview" tab. (Dan, Oct 20)</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr><td>Lean scope</td><td>New look plus Results only. Anything new besides Results moves to a later ticket. (Dan, Nov 2)</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr><td>No "hard" cutoff</td><td>Every question with at least one wrong answer is listed, most wrong first. No threshold or percentages. (Dan, Oct 22)</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td>Who chose what</td><td>Each wrong option shows how many people chose it and their names. The answer each person chose is already stored. (Dev, Oct 22)</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td>Results opens over the dashboard</td><td>Results opens as a window over the same dashboard, not a new page. (Dan, Oct 22)</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td>Screen setups kept</td><td>Extended (default) and Single screen stay in this version. (Mika, Nov 2)</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td>Names on a shared screen</td><td>Extended: names show on the instructor's screen only; anything presented shows counts, never names. Single: names stay hidden until the instructor shows them.</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td>Late joiners</td><td>Courses reach everyone in the event automatically, late joiners included, so there is no "Not assigned" state. (Dan, Oct 22)</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td>Refresh</td><td>Manual refresh only, as today. No auto-refresh in this version.</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td>More colour</td><td>Coloured document type icons, profile pictures, green checks for completed. Blue stays for the main button only. (Dan, Nov 2)</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td>No file changes</td><td>PowerPoint, photos and uploads work as today. A .pptx still can't be presented. (Dan, Oct 22)</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td>Shuffled questions</td><td>Courses that shuffle questions are supported but not designed further in this ticket. Results shows a short note until people answer. (Dev, Oct 22)</td><td><span class="pill p-ok">✓</span></td></tr>
+        </table></div>
+      </section>
+
+      <section id="anatomy"><h2><span class="num">3</span>Anatomy</h2>
+        <div class="tw"><table><tr><th style="width:24%">Zone</th><th>Contents</th></tr>
+          <tr><td>Header</td><td>Breadcrumb (Classroom Calendar / Dashboard), guide icon, Back.</td></tr>
+          <tr><td>Left panel: Participants</td><td>Title with count. <b>Results</b> and <b>Progress</b> buttons. Participant list, A to Z: profile picture, name, what they're doing now, and "1/2 done" or a green "Done". Can be hidden from the tab on its edge.</td></tr>
+          <tr><td>Course header</td><td>Course name, instructor, start time, number of participants, screen setup (gear), Discussion Board with unread count.</td></tr>
+          <tr><td>Preview</td><td>Document title and type, a badge for the screen setup, <b>Present</b>. Empty until a document is clicked or dragged in. Footer controls per type (question / slide / video / page).</td></tr>
+          <tr><td>Right panel: Documents</td><td>Title with count, <b>Assign</b>, grid/list toggle, document cards (name, coloured type icon, type label, present icon). Can be hidden from the tab on its edge.</td></tr>
+          <tr><td>Progress window</td><td>One row per person: picture and name, Status, Wrong answers, one column per course. Refresh and "updated … ago" at the top.</td></tr>
+          <tr><td>Results window</td><td>Left list: Overview (Most Challenging Questions, Students who need help) and Online courses. Right: the chosen view. Refresh at the top, privacy note at the bottom.</td></tr>
+          <tr><td>Present</td><td>Extended: a second window for the projector. Single: full screen on the same screen, with a Documents side list and Exit presenting.</td></tr>
+        </table></div>
+      </section>
+
+      <section id="visuals"><h2><span class="num">4</span>Component visuals</h2>
+        <h3>Document type icons</h3>
+        <div class="viz"><div class="cap">Each type has its own colour</div><div class="row">
+          <span class="ty"><i class="fa-solid fa-file-pdf" style="color:#d93a2b"></i>PDF</span>
+          <span class="ty"><i class="fa-solid fa-laptop" style="color:#1f6fd1"></i>Course</span>
+          <span class="ty"><i class="fa-solid fa-file-powerpoint" style="color:#d2591f"></i>Slides / PowerPoint</span>
+          <span class="ty"><i class="fa-solid fa-circle-play" style="color:#7a3fc4"></i>Video</span>
+          <span class="ty"><i class="fa-solid fa-image" style="color:#1d8a5a"></i>Photo</span>
+        </div></div>
+
+        <h3>Participant rows</h3>
+        <div class="viz"><div class="cap">Extended screen</div>
+          <div class="prow"><span class="av">AB</span><span class="t">Aisha Bello<small>Finished everything</small></span><span class="m ok"><i class="fa-solid fa-circle-check"></i> Done</span></div>
+          <div class="prow"><span class="av">LN</span><span class="t">Lena Novak<small>In WHMIS Final Exam · Q7 of 8</small></span><span class="m">1/2 done</span></div>
+          <div class="prow"><span class="av">SP</span><span class="t">Sam Patel<small>Not started</small></span><span class="m">0/2 done</span></div>
+          <p style="font-size:12.5px;margin:10px 0 0">Profile picture when the person has one; their initials when they don't.</p>
+        </div>
+
+        <h3>Status</h3>
+        <div class="viz"><div class="cap">Used in Progress and the single-screen list</div><div class="row">
+          <span class="st"><i class="fa-solid fa-circle-check" style="color:var(--t-success)"></i>Completed</span>
+          <span class="st"><i class="fa-solid fa-spinner" style="color:var(--t-primary)"></i>In progress</span>
+          <span class="st"><i class="fa-regular fa-circle" style="color:var(--ink-3)"></i>Not started</span>
+          <span class="st"><i class="fa-solid fa-circle-check" style="color:var(--t-success)"></i>Passed · 80%</span>
+          <span class="st"><i class="fa-solid fa-circle-xmark" style="color:var(--t-error)"></i>Failed · 60%</span>
+        </div></div>
+
+        <h3>Results: a wrong option</h3>
+        <div class="viz"><div class="cap">Counts, then names</div>
+          <div class="row" style="justify-content:space-between;max-width:560px"><b style="font-size:14px">C. Make your own label from memory</b><span class="badge o">4 chose this</span></div>
+          <div class="row" style="margin-top:8px"><span class="chipname"><span class="av">JL</span>Jordan Lee</span><span class="chipname"><span class="av">PS</span>Priya Shah</span><span class="chipname"><span class="av">MO</span>Mary Okafor</span></div>
+          <div class="row" style="margin-top:12px"><span class="badge o">5 of 6 chose a wrong answer</span><span class="badge v">Correct answer: A</span><span class="badge h">5 wrong answers</span></div>
+        </div>
+
+        <h3>Buttons</h3>
+        <div class="viz"><div class="row">
+          <span class="btn pri"><i class="fa-solid fa-display"></i>Present</span>
+          <span class="btn"><i class="fa-solid fa-chart-simple"></i>Results</span>
+          <span class="btn"><i class="fa-solid fa-users"></i>Progress</span>
+          <span class="btn"><i class="fa-solid fa-user-plus"></i>Assign</span>
+          <span class="btn"><i class="fa-solid fa-eye"></i>Show names</span>
+        </div><p style="font-size:12.5px;margin:10px 0 0">Only Present uses the filled primary style.</p></div>
+      </section>
+
+      <section id="behaviour"><h2><span class="num">5</span>Behaviour <span style="font-size:14px;font-weight:500;color:var(--ink-3)">· QA reference</span></h2>
+        <p>Stable IDs so QA and dev can cite scenarios in tickets and test plans.</p>
+
+        <h3>5.1 Layout and panels</h3>
+        <div class="tw"><table><tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-1</td><td>Open the dashboard on a laptop or desktop</td><td>Three panels: Participants, Preview, Documents.</td></tr>
+          <tr><td class="qid">B-2</td><td>Click the tab on the edge of a side panel</td><td>The panel hides; click again to show it. Same as today.</td></tr>
+          <tr><td class="qid">B-3</td><td>Open on a tablet or phone</td><td>Side panels open as drawers, one at a time.</td></tr>
+        </table></div>
+
+        <h3>5.2 Participants</h3>
+        <div class="tw"><table><tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-4</td><td>Any class</td><td>List is A to Z. No search or sort.</td></tr>
+          <tr><td class="qid">B-5</td><td>Person has a profile picture</td><td>Picture shows. No picture: their initials show.</td></tr>
+          <tr><td class="qid">B-6</td><td>Person is in a course</td><td>Second line: "In &lt;course&gt; · Q&lt;n&gt; of &lt;total&gt;".</td></tr>
+          <tr><td class="qid">B-7</td><td>Person finished every assigned course</td><td>Green check and "Done" on the right; second line "Finished everything".</td></tr>
+          <tr><td class="qid">B-8</td><td>Person finished some courses</td><td>"&lt;done&gt;/&lt;assigned&gt; done" on the right.</td></tr>
+          <tr><td class="qid">B-9</td><td>Nothing assigned yet</td><td>Second line "Nothing assigned yet"; Progress button is disabled.</td></tr>
+          <tr><td class="qid">B-10</td><td>Someone joins after courses were assigned</td><td>They get the courses automatically and appear like everyone else. No "Not assigned" state.</td></tr>
+          <tr><td class="qid">B-11</td><td>Single screen</td><td>Rows show only name, picture and Not started / In progress / Completed.</td></tr>
+        </table></div>
+
+        <h3>5.3 Documents, Preview and Present</h3>
+        <div class="tw"><table><tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-12</td><td>Documents panel</td><td>In the order the admin set. Grid or list view. No search or sort.</td></tr>
+          <tr><td class="qid">B-13</td><td>Click or drag a document onto Preview</td><td>It shows in Preview for the instructor only.</td></tr>
+          <tr><td class="qid">B-14</td><td>No documents in the event</td><td>Empty state with "Add documents", which leads to the event's Content section.</td></tr>
+          <tr><td class="qid">B-15</td><td>A .pptx document</td><td>Warning icon; Preview explains it can't be shown; Present is disabled for it.</td></tr>
+          <tr><td class="qid">B-16</td><td>Press Present, Extended screen</td><td>A second window opens for the projector, showing the current document. Preview shows "On the second screen" and Stop.</td></tr>
+          <tr><td class="qid">B-17</td><td>Close the second window</td><td>Presenting stops on the dashboard.</td></tr>
+          <tr><td class="qid">B-18</td><td>Press Present, Single screen</td><td>The document fills the screen. Documents opens a side list to switch; Exit presenting returns to the dashboard.</td></tr>
+          <tr><td class="qid">B-19</td><td>Click Assign, pick courses, choose people</td><td>Only online courses and quizzes can be picked. Assign to everyone or chosen people. People already assigned don't get a second copy.</td></tr>
+          <tr><td class="qid">B-20</td><td>Document cards</td><td>No assign icon on the card. Assigning is only from the Assign button.</td></tr>
+        </table></div>
+
+        <h3>5.4 Screen setup</h3>
+        <div class="tw"><table><tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-21</td><td>First visit</td><td>Extended screen is on. Badge in the Preview bar says so.</td></tr>
+          <tr><td class="qid">B-22</td><td>Click the gear, pick Single screen</td><td>Badge changes. Participants, Progress and Results switch to their single-screen views.</td></tr>
+        </table></div>
+
+        <h3>5.5 Progress</h3>
+        <div class="tw"><table><tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-23</td><td>Open Progress, Extended</td><td>One row per person, A to Z. Status ("Completed", "1/2 done", "Not started"), Wrong answers (flag and count; hover lists the questions), one column per course.</td></tr>
+          <tr><td class="qid">B-24</td><td>Course cell</td><td>Passed or Failed with score, "Question 4 of 8", or Not started.</td></tr>
+          <tr><td class="qid">B-25</td><td>Many courses</td><td>Name and Status (and Wrong answers) stay fixed; course columns scroll sideways.</td></tr>
+          <tr><td class="qid">B-26</td><td>Open Progress, Single</td><td>Simple view: name, Status, courses as Not started / In progress / Completed. No scores, pass/fail or wrong answers. Show more shows the full table.</td></tr>
+          <tr><td class="qid">B-27</td><td>Close and reopen Progress, Single</td><td>Back to the simple view.</td></tr>
+          <tr><td class="qid">B-28</td><td>Progress sorting</td><td>No sort options; always A to Z.</td></tr>
+        </table></div>
+
+        <h3>5.6 Results</h3>
+        <div class="tw"><table><tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-29</td><td>Open Results</td><td>Opens on Most Challenging Questions.</td></tr>
+          <tr><td class="qid">B-30</td><td>Most Challenging Questions</td><td>Every question with at least one wrong answer, across all assigned courses, most wrong answers first. All shown open.</td></tr>
+          <tr><td class="qid">B-31</td><td>Each question</td><td>Course, correct answer, "&lt;n&gt; of &lt;answered&gt; chose a wrong answer", then each wrong option chosen with "&lt;n&gt; chose this" and the names. Options nobody chose aren't listed.</td></tr>
+          <tr><td class="qid">B-32</td><td>Counting</td><td>Counts use the people who have answered that question so far, not the whole class.</td></tr>
+          <tr><td class="qid">B-33</td><td>Two wrong options tie</td><td>Both shown; order within a tie is stable.</td></tr>
+          <tr><td class="qid">B-34</td><td>No wrong answers yet</td><td>Message that everyone chose the correct answer so far.</td></tr>
+          <tr><td class="qid">B-35</td><td>Students who need help</td><td>One card per person with 3 or more wrong answers across all courses, most first. "See wrong questions" lists each question, the option they chose and the correct answer.</td></tr>
+          <tr><td class="qid">B-36</td><td>Nobody has 3 or more wrong answers</td><td>Message that nobody needs help yet.</td></tr>
+          <tr><td class="qid">B-37</td><td>Pick a course</td><td>That course's questions, most wrong answers first; the top one starts open. Shows "&lt;n&gt; of &lt;total&gt; started".</td></tr>
+          <tr><td class="qid">B-38</td><td>Course shuffles its questions</td><td>Note that results show as people answer.</td></tr>
+          <tr><td class="qid">B-39</td><td>Present a question</td><td>The question shows on the presenting screen with answer counts only, never names.</td></tr>
+          <tr><td class="qid">B-40</td><td>Click a name in Results</td><td>Nothing happens. Names are labels only.</td></tr>
+          <tr><td class="qid">B-41</td><td>Single screen</td><td>Counts first. Show names / Show students reveals names for that item; Hide names hides them; all names hide again when Results closes.</td></tr>
+        </table></div>
+
+        <h3>5.7 Refresh</h3>
+        <div class="tw"><table><tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-42</td><td>Results or Progress is open</td><td>Shows "updated &lt;time&gt; ago". Nothing changes on its own.</td></tr>
+          <tr><td class="qid">B-43</td><td>Press refresh</td><td>New answers load and the lists re-sort.</td></tr>
+        </table></div>
+      </section>
+
+      <section id="copy"><h2><span class="num">6</span>Copy <span class="pill p-pend">Pending writer review</span></h2>
+        <div class="callout"><i class="fa-solid fa-pen-nib"></i> &nbsp;Every user-visible string is below for the writer to refine. <b>No em-dashes in UI copy.</b> Word list agreed with Dan: "challenging" for hard questions, "wrong answers" for counts, "chose" (not "picked"), "correct answer", "Students who need help".</div>
+        <h3>Dashboard</h3>
+        <div class="tw"><table><tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Left panel title</td><td>Participants</td></tr>
+          <tr><td>Buttons</td><td>Results · Progress · Assign · Present · Stop · Discussion Board</td></tr>
+          <tr><td>Participant status line</td><td>In &lt;course&gt; · Q&lt;n&gt; of &lt;total&gt; · Finished everything · Not started · Waiting to start the next course · Nothing assigned yet</td></tr>
+          <tr><td>Participant progress</td><td>&lt;n&gt;/&lt;total&gt; done · Done</td></tr>
+          <tr><td>Preview, empty</td><td>Click or drag a document here to view it / Only you see it until you press Present.</td></tr>
+          <tr><td>Preview, presenting</td><td>On the second screen</td></tr>
+          <tr><td>Present tooltip</td><td>Opens a second window for the projector. Only what you pick here shows there.</td></tr>
+          <tr><td>Documents, empty</td><td>No documents yet / Add PDFs, videos and online courses to this class in the Classroom Course or this event’s Content section. / Add documents</td></tr>
+          <tr><td>.pptx warning</td><td>This PowerPoint can’t be shown / Only PowerPoints saved as HTML5 (.zip) can play here. A .pptx file just downloads.</td></tr>
+          <tr><td>Assign, picking</td><td>Only online courses and quizzes can be assigned. Everything else can be presented.</td></tr>
+          <tr><td>Assign window</td><td>Assign &lt;n&gt; courses · Everyone in this class (&lt;n&gt;) · Only some people · It shows in their Home tab, and their answers appear in Results. People already assigned won’t get a second copy. Anyone who joins the class later gets it automatically. · Cancel · Assign to &lt;n&gt; people</td></tr>
+          <tr><td>Single-screen Present</td><td>Documents · Exit presenting</td></tr>
+        </table></div>
+        <h3>Screen setup</h3>
+        <div class="tw"><table><tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Menu title</td><td>Screen setup</td></tr>
+          <tr><td>Extended screen</td><td>Laptop plus a projector. Present opens a second window for the class.</td></tr>
+          <tr><td>Single screen</td><td>One touch screen the class can see. Names stay hidden until you show them, and Present uses this screen.</td></tr>
+        </table></div>
+        <h3>Progress</h3>
+        <div class="tw"><table><tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Intro</td><td>Everyone’s progress on the online courses assigned in this class.</td></tr>
+          <tr><td>Columns</td><td>Participant · Status · Wrong answers · &lt;course&gt; (&lt;n&gt; questions · pass &lt;n&gt;%)</td></tr>
+          <tr><td>Status values</td><td>Completed · &lt;n&gt;/&lt;total&gt; done · Not started · In progress · Passed · &lt;n&gt;% · Failed · &lt;n&gt;% · Question &lt;n&gt; of &lt;total&gt;</td></tr>
+          <tr><td>Single screen</td><td>Show more · Show less</td></tr>
+          <tr><td>Refresh</td><td>updated &lt;time&gt; ago · Refresh now</td></tr>
+        </table></div>
+        <h3>Results</h3>
+        <div class="tw"><table><tr><th style="width:34%">Element</th><th>Copy</th></tr>
+          <tr><td>Left list</td><td>Overview · Most Challenging Questions · Students who need help · Online courses · &lt;n&gt; of &lt;total&gt; started · &lt;n&gt; challenging</td></tr>
+          <tr><td>Most Challenging Questions intro</td><td>The most challenging questions across all the assigned courses.</td></tr>
+          <tr><td>Question details</td><td>Course: &lt;course&gt; · Correct answer: &lt;letter&gt;. &lt;answer&gt; · &lt;n&gt; of &lt;n&gt; chose a wrong answer · Wrong options chosen · Students who chose this option: · &lt;n&gt; chose this · Not answered yet</td></tr>
+          <tr><td>Students who need help intro</td><td>People with 3 or more wrong answers, across all the assigned courses.</td></tr>
+          <tr><td>Student card</td><td>&lt;n&gt; wrong answers · See wrong questions</td></tr>
+          <tr><td>Per course</td><td>Most wrong answers first · Final exam · Pass &lt;n&gt;%</td></tr>
+          <tr><td>Empty states</td><td>No wrong answers yet · Everyone chose the correct answer so far · Nobody yet · Everyone is on track</td></tr>
+          <tr><td>Shuffled course</td><td>This course shuffles its questions. Results show here as people answer.</td></tr>
+          <tr><td>Presented question</td><td>Let’s review · Question &lt;n&gt;</td></tr>
+          <tr><td>Single screen</td><td>Show names · Hide names · Show students · Names are hidden on a shared screen. · Names are showing. · &lt;n&gt; students have 3 or more wrong answers.</td></tr>
+          <tr><td>Footer note (Extended)</td><td>Only you see this. The second screen only shows what you present.</td></tr>
+        </table></div>
+      </section>
+
+      <section id="open"><h2><span class="num">7</span>Open questions</h2>
+        <ul>
+          <li><b>Dan:</b> does this lean version match what RailPros needs for launch?</li>
+          <li><b>Dev:</b> does anything here still look like new work beyond Results? Flag it so we can cut it.</li>
+          <li><b>Dev:</b> are profile pictures available for participants today, or should the first version show initials only?</li>
+          <li><b>Dev:</b> is the screen setup (Extended / Single) a small add, or should it move to the later ticket too?</li>
+          <li><b>PM:</b> who owns the later ticket for the cut features, and when do we gather client feedback?</li>
+        </ul>
+      </section>
+
+      <footer>
+        Ticket TKT-21402 · Prototype: <a href="TKT-21402-instructor-dashboard-v4-lean.html">TKT-21402-instructor-dashboard-v4-lean.html</a> · Earlier version: <a href="TKT-21402-instructor-dashboard.html">v3</a>
+      </footer>
+    </main>
+  </div>
+</div>
+</body>
+</html>

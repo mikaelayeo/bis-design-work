@@ -942,7 +942,7 @@ function assignModal(){
       <button class="rd" role="radio" aria-checked="${m.who==='all'}" onclick="S.modal.who='all';render()"><i class="dot"></i>Everyone in this class (${PEOPLE.length})</button>
       <button class="rd" role="radio" aria-checked="${m.who==='some'}" onclick="S.modal.who='some';render()"><i class="dot"></i>Only some people</button>
       ${m.who==='some'?`<div style="margin:4px 0 0 26px;max-height:180px;overflow:auto">${PEOPLE.map((n,p)=>`<button class="rd" style="font-size:14px;padding:4px 0" onclick="S.modal.ppl[${p}]?delete S.modal.ppl[${p}]:S.modal.ppl[${p}]=1;render()"><span class="cb" aria-checked="${!!m.ppl[p]}">${I('fa-solid fa-check')}</span>${n}</button>`).join('')}</div>`:''}
-      <div class="mut" style="font-size:13px;margin-top:10px">${I('fa-solid fa-circle-info')} It shows in their Home tab, and their answers appear in Results. People already assigned won’t get a second copy. Anyone who joins the class later needs to be assigned again.</div></div>
+      <div class="mut" style="font-size:13px;margin-top:10px">${I('fa-solid fa-circle-info')} It shows in their Home tab, and their answers appear in Results. People already assigned won’t get a second copy. Anyone who joins the class later gets it automatically.</div></div>
     <div class="mf"><button class="b b-ghost" onclick="closeModal()">Cancel</button><button class="b b-primary" ${nppl?'':'disabled'} onclick="doAssign(${nppl})">Assign to ${nppl} ${nppl===1?'person':'people'}</button></div></div>`;
 }
 function doAssign(n){const k=Object.keys(S.picked).length;S.modal=null;S.assign=false;S.picked={};render();snack(`Assigned ${k===1?'1 course':k+' courses'} to ${n} ${n===1?'person':'people'}. It shows in their Home tab.`);}
