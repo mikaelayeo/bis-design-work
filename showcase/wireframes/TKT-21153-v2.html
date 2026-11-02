@@ -96,7 +96,7 @@
   <div class="main-col">
 
     <!-- Summary -->
-    <div class="section">
+    <div class="section" id="sec-summary">
       <div class="section__title">What changed from the first proposal</div>
       <div class="section__body">
         <table class="t">
@@ -115,7 +115,7 @@
     </div>
 
     <!-- Rules -->
-    <div class="section">
+    <div class="section" id="sec-rules">
       <div class="section__title">Pop-up rules (apply to every pop-up below)</div>
       <div class="section__body">
         <ul class="plain">
@@ -130,12 +130,12 @@
     </div>
 
     <!-- A banners -->
-    <div class="section">
+    <div class="section" id="sec-a">
       <div class="section__title">A. Trial Banner — End Trial / Add Module <span class="tag changed">Changed</span></div>
       <div class="section__body">
         <p class="lead">Same Banner component and escalating colours. The price sits in the banner text; the full breakdown is in the pop-up.</p>
 
-        <p class="cap">More than 14 days left</p>
+        <p class="cap" id="cap-a1">More than 14 days left</p>
         <div class="flush-wrap">
           <div class="mock-header">Forms</div>
           <div class="ds-banner info">
@@ -147,13 +147,13 @@
               </span>
             </div>
             <div class="ds-banner__actions">
-              <button class="ds-btn ds-btn--outline-error">End Trial</button>
-              <button class="ds-btn ds-btn--success"><svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add Module</button>
+              <button class="ds-btn ds-btn--outline-error" id="btn-end-trial">End Trial</button>
+              <button class="ds-btn ds-btn--success" id="btn-add-module"><svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Add Module</button>
             </div>
           </div>
         </div>
 
-        <p class="cap">3–14 days left</p>
+        <p class="cap" id="cap-a2">3–14 days left</p>
         <div class="ds-banner warning">
           <div class="ds-banner__main">
             <svg viewBox="0 0 16 15" width="16" height="15"><path d="M8 0.5 L15.5 14 L0.5 14 Z" fill="#c29c14"/><rect x="7.1" y="5" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="12.2" r="1.05" fill="#fff"/></svg>
@@ -168,7 +168,7 @@
           </div>
         </div>
 
-        <p class="cap">Less than 3 days left</p>
+        <p class="cap" id="cap-a3">Less than 3 days left</p>
         <div class="ds-banner error">
           <div class="ds-banner__main">
             <svg viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="8" fill="#cc2222"/><rect x="7.1" y="4" width="1.8" height="5" rx="0.9" fill="#fff"/><circle cx="8" cy="11.4" r="1.05" fill="#fff"/></svg>
@@ -187,12 +187,12 @@
     </div>
 
     <!-- B mid-trial -->
-    <div class="section">
+    <div class="section" id="sec-b">
       <div class="section__title">B. During the Trial — Add Module and End Trial <span class="tag changed">Changed</span></div>
       <div class="section__body">
         <p class="lead">Both open from the banner, so both are second steps and end in <strong>Cancel / Confirm</strong>. Both are closeable.</p>
 
-        <p class="cap">1. Add Module</p>
+        <p class="cap" id="cap-b1">1. Add Module</p>
         <div class="ds-modal-frame">
           <div class="ds-modal">
             <div class="ds-modal__header">
@@ -219,7 +219,7 @@
         </div>
         <p class="samples">Sample values ($0.27, 120 users). Real price and billable user count come from the portal's billing data.</p>
 
-        <p class="cap">2. Module added</p>
+        <p class="cap" id="cap-b2">2. Module added</p>
         <div class="ds-modal-frame">
           <div class="ds-modal center">
             <div class="ds-modal__body">
@@ -231,7 +231,7 @@
           </div>
         </div>
 
-        <p class="cap">3. End Trial</p>
+        <p class="cap" id="cap-b3">3. End Trial</p>
         <div class="ds-modal-frame">
           <div class="ds-modal">
             <div class="ds-modal__header">
@@ -249,7 +249,7 @@
           </div>
         </div>
 
-        <p class="cap">4. Trial ended — lands on the admin page</p>
+        <p class="cap" id="cap-b4">4. Trial ended — lands on the admin page</p>
         <div class="ds-modal-frame">
           <div class="ds-modal center">
             <div class="ds-modal__body">
@@ -265,12 +265,12 @@
     </div>
 
     <!-- C 60 days -->
-    <div class="section">
+    <div class="section" id="sec-c">
       <div class="section__title">C. After Expiry, First 60 Days — Locked <span class="tag changed">Changed</span></div>
       <div class="section__body">
         <p class="lead">When the trial ends, admins are locked out of the module's admin screens. Learners can still use the module and never see these pop-ups. The module's data still exists and is deleted automatically after 60 days. The countdown is a live value that ticks down daily, and an email goes out too in case an admin doesn't log in for a while.</p>
 
-        <p class="cap">1. Inside the module (admin screens locked)</p>
+        <p class="cap" id="cap-c1">1. Inside the module (admin screens locked)</p>
         <div class="ds-modal-frame">
           <div class="ds-modal">
             <div class="ds-modal__header">
@@ -301,7 +301,7 @@
         </div>
         <p class="samples">"42 days" is a live value counting down daily from 60.</p>
 
-        <p class="cap">2. From Company Settings > System Modules (admin turns the module on)</p>
+        <p class="cap" id="cap-c2">2. From Company Settings > System Modules (admin turns the module on)</p>
         <div class="ds-modal-frame">
           <div class="ds-modal">
             <div class="ds-modal__header">
@@ -332,7 +332,7 @@
           </div>
         </div>
 
-        <p class="cap">3. Delete Module — confirm</p>
+        <p class="cap" id="cap-c3">3. Delete Module — confirm</p>
         <div class="ds-modal-frame">
           <div class="ds-modal">
             <div class="ds-modal__header">
@@ -354,7 +354,7 @@
     </div>
 
     <!-- D after 60 days -->
-    <div class="section">
+    <div class="section" id="sec-d">
       <div class="section__title">D. After the 60 Days — Module Deleted <span class="tag changed">Changed</span></div>
       <div class="section__body">
         <p class="lead">The module returns to Other Available Modules with a "Trial Ended" badge. It can't be trialed again automatically. Clicking it, or turning it on in Company Settings, opens this pop-up. There's no countdown and no Delete Module, since the data is gone.</p>
@@ -387,7 +387,7 @@
     </div>
 
     <!-- E Lone Worker -->
-    <div class="section">
+    <div class="section" id="sec-e">
       <div class="section__title">E. Lone Worker — Modal <span class="tag changed">Changed</span></div>
       <div class="section__body">
         <p class="lead">Lone Worker has no admin page, so a modal opens from its tile and replaces the banner. The tile carries a "Trial Mode" badge in the same three colours. The modal has the same price breakdown and the same two actions as the banner.</p>
@@ -428,7 +428,7 @@
     </div>
 
     <!-- F custom -->
-    <div class="section">
+    <div class="section" id="sec-f">
       <div class="section__title">F. Custom-priced Modules <span class="tag changed">Changed</span></div>
       <div class="section__body">
         <p class="lead">For modules without standard pricing (for example Driver Management), every price box above is replaced by this line. Add Module is still enabled, and accounting sends a price before any billing starts.</p>
@@ -459,7 +459,7 @@
     </div>
 
     <!-- G email, existing -->
-    <div class="section">
+    <div class="section" id="sec-g">
       <div class="section__title">G. Email When a Module Is Added <span class="tag changed">Changed</span></div>
       <div class="section__body">
         <p class="lead">Goes to all client admins, including the contract admin, whenever any admin adds a module. It replaces the manual amendment email.</p>
@@ -475,7 +475,7 @@ If you have questions about billing for this module, please contact your BIS Acc
       </div>
     </div>
 
-    <div class="section">
+    <div class="section" id="sec-h">
       <div class="section__title">H. Existing Trial-mode Clients <span class="tag open">Partly open</span></div>
       <div class="section__body">
         <ul class="plain">
@@ -487,11 +487,11 @@ If you have questions about billing for this module, please contact your BIS Acc
       </div>
     </div>
 
-    <div class="section">
+    <div class="section" id="sec-i">
       <div class="section__title">I. Open Questions and Out of Scope <span class="tag open">Needs answers</span></div>
       <div class="section__body">
         <ul class="plain">
-          <li><strong>60-day auto-delete vs Oct 6:</strong> the Oct 6 recap says auto-purge is out of scope; the Nov 2 meeting kept a 60-day automatic delete with a live countdown and email. Confirm for this ticket.</li>
+          <li><strong>Decided (Nov 2):</strong> the 60-day automatic delete stays, with the live countdown inside the pop-up and an email. It deletes only what an admin can already delete by hand, so there is no new purge logic.</li>
           <li><strong>Re-adding a deleted module:</strong> add at the paid price (this version), or contact the account manager to trial again?</li>
           <li><strong>Company Settings toggle</strong> during the 60 days: on-but-locked or off?</li>
           <li><strong>Forms in a folder</strong> when Forms is deactivated: does the form disappear or persist? (Dan is testing.)</li>
