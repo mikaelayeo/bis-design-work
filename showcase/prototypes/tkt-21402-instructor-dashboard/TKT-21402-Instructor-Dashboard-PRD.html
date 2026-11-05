@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  TKT-21402 · Instructor Dashboard · PRD (lean v4 scope), 2026-11-02. Built with the prd-builder skill (Variant A).
+  TKT-21402 · Instructor Dashboard · PRD (lean v4 scope), 2026-11-02, updated 2026-11-05 (user stories; Dan: photos, PDF icon, bar graph). Built with the prd-builder skill (Variant A).
   Embeds the v4 lean prototype that sits next to this file.
 -->
 <html lang="en">
@@ -95,7 +95,7 @@
       <div><b>Ticket</b>TKT-21402 (RailPros)</div>
       <div><b>Status</b>Design review · lean scope</div>
       <div><b>Audience</b>Dev · PM · QA · Writer</div>
-      <div><b>Updated</b>Nov 2, 2026</div>
+      <div><b>Updated</b>Nov 5, 2026</div>
       <div><b>Owner</b>Mikaela Yeo</div>
     </div>
     <div class="pending-banner"><i class="fa-solid fa-circle-info"></i>
@@ -110,6 +110,7 @@
       <div class="toc-h">Contents</div>
       <a href="#live">Live prototype</a>
       <a href="#scope">1 · Scope</a>
+      <a href="#stories">User stories</a>
       <a href="#decisions">2 · Key decisions</a>
       <a href="#anatomy">3 · Anatomy</a>
       <a href="#visuals">4 · Component visuals</a>
@@ -179,6 +180,21 @@
         </ul>
       </section>
 
+      <section id="stories"><h2>User stories</h2>
+        <p>Who this is for and why. Each story links to the behaviour that proves it.</p>
+        <div class="tw"><table><tr><th style="width:8%">ID</th><th>As a… I want… so that…</th><th style="width:18%">Behaviour</th></tr>
+          <tr><td class="qid">US-1</td><td>As an <b>instructor</b> running a live exam, I want to see which questions the class is getting wrong, most wrong first, so that I can go over them while people are still taking the exam.</td><td>B-29 to B-34</td></tr>
+          <tr><td class="qid">US-2</td><td>As an <b>instructor</b>, I want to see which wrong answer each person chose, so that I know what they misunderstood, not just that they got it wrong.</td><td>B-31, B-33</td></tr>
+          <tr><td class="qid">US-3</td><td>As an <b>instructor</b>, I want a list of students with 3 or more wrong answers, so that I know who to help first.</td><td>B-35, B-36</td></tr>
+          <tr><td class="qid">US-4</td><td>As an <b>instructor</b>, I want to keep today's bar graph of how many people answered each question correctly, so that the view I already use doesn't go away.</td><td>B-37, B-44, B-45</td></tr>
+          <tr><td class="qid">US-5</td><td>As an <b>instructor</b>, I want to see where each person is and who has finished, so that I can pace the class.</td><td>B-4 to B-9, B-23 to B-28</td></tr>
+          <tr><td class="qid">US-6</td><td>As an <b>instructor</b>, I want people's profile photos on the list, so that I can match names to faces in the room.</td><td>B-5</td></tr>
+          <tr><td class="qid">US-7</td><td>As an <b>instructor</b> with a projector, I want to preview documents privately and present only what I choose, so that the class never sees names or scores by accident.</td><td>B-13, B-16, B-17, B-39</td></tr>
+          <tr><td class="qid">US-8</td><td>As an <b>instructor</b> with one touch screen the class can see, I want names and results hidden until I choose to show them, so that nobody is put on the spot.</td><td>B-11, B-18, B-22, B-26, B-41</td></tr>
+          <tr><td class="qid">US-9</td><td>As an <b>instructor</b>, I want to assign online courses and quizzes to everyone or to chosen people, so that the class starts the right course at the right time.</td><td>B-10, B-19</td></tr>
+        </table></div>
+      </section>
+
       <section id="decisions"><h2><span class="num">2</span>Key decisions</h2>
         <div class="tw"><table><tr><th style="width:26%">Decision</th><th>Resolution</th><th style="width:9%"></th></tr>
           <tr><td>One dashboard, not a new tab</td><td>Redesign the existing Instructor Dashboard as one view, instead of the July ticket's separate "Course Overview" tab. (Dan, Oct 20)</td><td><span class="pill p-chg">✎</span></td></tr>
@@ -190,7 +206,9 @@
           <tr><td>Names on a shared screen</td><td>Extended: names show on the instructor's screen only; anything presented shows counts, never names. Single: names stay hidden until the instructor shows them.</td><td><span class="pill p-new">+</span></td></tr>
           <tr><td>Late joiners</td><td>Courses reach everyone in the event automatically, late joiners included, so there is no "Not assigned" state. (Dan, Oct 22)</td><td><span class="pill p-ok">✓</span></td></tr>
           <tr><td>Refresh</td><td>Manual refresh only, as today. No auto-refresh in this version.</td><td><span class="pill p-ok">✓</span></td></tr>
-          <tr><td>More colour</td><td>Coloured document type icons, profile pictures, green checks for completed. Blue stays for the main button only. (Dan, Nov 2)</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td>More colour</td><td>Coloured document type icons (PDF uses an Adobe-style PDF icon), profile photos, green checks for completed. Blue stays for the main button only. (Dan, Nov 2 and Nov 5)</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td>Profile photos</td><td>Each person's picture is their own account profile photo. If they have none, their initials show. (Dan, Nov 5)</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td>Keep today's bar graph</td><td>Today's quiz statistics graph stays: one sideways bar per question with the % of people who answered correctly, red up to 30%, orange to 75%, blue to 95%, green above. It now sits on each question row in Results. (Dan, Nov 5: many clients use it)</td><td><span class="pill p-ok">✓</span></td></tr>
           <tr><td>No file changes</td><td>PowerPoint, photos and uploads work as today. A .pptx still can't be presented. (Dan, Oct 22)</td><td><span class="pill p-ok">✓</span></td></tr>
           <tr><td>Shuffled questions</td><td>Courses that shuffle questions are supported but not designed further in this ticket. Results shows a short note until people answer. (Dev, Oct 22)</td><td><span class="pill p-ok">✓</span></td></tr>
         </table></div>
@@ -212,7 +230,7 @@
       <section id="visuals"><h2><span class="num">4</span>Component visuals</h2>
         <h3>Document type icons</h3>
         <div class="viz"><div class="cap">Each type has its own colour</div><div class="row">
-          <span class="ty"><i class="fa-solid fa-file-pdf" style="color:#d93a2b"></i>PDF</span>
+          <span class="ty"><svg viewBox="0 0 32 40" width="22" height="28" aria-hidden="true"><path d="M4 1h17.5L31 10.4V36a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3V4a3 3 0 0 1 3-3z" fill="#f5f5f5" stroke="#fa1e1e" stroke-width="2" stroke-linejoin="round"/><path d="M15.2 8.2c-1.3 0-1.4 2-.9 4.2.6 2.7 2.4 6 4.8 8.6 2.1 2.2 4.9 3.1 5.6 1.6.6-1.4-2.6-2.1-6-1.6-3.7.6-8 2.4-9.3 4.6-.8 1.4.6 2.5 2.5.9 2-1.7 4.3-6 5-9.5.6-3 .3-5.8-.9-5.8z" fill="none" stroke="#fa1e1e" stroke-width="1.3"/><text x="16" y="35" text-anchor="middle" font-family="Segoe UI,Arial" font-weight="700" font-size="7.5" fill="#2d2d2d">PDF</text></svg>PDF (Adobe-style)</span>
           <span class="ty"><i class="fa-solid fa-laptop" style="color:#1f6fd1"></i>Course</span>
           <span class="ty"><i class="fa-solid fa-file-powerpoint" style="color:#d2591f"></i>Slides / PowerPoint</span>
           <span class="ty"><i class="fa-solid fa-circle-play" style="color:#7a3fc4"></i>Video</span>
@@ -224,7 +242,7 @@
           <div class="prow"><span class="av">AB</span><span class="t">Aisha Bello<small>Finished everything</small></span><span class="m ok"><i class="fa-solid fa-circle-check"></i> Done</span></div>
           <div class="prow"><span class="av">LN</span><span class="t">Lena Novak<small>In WHMIS Final Exam · Q7 of 8</small></span><span class="m">1/2 done</span></div>
           <div class="prow"><span class="av">SP</span><span class="t">Sam Patel<small>Not started</small></span><span class="m">0/2 done</span></div>
-          <p style="font-size:12.5px;margin:10px 0 0">Profile picture when the person has one; their initials when they don't.</p>
+          <p style="font-size:12.5px;margin:10px 0 0">The picture is the person's own account profile photo. With no photo, their initials show. Hover says where the photo comes from.</p>
         </div>
 
         <h3>Status</h3>
@@ -242,6 +260,11 @@
           <div class="row" style="margin-top:8px"><span class="chipname"><span class="av">JL</span>Jordan Lee</span><span class="chipname"><span class="av">PS</span>Priya Shah</span><span class="chipname"><span class="av">MO</span>Mary Okafor</span></div>
           <div class="row" style="margin-top:12px"><span class="badge o">5 of 6 chose a wrong answer</span><span class="badge v">Correct answer: A</span><span class="badge h">5 wrong answers</span></div>
         </div>
+
+        <h3>Results: today's bar graph, kept</h3>
+        <div class="viz"><div class="cap">% of people who answered correctly, one bar per question</div>
+          <div class="row" style="flex-wrap:nowrap;margin-bottom:6px"><span style="width:80px;font-size:12px;color:var(--ink-2)">31 to 75%</span><span style="flex:1;max-width:360px;display:flex;align-items:center;gap:8px;border-left:2px solid #333;height:22px"><span style="display:block;height:18px;width:calc((100% - 48px) * 57 / 100);background:#e8892a;border-radius:0 3px 3px 0"></span><b style="font-size:13px">57%</b></span></div><div class="row" style="flex-wrap:nowrap;margin-bottom:6px"><span style="width:80px;font-size:12px;color:var(--ink-2)">76 to 95%</span><span style="flex:1;max-width:360px;display:flex;align-items:center;gap:8px;border-left:2px solid #333;height:22px"><span style="display:block;height:18px;width:calc((100% - 48px) * 83 / 100);background:#1f86c9;border-radius:0 3px 3px 0"></span><b style="font-size:13px">83%</b></span></div><div class="row" style="flex-wrap:nowrap;margin-bottom:6px"><span style="width:80px;font-size:12px;color:var(--ink-2)">96 to 100%</span><span style="flex:1;max-width:360px;display:flex;align-items:center;gap:8px;border-left:2px solid #333;height:22px"><span style="display:block;height:18px;width:calc((100% - 48px) * 100 / 100);background:#2e9b47;border-radius:0 3px 3px 0"></span><b style="font-size:13px">100%</b></span></div><div class="row" style="flex-wrap:nowrap;margin-bottom:6px"><span style="width:80px;font-size:12px;color:var(--ink-2)">up to 30%</span><span style="flex:1;max-width:360px;display:flex;align-items:center;gap:8px;border-left:2px solid #333;height:22px"><span style="display:block;height:18px;width:calc((100% - 48px) * 25 / 100);background:#d9342b;border-radius:0 3px 3px 0"></span><b style="font-size:13px">25%</b></span></div>
+          <p style="font-size:12.5px;margin:10px 0 0">Same colour bands as today's page: red, orange, blue, green.</p></div>
 
         <h3>Buttons</h3>
         <div class="viz"><div class="row">
@@ -266,7 +289,7 @@
         <h3>5.2 Participants</h3>
         <div class="tw"><table><tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
           <tr><td class="qid">B-4</td><td>Any class</td><td>List is A to Z. No search or sort.</td></tr>
-          <tr><td class="qid">B-5</td><td>Person has a profile picture</td><td>Picture shows. No picture: their initials show.</td></tr>
+          <tr><td class="qid">B-5</td><td>Person has a profile photo on their account</td><td>Their account photo shows. Hover: "Profile photo from &lt;name&gt;’s account". No photo: their initials show.</td></tr>
           <tr><td class="qid">B-6</td><td>Person is in a course</td><td>Second line: "In &lt;course&gt; · Q&lt;n&gt; of &lt;total&gt;".</td></tr>
           <tr><td class="qid">B-7</td><td>Person finished every assigned course</td><td>Green check and "Done" on the right; second line "Finished everything".</td></tr>
           <tr><td class="qid">B-8</td><td>Person finished some courses</td><td>"&lt;done&gt;/&lt;assigned&gt; done" on the right.</td></tr>
@@ -314,7 +337,7 @@
           <tr><td class="qid">B-34</td><td>No wrong answers yet</td><td>Message that everyone chose the correct answer so far.</td></tr>
           <tr><td class="qid">B-35</td><td>Students who need help</td><td>One card per person with 3 or more wrong answers across all courses, most first. "See wrong questions" lists each question, the option they chose and the correct answer.</td></tr>
           <tr><td class="qid">B-36</td><td>Nobody has 3 or more wrong answers</td><td>Message that nobody needs help yet.</td></tr>
-          <tr><td class="qid">B-37</td><td>Pick a course</td><td>That course's questions, most wrong answers first; the top one starts open. Shows "&lt;n&gt; of &lt;total&gt; started".</td></tr>
+          <tr><td class="qid">B-37</td><td>Pick a course under Online courses</td><td>That course's questions, most wrong answers first; the top one starts open. Shows "&lt;n&gt; of &lt;total&gt; started". Each row has today's % correct bar (B-44).</td></tr>
           <tr><td class="qid">B-38</td><td>Course shuffles its questions</td><td>Note that results show as people answer.</td></tr>
           <tr><td class="qid">B-39</td><td>Present a question</td><td>The question shows on the presenting screen with answer counts only, never names.</td></tr>
           <tr><td class="qid">B-40</td><td>Click a name in Results</td><td>Nothing happens. Names are labels only.</td></tr>
@@ -324,7 +347,12 @@
         <h3>5.7 Refresh</h3>
         <div class="tw"><table><tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
           <tr><td class="qid">B-42</td><td>Results or Progress is open</td><td>Shows "updated &lt;time&gt; ago". Nothing changes on its own.</td></tr>
-          <tr><td class="qid">B-43</td><td>Press refresh</td><td>New answers load and the lists re-sort.</td></tr>
+          <tr><td class="qid">B-43</td><td>Press refresh</td><td>New answers load and the lists re-sort.</td></tr></table></div>
+        <h3>5.8 Bar graph and PDF icon</h3>
+        <div class="tw"><table><tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-44</td><td>Any question row in Results with answers</td><td>A sideways bar shows the % of people who answered correctly, with the % at its end. Red up to 30%, orange 31 to 75%, blue 76 to 95%, green above 95%. Same as today's page.</td></tr>
+          <tr><td class="qid">B-45</td><td>Question with no answers yet</td><td>No bar; the row says "No answers yet".</td></tr>
+          <tr><td class="qid">B-46</td><td>A PDF in Documents</td><td>Shows the Adobe-style PDF icon on the card, in list view and in the Preview header.</td></tr>
         </table></div>
       </section>
 
@@ -333,6 +361,7 @@
         <h3>Dashboard</h3>
         <div class="tw"><table><tr><th style="width:34%">Element</th><th>Copy</th></tr>
           <tr><td>Left panel title</td><td>Participants</td></tr>
+          <tr><td>Photo hover</td><td>Profile photo from &lt;name&gt;’s account · No profile photo on &lt;name&gt;’s account, so their initials show</td></tr>
           <tr><td>Buttons</td><td>Results · Progress · Assign · Present · Stop · Discussion Board</td></tr>
           <tr><td>Participant status line</td><td>In &lt;course&gt; · Q&lt;n&gt; of &lt;total&gt; · Finished everything · Not started · Waiting to start the next course · Nothing assigned yet</td></tr>
           <tr><td>Participant progress</td><td>&lt;n&gt;/&lt;total&gt; done · Done</td></tr>
@@ -363,6 +392,7 @@
         <div class="tw"><table><tr><th style="width:34%">Element</th><th>Copy</th></tr>
           <tr><td>Left list</td><td>Overview · Most Challenging Questions · Students who need help · Online courses · &lt;n&gt; of &lt;total&gt; started · &lt;n&gt; challenging</td></tr>
           <tr><td>Most Challenging Questions intro</td><td>The most challenging questions across all the assigned courses.</td></tr>
+          <tr><td>Bar graph</td><td>&lt;n&gt;% · &lt;n&gt;% answered correctly (hover)</td></tr>
           <tr><td>Question details</td><td>Course: &lt;course&gt; · Correct answer: &lt;letter&gt;. &lt;answer&gt; · &lt;n&gt; of &lt;n&gt; chose a wrong answer · Wrong options chosen · Students who chose this option: · &lt;n&gt; chose this · Not answered yet</td></tr>
           <tr><td>Students who need help intro</td><td>People with 3 or more wrong answers, across all the assigned courses.</td></tr>
           <tr><td>Student card</td><td>&lt;n&gt; wrong answers · See wrong questions</td></tr>
@@ -379,7 +409,7 @@
         <ul>
           <li><b>Dan:</b> does this lean version match what RailPros needs for launch?</li>
           <li><b>Dev:</b> does anything here still look like new work beyond Results? Flag it so we can cut it.</li>
-          <li><b>Dev:</b> are profile pictures available for participants today, or should the first version show initials only?</li>
+          <li><b>Dev:</b> profile photos come from each person's account. Can the dashboard load them for the participant list without extra work?</li>
           <li><b>Dev:</b> is the screen setup (Extended / Single) a small add, or should it move to the later ticket too?</li>
           <li><b>PM:</b> who owns the later ticket for the cut features, and when do we gather client feedback?</li>
         </ul>
