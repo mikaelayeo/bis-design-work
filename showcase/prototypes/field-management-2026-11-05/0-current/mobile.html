@@ -807,7 +807,7 @@ NOTES.forEach(n=>{ if(FLAG_N.has(n.n)) n.flag=true; });
    Only the section-header and Field header-card tints (and their accent) change. The app bar never does. BIS tokens never change.
    ===================================================================== */
 const PORTALS={
-  clean:{n:'Northwind Field Services',c:'#0099CC',b:'#0081AD',mark:'fa-leaf',word:'CLEAN',sub:'ENVIRONMENT'},
+  clean:{n:'Northwind Field Services',c:'#0099CC',b:'#0081AD',mark:'fa-leaf',word:'NORTHWIND',sub:'FIELD SERVICES'},
   inhouse:{n:'Contoso Industrial',c:'#A50E15',b:'#7E0A10',mark:'fa-shield-halved',word:'BIS │ Contoso Industrial',sub:''},
   safetynet:{n:'Fabrikam Safety',c:'#FFD200',b:'#E0B800',mark:'fa-triangle-exclamation',word:'FABRIKAM',sub:''}
 };
@@ -2429,6 +2429,13 @@ if(SVR<3){ const _oa=openAway; openAway=function(cid,pids){ S.svAwayR=''; openSh
 { const _d=doSignIn; doSignIn=function(cid){ svClearAway(); const other=workerAt(); _d.apply(this,arguments);
   if(other&&other!==cid&&other!==CTX[cid].at){ snack(`Signed in at ${CTX[cid].n} · signed out of ${CTX[other].n} · ${att(cid,S.me).t}`); render(); } }; }
 { const _d=doSign; doSign=function(){ if(cur().mode==='self') svClearAway(); return _d.apply(this,arguments); }; }
+/* D-069: a Job at a Site can count Site sign-ins (per Job, off by default). Sample: Riverbend #4471 at North Yard has it on */
+const SV_SITEIN={rb:true};
+{ const _d=doSignIn; doSignIn=function(cid){ const r=_d.apply(this,arguments), c=CTX[cid]; if(!c||c.kind!=='Site') return r;
+  const a=att(cid,S.me), jobs=Object.keys(SV_SITEIN).filter(j=>SV_SITEIN[j]&&CTX[j]&&CTX[j].at===cid&&(S.ctxPeople[j]||[]).includes(S.me));
+  if(a.st==='here'&&jobs.length){ jobs.forEach(j=>setAtt(j,S.me,{st:'here',proof:a.proof||'signedin',t:a.t,via:cid}));
+    snack(`Signed in at ${c.n} · counts for ${jobs.map(j=>CTX[j].n).join(', ')} too`); render(); }
+  return r; }; }
 
 /* ---------- D-029 dates in the app's Assign ---------- */
 const svFmt=iso=>{ try{ return new Date(iso+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }catch(e){ return iso; } };
@@ -2464,11 +2471,12 @@ asgSheet=function(sh){
   return h;
 };
 function svAsgWhen(A,c){
+  if(SVR<4) A.day='today';   /* D-067 (3): due today only in release 1; Tomorrow / Another day is phase 2 (the ideal keeps it) */
   const its=Object.keys(A.items).map(i=>ASG_CAT[A.type][+i][0]), who=asgWho(A), ff=A.type==='ffile', opt=ff&&A.req===false;
   const dl=A.day==='today'?'today':A.day==='tomorrow'?'tomorrow':svFmt(A.date);
   return `<div class="sh-h">${svBack('who')}When is it owed?${pin(46)}${svX}</div>${asgSteps(3)}
     ${A.past?`<div class="banner"><i class="fa-solid fa-clock-rotate-left"></i><div class="grow">You’re looking at yesterday. <b>You can’t assign into the past</b>, so this starts today.</div></div>`:''}
-    ${svDayPick(A.day,A.date,'S.asg.day','S.asg.date',218)}
+    ${SVR<4?`<div class="pad sv-today"><b>Due today</b> · ${esc(TODAY)}${pin(219)}</div>`:svDayPick(A.day,A.date,'S.asg.day','S.asg.date',218)}
     ${ff?`<div class="pad" style="margin-top:6px;font:600 16px/20px var(--font-family-default)" data-svw="3">Owed as${pin(217)}</div>
       ${[[true,'Required','Owed: shows as missing until it’s done'],[false,'Optional','Under “Also available”: never missing']].map(([v,l,d])=>`<div class="menu-i" data-svw="3" role="radio" aria-checked="${(A.req!==false)===v}" onclick="S.asg.req=${v};render()"><i class="rdo ${(A.req!==false)===v?'on fa-solid fa-circle-dot':'fa-regular fa-circle'}"></i><span>${l}<span class="sub">${d}</span></span></div>`).join('')}`:''}
     <div class="pad small muted">${opt?'Optional: it’s never owed and never counts as missing.':'Owed once, by each person. If it isn’t done, it shows as missing from the next day.'}${ff?' Done the way the file’s own Folders setting says, once, until it expires or a new version comes out.':''}</div>
@@ -2578,6 +2586,8 @@ sheetHtml=function(){
        .replace(/(<div class="menu-i" onclick="S\.awayOpt\.dur=[\s\S]*?)(<div class="pad" style="margin-top:10px;font:600 16px\/20px var\(--font-family-default\)">Reason)/,'<div data-svw="3">$1</div>$2')
        .replace(/(<div class="sh-h">Mark [^<]*away)/,'$1'+pin(216)); }
   if(sh.type==='person'){ const a=att(sh.id,sh.pid);
+    /* D-067 (6): from wave 2 a supervisor can sign someone out (S-4.5) */
+    if(SVR>=2&&a.st==='here'&&!a.out) h=h.replace(/(<\/div>\s*)(<div class="menu-i")/,`$1<div class="menu-i" onclick="svSupOut('${sh.id}','${sh.pid}')"><i class="fa-solid fa-right-from-bracket"></i><span>Sign out${pin(220)}<span class="sub">Records the time and that you signed them out</span></span></div>$2`);
     if(svProof(sh.id)==='signed') h=h.replace(/<div class="menu-i" onclick="markPresent\([^"]*\)">[\s\S]*?<\/span><\/span><\/div>/,''); /* signature only: no checklist (D-056) */
     if(SVR<3){ const on=a.st==='away';
       const sw=`<div class="menu-i" role="switch" aria-checked="${on}" onclick="${on?`svAwayOff('${sh.id}','${sh.pid}')`:`openAway('${sh.id}',['${sh.pid}'])`}"><i class="fa-solid fa-plane-departure"></i><span>Away${pin(215)}<span class="sub">${on?'On until you turn it off, or they sign in':'Off · while it’s on, nothing is expected of them'}</span></span><span class="sv-sw ${on?'on':''}" aria-hidden="true"></span></div>`;
@@ -2596,6 +2606,9 @@ sheetHtml=function(){
 /* ---------- the screens ---------- */
 /* D-007: Gate Access is removed from release 1, so the Field tab has Working Alone only (the ideal keeps it) */
 toolRows=function(){ return `<div class="row tap" style="border-bottom:0" onclick="go({s:'ph',title:'Working Alone',icon:'fa-tower-broadcast',msg:'The existing Working Alone screens, unchanged. Moved here from More.'})"><div class="ic tone-error"><i class="fa-solid fa-tower-broadcast"></i></div><div class="mid"><div class="t">Working Alone</div><div class="s">Check-ins while you work alone</div></div><i class="fa-solid fa-chevron-right chev"></i></div>`; };
+/* D-068 (6): the old More items move into the Field tab, below the FM items (mobile dev to check). Home keeps its quick actions */
+{ const _t=toolRows; toolRows=function(){ const it=[['fa-wifi','Offline Dashboard','info','Forms saved on this phone'],['fa-list-check','Tasks','notice','Your assigned tasks'],['fa-award','Training','warning','Your courses and training topics'],['fa-users','Teams','neutral','Your people and their training']];
+  return _t.apply(this,arguments).replace(/ style="border-bottom:0"/g,'')+it.map((x,i)=>`<div class="row tap"${i===it.length-1?' style="border-bottom:0"':''} onclick="go({s:'ph',title:'${x[1]}',icon:'${x[0]}',msg:'The existing ${x[1]} screen, unchanged. Moved here from More.'})"><div class="ic tone-${x[2]}"><i class="fa-solid ${x[0]}"></i></div><div class="mid"><div class="t">${x[1]}${i===0?pin(222):''}</div><div class="s">${x[3]}</div></div><i class="fa-solid fa-chevron-right chev"></i></div>`).join(''); }; }
 /* the worker's sign-in card: Site levels in the picker (D-038), "signed in" words (D-028), sign-out at midnight (D-056) */
 { const _w=workerCard; workerCard=function(where){ let h=_w.apply(this,arguments);
   WCTX().forEach(c=>{ h=h.split(`<div class="s">${svOld(c)}`).join(`<div class="s">${svWhere(c)}`); });
@@ -2703,12 +2716,19 @@ svNote(210,'scope',['assign'],'What Assign offers on the app, by wave (D-011)','
 if(SVR<2) svNote(211,'scope',['site','field-worker'],'No “next due” in wave 1 (D-030)','On a day a routine isn’t due, wave 1 says so only. The “next due” date comes back after wave 1 (the backend must work out upcoming dates).',svR('D-030','S-3.8'));
 if(SVR>=2) svNote(212,'scope',['site','attendance','signin','sign'],'Sign-in proof per Site or Job (D-056, wave 2)','An admin setting per Site or Job, with a portal default: <b>Checklist only</b> (North Yard), <b>Signature only</b> (Riverbend #4471) or <b>Checklist and signature</b> (West Depot). Replaces the “minimum proof” levels. The <b>Sign in</b> button is always there; with Signature only, it opens a signature window and the supervisor has no checklist; with both, a worker’s own sign-in needs no signature. ⚑ Decided, but dev or leadership may push back.',svR('D-056 (1)','S-4.4'));
 else svNote(212,'scope',['site','attendance','signin','sign'],'No sign-in proof setting in wave 1 (D-056)','Wave 1 has the <b>Sign in</b> button and the supervisor’s checklist, with no proof setting. A proof setting per Site or Job (checklist, signature or both) comes with full attendance in wave 2.',svR('D-056 (1)','S-4.1, S-4.4'));
-svNote(213,'scope',['home','field-worker'],'Sign-out in wave 1 (D-056)','A sign-in lasts the day: <b>everyone still signed in is signed out at midnight</b>. People can <b>sign out on the app</b>, and choosing another Job or Site signs them out of the last one (one at a time; the snackbar says so). A set sign-out time, a supervisor signing someone out and editing the timesheet come after release 1. Reverses the deck’s “W1 has no sign-out” (D-007).',svR('D-056 (2)','S-4.1'));
+svNote(213,'scope',['home','field-worker'],'Sign-out in wave 1 (D-056)','A sign-in lasts the day: <b>everyone still signed in is signed out at midnight</b>. People can <b>sign out on the app</b>, and choosing another Job or Site signs them out of the last one (one at a time; the snackbar says so). A supervisor signing someone out on the app comes in wave 2 (D-067); a set sign-out time and editing the timesheet come after release 1. Reverses the deck’s “W1 has no sign-out” (D-007).',svR('D-056 (2)','S-4.1'));
 if(SVR>=2) svNote(214,'scope',['assign','svtask','home','field-worker'],'A task is a real BIS task (D-035, D-040)','Assign › Task is Task Management’s <b>New Task</b> form, with its required fields: <b>Task Name, Priority, Details / Instructions, who it’s assigned to and a due date</b> (today, tomorrow or another day). One-time only. On the worker’s To Do it shows its priority and due date and reads <b>Pending</b>; opening it shows the details, and <b>Mark complete</b> makes it Completed, which is what clears it. It’s the same task as in Tasks. Wave 2 (D-011).',svR('D-035, D-040','S-6.3'));
 svNote(215,'scope',['person','away','attendance','site'],'Mark away is a simple switch (D-012, D-043)','Wave 1: <b>Away</b> is an on/off switch in a person’s actions. It stays on <b>until it’s turned off or the person signs in</b>, and applies to every Site and Job. The reason is optional (Sick, Vacation); no “Other” (D-028). '+(SVR>=3?'Wave 3 adds dates, ranges and backdating (pin 216).':'Dates, ranges and backdating come in wave 3.')+' ⚑ Decided, but dev or leadership may push back.',svR('D-012, D-043','S-4.3'));
 if(SVR>=3) svNote(216,'scope',['away','awayConfirm'],'Mark away: dates and ranges (D-043, wave 3)','Wave 1 has the simple switch. <b>Wave 3 adds</b> today or yesterday, until a date, a range, and backdating, which waives past items. No “Other” reason (D-028).',svR('D-043','S-4.3'));
 if(SVR>=3) svNote(217,'scope',['assign','svff','home','field-worker','site'],'Folder files: done by the file’s own setting (D-034, D-041)','In Assign a Folder file is <b>Required</b> (owed, missing until done) or <b>Optional</b> (“Also available”, never missing). On the app it’s done <b>the way its own Folders setting says</b>: opened, terms ticked and submitted, or signed. A reviewer still to sign reads <b>Awaiting review</b>, never missing (E. Chen’s Lift plan.pdf). Done once, until it expires or a new version comes out. A form inside a folder counts as a form. Wave 3. <i>Prototype limit:</i> “done once” shows in the words only.',svR('D-034, D-041','S-3.13, S-6.4'));
 svNote(218,'scope',['assign','svtask'],'A date picker for the assigned day (D-029)','Assign’s When (and a task’s Due) offers <b>Today</b>, <b>Tomorrow</b> or <b>Another day</b> with a date picker, never in the past (dev q. 255). Something for another day shows on the worker’s To Do under This week or All.',svR('D-029','S-6.2'));
+if(SVR<4) svNote(219,'scope',['assign'],'Bulk assign is due today (D-067)','In release 1 an assignment is <b>due today only</b> (S-6.1). Tomorrow or another day comes in phase 2; the ideal shows it. A task keeps its own due date, as Task Management needs one (D-040).',svR('D-067','S-6.1'));
+/* D-067 (6): a supervisor signs someone out (wave 2, S-4.5). The row keeps the record: "out 15:30 · by you" */
+function svSupOut(cid,pid){ const a=att(cid,pid); if(!a||a.st!=='here') return; const t=now(); a.out=t; a.outBy=P(ME_SUP).n; S.sheet=null; snack(`${P(pid).n} is signed out of ${CTX[cid].n} · ${t}`,true); render(); }
+{ const _p=proofLine; proofLine=function(cid,pid){ const h=_p.apply(this,arguments), a=att(cid,pid); return a&&a.outBy&&a.out?h.replace(' · out '+a.out,' · out '+a.out+' · by '+(a.outBy===P(ME_SUP).n&&S.role==='supervisor'?'you':esc(a.outBy))):h; }; }
+if(SVR>=2) svNote(220,'scope',['attendance','site'],'A supervisor can sign someone out (D-067, wave 2)','From wave 2 the person’s actions on <b>Who’s on site</b> include <b>Sign out</b>: it records the time and that the supervisor did it (“out 15:30 · by you”). Wave 1 has only the worker’s own sign-out and the automatic one at midnight (D-056). A set sign-out time and editing the timesheet stay after release 1.',svR('D-067','S-4.5'));
+svNote(221,'scope',['home','field-worker','signin','attendance'],'A Site sign-in can count for a Job (D-069)','A Job at a Site has a switch, off by default: <b>“Signing in at the Site counts for this Job”</b>. When it’s on, a sign-in at the Site signs the worker into the Job too, so they owe its routines and can be missing there. Sample: Riverbend #4471 at North Yard has it on. When it’s off, a Job only counts people who sign into the Job (decision 92). ⚑ Dev may push back.',svR('D-069','S-4.1'));
+svNote(222,'scope',['field-sup','field-worker'],'More’s items are in the Field tab (D-068)','With Field Management the Field tab replaces More, so More’s items sit here, <b>below the Field Management items</b>: Working Alone, Offline Dashboard, Tasks, Training and Teams. Each opens its existing screen, unchanged. Home keeps its quick actions. Mobile dev to check.',svR('D-068 (6)','S-7.1'));
 /* existing notes, reworded */
 svNote(3,'scope',['home'],'To Do: Field items show here (decisions 118, D-031)','Same To Do card, plus chips: <b>Today</b> (default) · Tomorrow · This week · All. Weeks start on Monday. <b>Field items show in the worker’s To Do</b>, not only inside the Site or Job (D-031): once they’re signed in, an “At North Yard” group lists what they owe there, and items assigned to them sit under “Assigned to you”. A routine on a Site and its Job is owed once and counts on both. With Field Management off, the To Do has no Site items.','Decision 118 · '+svR('D-031','S-7.2'));
 svNote(7,'scope',['field-sup','field-worker'],'Working Alone lives here; Gate Access is removed (D-007)','Working Alone opens the existing screens, unchanged (decision 107: it sits under Field). <b>Gate Access is removed from release 1 entirely</b> (final scope pt.1, 3 Nov): no Gate Access in the Field tab. Site Access stays as it is in the app today; the ideal keeps the Gate Access link here. <b>Not decided:</b> where Site Access sits when Field replaces More.',svR('D-007'));

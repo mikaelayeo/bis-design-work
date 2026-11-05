@@ -2457,6 +2457,20 @@ html[data-b6tab="768"] .ov:has(.modal.b6-fs){left:50%;right:auto;width:768px;tra
 .sv-min .sv-open .rv-btn,.sv-min .sv-menu>.rv-btn{justify-content:center}
 .sv-min .sv-mnote{margin:4px 0 0;font-size:11px;color:#8a8a90}
 
+/* Nov 5 (Design): the empty Overview = onboarding's "Welcome to Field Management" (overlay section 12, svWelcome) */
+.svw{max-width:640px;margin:24px auto 0;padding:40px 44px}
+.svw-k{display:inline-block;background:#0078B3;color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:2px 9px;letter-spacing:.02em}
+.svw h2{font-size:26px;margin:8px 0 6px}
+.svw-s{color:#5F6168;margin:0 0 18px;font-size:15px}
+.svw-l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.svw-l li{display:flex;gap:12px;align-items:flex-start;font-size:14px}
+.svw-l li span:last-child{padding-top:5px}
+.svw-i{width:30px;height:30px;border-radius:8px;background:#F0F9FE;color:#0078B3;display:grid;place-items:center;flex:none;font-size:13px}
+.svw-a{display:flex;gap:14px;align-items:center;margin-top:24px;flex-wrap:wrap}
+.svw-go{padding:10px 22px;font-size:15px;font-weight:600;gap:8px}
+.svw-n{color:#5F6168;font-size:13px}
+@media(max-width:700px){.svw{padding:24px}}
+
 </style>
 </head>
 <body>
@@ -4999,7 +5013,7 @@ function portalLogo(){
     word:`<span class="plogo-bis"><b>BIS</b><i aria-hidden="true"></i><small>CONTOSO</small></span>`};
   if(S.portal==='safetynet') return {aria:'Fabrikam Safety',svg:`<svg viewBox="0 0 44 44" aria-hidden="true" focusable="false"><rect x="3" y="3" width="38" height="38" rx="9" fill="#19191A"/><circle cx="22" cy="22" r="13.5" fill="var(--portal-logo)"/><path d="M12 16.5 H32 M9 22 H35 M12 27.5 H32 M16.5 10 V34 M22 8 V36 M27.5 10 V34" stroke="#19191A" stroke-width="1.7"/></svg>`,
     word:`<span class="plogo-w"><b>FABRIKAM</b></span>`};
-  return {aria:'Northwind Field Services',svg:PORTAL_LOGO,word:`<span class="plogo-w"><b>CLEAN</b><small>ENVIRONMENT</small></span>`};
+  return {aria:'Northwind Field Services',svg:PORTAL_LOGO,word:`<span class="plogo-w"><b>NORTHWIND</b><small>FIELD SERVICES</small></span>`};
 }
 function setPortal(k){ if(!PORTALS[k]) return; S.portal=k; UI.pop=null; render(); snack('Sample portal: '+PORTALS[k].n+'. Only the portal chrome changes; BIS colours stay.','fa-solid fa-palette',{variant:'info'}); }
 function portalPop(){
@@ -7812,7 +7826,7 @@ const B5_TITLE={settings:'Settings',setup:'Day-one setup',prefs:'My preferences'
    ===================================================================== */
 /* data: Sherwood's open count follows the real list; correct the Batch 2 note "one Site per Job" (T-01) */
 b5SyncOpen();
-(function(){ const L=NOTES.place||[]; const i=L.findIndex(n=>/one Site per Job/.test(n[1])); if(i>-1) L[i]=[L[i][0],L[i][1].replace(/If one Job ever needs several Sites[^.]*\([^)]*\)\./,'<b>Corrected in Batch 5 (T-01):</b> a Job is either <b>at</b> one Site (contains: "At North Yard") or <b>across</b> several (references: "Across: North Yard, East Yard, Quarry Gate", SM-01 §5.6; decision 24, counted on the Job only). The model is <i>not</i> one Site per Job. Referenced Sites list it under "Linked Jobs" in Jobs here.'),L[i][2]].filter(x=>x!==undefined); })();
+(function(){ const L=NOTES.place||[]; const i=L.findIndex(n=>/one Site per Job/.test(n[1])); if(i>-1) L[i]=[L[i][0],L[i][1].replace(/If one Job ever needs several Sites[^.]*\([^)]*\)\./,'<b>Corrected (T-01):</b> a Job is either <b>at</b> one Site (contains: "At North Yard") or <b>across</b> several (references: "Across: North Yard, East Yard, Quarry Gate", SM-01 §5.6; decision 24, counted on the Job only). The model is <i>not</i> one Site per Job. Referenced Sites list it under "Linked Jobs" in Jobs here.'),L[i][2]].filter(x=>x!==undefined); })();
 PLACE_TABS.push(['close','Close-out','Clean up, pick a close date and close; export the records any time (Jobs only)']);
 TAB_SLUG.close='close-out'; SLUG_TAB['close-out']='close';
 const B5_SNAP0=b5Snap();
@@ -10104,7 +10118,7 @@ svPin('svimpp','D-032 · D-036 · Import brings the people (wave 1, ❓)','Impor
 /* data the removed features hang on: cleared at load and after Reset */
 function svPatchData(){
   CTX.forEach(c=>{ delete c.refs; });                                            /* §3 a Job spanning several Sites */
-  if(S.b5){ Object.values(S.b5.meta||{}).forEach(m=>{ if(m.rule) m.rule='deadline'; delete m.chk; delete m.per; delete m.owner; delete m.manager; });  /* §3 close-out checklist, per-visit, owner and manager */
+  if(S.b5){ Object.values(S.b5.meta||{}).forEach(m=>{ if(SVR<2){ if(m.rule) m.rule='deadline'; delete m.chk; } delete m.per; delete m.owner; delete m.manager; });  /* per-visit, owner and manager; the close-out checklist is W2 (D-067) */
     Object.values(S.b5.ov||{}).forEach(o=>{ delete o.runs; });                   /* §4 several times a day */
     if(S.b5.set){ S.b5.set.runs=1; S.b5.set.saved=false; }                       /* §5 saved signatures */
     Object.values(S.b5.rits||{}).forEach(r=>{ if(r.sch==='monthly') r.sch='dwd'; });
@@ -10128,7 +10142,10 @@ const SV_SKIP_ROWS=new Set(['Shift shape','Saved signatures','Shutdowns']);  /* 
 const _sv_b8R=b8R;
 b8R=function(ed,label){ return SV_SKIP_ROWS.has(label)?'':_sv_b8R.apply(this,arguments); };
 const _sv_card=b5Card;
-b5Card=function(id){ return /^(per|rule):/.test(String(id))?'':_sv_card.apply(this,arguments); };   /* "How rituals are owed" (per visit) and "Close-out rule" */
+b5Card=function(id,title,o){ const k=String(id);   /* "How rituals are owed" (per visit) is gone; "Close-out rule" is W2, without its Export row (D-067) */
+  if(/^per:/.test(k)||(/^rule:/.test(k)&&SVR<2)) return '';
+  if(/^rule:/.test(k)&&o&&o.view){ const v0=o.view; return _sv_card.call(this,id,title,Object.assign({},o,{pins:(o.pins||'')+Pin('svclose'),view:()=>v0().replace(/<div class="b5-row" style="margin-top:8px"><div class="b5-l"><b>Export<\/b>[\s\S]*?<\/div><\/div>$/,'')})); }
+  return _sv_card.apply(this,arguments); };
 const _sv_ovRow=b5OvRow;
 b5OvRow=function(cid,k){ return k==='runs'||k==='shut'?'':_sv_ovRow.apply(this,arguments); };
 const _sv_modalHtml=modalHtml;
@@ -10178,7 +10195,7 @@ b5CloseTab=function(){ return _sv_closeTab.apply(this,arguments).replace('Use Ex
   .replace('A person picks the close date and confirms','A person confirms, with one note if anything was excused')
   .replace(/(<section class="card b5-co-card b5-close">)/,Pin('svclose')+'$1'); };
 const _sv_mcols=b5MCols;
-b5MCols=function(t){ const c=_sv_mcols.apply(this,arguments).filter(x=>x.k!=='rule');
+b5MCols=function(t){ const c=_sv_mcols.apply(this,arguments).filter(x=>x.k!=='rule'||SVR>=2);
   if(t==='crew'){ const a=c.find(x=>x.k==='acc'); if(a) a.pin=(a.pin||[]).concat(['svksup']); }
   /* Nov 4 (D-033): the routines list no longer shows a target; it's on each place's line */
   return c; };
@@ -10311,7 +10328,7 @@ B5_SEC_ROWS.kinds=function(v,ed){
    7. PINS for sections 2–6 (blue = row Agreed, yellow = still to review / needs Product lead or the trio)
    ===================================================================== */
 svPin('svcal','§8 · ➖ Remove · Calendar week and month grid','The Calendar tab and the list Calendar view are gone, and so is the crew’s week strip. <b>Kept:</b> looking up any past day with the date picker. Lists show one day. What Lauren and Allan described is a crew schedule grid, which this wasn’t (L build, nice-to-have).','Agreed');
-svPin('svclose','§3 · ➖ Remove · Close-out extras','No close-out checklist, no picking a past close date, no editing the actual end, no zip export. <b>Kept:</b> close with “Excuse all” and one note, no closing while anything is outstanding, and single-form download from Submissions. Reverses decision 98 (the export comes back with the audit pack later). Tim and Crystelle don’t need close-out.','Agreed');
+svPin('svclose','§3 · ➖ Remove · Close-out extras','No picking a past close date, no editing the actual end, no zip export. <b>Kept:</b> close with “Excuse all” and one note, no closing while anything is outstanding, and single-form download from Submissions. <b>From wave 2</b> a Job can also have a <b>close-out checklist</b> that must be ticked before it closes (D-007, D-067; Riverbend has one). Reverses decision 98 (the export comes back with the audit pack later). Tim and Crystelle don’t need close-out.','Agreed');
 svPin('svnotif','§2 · 🔽 Lessen · Notifications: fixed defaults','No trigger settings panel. A few fixed, cautious notices, quiet outside working hours. The only evidence is worry about overload (David “ding numb”, Josh “piling up”). The panel comes back with a proper reminder design.','Agreed');
 svPin('svowner','§3 · ➖ Remove · Owner and manager fields','Extra fields with no workflow behind them. The supervisor covers “who’s in charge”.','Agreed');
 svPin('svprev','§4 · ➖ Remove · Form preview','Download is enough; no in-app viewer (decision 112 already called it nice-to-have).','To review');
@@ -10759,6 +10776,17 @@ b9PeopleLine=function(rows){
 { const _d=B5_SEC_ROWS.days; B5_SEC_ROWS.days=function(v,ed){ return _d.apply(this,arguments)
     +b8R(ed,'Who is expected',ed?b8RO('Everyone on a routine line, on working days'):'Everyone on a routine line, on working days',{help:'Expected from the start of the day; their routines are assigned once they sign in. Someone signed in at another Site or Job isn’t missing here.',pins:Pin('svexp')})
     +b8R(ed,'Only expected when signed in',(ed?B5C.onlyIn(v.onlyIn,'onlyIn'):B5_FMT.onlyIn(v.onlyIn))+b5OvList('onlyIn'),{help:'For irregular work. Usually off for the portal and switched on for the odd Site in Manage.',pins:Pin('svonly')}); }; }
+/* ---------- D-069: a Job at a Site can count Site sign-ins (per Job, off by default; not inherited) ---------- */
+B5_FMT.siteIn=v=>v?'On: a sign-in at the Site also signs people in here':'Off: only a sign-in on this Job counts here';
+B5_OVL.siteIn='Site sign-ins count for this Job';
+B5C.siteIn=(v,k)=>Toggle(!!v,`b5ST('${k}')`,v?'On':'Off');
+const svSiteIn=c=>!!(c&&c.kind==='Job'&&c.at&&S.b5&&b5Eff(c.id,'siteIn').v);
+function svSeedSiteIn(s){ if(!s||!s.b5) return; s.b5.ov=s.b5.ov||{};   /* sample: one Job at a Site has it on */
+  const j=CTX.find(x=>x.kind==='Job'&&x.at); if(j&&!(s.b5.ov[j.id]&&'siteIn' in s.b5.ov[j.id])) s.b5.ov[j.id]=Object.assign({},s.b5.ov[j.id],{siteIn:true}); }
+{ const _f=fresh; fresh=function(){ const s=_f.apply(this,arguments); svSeedSiteIn(s); return s; }; svSeedSiteIn(S); }
+{ const _p=b6Page; b6Page=function(){ const h=_p.apply(this,arguments), c=ctx(S.id); if(!svSiteIn(c)) return h;
+    return h.replace('<div class="b6">',`<div class="b6"><div class="banner info sv-sitein">${I('fa-solid fa-right-to-bracket')}<div><b>Site sign-ins count here</b><span>Anyone on ${esc(c.n)} who signs in at ${esc(ctx(c.at).n)} is signed in here too, and owes this Job’s routines.</span></div>${Pin('svsitein')}</div>`); }; }
+svPin('svsitein','D-069 · Site sign-ins can count for a Job','A switch on a <b>Job at a Site</b>: <b>“Signing in at the Site counts for this Job”</b>, off by default. When it’s on, a sign-in at the Site also signs the person into the Job, so they owe its routines and can be missing there. When it’s off, a Job only counts people who sign into the Job (decision 92). Fixes the gap where someone signed in at the Site left the Job’s routines neither assigned nor missing (D-042). Several Jobs at once and signing into the wrong Job are still open. ⚑ Decided, but dev may push back.','Agreed');
 /* Manage › a Site or Job › Working days: the switch, as an override (a Job at a Site follows its Site) */
 function svOnlyRow(c){ return b5OvRow(c.id,'onlyIn','Only expected when signed in',{help:'For irregular work: nobody is expected here until they sign in.',pins:Pin('svonly'),lock:c.kind==='Job'&&c.at?'Set by '+esc(ctx(c.at).n):''}); }
 
@@ -10867,7 +10895,7 @@ b5ProofLine=function(cid){ if(SVR<2) return ''; const v=B5_PROOF[svProofOf(cid)]
   return `<span class="b5-pl">Sign-in proof: <button class="lnk" data-tip="Change it in Edit › ${esc(ctx(cid).n)} › Sign-in and sign-out (${esc(svProofSrc(cid))})" onclick="b5GoManage('${cid}','proof')">${v}</button> · set by your admin</span>${Pin('svproof')}`; };
 /* ---------- D-056 (2): wave 1 sign-out ---------- */
 /* A sign-in lasts the day; everyone still signed in is signed out at midnight. People sign out on the app, and choosing
-   another Site or Job signs them out of the last one. A set sign-out time, a supervisor signing someone out and editing
+   another Site or Job signs them out of the last one. A supervisor signing someone out is wave 2 on the app (D-067); a set sign-out time and editing
    the timesheet come after release 1 (the ideal keeps the setting) */
 const SV_SOUT='People sign out on the app. Choosing another Site or Job signs them out of the last one, and everyone still signed in is signed out at midnight.';
 { const _o=outCell; outCell=function(a){ if(a&&(a.k==='in'||a.k==='marked')&&a.out==null&&a.past) return `<span class="mut cap" data-tip="Nobody signed out, so they were signed out automatically at midnight">Midnight · automatic</span>`; return _o.apply(this,arguments); }; }
@@ -10883,7 +10911,8 @@ let SV_B8_ONLY=null;
     return proof+base+b8R(ed,'Sign-out',ed?b8RO('On the app, or at midnight'):'On the app, or at midnight',{help:SV_SOUT,pins:Pin('svsout')}); }; }
 /* Manage › a Site or Job: the "Sign-in and proof" card becomes "Sign-in and sign-out"; the Working days card gets the switch */
 function svProofRows(c){ const jat=c.kind==='Job'&&c.at;
-  return (SVR<2?'':b5OvRow(c.id,'proof','Sign-in proof',{pins:Pin('svproof'),help:jat?'A Job at a Site uses its Site’s unless it is set here.':'Checklist only, signature only, or both. The sign-in button is always there.'}))
+  return (jat?b5OvRow(c.id,'siteIn','Signing in at '+esc(ctx(c.at).n)+' counts for this Job',{pins:Pin('svsitein'),help:'For people who spend the day on this Job: a sign-in at the Site signs them in here too, so they owe its routines and can be missing here.'}).replace(/Reset to From [^<]*/,'Turn off').replace(/Change for this Job/,'Turn on'):'')
+    +(SVR<2?'':b5OvRow(c.id,'proof','Sign-in proof',{pins:Pin('svproof'),help:jat?'A Job at a Site uses its Site’s unless it is set here.':'Checklist only, signature only, or both. The sign-in button is always there.'}))
     +b5R('Sign-out','On the app, or at midnight',{help:SV_SOUT,pins:Pin('svsout')})
     +(SVR>=4?b5OvRow(c.id,'att','Attendance: sign-out and timers')+(c.kind==='Site'?b5OvRow(c.id,'autoOut','A set sign-out time',{pins:Pin('b5p9')}):''):''); }
 { const _c=b5Card; b5Card=function(id,title,o){ const m=String(id).match(/^(pr|wd):(.+)$/), c=m&&ctx(m[2]); if(!c||!o) return _c.apply(this,arguments);
@@ -10926,7 +10955,7 @@ svPin('svonly','D-042 · D-059 · Only expected when signed in','A Site can swit
 svPin('svlvl','D-038 · Site levels','<b>A Site can sit inside another Site</b>, up to 3 levels in wave 1 (e.g. Branch › Site › Yard; the data allows any depth). The same Site object with a parent link, no new object. A parent adds up its Sites. Replaces “division is a label” (pt.1, 3 Nov): 10 of 26 clients run 3 or more levels, a label can’t give access to a group, and adding levels after setup means a migration. Later: deeper than 3, a Site under several parents. ⚑ Decided, but dev or leadership may push back.','Agreed');
 svPin('svlvla','D-038 · Access flows down','Sharing or supervising a parent gives <b>every Site inside it</b>, including Sites added later. In this prototype, a “Can view” grant on North Yard also shows Back Yard and Front Yard.','Agreed');
 svPin('svproof','D-056 · Sign-in proof per Site or Job (wave 2)','An admin setting per Site or Job, with a portal default: <b>checklist only</b>, <b>signature only</b>, or <b>both</b>. Replaces the “minimum proof” levels. The sign-in button is always there; with a signature, the phone opens a signature window; signature only hides the checklist; with both, a worker’s own sign-in needs no signature. ⚑ Decided, but dev or leadership may push back.','Agreed');
-svPin('svsout','D-056 · Sign-out in wave 1','A sign-in lasts the day and <b>everyone still signed in is signed out at midnight</b>. People can <b>sign out on the app</b>, and choosing another Job or Site signs them out of the last one (one at a time). A set sign-out time, a supervisor signing someone out and editing the timesheet come after release 1. Reverses the deck’s “W1 has no sign-out” (D-007).','Agreed');
+svPin('svsout','D-056 · Sign-out in wave 1','A sign-in lasts the day and <b>everyone still signed in is signed out at midnight</b>. People can <b>sign out on the app</b>, and choosing another Job or Site signs them out of the last one (one at a time). A supervisor signing someone out on the app comes in wave 2 (D-067); a set sign-out time and editing the timesheet come after release 1. Reverses the deck’s “W1 has no sign-out” (D-007).','Agreed');
 svPin('svsavedf','D-056 · Saved filters later','Filters stay in wave 1 (S-10.1). <b>Saved filters</b> move to a later phase, after release 1. The ideal keeps them.','Agreed');
 svPin('svql','D-056 · Quick look is today only','In release 1 the Quick look side panel shows <b>today</b>. The fuller one, with its own date filter for any day, is in the ideal.','Agreed');
 svPin('svcode','D-056 · No code field','The client-facing <b>code</b> on Sites and Jobs is out of the MVP (to phase 2 or ideas). The ideal keeps it.','Agreed');
@@ -10939,15 +10968,25 @@ svPin('svcode','D-056 · No code field','The client-facing <b>code</b> on Sites 
    back to this file's Overview.
    ===================================================================== */
 const svOnbUrl=()=>SV_ONB.href+(SV_ONB.href.includes('?')?'&':'?')+'back='+encodeURIComponent(SV_ONB.back+'#/overview');
-b5GoSetup=function(){ if(RO()) return; location.href=svOnbUrl(); };
+/* Nov 5 (Design): Get started starts the setup flow itself (How your work runs), not the BIS home page with the banner */
+b5GoSetup=function(){ if(RO()) return; location.href=svOnbUrl()+'&start=1'; };
+/* Nov 5 (Design): arriving from finished onboarding (?onb=1), Reset goes back to the very beginning: this Overview's
+   empty "Welcome to Field Management" state, before setup */
+{ let fromOnb=false; try{ if(new URLSearchParams(location.search).get('onb')==='1') sessionStorage.setItem('fmFromOnb','1'); fromOnb=sessionStorage.getItem('fmFromOnb')==='1'; }catch(e){ fromOnb=/[?&]onb=1/.test(location.search); }  /* read at load: the router drops the query */
+  const _r=resetAll; resetAll=function(){ const x=_r.apply(this,arguments); if(fromOnb){ S.empty=S.empty||{}; S.empty.ov=true; nav({page:'overview',panel:null}); } return x; }; }
+/* Nov 5 (Design): the empty Overview is the onboarding's "Welcome to Field Management", not "Nothing to track yet" */
+const svWelcome=()=>`<div class="card svw"><span class="svw-k">New in BIS</span><h2>Welcome to Field Management</h2><p class="svw-s">See that the work in the field gets done, every day.</p>
+ <ul class="svw-l">${[['fa-solid fa-location-dot','All your places and work in one list'],['fa-solid fa-user-group','Know who’s working where'],['fa-solid fa-repeat','Set the checks that are due, and when'],['fa-solid fa-chart-simple','See what’s done and what’s missing today'],['fa-solid fa-mobile-screen','Your people fill it in on their phone']].map(([ic,t])=>`<li><span class="svw-i">${I(ic)}</span><span>${t}</span></li>`).join('')}</ul>
+ <div class="svw-a">${RO()?'<span class="svw-n">An admin sets this up.</span>':`<button class="b b-primary svw-go" onclick="b5GoSetup()"><span>Get started</span>${I('fa-solid fa-arrow-right')}</button><span class="svw-n">${I('fa-regular fa-clock')} About 10 minutes. Nothing in your portal changes.</span>`}</div></div>`;
 /* Nov 5: an "Open onboarding ↗" button beside "Open mobile ↗", so web, mobile and onboarding all link to each other */
 { const _rbo=reviewBar; reviewBar=function(){ const h=_rbo.apply(this,arguments), at=h.indexOf('<button class="rv-btn" onclick="resetAll()">'); return at<0?h:h.slice(0,at)+`<a class="rv-btn" href="${svOnbUrl()}" data-tip="Open this version's onboarding (setup)">Open onboarding ↗</a>`+h.slice(at); }; }
 { const _ov=overviewPage; overviewPage=function(){ return _ov.apply(this,arguments)
     .replace('Set up Field Management in four short steps: Sites or Jobs, your first one, a starter ritual, and a crew.','Setup opens on its own page: how your work runs, what you call things, bringing over what you have, and a first routine.')
-    .replace('<span>Set up Field Management</span>','<span>Get started</span>'); }; }
+    .replace('<span>Set up Field Management</span>','<span>Get started</span>')
+    .replace(/<div class="card"><div class="es"><span class="es-i">[^]*?<b>Nothing to track yet<\/b>[^]*?<\/div><\/div><\/div>/,()=>svWelcome()); }; }
 { const _nc=notesCard; notesCard=function(){ const h=_nc.apply(this,arguments);
-    const g=`<div class="var-g"><h4>Onboarding</h4><a class="var-b" href="${svOnbUrl()}">${I('fa-solid fa-wand-magic-sparkles')}<span>Open onboarding (${SV_ONB.label})</span><small>own page</small></a><p class="cap">Setup is its own page (D-051), one per version: W1 and W2 open W1, the MVP opens W3, the ideal opens the ideal. Finishing it brings you back to this Overview.</p></div>`;
-    return h.replace(/<div class="var-g"><h4>Batch 5 · first run<\/h4>[\s\S]*?<\/p><\/div>/,g); }; }
+    const g=`<div class="var-g"><h4>Onboarding</h4><a class="var-b" href="${svOnbUrl()}">${I('fa-solid fa-wand-magic-sparkles')}<span>Open onboarding (${SV_ONB.label})</span><small>own page</small></a><p class="cap">Setup is its own page, one per version: W1 and W2 open W1, the MVP opens W3, the ideal opens the ideal. Finishing it brings you back to this Overview.</p></div>`;
+    return h.replace(/<div class="var-g"><h4>Batch\s5 · first run<\/h4>[\s\S]*?<\/p><\/div>/,g); }; }
 render();
 
 /* =====================================================================
@@ -10965,6 +11004,15 @@ function svWSub(h){ return h.replace(/<span class="b5-wn">([^<]*)<\/span>/g,(m,n
 { const _e=b5WhatEdit; b5WhatEdit=function(){ return svWSub(_e.apply(this,arguments)); }; }
 { const _v=b5WhatView; b5WhatView=function(){ return svWSub(_v.apply(this,arguments)); }; }
 
+/* ---------- D-067 (3): bulk assign is due today only in release 1 (S-6.1). Today / Tomorrow / Another day is phase 2
+   (the ideal keeps it). A task keeps its own due date (D-040) ---------- */
+{ const _a=assignModal; assignModal=function(){ const A=UI.as, form=A&&A.type!=='task'&&A.step==='when';
+  if(form){ A.dayMode='today'; A.day=iso(TODAY); }
+  const m=_a.apply(this,arguments); if(!form||!m||!m.body) return m;
+  m.body=m.body.replace(/<div role="radiogroup" aria-label="When">[\s\S]*?(?=<p class="hint">)/,`<p class="sv-today"><b>Due today</b> · ${fmtDow(TODAY)}${Pin('svtoday')}</p>`)
+    .replace("Owed once, on that day, by each person. Anything not done shows as missing from the next day. Past days can't be picked.","Owed once, today, by each person. Anything not done shows as missing from tomorrow. Assigning for another day comes in phase 2.");
+  return m; }; }
+svPin('svtoday','D-067 · Bulk assign is due today','In release 1 an assignment is <b>due today only</b> (S-6.1). Picking Tomorrow or another day comes in phase 2; the ideal shows it. A task keeps its own due date, as Task Management needs one (D-040).','Agreed');
 
 
 /* ---------- D-008: the import. Sites from Locations, Jobs from Locations and Assets (wave 1), landing on the structure
@@ -11126,6 +11174,22 @@ function svDoArchJob(cid){ const snap=b5Snap(), c=ctx(cid); c.svFrom=c.state; c.
   if(c.kind==='Job'){ if(c.state==='archived') return Btn('Restore',{icon:'fa-solid fa-rotate-left',on:`b5Restore('${c.id}')`})+Pin('svarch');
     return _a.apply(this,arguments)+Btn('Archive…',{icon:'fa-solid fa-box-archive',tip:'Take it off the lists. Its history stays',on:`svOpenArchJob('${c.id}')`}); }
   return _a.apply(this,arguments)+Pin('svarch'); }; }
+/* D-068 (1): archiving a parent Site archives the Sites inside it; restoring the parent brings them back. Crews there just lose those Sites */
+B5_CF.push('svWithParent');
+{ const _o=b5OpenArchive; b5OpenArchive=function(cid){ const c=ctx(cid), kids=c&&c.kind==='Site'?svDesc(c):[]; if(!kids.length) return _o.apply(this,arguments);
+    const out=[c].concat(kids).flatMap(x=>b5Outstanding(x));
+    if(out.length) return openModal(()=>({label:'Archive '+c.n,title:`${esc(c.n)} can’t be archived yet${Pin('svarchp')}`,
+      body:`<p>${b5Plural(out.length,'item is','items are')} still outstanding here or in the Sites inside it. Clean it up first.</p>${b5OutList(out.slice(0,5),{compact:true})}`,foot:Btn('Close',{v:'ghost',on:'closeModal()'})}));
+    openModal(()=>({label:'Archive '+c.n,title:'Archive '+esc(c.n)+' and the Sites inside it?'+Pin('svarchp'),
+      body:`<ul class="b5-ul"><li><b>${b5Plural(kids.length,'Site inside it goes','Sites inside it go')} too:</b> ${esc(kids.map(k=>k.n).join(', '))}.</li><li>They leave the active lists and Overview. Their history stays, under Edit › Sites › Archived.</li><li>Crews on them stay, and just lose these Sites.</li><li>Nobody can pick them on the app any more.</li><li>Restoring ${esc(c.n)} brings them all back.</li></ul>`,
+      foot:Btn('Cancel',{v:'ghost',on:'closeModal()'})+Btn('Archive '+(kids.length+1)+' Sites',{v:'primary',icon:'fa-solid fa-box-archive',on:`b5DoArchive('${cid}')`})})); }; }
+{ const _d=b5DoArchive; b5DoArchive=function(cid){ const c=ctx(cid), kids=c&&c.kind==='Site'?svDesc(c):[]; if(!kids.length) return _d.apply(this,arguments);
+    const snap=b5Snap(); [c].concat(kids).forEach(x=>{ x.state='archived'; if(x!==c) x.svWithParent=cid; }); UI.modal=null;
+    b5Done(`${esc(c.n)} and ${b5Plural(kids.length,'Site','Sites')} inside it are archived. Restore ${esc(c.n)} to bring them all back.`,snap,'archive',{head:'Archived',icon:'fa-solid fa-box-archive'}); }; }
+{ const _r=b5Restore; b5Restore=function(cid){ const kids=CTX.filter(x=>x.svWithParent===cid); if(!kids.length) return _r.apply(this,arguments);
+    const snap=b5Snap(), c=ctx(cid); c.state='active'; kids.forEach(x=>{ x.state='active'; delete x.svWithParent; });
+    b5Done(`${esc(c.n)} and ${b5Plural(kids.length,'Site','Sites')} inside it are active again.`,snap,'restore',{head:'Restored'}); }; }
+svPin('svarchp','D-068 · Archiving a parent Site','Archiving a Site that has Sites inside it <b>archives them too</b>, and restoring the parent brings them all back (S-1.12). Crews on those Sites stay and just lose them. Like any Site, it can’t be archived while anything here or inside it is outstanding.','Agreed');
 { const _s=b5StageChip; b5StageChip=function(c){ return c&&c.state==='archived'?Chip('Archived',{icon:'fa-solid fa-box-archive'}):_s.apply(this,arguments); }; }
 { const _m=b5MJob; b5MJob=function(c){ const h=_m.apply(this,arguments); return c&&c.state==='archived'?h.replace(/<button[^>]*>(?:(?!<\/button>)[\s\S])*?View status ↗(?:(?!<\/button>)[\s\S])*?<\/button>/,''):h; }; }
 /* Edit › Jobs: Active · Closed · Archived; Edit › Crews: Active · Archived */
@@ -11259,13 +11323,25 @@ let SV_MORE=false;
       <div class="sv-sec">Open</div><div class="sv-open">${opens}</div>
       <div class="sv-sec">Reset</div>${reset}
       ${date?`<p class="sv-mnote">${date.textContent}: fixed so the sample data lines up</p>`:''}</div>`:'';
-  return `<div class="rv sv-min"><div class="sv-mt" title="Design's working wireframe · review chrome, not product UI"><span class="rv-ttl">Web prototype</span><span class="sv-sub">Design and UI subject to change</span></div>
+  return `<div class="rv sv-min"><div class="sv-mt" title="Design's working wireframe"><span class="rv-ttl">Web prototype</span><span class="sv-sub">Design and UI subject to change</span></div>
     ${ver?ver.outerHTML:''}
     <div class="sv-more"><button class="rv-btn sv-moreb" aria-expanded="${SV_MORE}" aria-haspopup="dialog" onclick="SV_MORE=!SV_MORE;svBar()">More ${I('fa-solid fa-chevron-down')}</button>${menu}</div></div>`;
 }; }
 function svBar(){ const r=$('review'); if(r) r.innerHTML=reviewBar(); }
 document.addEventListener('mousedown',e=>{ if(SV_MORE&&!e.target.closest('.sv-more')&&!e.target.closest('#layer')){ SV_MORE=false; svBar(); } });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&SV_MORE){ SV_MORE=false; svBar(); const b=document.querySelector('.sv-moreb'); b&&b.focus(); } });
+
+/* ---------- D-068 (7): wave 1 Settings holds only the scope list (S-10.4): labels and custom names, working days, time zone,
+   day cutoff, "only expected when signed in", sharing and the Lone Worker switch. Everything else comes with its wave ---------- */
+if(SVR<2){
+  const keep=['kinds','days','share','feat'];
+  for(let i=B5_SECS.length-1;i>=0;i--) if(!keep.includes(B5_SECS[i][0])) B5_SECS.splice(i,1);
+  if(!B5_SECS.find(x=>x[0]==='share')) B5_SECS.splice(B5_SECS.findIndex(x=>x[0]==='feat'),0,['share','Sharing','Who sees what.']);
+  { const s=B5_SECS.find(x=>x[0]==='feat'); if(s) s[2]='The Lone Worker switch.'; }
+  ['Who is expected','Day starts at','Late','Meetings','Reviewer sign-off','Field Management'].forEach(l=>SV_SKIP_ROWS.add(l));
+  B5_SEC_ROWS.share=function(v,ed){ return b8R(ed,'Who sees what',ed?b8RO('Supervisors see their own; the client admin sees everything'):'Supervisors see their own; the client admin sees everything',{help:'Supervisors of Sites, Jobs and crews see them automatically, view only (D-058). “Can view” for anyone else comes in wave 2.',pins:Pin('svset1')}); };
+}
+svPin('svset1','D-068 · Wave 1 Settings','Wave 1 Settings holds <b>only</b> what the scope lists (S-10.4): kinds and labels with the custom-name mapping, working days, time zone, day cutoff, “only expected when signed in”, sharing and the Lone Worker switch. Sign-in and sign-out, Away, on-demand work and the other features come with their wave.','Agreed');
 
 render();
 

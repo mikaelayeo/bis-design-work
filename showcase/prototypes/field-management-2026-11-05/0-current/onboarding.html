@@ -15,7 +15,29 @@ a{cursor:pointer}
 .proto{background:#19191a;color:#fff;padding:6px 16px;font-size:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .proto .sp{flex:1}.proto a{color:#9cd3f0}
 .proto select{font:inherit;font-size:12px;background:#333;color:#fff;border:1px solid #555;border-radius:3px}
-.top{background:#fff;display:flex;align-items:center;padding:10px 16px;gap:12px;border-bottom:1px solid #eee}
+.obp{--portal-brand:#1A9E7A;--portal-logo:#1A9E7A;--portal-nav-active:#00779F;--pfont:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;background:#fff;font-family:var(--pfont)}
+.obp button{border:0;background:none;font:inherit;cursor:pointer;color:inherit}
+.obp .ptop{display:flex;align-items:center;gap:16px;padding:10px 20px;min-height:64px;flex-wrap:wrap}
+.obp .plogo{display:flex;align-items:center;gap:10px;flex:0 0 auto;border-radius:4px;padding:2px 4px 2px 2px}
+.obp .plogo svg{width:42px;height:42px;display:block}
+.obp .plogo-w{display:flex;flex-direction:column;line-height:1;color:#111;text-align:left}
+.obp .plogo-w b{font:900 21px/20px var(--pfont);letter-spacing:.04em}
+.obp .plogo-w small{font:400 10.5px/13px var(--pfont);letter-spacing:.22em;color:#444;margin-top:2px}
+.obp .pright{margin-left:auto;display:flex;align-items:center;gap:14px;color:#6B6B70;flex-wrap:wrap;justify-content:flex-end}
+.obp .psearch{display:flex;align-items:center;gap:8px;height:30px;width:230px;border:1px solid #B2B2B3;border-radius:4px;padding:0 8px;background:#fff}
+.obp .psearch input{border:0;outline:0;flex:1;min-width:0;font-size:13px;background:transparent;color:#19191A}
+.obp .psearch i{font-size:13px;color:#888}
+.obp .ib{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:4px;color:#6B6B70;font-size:17px}
+.obp .pav{width:28px;height:28px;border-radius:50%;background:#D9D9D9;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:12px}
+.obp .plogout{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:#6B6B70;padding:4px 6px;border-radius:4px}
+.obp .plogout:hover,.obp .pnav button:hover{text-decoration:underline}
+.obp .pnav{display:flex;align-items:center;gap:2px;min-height:38px;padding:0 14px;background:#F5F5F5;border-top:1px solid #E5E5E5;border-bottom:1px solid #E5E5E5;overflow-x:auto;scrollbar-width:thin}
+.obp .pnav button{position:relative;padding:9px 8px;font-size:14px;line-height:20px;color:#2B2B2B;white-space:nowrap}
+.obp .pnav button.on{font-weight:700;color:var(--portal-nav-active);text-decoration:none}
+.obp .pnav button.on::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--portal-nav-active)}
+.obp .pnav .pinfo{margin-left:auto;width:26px;height:26px;border-radius:3px;background:var(--portal-nav-active);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;padding:0;flex:0 0 auto}
+.obp .pnav .pinfo::after{display:none}
+@media(max-width:760px){.obp .psearch{width:160px}}
 .bis{font-weight:800;font-size:22px;color:#2b2b3a;letter-spacing:-1px}.bis small{font-weight:400;font-size:10px;letter-spacing:0;display:inline-block;line-height:1.1;border-left:1px solid #999;padding-left:6px;margin-left:6px;vertical-align:middle}
 .top .sp{flex:1}.search{border:1px solid var(--line);border-radius:3px;padding:5px 10px;width:200px;color:#999;font-size:13px}
 nav.main{display:flex;gap:26px;padding:0 16px;overflow-x:auto;white-space:nowrap;background:#fff;border-bottom:1px solid #e3e3e3}
@@ -217,7 +239,7 @@ main{max-width:1320px;margin:0 auto;padding:16px 24px 90px}
 .adw{position:relative}.adw.grow{flex:1;min-width:0}
 .adtype{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 8px;border:1px solid #AFAFB5;border-radius:4px;background:#fff;font-size:14px}
 .adin{width:100%;height:32px;border:1px solid #009ACB;border-radius:4px;padding:0 10px;font:inherit;font-size:14px;outline:none}
-.adpicked{display:flex;align-items:center;gap:8px;border-color:#AFAFB5}.adpicked button{margin-left:auto;border:0;background:none;color:#5f6168}
+.adpicked{display:flex;align-items:center;gap:8px;border-color:#AFAFB5;min-width:0}.adpicked .adpn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400}.adpicked>*:not(.adpn){flex:none}.adpicked button{margin-left:auto;border:0;background:none;color:#5f6168}
 .adlink{border:0;background:none;font-size:14px;padding:4px}.adsave{color:#167b00;font-weight:600}.adlink:disabled{color:#AFAFB5;font-weight:400;cursor:default}
 .admenu{position:absolute;z-index:20;top:calc(100% + 4px);left:0;min-width:160px;background:#fff;border:1px solid #DFDFE2;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.12);padding:4px}
 .admenu.adsug{right:0;max-height:240px;overflow:auto}
@@ -229,8 +251,21 @@ main{max-width:1320px;margin:0 auto;padding:16px 24px 90px}
 .v41 .pc:hover .pic svg{filter:saturate(.55) opacity(.85)}
 .v41 .pc.on .pic{background:linear-gradient(180deg,#f6fbfe 0%,#eaf5fb 100%)}
 .v41 .pc.on .pic svg{filter:saturate(.6) opacity(.9)}
-.lvseg{display:inline-flex;border:1px solid #AFAFB5;border-radius:6px;overflow:hidden;margin:12px 0 4px}.lvseg button{border:0;border-right:1px solid #AFAFB5;background:#fff;padding:6px 14px;font-size:13px}.lvseg button:last-child{border-right:0}.lvseg button.on{background:#F0F9FE;color:#0078B3;font-weight:600;box-shadow:inset 0 -2px 0 #0078B3}
-.lvrow{display:flex;gap:10px;align-items:center;margin-top:8px}.lvn{width:58px;font-size:12px;color:#5f6168;flex:none}
+/* Nov 5 (Design): BIS segmented buttons, tonal pill (Storybook navigation-bissegmentedbuttons--tonal-pill): pill outline #AFAFB5, 24px items, 4px 8px, 14px; selected = #F0F9FE tint, #0078B3, 600 */
+.lvseg,.fseg{display:inline-flex;align-items:stretch;border:1px solid #AFAFB5;border-radius:999px;background:#FEFEFE;overflow:hidden;flex:none;height:auto}
+.lvseg button,.fseg button,.fseg.sm button{border:0;background:transparent;height:24px;line-height:16px;padding:4px 8px;font-size:14px;font-weight:400;color:#19191A;box-shadow:none;cursor:pointer}
+.fseg.sm{height:auto}
+.lvseg button+button,.fseg button+button{border-left:1px solid #AFAFB5}
+.lvseg button.on,.fseg button[aria-pressed="true"]{background:#F0F9FE;color:#0078B3;font-weight:600;box-shadow:none}
+.lvseg button:focus-visible,.fseg button:focus-visible{outline:3px solid #0078B3;outline-offset:-3px}
+.lvrow{display:flex;gap:10px;align-items:flex-start;margin-top:8px}
+.itr{padding:6px 0;border-bottom:1px solid #F2F2F2;display:flex;align-items:center;gap:8px}.itx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.itl{display:flex;align-items:center;gap:2px;min-width:0}.itn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;line-height:20px}.its{font-size:12px;line-height:16px;color:#5F6168;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.iped{flex:none;padding:2px 6px}.iped i{font-size:11px}.itdel{flex:none;padding:2px 6px;color:#5F6168}.itdel:hover{color:#C62828}
+.rhd{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #DFDFE2}.rhn{display:flex;align-items:center;gap:2px;min-width:0;flex:1}.rhn b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}.ttf{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:6px;width:100%}.ttf .ttd{grid-column:1 / -1;height:auto;min-height:52px;padding:6px 10px;resize:vertical;border-color:#AFAFB5}.ttf .ttp{height:32px;font-size:14px}
+.rfoot{border-top:1px solid #DFDFE2;background:#FAFAFA;padding:10px 12px 12px;border-radius:0 0 8px 8px}.rfh{font-weight:600;font-size:14px;margin-bottom:6px}.rhint{font-size:12px;color:#5F6168;margin-top:4px}.rhint i{color:#0078B3}
+.rinfo{display:flex;gap:8px;align-items:flex-start;background:#F0F9FE;border:1px solid #C9EFFA;border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:13px;color:#19191A}.rinfo i{color:#0078B3;margin-top:2px}
+.tmw{position:relative;display:inline-block;width:200px;flex:none}.tmb{width:100%;display:flex;align-items:center;gap:8px;text-align:left;background:#fff;cursor:pointer}.tmb .tmv{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tmb i{font-size:11px;color:#5F6168}.tmm{position:absolute;z-index:30;top:calc(100% + 4px);left:0;right:0;min-width:220px;background:#fff;border:1px solid #DFDFE2;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.12);padding:4px}.tmm button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;border:0;background:none;text-align:left;padding:6px 10px;border-radius:4px;cursor:pointer}.tmm button:hover,.tmm button.on{background:#F0F9FE}.tmt{font-size:14px;color:#19191A}.tmm button.on .tmt{color:#0078B3;font-weight:600}.tmt i{font-size:11px;margin-left:4px}.tmd{font-size:12px;color:#5F6168;line-height:16px}
+.chip-kind{font-size:11px;font-weight:400;line-height:16px;padding:0 5px;color:#5F6168;background:#F8F8F8;border:1px solid #DFDFE2;border-radius:4px;flex:none}
+.chip-tpl{background:#F4F0FA;border:1px solid #DCCFEF;color:#5B3A8C;flex:none}.rreset{flex:none;font-size:13px;padding:2px 8px}.rreset[disabled]{opacity:.45;cursor:default}.lvn{width:58px;font-size:12px;color:#5f6168;flex:none;line-height:28px}.wcust{display:block;width:200px;margin-top:6px}
 .wqs{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .wq{display:flex;gap:12px;align-items:center;border:1px solid #DFDFE2;border-radius:8px;padding:10px 14px;background:#fff}
 .wq.on{align-items:flex-start;border-color:#009ACB;box-shadow:0 0 0 1px #009ACB;padding:16px}
@@ -315,8 +350,11 @@ function obMore(open){ const b=document.getElementById('obMore'), m=document.get
 document.addEventListener('mousedown',e=>{ const w=document.getElementById('obMoreWrap'); if(w&&!w.contains(e.target)) obMore(false); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!document.getElementById('obMenu').hidden){ obMore(false); document.getElementById('obMore').focus(); } });
 </script>
-<div class="top"><span class="bis">BIS<small>QAQC TEST<br>ENVIRONMENT</small></span><span class="sp"></span><span id="who"></span><span class="search">Search User</span><span class="mut">?</span><span class="mut">Log Out ›</span></div>
-<nav class="main" id="nav"></nav>
+<!-- Nov 5 (Design): the same portal header as the web prototype (web-mvp portalHeader), so it doesn't change between pages.
+     The logo between the ob-logo markers is the web's default sample portal; the client copy swaps in its own. -->
+<header class="portal obp"><div class="ptop"><button class="plogo" aria-label="Portal home" onclick="go('home')"><!--ob-logo--><svg viewBox="0 0 44 44" aria-hidden="true" focusable="false"><circle cx="22" cy="22" r="19.5" fill="none" stroke="var(--portal-brand)" stroke-width="3.5"></circle><circle cx="22" cy="22" r="14.5" fill="var(--portal-brand)"></circle><path d="M14.5 29.5 C13.5 20 19.5 14 30 13.5 C30.5 23.5 24.5 30 14.5 29.5 Z" fill="#fff"></path><path d="M15.5 28.5 C19 24.5 22.5 21 26.5 17.5" fill="none" stroke="var(--portal-brand)" stroke-width="1.6" stroke-linecap="round"></path></svg><span class="plogo-w"><b>NORTHWIND</b><small>FIELD SERVICES</small></span><!--/ob-logo--></button>
+ <div class="pright"><span id="who" hidden></span><label class="psearch"><input type="search" placeholder="Search User" aria-label="Search user"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></label><button class="ib" aria-label="Help"><i class="fa-regular fa-circle-question" aria-hidden="true"></i></button><span class="pav" aria-label="Your account"><i class="fa-solid fa-user" aria-hidden="true"></i></span><button class="plogout">Log Out <i class="fa-solid fa-angle-right" aria-hidden="true"></i></button></div></div>
+<nav class="pnav" id="nav" aria-label="Portal"></nav></header>
 <main id="app"></main>
 <div class="foot hide" id="foot"><div class="in" id="footIn"></div></div>
 <div class="launcher hide" id="launcher"></div>
@@ -518,6 +556,7 @@ const ROUTINES=k=>{ let R=ROUTINES_ALL(k);
  /* Nov 4 (Design): with no AI, a template names the kind of form ("FLHA"), Required / Optional already set; the admin picks their own form for each */
  if(!AI()) R=R.map(r=>{ const sl=SLOTS[r.id]; if(!sl) return r; let fi=0; return {...r,items:r.items.map(it=>{ if(it.t!=='form') return it; const w=sl[fi++]; return w?{...it,slot:w,n:null}:it; })}; });
  if(WAVE==='W1'){ const first=(R.find(x=>x.id==='sod')||R.find(x=>!/^(f_|s_|a_)/.test(x.id))||{}).id; R=R.filter(r=>/^(f_|s_|a_)/.test(r.id)||r.id===first); }
+ if(S&&S.rname) R=R.map(r=>S.rname[r.id]?{...r,tplName:r.name,name:S.rname[r.id]}:r);  /* Nov 5 (Design): routine names can be changed */
  return R; };
 const SLOTS={sod:['FLHA','Equipment pre-use check'],wk:['Weekly inspection','First aid kit check'],walk:['Site walk'],mon:['Monthly inspection','Fire extinguisher check'],qtr:['First aid kit check','Eyewash station check'],wop:['FLHA','Job hazard analysis','Work order sign-off'],loco:['Locomotive inspection']};
 const ROUTINES_ALL=k=>{const f=CLIENTS[k].forms; const extra=(S&&S.custom)||[];
@@ -535,8 +574,11 @@ let C,TREE,S;
 function fresh(k){ return {route:'home',variant:document.getElementById('variant').value,day:document.getElementById('day').value,client:k,bannerOff:false,remind:false,navTip:true,started:false,finished:false,
  aiAccepted:null,fok:{},when:{},per:{},nval:{},sel:{},flashI:null,ppl:null,na:{},moved:{},newCrews:[],pdrag:null,pflash:'',crewFrom:'loc',fopen:{},fpick:{},view:AI()?'overview':'detail',opt:{},need:[],custom:[],added:{},rsrc:'sug',peopleOnly:!!CLIENTS[k].peopleOnly,source:SRC[k].start,detail:false,archive:true,shape:[...CLIENTS[k].shape],words:{...CLIENTS[k].words},labels:{},mode:'link',build:[],dragI:null,drop:null,
  where:{},how:null,levels:1,lvl:['Site'],routines:[],openR:'sod',name:{},edit:null,howMany:null,reqOff:{},attach:{},phoneDone:{},tipShown:true,notes:S?S.notes:true,launcherOpen:false,
- chat:null,chatStep:0,fmPage:'overview',fmSite:null,hints:{overview:true,site:true,manage:true},
+ chat:null,chatStep:0,wcust:{},fmPage:'overview',fmSite:null,hints:{overview:true,site:true,manage:true},
  checklist:{crews:true,people:false,routine:false,invite:false,app:false}}; }
+/* Nov 5 (Design): "Or type your own" only after the Custom chip is clicked; the field opens below the chips */
+function custChip(key,on){ return `<button class="idea ${on?'on':''}" aria-expanded="${!!(S.wcust[key]||on)}" onclick="S.wcust['${key}']=true;keepFocus('wc-${key}')">${on?'<i class="fa-solid fa-check"></i>':'<i class="fa-solid fa-pen"></i>'}Custom</button>`; }
+function custField(key,val,save){ return `<input class="sel wcust" id="wc-${key}" placeholder="Type your own" value="${qa(val)}" aria-label="Your own word" onchange="${save}">`; }
 function initLabels(n){ /* AI pre-labels from the portal (ideal only) */ if(AI()&&n.guess) S.labels[n.id]=n.guess==='group'?'site':n.guess; (n.kids||[]).forEach(initLabels); }
 function reset(k){ k=k||document.getElementById('client').value; document.getElementById('client').value=k; S=fresh(k); C=CLIENTS[k]; initLabels(C.tree); initLabels(SRC[k].eq); initLabels(SRC[k].fo); TREE=srcTree(S.source);
  S.flash='';S.build=[{n:'Fort Yard',t:'site',d:0},{n:'Lake Shop',t:'site',d:0},{n:'Bow Yard',t:'site',d:0}];
@@ -554,10 +596,10 @@ const $=s=>document.querySelector(s);
 function go(r){ S.route=r; if(r!=='home') S.started=true; render(); window.scrollTo(0,0); }
 function fm(p,site){ S.route='fm'; S.fmPage=p; S.fmSite=site||null; render(); window.scrollTo(0,0); }
 function toggleNotes(){ S.notes=!S.notes; $('#notesBtn').textContent=S.notes?'Hide design notes':'Show design notes'; render(); }
-function navHtml(){ const items=['Home','Profile','Store','Rewards','Purchases','Users','Reporting','Calendar','Equipment','Folders','QR','Field','Admin'];
+function navHtml(){ const items=['Home','Profile','Store','Rewards','Purchases','Users','Reporting','Calendar','Assets','Folders','QR','Field','Admin'];
  const cur=S.route==='home'?'Home':'Field';
  const fieldGo=S.finished?"fm('overview')":S.started&&S.route!=='home'&&S.route!=='fm'?"go(S.route)":"go('welcome')";
- return items.map(i=>`<a class="${i===cur?'on':''}" id="nav-${i}" onclick="${i==='Field'?fieldGo:i==='Home'?"go('home')":''}">${i}${i==='Field'&&!S.started?'<span class="new">New</span>':''}</a>`).join(''); }
+ return items.map(i=>`<button class="${i===cur?'on':''}" id="nav-${i}" aria-current="${i===cur?'page':'false'}" onclick="${i==='Field'?fieldGo:i==='Home'?"go('home')":''}">${i}${i==='Field'&&!S.started?'<span class="new">New</span>':''}</button>`).join('')+'<button class="pinfo" aria-label="About this portal"><i class="fa-solid fa-info"></i></button>'; }
 const STEPS=[['how','How your work runs'],['work','Found in your portal'],['words','Your words'],['structure','Bring it over'],['routine','First routine']];
 function stepsHtml(){ const ST=STEPS.filter(s=>s[0]!=='work'||AI()); const i=ST.findIndex(s=>s[0]===S.route);
  return `<div class="steps">${ST.map((s,k)=>`<span class="step ${k===i?'on':''} ${k<i?'done':''}"><i>${k<i?'✓':k+1}</i>${s[1]}</span>`).join('')}</div>`; }
@@ -679,7 +721,7 @@ function newSafetyHtml(){ if(S.bisUse==null) S.bisUse=S.client==='gate'?'trainin
  <div class="sm mut" style="margin-top:6px"><i class="fa-solid fa-circle-info"></i> Picked from your form history. Change it if it's not right.</div></div>`; }
 function how(){ if(AI()&&!S.prefilled){ const p=PREFILL[S.client]||{where:{},how:null}; S.where={...p.where}; S.how=p.how; S.prefilled=true; }
  const any=V41.picked().length||S.how;
- foot(`<button class="btn sec" onclick="location.href='app.html#/overview'">Back</button><span class="saved">Saved</span><span style="flex:1"></span><span class="sm mut">${V41.picked().length&&!S.how?'One more question':''}</span><button class="btn" onclick="applyHow();go(AI()?'work':'words')">${any?'Continue':'Skip for now'}</button>`);
+ foot(`<button class="btn sec" onclick="obBack()">Back</button><span class="saved">Saved</span><span style="flex:1"></span><span class="sm mut">${V41.picked().length&&!S.how?'One more question':''}</span><button class="btn" onclick="applyHow();go(AI()?'work':'words')">${any?'Continue':'Skip for now'}</button>`);
  return setupHead()+`<div class="v41"><div class="layout"><div class="card">${AI()?'<div class="aifill"><i class="fa-solid fa-wand-magic-sparkles"></i><span><b>We filled this in from your portal.</b> Change anything that isn\'t right.</span></div>':''}${V41.qsHtml()}${AI()?newSafetyHtml():''}</div><div class="card prev">${V41.prevHtml()}</div></div></div>`; }
 
 function work(){
@@ -715,12 +757,17 @@ function drawerHtml(){ if(!S.chat) return '';
 function fmParent(id){ let p=parentOf(id); while(p&&p.id!=='root'){ const l=S.labels[p.id]; if(l&&l!=='none') return l; p=parentOf(p.id); } return null; }
 /* equipment only comes from Assets; a location can never become equipment */
 let CATSEL=false;
+/* Nov 5 (Design): the type menu shows their own word (Yard, Crew…) with the plain description small underneath */
+const typeWord=t=>t==='none'?'Not for Field Management':sg(t);
+function typeMenu(id,lab,pt){ const open=S.tmenu===id, ts=selTypes(lab,pt);
+ return `<span class="tmw"><button class="sel tmb" aria-haspopup="listbox" aria-expanded="${open}" onclick="event.stopPropagation();S.tmenu=S.tmenu==='${id}'?null:'${id}';render()"><span class="tmv ${lab?'':'mut'}">${lab?typeWord(lab):'Choose…'}</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>${open?`<div class="tmm" role="listbox">${ts.map(t=>`<button role="option" aria-selected="${t===lab}" class="${t===lab?'on':''}" onclick="event.stopPropagation();S.tmenu=null;setLabel('${id}','${t}')"><span class="tmt">${typeWord(t)}${t===lab?' <i class="fa-solid fa-check"></i>':''}</span>${t==='none'?'':`<span class="tmd">${DESC[t]}</span>`}</button>`).join('')}</div>`:''}</span>`; }
+function selTypes(lab,pt){ return ['site','job','crew','asset','none'].filter(t=>(canSit(t,pt)||t===lab)&&(t!=='asset'||(S.source==='equipment'&&AI()))&&!(S.source==='equipment'&&(CATSEL?!['group','site','none'].includes(t):['crew','group'].includes(t)))); }
 function selOpts(lab,pt){ return ['site','job','crew','asset','none'].filter(t=>(canSit(t,pt)||t===lab)&&(t!=='asset'||(S.source==='equipment'&&AI()))&&!(S.source==='equipment'&&(CATSEL?!['group','site','none'].includes(t):['crew','group'].includes(t)))).map(t=>`<option value="${t}" ${t===lab?'selected':''}>${DESC[t]}</option>`).join(''); }
 function nodeHtml(n){
  const unset=!(n.id in S.labels); const lab=S.labels[n.id]||'none'; const kids=n.kids||[]; const pt=fmParent(n.id); const lv=lab==='site'?siteLevel(n.id):0, deep=lv>S.levels; const bad=lab!=='none'&&(!canSit(lab,pt)||deep);
  const isCat=S.source==='equipment'&&!!n.kids; CATSEL=isCat; const nm=n.name.split(' · ')[0], total=parseInt((n.name.split(' · ')[1]||'0').replace(/[^0-9]/g,''))||0;
  return `<div class="node"><input type="checkbox" class="selbox" ${S.sel[n.id]?'checked':''} onchange="S.sel['${n.id}']=this.checked;render()"><div class="box t-${unset?'unset':lab}" style="${bad?'outline:2px solid var(--red)':''};${S.sel[n.id]?'box-shadow:0 0 0 2px #0078B3':''}" onclick="if(event.ctrlKey||event.metaKey||event.shiftKey){S.sel['${n.id}']=!S.sel['${n.id}'];render()}">${isCat?'<i class="fa-solid fa-folder-tree" style="color:#AFAFB5"></i>':''}${lab==='site'?`<span class="chip t-site" style="font-size:10px">${lvlName(lv)}</span>`:''}<span style="flex:1">${nm}</span>${isCat?`<span class="chip">Category · ${total} assets</span>`:''}${n.users?`<span class="cnt">${n.users} people</span>`:""}</div>
- <select class="sel" style="width:200px" onchange="setLabel('${n.id}',this.value)">${unset?'<option value="" selected disabled>Choose…</option>':''}${selOpts(unset?'':lab,pt)}</select></div>
+ ${typeMenu(n.id,unset?'':lab,pt)}</div>
  ${bad?`<div class="sm" style="color:var(--red);margin:-2px 0 4px 2px">${deep?`Field Management goes up to ${S.levels} level${S.levels>1?'s':''} here. ${S.levels<3?`<a style="color:var(--blue)" onclick="addLevel()">Add a level</a> or pick another type.`:'Pick a higher one or leave it out.'}`:whyNot(lab,pt)+' Pick another type, or leave it out.'}</div>`:''}
  `
  +(kids.length?`<div class="indent">${isCat?`<div class="row sm" style="gap:8px;margin:4px 0 6px;background:#F0F9FE;border-radius:6px;padding:6px 8px"><i class="fa-solid fa-layer-group" style="color:#0078B3"></i><span>Make all ${total} assets</span><select class="sel" onchange="if(this.value)setAll('${n.id}',this.value)"><option value="" ${new Set(kids.map(k=>S.labels[k.id]||'none')).size>1?'selected':''}>Mixed: choose…</option>${['job','site','asset','none'].filter(t=>t!=='asset'||AI()).map(t=>`<option value="${t}" ${kids.length&&kids.every(k=>(S.labels[k.id]||'none')===t)?'selected':''}>${t==='none'?'Not for Field Management':pl(t)}</option>`).join('')}</select><span class="mut">and ignore the category? Set the category to Not for Field Management.</span></div>`:''}${kids.map(nodeHtml).join('')}${isCat&&total>kids.length?`<div class="sm mut" style="padding:4px 0 6px 28px">+ ${total-kids.length} more, set the same way</div>`:''}</div>`:'');
@@ -759,7 +806,7 @@ function countSrc(x){ let n=0; (function w(m){ (m.kids||[]).forEach(k=>{ n++; w(
 function selIds(){ return Object.keys(S.sel).filter(k=>S.sel[k]); }
 function bulkSet(v){ selIds().forEach(id=>S.labels[id]=v); S.sel={}; render(); }
 function structure(){
- foot(`<button class="btn sec" onclick="go('words')">Back</button><span class="saved">Saved</span><span style="flex:1"></span><span class="sm mut">${countLine()}</span><button class="btn" onclick="go('routine')">Continue</button>`);
+ foot(`<button class="btn sec" onclick="go('words')">Back</button><span class="saved">Saved</span><span style="flex:1"></span><span class="sm mut">${countLine()}</span><button class="btn" onclick="go('routine')">${countLine()?'Create':'Skip'}</button>`);  /* Nov 5 (Design): Skip when nothing is brought over, Create when something is */
  const link=S.source!=='fresh';
  const rec=SRC[S.client].start;
  S.detail=S.view==='detail';
@@ -909,12 +956,12 @@ function words(){ const used=wordsUsed(), done=S.wdone||{}, all=used.every(t=>do
  const rows=used.map((t,i)=>{ const [lab,q,sub]=t==='site'?WQ.site_:WQ[t];
   if(t==='site'&&i===open){ const pool=WAVE==='W1'?['Region','Division','Branch','Site','Facility','Yard']:['Region','Division','Branch','Site','Yard','Location'];
    return `<div class="wq on"><div class="wn">${i+1}</div><div style="flex:1"><b style="font-size:16px">${q}</b><div class="mut sm">${sub}</div>
-   <div class="lvseg" role="radiogroup" aria-label="How many levels">${[1,2,3].map(n=>`<button role="radio" aria-checked="${S.levels===n}" class="${S.levels===n?'on':''}" onclick="setLevels(${n})">${n===1?'No, one level':n+' levels'}</button>`).join('')}</div>
-   ${S.lvl.map((nm,k)=>`<div class="lvrow"><span class="lvn">${S.levels>1?(k===0?'Top':k===S.levels-1?'Lowest':'Middle'):'Name'}</span><div class="ideas" style="margin:0">${pool.map(w=>`<button class="idea ${w===nm?'on':''}" onclick="setLvl(${k},'${w}')">${w===nm?'<i class="fa-solid fa-check"></i>':''}${w}</button>`).join('')}${WAVE==='W1'?'':`<input class="sel" style="width:140px" placeholder="Or type your own" value="${pool.includes(nm)?'':nm}" onchange="if(this.value)setLvl(${k},this.value)">`}</div></div>`).join('')}
+   <div class="lvrow" style="margin-top:12px"><span class="lvn">Levels</span><div class="lvseg" role="radiogroup" aria-label="How many levels">${[1,2,3].map(n=>`<button role="radio" aria-checked="${S.levels===n}" class="${S.levels===n?'on':''}" onclick="setLevels(${n})">${n===1?'No, one level':n+' levels'}</button>`).join('')}</div></div>
+   ${S.lvl.map((nm,k)=>`<div class="lvrow"><span class="lvn">${S.levels>1?(k===0?'Top':k===S.levels-1?'Lowest':'Middle'):'Name'}</span><div style="flex:1;min-width:0"><div class="ideas" style="margin:0">${pool.map(w=>`<button class="idea ${w===nm?'on':''}" onclick="S.wcust['lvl${k}']=false;setLvl(${k},'${w}')">${w===nm?'<i class="fa-solid fa-check"></i>':''}${w}</button>`).join('')}${WAVE==='W1'?'':custChip('lvl'+k,!pool.includes(nm))}</div>${WAVE!=='W1'&&(S.wcust['lvl'+k]||!pool.includes(nm))?custField('lvl'+k,pool.includes(nm)?'':nm,`if(this.value)setLvl(${k},this.value)`):''}</div></div>`).join('')}
    ${S.levels>1?`<div class="sm mut" style="margin-top:8px"><i class="fa-solid fa-sitemap"></i> ${S.lvl.join(' › ')}. Share a ${S.lvl[0].toLowerCase()} and the person sees everything inside it.</div>`:''}
    </div><button class="btn wacc" aria-label="Accept: places" onclick="wNext('site')">Accept</button></div>`; }
   if(i===open){ const custom=!IDEAS[t].includes(sg(t)); return `<div class="wq on"><div class="wn">${i+1}</div><div style="flex:1"><b style="font-size:16px">${q}</b><div class="mut sm">${sub}</div>
-   <div class="ideas" style="margin-top:10px">${ideasFor(t).map(w=>`<button class="idea ${w===sg(t)?'on':''}" onclick="S.words['${t}']='${w}';render()">${w===sg(t)?'<i class="fa-solid fa-check"></i>':''}${w}</button>`).join('')}${WAVE==='W1'?'':`<input class="sel" style="width:160px" placeholder="Or type your own" value="${custom?sg(t):''}" onchange="if(this.value){S.words['${t}']=this.value;render()}">`}</div>
+   <div class="ideas" style="margin-top:10px">${ideasFor(t).map(w=>`<button class="idea ${w===sg(t)?'on':''}" onclick="S.wcust['${t}']=false;S.words['${t}']='${w}';render()">${w===sg(t)?'<i class="fa-solid fa-check"></i>':''}${w}</button>`).join('')}${WAVE==='W1'?'':custChip(t,custom)}</div>${WAVE!=='W1'&&(S.wcust[t]||custom)?custField(t,custom?sg(t):'',`if(this.value){S.words['${t}']=this.value;render()}`):''}
    </div><button class="btn wacc" aria-label="Accept: ${pl(t)}" onclick="wNext('${t}')">Accept</button></div>`; }
   if(done[t]) return `<div class="wq done"><div class="wn">${i+1}</div><span class="mut" style="width:140px">${lab}</span><b style="flex:1">${t==='site'?S.lvl.map(x=>plural(x)).join(' › '):pl(t)}</b><a style="color:var(--blue)" onclick="S.wopen=${i};render()">Change</a><span class="wok on" aria-label="Done"><i class="fa-solid fa-check"></i></span></div>`;
   return `<div class="wq locked"><div class="wn">${i+1}</div><span>${lab}</span></div>`; }).join('');
@@ -926,72 +973,103 @@ function targets(){ const T=[]; ['site','job','crew','group','asset'].filter(t=>
 function whenOf(r){ return S.when[r.id]||(whens().find(w=>r.when.startsWith(w))||r.when); }
 function perOf(r){ return S.per[r.id]||(pers().find(p=>p.startsWith(r.per))||r.per); }
 function isOpt(rid,j,it){ const k=rid+'_'+j; return k in S.opt?S.opt[k]:!it.req; }
-function itemsOf(r){ return r.items.concat(S.added[r.id]||[]).map((it,j)=>{ const nm=S.name&&S.name[r.id+'_'+j]; return {...it,n:nm||it.n,open:!(nm||it.n)}; }); }
+/* Nov 5 (Design): a task is a real BIS task: Task Name, Priority and Details are all required. Template tasks come filled in; the admin can change them */
+const TASK_PRI=['High','Medium','Low'];
+const TASK_DEF={'Confirm the area is safe to start':{pri:'High',desc:'Walk the work area before anyone starts. Check for hazards, make it safe, or stop and tell your supervisor.'},'Fix anything flagged':{pri:'Medium',desc:'Fix anything the checks flagged, or tag it out and tell your supervisor before the end of the day.'}};
+function itemsOf(r){ return r.items.concat(S.added[r.id]||[]).map((it,j)=>{ const k=r.id+'_'+j, nm=S.name&&S.name[k]; const n=nm||it.n; const o={...it,n,open:!n,gone:!!(S.del&&S.del[k])};
+ if(it.t==='task'){ const m=(S.tmeta||{})[k]||{}, d=TASK_DEF[it.n]||{}; o.pri=m.pri||it.pri||d.pri||''; o.desc=m.desc!=null?m.desc:(it.desc!=null?it.desc:(d.desc||'')); }
+ return o; }); }
+function itemAt(k){ const i=k.lastIndexOf('_'), rid=k.slice(0,i), j=+k.slice(i+1); const r=ROUTINES(S.client).concat(S.custom).find(x=>x.id===rid); return r?itemsOf(r)[j]:null; }
 /* Nov 4 (Design): every item can be changed (pencil); an open template slot asks for the admin's own form */
 const qa=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 function edFocus(k,t){ if(S.edit&&S.edit.k===k) return; S.edit={k,q:'',t}; keepFocus('ed-'+k); }
-function edOpen(k,t,n){ S.edit={k,q:t==='task'?(n||''):'',t,was:n}; keepFocus('ed-'+k); }
+function edOpen(k,t,n){ S.edit={k,q:t==='task'?(n||''):'',t,was:n}; if(t==='task'){ const it=itemAt(k)||{}; S.edit.pri=it.pri||''; S.edit.desc=it.desc||''; } keepFocus('ed-'+k); }
+const taskOk=E=>!!((E.q||'').trim()&&E.pri&&(E.desc||'').trim());
+function taskMiss(E){ const m=[]; if(!(E.q||'').trim()) m.push('a name'); if(!E.pri) m.push('a priority'); if(!(E.desc||'').trim()) m.push('details'); return m.join(', ').replace(/, ([^,]*)$/,' and $1'); }
 function edQ(k,v){ if(!S.edit||S.edit.k!==k) S.edit={k,q:'',t:'form'}; S.edit.q=v; keepFocus('ed-'+k); }
 function edPick(k,n){ S.name[k]=n; S.edit=null; render(); }
-function edSave(k){ const v=(S.edit&&S.edit.q||'').trim(); if(!v) return; S.name[k]=v; S.edit=null; render(); }
+function edSave(k){ const E=S.edit, v=(E&&E.q||'').trim(); if(!v) return; if(E.t==='task'){ if(!taskOk(E)) return; S.tmeta=S.tmeta||{}; S.tmeta[k]={pri:E.pri,desc:E.desc.trim()}; } S.name[k]=v; S.edit=null; render(); }
+function taskFields(id,A,onName,onPri,onDesc){ return `<span class="ttf"><input class="adin" id="${id}" placeholder="Task name, e.g. Sweep the loading bay" aria-label="Task name (required)" value="${qa(A.q||'')}" maxlength="120" oninput="${onName}"><select class="sel ttp" aria-label="Priority (required)" onchange="${onPri}"><option value="" ${A.pri?'':'selected'} disabled>Priority</option>${TASK_PRI.map(p=>`<option ${A.pri===p?'selected':''}>${p}</option>`).join('')}</select><textarea class="adin ttd" id="${id}-d" rows="2" placeholder="Details or instructions" aria-label="Details or instructions (required)" oninput="${onDesc}">${qa(A.desc||'')}</textarea></span>`; }
 function itemRow(r,it,j){
  const k=r.id+'_'+j, o=isOpt(r.id,j,it), E=S.edit&&S.edit.k===k?S.edit:null, task=it.t==='task';
  const seg=`<div class="fseg sm"><button aria-pressed="${!o}" onclick="S.opt['${k}']=false;render()">Required</button><button aria-pressed="${o}" onclick="S.opt['${k}']=true;render()">Optional</button></div>`;
- if(!E&&!it.open) return `<div class="item" style="padding:6px 0;border-bottom:1px solid #F2F2F2"><span>${ICON[it.t]}</span><span style="flex:1;display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap"><span>${it.n}</span>${it.slot&&!it.n.toLowerCase().includes(it.slot.toLowerCase())?`<span class="sm mut">for ${it.slot}</span>`:''}<button class="btn ghost sm" title="Change" aria-label="Change ${qa(it.n)}" data-n="${qa(it.n)}" onclick="edOpen('${k}','${it.t}',this.dataset.n)" style="padding:2px 6px"><i class="fa-solid fa-pen" style="font-size:11px"></i></button></span><span class="chip">${TAG[it.t]}</span>${seg}</div>`;
+ const del=`<button class="btn ghost sm itdel" title="Remove from this routine" aria-label="Remove ${qa(it.n||it.slot)}" onclick="S.del=S.del||{};S.del['${k}']=true;if(S.edit&&S.edit.k==='${k}')S.edit=null;render()"><i class="fa-solid fa-trash-can"></i></button>`;
+ /* Nov 5 (Design): one line that truncates, the pencil right after the name, "for <slot>" as a subtitle below; delete on the right */
+ if(!E&&!it.open) return `<div class="item itr"><span>${ICON[it.t]}</span><span class="itx"><span class="itl"><span class="itn" title="${qa(it.n)}">${it.n}</span><button class="btn ghost sm iped" title="Change" aria-label="Change ${qa(it.n)}" data-n="${qa(it.n)}" onclick="edOpen('${k}','${it.t}',this.dataset.n)"><i class="fa-solid fa-pen"></i></button></span>${it.slot&&!it.n.toLowerCase().includes(it.slot.toLowerCase())?`<span class="its">for ${it.slot}</span>`:''}${it.t==='task'&&(it.pri||it.desc)?`<span class="its" title="${qa(it.desc)}">${it.pri?it.pri+' priority':''}${it.pri&&it.desc?' · ':''}${qa(it.desc)}</span>`:''}</span><span class="chip chip-kind">${TAG[it.t]}</span>${seg}${del}</div>`;
+ const ferr=S.formErr&&it.open&&!task&&!o;  /* Nov 5: required slot with no form, after Create was pressed */
  const q=(E&&E.q||'').toLowerCase().trim(), words=(it.slot||'').toLowerCase().split(/[^a-z]+/).filter(w=>w.length>2);
  const have=itemsOf(r).map(x=>x.n), all=allForms().filter(n=>!have.includes(n));
  const hits=(q?all.filter(n=>n.toLowerCase().includes(q)):all.filter(n=>words.some(w=>n.toLowerCase().includes(w))).concat(all)).filter((n,i,a)=>a.indexOf(n)===i).slice(0,6);
- const field=task?`<input class="adin" id="ed-${k}" placeholder="Write the task" value="${qa(E?E.q:'')}" maxlength="120" oninput="edQ('${k}',this.value)" onkeydown="if(event.key==='Enter')edSave('${k}')">`
-  :`<input class="adin" id="ed-${k}" placeholder="Search your forms${it.slot?' for '+qa(it.slot):''}" value="${qa(E?E.q:'')}" autocomplete="off" onfocus="edFocus('${k}','form')" oninput="edQ('${k}',this.value)">`;
+ const field=task?taskFields('ed-'+k,E||{},`S.edit.q=this.value;keepFocus('ed-${k}')`,`S.edit.pri=this.value;render()`,`S.edit.desc=this.value;keepFocus('ed-${k}-d')`)
+  :`<input class="adin" id="ed-${k}" placeholder="Search your forms${it.slot?' for '+qa(it.slot):''}" value="${qa(E?E.q:'')}" autocomplete="off" onfocus="edFocus('${k}','form')" oninput="edQ('${k}',this.value)"${ferr?' aria-invalid="true" style="border-color:#C62828;box-shadow:0 0 0 1px #C62828"':''}>`;
+ const ferrMsg=ferr&&!E?`<div class="sm" role="alert" style="color:#C62828"><i class="fa-solid fa-circle-exclamation"></i> Pick one of your forms for ${qa(it.slot)}, or make it Optional.</div>`:'';
  const sugg=!task&&E?`<div class="admenu adsug">${hits.map(n=>`<button data-n="${qa(n)}" onclick="edPick('${k}',this.dataset.n)">${ICON.form}<span>${n}</span></button>`).join('')||'<div class="mut sm" style="padding:8px 10px">No forms match. Try another word.</div>'}</div>`:'';
  const head=it.open?`<b>${it.slot}</b> <span style="color:#8A5300">· pick your form</span>`:`<span class="mut">Change ${task?'the task':it.n}</span>`;
- const acts=E&&!it.open?`<button class="adlink" onclick="S.edit=null;render()">Cancel</button>${task?`<button class="adlink adsave" onclick="edSave('${k}')">Save</button>`:''}`:'';
- return `<div class="item" style="padding:8px 0;border-bottom:1px solid #F2F2F2;flex-direction:column;align-items:stretch;gap:6px;${it.open?'background:#FFFBF2;box-shadow:inset 3px 0 0 #F0C46A;padding-left:8px;padding-right:8px':''}"><div style="display:flex;align-items:center;gap:8px"><span>${ICON[it.t]}</span><span class="sm" style="flex:1;min-width:0">${head}</span>${acts}${seg}</div><span class="adw grow" style="display:flex;position:relative">${field}${sugg}</span></div>`;
+ const tnote=task&&E?`<div class="sm mut">A routine's task is a <b>template</b>, written once. <b>Who</b> gets it comes from each place's line; it's <b>due</b> at the end of the day it's owed.</div>`:'';
+ const acts=E&&!it.open?`<button class="adlink" onclick="S.edit=null;render()">Cancel</button>${task?`<button class="adlink adsave" ${taskOk(E)?'':`disabled title="Add ${taskMiss(E)}"`} onclick="edSave('${k}')">Save</button>`:''}`:'';
+ return `<div class="item" style="padding:8px 0;border-bottom:1px solid #F2F2F2;flex-direction:column;align-items:stretch;gap:6px;${it.open?'background:#FFFBF2;box-shadow:inset 3px 0 0 #F0C46A;padding-left:8px;padding-right:8px':''}"><div style="display:flex;align-items:center;gap:8px"><span>${ICON[it.t]}</span><span class="sm" style="flex:1;min-width:0">${head}</span>${acts}${seg}${del}</div><span class="adw grow" style="display:flex;position:relative">${field}${sugg}</span>${ferrMsg}${tnote}</div>`;
 }
 const ICON={form:'<i class="fa-solid fa-file-lines"></i>',task:'<i class="fa-solid fa-square-check"></i>',ticket:'<i class="fa-solid fa-graduation-cap"></i>'}, TAG={form:'Form',task:'Task',ticket:'Training'};
 function routine(){
  const R=ROUTINES(S.client); const T=targets(); const sel=R.filter(r=>S.routines.includes(r.id));
  const nAttach=Object.values(S.attach).filter(Boolean).length;
- const openReq=sel.flatMap(r=>itemsOf(r).map((it,j)=>({it,j,r})).filter(x=>x.it.open&&!isOpt(x.r.id,x.j,x.it)).map(x=>x.it.slot));
- foot(`<button class="btn sec" onclick="go('structure')">Back</button><span class="saved">Saved</span><span style="flex:1"></span><button class="btn ghost" onclick="finish(false)">Skip for now</button>${openReq.length?`<span class="sm" style="color:#8A5300">Pick a form for ${openReq[0]}${openReq.length>1?' and '+(openReq.length-1)+' more':''}</span>`:''}<button class="btn" ${sel.length&&nAttach&&!openReq.length?'':'disabled'} onclick="finish(true)">Create ${sel.length>1?sel.length+' routines':'routine'}</button>`);
+ const openReq=sel.flatMap(r=>itemsOf(r).map((it,j)=>({it,j,r})).filter(x=>!x.it.gone&&x.it.open&&!isOpt(x.r.id,x.j,x.it)).map(x=>x.it.slot));
+ foot(`<button class="btn sec" onclick="go('structure')">Back</button><span class="saved">Saved</span><span style="flex:1"></span><button class="btn ghost" onclick="finish(false)">Skip for now</button><button class="btn" ${sel.length?'':'disabled'} onclick="createRoutines()">Create ${sel.length>1?sel.length+' routines':'routine'}</button>`);
  const sugg=R.filter(r=>!/^(f_|s_|a_)/.test(r.id));
  const row=(title,sub,cnt,on,act,rec)=>`<div style="${rec&&!on?'background:#F0F9FE;box-shadow:inset 3px 0 0 #0078B3':''}"><div style="flex:1"><b class="sm" style="font-size:14px">${title}</b>${rec?' <span class="chip chip-rec">Recommended</span>':''}<div class="sm mut">${sub}</div></div>${cnt?`<span class="sm mut">${cnt}</span>`:''}<button class="btn ${on?'sec':''} sm" onclick="${act}">${on?'✓ Added':'+ Add'}</button></div>`;
  const left=S.rsrc==='folder'?`<div class="rowlist">${SRC[S.client].fo.kids.filter(x=>x.forms&&x.forms.length).map(x=>{ const open=S.fopen[x.id]; const pk=S.fpick[x.id]||(S.fpick[x.id]=Object.fromEntries(x.forms.map(n=>[n,true]))); const n=Object.values(pk).filter(Boolean).length; const added=S.routines.includes('f_'+x.id); return `<div style="flex-direction:column;align-items:stretch;gap:6px"><div class="row" style="gap:10px;flex-wrap:nowrap"><button class="btn ghost sm" onclick="S.fopen['${x.id}']=!S.fopen['${x.id}'];render()"><i class="fa-solid fa-chevron-${open?'down':'right'}"></i></button><i class="fa-solid fa-folder" style="color:#AFAFB5"></i><b class="sm" style="flex:1;font-size:14px">${x.name}</b><span class="sm mut">${n} of ${x.forms.length} forms</span><button class="btn ${added?'sec':''} sm" ${n?'':'disabled'} onclick="folderRoutine('${x.id}')">${added?'<i class="fa-solid fa-check"></i> Added':'+ Add'}</button></div>${open?`<div style="padding-left:38px">${x.forms.map(fm=>`<label class="row sm" style="gap:8px;padding:3px 0"><input type="checkbox" ${pk[fm]?'checked':''} onchange="S.fpick['${x.id}'][this.dataset.f]=this.checked;render()" data-f="${fm}"><i class="fa-solid fa-file-lines" style="color:#AFAFB5"></i>${fm}</label>`).join('')}</div>`:''}</div>`; }).join('')||'<div class="sm mut">No folders with forms.</div>'}</div><p class="sm mut">Open a folder to untick forms you don't want. The rest become one routine.</p>`
-  :S.rsrc==='scratch'?`<div class="row"><input class="sel" id="newR" style="flex:1;font-size:14px;padding:7px" placeholder="Name it, e.g. End of day"><button class="btn sm" onclick="scratchRoutine(document.getElementById('newR').value||'New routine')">+ Create</button></div><p class="sm mut">Then add forms and tasks to it on the right.</p>`
+  :S.rsrc==='scratch'?`<p class="sm mut" style="margin-top:0">Start an empty routine. You'll name it and add forms and tasks in Your routines.</p><button class="btn sm" onclick="scratchRoutine()"><i class="fa-solid fa-plus"></i> Create</button>`
   :`<div class="sm mut" style="margin-bottom:6px">${AI()?(S.peopleOnly?'Based on the training you track most':'Based on the forms you use most'):'Our routine templates'}</div><div class="rowlist">${sugg.map((r,i)=>row(r.name,(AI()?'<i class="fa-solid fa-wand-magic-sparkles"></i> '+r.why+' · ':'')+r.when,r.items.length+' items',S.routines.includes(r.id),`toggleR('${r.id}')`,AI()&&i===0)).join('')}</div>
    ${AI()?`<div class="sm mut" style="margin:14px 0 6px"><i class="fa-solid fa-wand-magic-sparkles"></i> We also found these, from the forms you fill in now</div><div class="rowlist">${ALSO[S.client].map(([fm,how,name])=>{ const id='a_'+name.replace(/\W/g,''); return row(name,fm+' · '+how,'',S.routines.includes(id),`alsoRoutine('${id}','${name}','${fm}','${how}')`); }).join('')}</div>`:''}`;
- return setupHead()+`<div style="display:grid;grid-template-columns:1fr 1.3fr 300px;gap:16px;align-items:start">
+ return setupHead()+`<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) 300px;gap:16px;align-items:start">
  <div class="card"><h2>${S.peopleOnly?'What people need before they work here':'Add routines'}</h2>
  <p class="mut" style="margin-top:0">${S.peopleOnly?'We\'ll check training and tickets every day, and show who\'s allowed in.':'A routine is what\'s expected on a schedule. Add as many as you like, from any of these.'}</p>
  <div class="tabs">${[['sug',AI()?'Suggestions':'Templates'],['folder','From a folder'],['scratch','From scratch']].map(([k,t])=>`<button class="${S.rsrc===k?'on':''}" onclick="S.rsrc='${k}';render()">${t}</button>`).join('')}</div>${left}</div>
  <div class="card"><div class="row"><h2 style="margin:0">Your routines</h2><span class="chip">${sel.length}</span></div>
  ${sel.length?sel.map(r=>`<div style="border:1px solid #DFDFE2;border-radius:8px;margin-top:10px">
-  <div class="row" style="padding:10px 12px;border-bottom:1px solid #DFDFE2;gap:8px"><b style="flex:1">${r.name}</b><button class="btn ghost sm" title="Remove" onclick="toggleR('${r.id}')"><i class="fa-solid fa-xmark"></i></button></div>
+  ${routineHead(r)}<button class="btn ghost sm" title="Remove" onclick="toggleR('${r.id}')"><i class="fa-solid fa-xmark"></i></button></div>
   <div class="row sm" style="padding:8px 12px;gap:8px;background:#F8F8F8;border-bottom:1px solid #DFDFE2;flex-wrap:nowrap"><span class="mut">When</span><select class="sel" style="flex:1;min-width:0" onchange="S.when['${r.id}']=this.value;render()">${whens().map(w=>`<option ${whenOf(r)===w?'selected':''}>${w}</option>`).join('')}</select>${/N /.test(whenOf(r))?`<input class="sel" style="width:60px" value="${S.nval[r.id]||r.every||(/hours/.test(whenOf(r))?250:7)}" onchange="S.nval['${r.id}']=this.value">`:''}${whenOf(r)==='Weekly'?`<select class="sel"><option>Monday</option><option>Friday</option></select>`:''}</div>
-  <div style="padding:4px 12px 10px">${itemsOf(r).map((it,j)=>itemRow(r,it,j)).join('')||'<div class="sm mut" style="padding:8px 0">Nothing in it yet.</div>'}
-  ${adderHtml(r.id)}</div></div>`).join(''):`<div class="empty" style="margin-top:10px;padding:24px;text-align:center"><p class="sm mut" style="margin:0 0 10px">No routines yet.</p><button class="btn" onclick="S.rsrc='scratch';render();const el=document.getElementById('newR');if(el)el.focus()"><i class="fa-solid fa-plus"></i> Create from scratch</button></div>`}
- <h3 style="margin-top:18px">Where do these apply?</h3>
- <p class="sm mut" style="margin-top:0">They set what's expected at the ${pl('site').toLowerCase()}${counts().crew?', '+pl('crew').toLowerCase():''}${jobsOn()?' or '+pl('job').toLowerCase():''} you choose.</p>
- ${comboHtml(T)}
- <div class="row sm" style="gap:8px;margin-top:12px;flex-wrap:nowrap"><span class="mut" style="white-space:nowrap">How many are needed at each one</span>${pers().length>1?`<select class="sel" style="flex:1;min-width:0" onchange="S.howMany=this.value;render()">${pers().map(p=>`<option ${(S.howMany||pers()[0])===p?'selected':''}>${p}</option>`).join('')}</select>`:`<b>${pers()[0]}</b>`}</div>
- <p class="sm mut" style="margin:4px 0 0">This belongs to each place, not the routine, so one routine can work differently at each ${sg('site').toLowerCase()}. ${pers().length>1?'':'More options come later. '}You can change it for each place on its Requirements.</p></div>
+  <div style="padding:4px 12px 10px">${itemsOf(r).map((it,j)=>it.gone?'':itemRow(r,it,j)).join('')||'<div class="sm mut" style="padding:8px 0">Nothing in it yet.</div>'}
+  ${adderHtml(r.id)}</div>${whereFoot(r,T)}</div>`).join(''):`<div class="empty" style="margin-top:10px;padding:24px;text-align:center"><p class="sm mut" style="margin:0 0 10px">No routines yet.</p><button class="btn" onclick="S.rsrc='scratch';scratchRoutine()"><i class="fa-solid fa-plus"></i> Create from scratch</button></div>`}
+ </div>
  <div class="card" style="position:sticky;top:12px"><h3 style="margin:0">What your team will see</h3><div class="sm mut">Tap items to try it</div><div style="padding-top:8px">${phoneHtml(sel,T).replace('class="phone"','class="phone small"')}</div></div>
  </div>`;
 }
-function comboHtml(T){
+/* Nov 5 (Design): Create stays on; with no place chosen it shows an error on "Where do these apply?" instead of finishing */
+/* …and any required item still waiting for a form gets an error too; the first problem scrolls into view */
+function createRoutines(){
+ const sel=ROUTINES(S.client).filter(r=>S.routines.includes(r.id));
+ const openReq=sel.some(r=>itemsOf(r).some((it,j)=>!it.gone&&it.open&&!isOpt(r.id,j,it)));
+ const noWhere=false;  /* Nov 5 (Design): where is set per routine and optional; each card's banner explains */
+ if(openReq||noWhere){ S.formErr=openReq; S.whereErr=noWhere; render(); const el=document.querySelector('[aria-invalid="true"]'); if(el) el.scrollIntoView({block:'center',behavior:'smooth'}); return; }
+ S.formErr=false; S.whereErr=false; finish(true); }
+/* Nov 5 (Design): where is set routine by routine, in a footer on each card, since some routines only apply to some places.
+   Nothing chosen = an info banner (not an error): its schedule only runs once it's on a place */
+const RA=rid=>{ S.ra=S.ra||{}; return S.ra[rid]||(S.ra[rid]={}); };
+function whereFoot(r,T){ const n=Object.values(RA(r.id)).filter(Boolean).length, places=sg('site').toLowerCase()+(jobsOn()?' or '+sg('job').toLowerCase():'');
+ const how=(S.rhow||{})[r.id]||pers()[0];
+ return `<div class="rfoot"><div class="rfh">Applies to</div>
+
+  ${comboHtml(T,r.id)}
+  ${n?'':`<div class="rhint"><i class="fa-solid fa-circle-info"></i> Won't run until it's on a ${places}.</div>`}
+  ${n?`<div class="row sm" style="gap:8px;margin-top:8px;flex-wrap:nowrap"><span class="mut" style="white-space:nowrap">How many are needed at each one</span>${pers().length>1?`<select class="sel" style="flex:1;min-width:0" onchange="S.rhow=S.rhow||{};S.rhow['${r.id}']=this.value;render()">${pers().map(p=>`<option ${how===p?'selected':''}>${p}</option>`).join('')}</select>`:`<b>${pers()[0]}</b>`}</div><p class="sm mut" style="margin:4px 0 0">You can change it for each place on its Requirements.</p>`:''}
+ </div>`; }
+function comboHtml(T,rid){
+ const A=RA(rid), open=S.comboOpen===rid, cq='cq-'+rid;
  const opts=[]; if(jobsOn()) opts.push({id:'alljobs',name:'Every new '+sg('job').toLowerCase(),t:'job'});
  ['site','crew','group','asset'].forEach(t=>T.filter(x=>x.t===t).forEach(x=>opts.push(x)));
- const q=(S.comboQ||'').toLowerCase(), chosen=opts.filter(o=>S.attach[o.id]);
+ const q=open?(S.comboQ||'').toLowerCase():'', chosen=opts.filter(o=>A[o.id]);
  const shown=opts.filter(o=>o.name.toLowerCase().includes(q));
  const groups=[...new Set(shown.map(o=>o.t))];
+ const set=(id,v)=>`S.ra['${rid}']['${id}']=${v};`;
  return `<div style="position:relative">
- <div class="sel" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:5px 8px;min-height:38px;cursor:text;${S.comboOpen?'border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)':''}" onclick="S.comboOpen=true;render();document.getElementById('cq').focus()">
-  ${chosen.map(o=>`<span class="chip t-${o.t}" style="font-size:12px;padding:2px 6px 2px 8px">${o.name} <a onclick="event.stopPropagation();S.attach['${o.id}']=false;render()" style="margin-left:2px">✕</a></span>`).join('')}
-  <input id="cq" style="border:0;outline:0;font:inherit;flex:1;min-width:120px" placeholder="${chosen.length?'Add more…':'Search '+pl('site').toLowerCase()+', '+pl('crew').toLowerCase()+'…'}" value="${S.comboQ||''}" oninput="S.comboQ=this.value;S.comboOpen=true;render();const i=document.getElementById('cq');i.focus();i.setSelectionRange(i.value.length,i.value.length)">
+ <div class="sel" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:5px 8px;min-height:38px;cursor:text;background:#fff;${open?'border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)':''}" onclick="S.comboOpen='${rid}';S.comboQ='';render();document.getElementById('${cq}').focus()">
+  ${chosen.map(o=>`<span class="chip t-${o.t}" style="font-size:12px;padding:2px 6px 2px 8px">${o.name} <a onclick="event.stopPropagation();${set(o.id,false)}render()" style="margin-left:2px">✕</a></span>`).join('')}
+  <input id="${cq}" style="border:0;outline:0;font:inherit;flex:1;min-width:120px;background:transparent" placeholder="${chosen.length?'Add more…':'Search '+pl('site').toLowerCase()+', '+pl('crew').toLowerCase()+'…'}" value="${open?(S.comboQ||''):''}" oninput="S.comboQ=this.value;S.comboOpen='${rid}';render();const i=document.getElementById('${cq}');i.focus();i.setSelectionRange(i.value.length,i.value.length)">
   <span class="mut">▾</span></div>
- ${S.comboOpen?`<div style="position:absolute;left:0;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,.12);max-height:260px;overflow:auto;z-index:9;padding:4px 0">
-  ${groups.map(t=>{ const g=shown.filter(o=>o.t===t), all=g.every(o=>S.attach[o.id]); return `<div class="row sm" style="justify-content:space-between;padding:6px 12px 2px;color:var(--mut);font-weight:600">${t==='job'?pl('job'):pl(t)}${g.length>1?`<a style="color:var(--blue);font-weight:400" onclick="${g.map(o=>`S.attach['${o.id}']=${!all};`).join('')}render()">${all?'Clear':'All '+g.length}</a>`:''}</div>
-  ${g.map(o=>`<div class="row" style="gap:8px;padding:6px 12px;cursor:pointer;${S.attach[o.id]?'background:var(--blue-l)':''}" onclick="S.attach['${o.id}']=!S.attach['${o.id}'];render()"><span style="width:16px;color:var(--blue)">${S.attach[o.id]?'✓':''}</span><span style="flex:1">${o.name}</span>${o.users?`<span class="sm mut">${o.users} people</span>`:''}</div>`).join('')}`; }).join('')||'<div class="sm mut" style="padding:8px 12px">No matches</div>'}
+ ${open?`<div style="position:absolute;left:0;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,.12);max-height:260px;overflow:auto;z-index:9;padding:4px 0">
+  ${groups.map(t=>{ const g=shown.filter(o=>o.t===t), all=g.every(o=>A[o.id]); return `<div class="row sm" style="justify-content:space-between;padding:6px 12px 2px;color:var(--mut);font-weight:600">${t==='job'?pl('job'):pl(t)}${g.length>1?`<a style="color:var(--blue);font-weight:400" onclick="${g.map(o=>set(o.id,!all)).join('')}render()">${all?'Clear':'All '+g.length}</a>`:''}</div>
+  ${g.map(o=>`<div class="row" style="gap:8px;padding:6px 12px;cursor:pointer;${A[o.id]?'background:var(--blue-l)':''}" onclick="${set(o.id,!A[o.id])}render()"><span style="width:16px;color:var(--blue)">${A[o.id]?'✓':''}</span><span style="flex:1">${o.name}</span>${o.users?`<span class="sm mut">${o.users} people</span>`:''}</div>`).join('')}`; }).join('')||'<div class="sm mut" style="padding:8px 12px">No matches</div>'}
   <div style="border-top:1px solid var(--line);padding:6px 12px;text-align:right"><button class="btn sm" onclick="event.stopPropagation();S.comboOpen=false;S.comboQ='';render()">Done</button></div></div>`:''}
  </div>`; }
 function folderRoutine(fid){ const fo=SRC[S.client].fo.kids.find(x=>x.id===fid); const id='f_'+fid; const pk=S.fpick[fid]||{}; S.custom=S.custom.filter(r=>r.id!==id); S.custom.push({id,name:fo.name,why:'From your '+fo.name+' folder',when:'Set a schedule',per:'Once per place',items:fo.forms.filter(n=>pk[n]!==false).map(n=>({t:'form',n,req:true}))}); if(!S.routines.includes(id)) S.routines.push(id); render(); }
@@ -999,33 +1077,43 @@ function allForms(){ return [...new Set([...(S.newSafety?['Starter · Field Leve
 /* Add an item: type (Form / Task) + search or write + Cancel / Save, like the routine editor in the prototype */
 function keepFocus(id){ render(); const el=document.getElementById(id); if(el){ el.focus(); const v=el.value; try{el.setSelectionRange(v.length,v.length);}catch(e){} } }
 function adOpen(rid){ S.add=S.add||{}; S.add[rid]={type:'form',q:'',pick:null,tm:false}; keepFocus('adq-'+rid); }
-function adSave(rid){ const A=S.add[rid]; const n=A.type==='task'?A.q.trim():A.pick; if(!n) return; (S.added[rid]=S.added[rid]||[]).push({t:A.type,n,req:A.type!=='task'}); S.add[rid]=null; render(); }
+function adSave(rid){ const A=S.add[rid]; const n=A.type==='task'?A.q.trim():A.pick; if(!n) return; if(A.type==='task'&&!taskOk(A)) return; (S.added[rid]=S.added[rid]||[]).push(A.type==='task'?{t:'task',n,req:false,pri:A.pri,desc:A.desc.trim()}:{t:A.type,n,req:true}); S.add[rid]=null; render(); }
 function adderHtml(rid){ const A=(S.add||{})[rid];
  if(!A) return `<div style="margin-top:8px"><button class="btn sec sm" onclick="adOpen('${rid}')"><i class="fa-solid fa-circle-plus"></i> Add item</button></div>`;
- const task=A.type==='task', ready=task?!!A.q.trim():!!A.pick, q=A.q.toLowerCase().trim();
+ const task=A.type==='task', ready=task?taskOk(A):!!A.pick, q=A.q.toLowerCase().trim();
  const have=itemsOf(ROUTINES(S.client).concat(S.custom).find(r=>r.id===rid)||{items:[]}).map(x=>x.n);
  const hits=allForms().filter(n=>!have.includes(n)&&(!q||n.toLowerCase().includes(q))).slice(0,8);
  const tmenu=A.tm?`<div class="admenu">${[['form','Form'],['task','Task']].filter(([k])=>k==='form'||W3()).map(([k,l])=>`<button onclick="S.add['${rid}'].type='${k}';S.add['${rid}'].tm=false;S.add['${rid}'].q='';S.add['${rid}'].pick=null;keepFocus('adq-${rid}')">${ICON[k]}<span>${l}</span>${A.type===k?'<i class="fa-solid fa-check" style="margin-left:auto;color:#0078B3"></i>':''}</button>`).join('')}</div>`:'';
- const field=task?`<input class="adin" id="adq-${rid}" placeholder="Write the task, e.g. Sweep the loading bay" value="${A.q}" maxlength="120" oninput="S.add['${rid}'].q=this.value;keepFocus('adq-${rid}')" onkeydown="if(event.key==='Enter')adSave('${rid}')">`
-  :A.pick?`<div class="adin adpicked"><b>${A.pick}</b><span class="mut">Form</span><button aria-label="Clear" onclick="S.add['${rid}'].pick=null;keepFocus('adq-${rid}')"><i class="fa-solid fa-xmark"></i></button></div>`
+ const field=task?taskFields('adq-'+rid,A,`S.add['${rid}'].q=this.value;keepFocus('adq-${rid}')`,`S.add['${rid}'].pri=this.value;render()`,`S.add['${rid}'].desc=this.value;keepFocus('adq-${rid}-d')`)
+  :A.pick?`<div class="adin adpicked"><span class="adpn" title="${qa(A.pick)}">${A.pick}</span><span class="mut">Form</span><button aria-label="Clear" onclick="S.add['${rid}'].pick=null;keepFocus('adq-${rid}')"><i class="fa-solid fa-xmark"></i></button></div>`
   :`<input class="adin" id="adq-${rid}" placeholder="Search Form" value="${A.q}" autocomplete="off" oninput="S.add['${rid}'].q=this.value;keepFocus('adq-${rid}')">`;
  const sugg=!task&&!A.pick?`<div class="admenu adsug">${hits.map(n=>`<button onclick="S.add['${rid}'].pick=this.dataset.n;render()" data-n="${n}">${ICON.form}<span>${n}</span></button>`).join('')||'<div class="mut sm" style="padding:8px 10px">No forms match. Try another word.</div>'}</div>`:'';
- return `<div class="adrow"><span class="adw"><button class="adtype" onclick="S.add['${rid}'].tm=!S.add['${rid}'].tm;render()">${ICON[A.type]}<span>${task?'Task':'Form'}</span><i class="fa-solid fa-chevron-down" style="font-size:10px"></i></button>${tmenu}</span><span class="adw grow">${field}${sugg}</span><button class="adlink" onclick="S.add['${rid}']=null;render()">Cancel</button><button class="adlink adsave" ${ready?'':'disabled'} onclick="adSave('${rid}')">Save</button></div>
- <div class="sm mut" style="margin-top:4px">${task?'A routine task is always written new here. People get it each time the routine is due.':'<i class="fa-solid fa-circle-info"></i> <b>Optional</b> items show as "Also available": on demand, like an incident form. They never count as missing.'}</div>`; }
+ return `<div class="adrow"><span class="adw"><button class="adtype" onclick="S.add['${rid}'].tm=!S.add['${rid}'].tm;render()">${ICON[A.type]}<span>${task?'Task':'Form'}</span><i class="fa-solid fa-chevron-down" style="font-size:10px"></i></button>${tmenu}</span><span class="adw grow">${field}${sugg}</span><button class="adlink" onclick="S.add['${rid}']=null;render()">Cancel</button><button class="adlink adsave" ${ready?'':'disabled'} ${task&&!ready?`title="Add ${taskMiss(A)}"`:''} onclick="adSave('${rid}')">Save</button></div>
+ <div class="sm mut" style="margin-top:4px">${task?`A routine's task is a <b>template</b>, written once. <b>Who</b> gets it comes from each place's line; it's <b>due</b> at the end of the day it's owed.`:'<i class="fa-solid fa-circle-info"></i> <b>Optional</b> items show as "Also available": on demand, like an incident form. They never count as missing.'}</div>`; }
 function addItem(rid,n){ if(n==='__task'){ n=prompt('Task'); if(!n) return render(); (S.added[rid]=S.added[rid]||[]).push({t:'task',n,req:false}); } else (S.added[rid]=S.added[rid]||[]).push({t:'form',n,req:true}); render(); }
-function scratchRoutine(name){ const id='s_'+Date.now(); S.custom.push({id,name,why:'Built by you',when:'Set a schedule',per:'Once per place',items:[]}); S.routines.push(id); render(); }
+function scratchRoutine(){ const id='s_'+Date.now(); S.custom.push({id,name:'',why:'Built by you',when:'Set a schedule',per:'Once per place',items:[]}); S.routines.push(id); S.rEdit=id; keepFocus('rn-'+id); const el=document.getElementById('rn-'+id); if(el) el.scrollIntoView({block:'center',behavior:'smooth'}); }
 function alsoRoutine(id,name,fm,how){ if(S.routines.includes(id)){ S.routines=S.routines.filter(x=>x!==id); render(); return; } if(!S.custom.some(r=>r.id===id)) S.custom.push({id,name,why:'From your form history',when:how,per:'Once per place',items:[{t:'form',n:fm,req:true}]}); S.routines.push(id); render(); }
+/* Nov 5 (Design): a template routine says so (badge), its name can be changed (pencil), items can be removed, and Reset puts it back to the template */
+const isTpl=r=>!/^(f_|s_|a_)/.test(r.id);
+function rEdited(id){ const p=id+'_'; const anyKey=o=>o&&Object.keys(o).some(x=>x.startsWith(p)); return !!((S.rname&&S.rname[id])||anyKey(S.del)||anyKey(S.name)||anyKey(S.opt)||anyKey(S.tmeta)||(S.added[id]&&S.added[id].length)||S.when[id]||S.nval[id]); }
+function rReset(id){ const p=id+'_'; [S.del,S.name,S.opt,S.tmeta].forEach(o=>o&&Object.keys(o).forEach(x=>{ if(x.startsWith(p)) delete o[x]; })); if(S.rname) delete S.rname[id]; delete S.added[id]; delete S.when[id]; delete S.nval[id]; if(S.edit&&S.edit.k.startsWith(p)) S.edit=null; S.rEdit=null; render(); }
+function rSave(id,v){ v=(v||'').trim(); if(!v&&/^s_/.test(id)) v='Untitled routine'; S.rname=S.rname||{}; const base=ROUTINES_ALL(S.client).find(x=>x.id===id); if(!v||(base&&v===base.name)) delete S.rname[id]; else S.rname[id]=v; S.rEdit=null; render(); }
+function routineHead(r){
+ const name=S.rEdit===r.id?`<input class="adin" id="rn-${r.id}" style="flex:1;height:30px" value="${qa(r.name)}" placeholder="Name it, e.g. End of day" aria-label="Routine name" maxlength="60" onkeydown="if(event.key==='Enter')rSave('${r.id}',this.value);if(event.key==='Escape'){S.rEdit=null;render()}" onblur="rSave('${r.id}',this.value)">`
+  :`<span class="rhn"><b title="${qa(r.name)}">${r.name}</b><button class="btn ghost sm iped" title="Rename" aria-label="Rename ${qa(r.name)}" onclick="S.rEdit='${r.id}';keepFocus('rn-${r.id}')"><i class="fa-solid fa-pen"></i></button></span>`;
+ const tpl=isTpl(r)?`<span class="chip chip-tpl" title="${r.tplName?'From the '+qa(r.tplName)+' template':'From a template'}">Template</span><button class="btn ghost sm rreset" ${rEdited(r.id)?'':'disabled'} title="Back to the template's name and items" onclick="rReset('${r.id}')"><i class="fa-solid fa-rotate-left"></i> Reset</button>`:'';
+ return `<div class="rhd">${name}${tpl}`; }
 function toggleR(id){ S.routines=S.routines.includes(id)?S.routines.filter(x=>x!==id):[...S.routines,id]; render(); }
 function phoneHtml(sel,T){
  const where=(T.find(x=>S.attach[x.id])||{name:jobsOn()&&S.attach.alljobs?'New '+sg('job').toLowerCase():'Your '+sg('site').toLowerCase()}).name;
- const items=[]; sel.forEach(r=>itemsOf(r).forEach((it,j)=>{ if(!it.open) items.push({k:r.id+j,r:r.name,n:it.n,opt:isOpt(r.id,j,it),t:it.t}); }));
+ const items=[]; sel.forEach(r=>itemsOf(r).forEach((it,j)=>{ if(!it.open&&!it.gone) items.push({k:r.id+j,r:r.name,n:it.n,opt:isOpt(r.id,j,it),t:it.t}); }));
  const req=items.filter(i=>!i.opt), done=req.filter(i=>S.phoneDone[i.k]).length;
  return `<div class="phone"><div class="notch"><i></i></div><div class="ph"><div class="sm" style="opacity:.8">Today</div><b>${where}</b></div>${S.client==='wo'?`<div style="padding:8px 12px;border-bottom:1px solid #eee"><div class="sm mut">SAP order number</div><input class="sel" style="width:100%;font-size:13px" placeholder="e.g. 4500128893"></div>`:''}
  <div class="pb">${items.length?`<div class="sm mut">${done} of ${req.length} required done</div><div class="bar g" style="margin:6px 0 8px"><i style="width:${req.length?done/req.length*100:0}%"></i></div>
  ${sel.map(r=>`<div class="sm" style="font-weight:600;margin-top:8px;color:var(--purple)">${r.name}</div>${items.filter(i=>i.r===r.name).map(i=>`<div class="prow" onclick="S.phoneDone['${i.k}']=!S.phoneDone['${i.k}'];render()"><span class="tick ${S.phoneDone[i.k]?'y':''}">${S.phoneDone[i.k]?'✓':''}</span><div style="flex:1;${S.phoneDone[i.k]?'color:var(--mut);text-decoration:line-through':''}">${i.n}${i.opt?' <span class="tag">Optional</span>':''}</div><span class="mut">›</span></div>`).join('')}`).join('')}
  ${req.length&&done===req.length?'<div class="sm" style="color:var(--green);margin-top:10px;text-align:center">✓ All done for today</div>':''}`:'<div class="mut sm" style="text-align:center;margin-top:60px">Pick a routine to see it here.</div>'}</div></div>`;
 }
-function finish(made){ /* built: back to the web prototype's Overview (build.mjs) */ const b=new URLSearchParams(location.search).get('back'); location.href=b&&/^[\w./-]+\.html(#[\w/-]*)?$/.test(b)&&!b.startsWith('/')?b:({"W1":"waves/web-mvp-W1.html","W3":"web-mvp.html","ideal":"../1-ideal/web-ideal.html"})[WAVE]+'#/overview'; }
+function finish(made){ /* built: back to the web prototype's Overview (build.mjs) */ const b=new URLSearchParams(location.search).get('back'); const u=b&&/^[\w./-]+\.html(#[\w/-]*)?$/.test(b)&&!b.startsWith('/')?b:({"W1":"waves/web-mvp-W1.html","W3":"web-mvp.html","ideal":"../1-ideal/web-ideal.html"})[WAVE]+'#/overview'; location.href=u.replace(/(\.html)(#|$)/,'$1?onb=1$2'); /* ?onb=1: Reset there comes back to the start of onboarding (overlay-web.js) */ }
 
 /* ============ FM pages after setup ============ */
 function sideHtml(){ const p=S.fmPage;
@@ -1126,11 +1214,16 @@ function render(){ if(C) TREE=srcTree(S.source);
 }
 $('#client').innerHTML=Object.entries(CLIENTS).map(([k,c])=>`<option value="${k}">${c.type} · ${c.label}</option>`).join('');
 window.addEventListener('resize',placeNavTip);
+document.addEventListener('mousedown',e=>{ if(S.tmenu&&!e.target.closest('.tmw')){ S.tmenu=null; render(); } });
 document.addEventListener('mousedown',e=>{ if(S.comboOpen&&!e.target.closest('#app [style*="position:relative"]')){ S.comboOpen=false; S.comboQ=''; render(); } });
 function obWave(w){ const s=document.getElementById('wave'); if(!s||s.value===w) return; s.value=w; s.onchange(); obVer(); }
 function obVer(){ document.querySelectorAll('#obVer [data-w]').forEach(b=>{ const on=b.dataset.w===WAVE; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); }); }
 { const _r=render; render=function(){ const x=_r.apply(this,arguments); obVer(); return x; }; }
 reset(new URLSearchParams(location.search).get('c')||'crew');S.route='home';render();document.getElementById('wave').value=WAVE; if(LOCKED){ const sel=document.getElementById('wave'); sel.outerHTML='<b>'+sel.options[sel.selectedIndex].text+'</b>'; }
+/* Nov 5: Back on the first step returns to the web Overview it came from (?back=), else app.html (the client copy) */
+function obBack(){ const b=new URLSearchParams(location.search).get('back'); location.href=b&&/^[\w./-]+\.html(#[\w/-]*)?$/.test(b)&&!b.startsWith('/')?b:'app.html#/overview'; }
+/* Nov 5 (Design): ?start=1 (Get started on the empty Overview) opens the setup flow itself, at How your work runs */
+if(new URLSearchParams(location.search).get('start')) go('intro');
 </script>
 <script>/* built: links follow the version (build.mjs) */ (function(){ const L={"W1":["waves/web-mvp-W1.html","waves/mobile-W1.html"],"W3":["web-mvp.html","mobile.html"],"ideal":["../1-ideal/web-ideal.html","../1-ideal/mobile-ideal.html"]}; const put=()=>{ const l=L[WAVE]||L.W1, w=document.getElementById('obWeb'), m=document.getElementById('obMob'); if(w) w.href=l[0]; if(m) m.href=l[1]; }; const _r=render; render=function(){ const r=_r.apply(this,arguments); put(); return r; }; put(); })();</script>
 </body>
