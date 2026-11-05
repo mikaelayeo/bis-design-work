@@ -1,0 +1,1083 @@
+<!doctype html>
+<html lang="en" data-wave="W3">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<title>FM Onboarding · By Wave · W3</title>
+<style>
+:root{--bg:#f4f4f6;--card:#fff;--ink:#19191a;--mut:#5f6168;--line:#d5d6db;--blue:#0078b3;--link:#1a73c8;--blue-l:#e5f2f9;--purple:#433a5c;--green:#4cb944;--green-l:#e8f5e6;--teal:#1597c4;--teal-l:#e2f1f7;--violet:#5b6fb0;--violet-l:#e7eaf4;--amber:#c47a00;--amber-l:#fdf3e1;--red:#c62828;--grey-l:#f0f0f2;--r:6px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 "Segoe UI",system-ui,-apple-system,Arial,sans-serif}
+button{font:inherit;cursor:pointer}
+a{cursor:pointer}
+.proto{background:#19191a;color:#fff;padding:6px 16px;font-size:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.proto .sp{flex:1}.proto a{color:#9cd3f0}
+.proto select{font:inherit;font-size:12px;background:#333;color:#fff;border:1px solid #555;border-radius:3px}
+.top{background:#fff;display:flex;align-items:center;padding:10px 16px;gap:12px;border-bottom:1px solid #eee}
+.bis{font-weight:800;font-size:22px;color:#2b2b3a;letter-spacing:-1px}.bis small{font-weight:400;font-size:10px;letter-spacing:0;display:inline-block;line-height:1.1;border-left:1px solid #999;padding-left:6px;margin-left:6px;vertical-align:middle}
+.top .sp{flex:1}.search{border:1px solid var(--line);border-radius:3px;padding:5px 10px;width:200px;color:#999;font-size:13px}
+nav.main{display:flex;gap:26px;padding:0 16px;overflow-x:auto;white-space:nowrap;background:#fff;border-bottom:1px solid #e3e3e3}
+nav.main a{padding:10px 0;color:var(--ink);border-bottom:2px solid transparent;font-size:15px}
+nav.main a.on{border-color:var(--purple);font-weight:600}
+.new{background:var(--blue);color:#fff;font-size:10px;font-weight:700;border-radius:9px;padding:1px 6px;margin-left:5px;vertical-align:2px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+main{max-width:1100px;margin:0 auto;padding:18px 16px 90px}
+main.wide{max-width:none;padding:0 0 90px}
+main.fm{max-width:none;padding:0;display:grid;grid-template-columns:200px 1fr;min-height:calc(100vh - 120px)}
+@media(max-width:760px){main.fm{grid-template-columns:1fr}.side{display:none}}
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--line);padding:20px}
+h1{font-size:20px;margin:0 0 4px;font-weight:600}h2{font-size:17px;margin:0 0 4px;font-weight:600}h3{font-size:14px;margin:0 0 6px;font-weight:600}
+.mut{color:var(--mut)}.sm{font-size:12px}
+.btn{border:1px solid var(--blue);background:var(--blue);color:#fff;border-radius:4px;padding:7px 14px}
+.btn.sec{background:#fff;color:var(--blue)}.btn.ghost{border-color:transparent;background:none;color:var(--blue);padding:7px 8px}
+.btn.g{background:#5cb85c;border-color:#5cb85c;padding:4px 14px}.btn.b{background:#1aa1d6;border-color:#1aa1d6;padding:4px 14px}
+.btn.sm{padding:3px 10px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+/* home */
+.tools{display:flex;justify-content:flex-end;gap:6px;padding:8px 10px;background:#fff;flex-wrap:wrap}
+.seg2{display:flex;border:1px solid #999}.seg2 span{padding:3px 30px;border-left:1px solid #999;font-size:13px}.seg2 span:first-child{border:0;background:var(--purple);color:#fff}
+.pbar{background:var(--purple);color:#fff;padding:11px 10px;font-size:15px;display:flex;justify-content:space-between}
+table{width:100%;border-collapse:collapse;background:#fff}th{background:#e9e9ec;text-align:left;padding:10px 8px;font-weight:600;font-size:13px}td{padding:9px 8px;border-bottom:1px solid #eee;font-size:13px}
+td a{color:var(--link)}
+.banner{display:flex;gap:14px;align-items:center;background:var(--blue-l);border:1px solid #b9dcee;border-left:4px solid var(--blue);padding:12px 14px;margin:10px;flex-wrap:wrap}
+.ico i,.srcic i{font-size:inherit}
+.ico{width:40px;height:40px;border-radius:8px;background:var(--blue-l);color:var(--blue);display:grid;place-items:center;font-size:20px;flex:none}
+.banner .ico i,.srcic i{font-size:inherit}
+.ico{background:#fff}
+.anchored{position:absolute;z-index:8;width:270px;background:#19191a;color:#fff;border-radius:6px;padding:12px;font-size:12px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.anchored:before{content:"";position:absolute;top:-6px;left:24px;border:6px solid transparent;border-top:0;border-bottom-color:#19191a}
+.anchored button,.tip button{font-size:12px;border-radius:3px;padding:3px 9px;border:1px solid #fff;background:#fff;color:#19191a}.anchored button.x,.tip button.x{background:none;color:#ccc;border-color:#555}
+/* steps */
+.steps{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+.step{border:1px solid var(--line);background:#fff;border-radius:16px;padding:3px 12px 3px 4px;color:var(--mut);display:flex;gap:6px;align-items:center;font-size:13px}
+.step i{font-style:normal;width:20px;height:20px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:11px}
+.step.on{border-color:var(--teal);color:var(--ink)}.step.on i{border-color:var(--teal);color:var(--teal)}
+.step.done i{background:var(--teal);border-color:var(--teal);color:#fff}
+.foot{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 16px;z-index:3}
+.foot .in{max-width:1100px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.saved{font-size:12px;color:var(--mut)}.saved:before{content:"✓ ";color:var(--green)}
+.pic{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;margin:16px 0}
+.lvl{flex:1;min-width:130px;border-radius:var(--r);padding:12px;border:1px solid}
+.lvl b{display:block}.arrow{align-self:center;color:var(--mut)}
+.t-group{background:var(--green-l);border-color:var(--green)}.t-site{background:var(--teal-l);border-color:var(--teal)}
+.t-job{background:var(--violet-l);border-color:var(--violet)}.t-crew{background:var(--amber-l);border-color:var(--amber)}.t-asset{background:#f3eee6;border-color:#a1887f}.t-none{background:var(--grey-l);border-color:var(--line)}
+.map{display:grid;grid-template-columns:auto auto 1fr;gap:6px 10px;align-items:center;margin-top:10px}
+.ai{background:var(--blue-l);border:1px solid #b9dcee;border-radius:var(--r);padding:14px}
+.shape{border:1px solid var(--line);border-radius:var(--r);padding:12px;cursor:pointer;display:flex;gap:10px;align-items:flex-start;background:#fff}
+.shape.on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.box2{width:18px;height:18px;border:1.5px solid #999;border-radius:3px;flex:none;margin-top:2px;display:grid;place-items:center;font-size:12px;color:#fff}
+.on>.box2,.box2.on{background:var(--blue);border-color:var(--blue)}
+.shapes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}@media(max-width:700px){.shapes{grid-template-columns:1fr}}
+.because{font-size:12px;color:var(--teal);margin-top:4px}
+/* AI drawer */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:380px;max-width:100%;background:#fff;border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(0,0,0,.12);z-index:20;display:flex;flex-direction:column}
+.drawer .hd{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.drawer .bd{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#fafafb}
+.drawer .ft{padding:12px 16px;border-top:1px solid var(--line)}
+.msg{max-width:88%;padding:9px 12px;border-radius:12px;font-size:13px}
+.msg.bot{background:#fff;border:1px solid var(--line);border-bottom-left-radius:3px}
+.msg.me{background:var(--blue);color:#fff;align-self:flex-end;border-bottom-right-radius:3px}
+.quick{display:flex;flex-wrap:wrap;gap:6px}.quick button{border:1px solid var(--blue);color:var(--blue);background:#fff;border-radius:14px;padding:4px 10px;font-size:12px}
+.proposal{border:1px solid var(--blue);border-radius:8px;background:#fff;padding:12px}
+/* tree */
+.tree{font-size:13px}
+.node{display:flex;align-items:center;gap:8px;margin:5px 0}
+.box{flex:1;display:flex;align-items:center;gap:8px;border:1px solid;border-radius:3px;padding:6px 8px;min-height:34px}
+.cnt{font-size:11px;background:#fff;border-radius:9px;padding:0 7px;border:1px solid var(--line)}
+.sel{border:1px solid var(--line);border-radius:4px;padding:4px 6px;font:inherit;font-size:12px;background:#fff}
+.sug{font-size:11px;color:var(--blue)}
+.indent{border-left:1px dashed #aab;margin-left:14px;padding-left:14px}
+.chip{font-size:11px;border-radius:10px;padding:1px 8px;border:1px solid;white-space:nowrap}
+.preview .pn{padding:3px 0}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:12px;flex-wrap:wrap}
+.tabs button{border:0;background:none;padding:8px 12px;border-bottom:2px solid transparent;color:var(--mut)}
+.tabs button.on{border-color:var(--blue);color:var(--ink);font-weight:600}
+.sync{display:flex;gap:10px;align-items:flex-start;background:var(--green-l);border:1px solid #bfe3bb;border-radius:var(--r);padding:10px;margin-top:12px}
+.tip{background:#19191a;color:#fff;border-radius:6px;padding:10px 12px;font-size:12px;margin:8px 0 10px;position:relative}
+.tip:before{content:"";position:absolute;top:-6px;left:22px;border:6px solid transparent;border-top:0;border-bottom-color:#19191a}
+/* build places (drag) */
+.brow{display:flex;align-items:center;gap:6px;margin:4px 0;position:relative}
+.brow .box{cursor:grab;background:#fff}
+.brow.drag{opacity:.4}
+.handle{color:#999;cursor:grab;user-select:none;padding:0 2px}
+.dropline{position:absolute;left:0;right:0;bottom:-3px;height:3px;background:var(--blue);border-radius:2px}
+.dropline.child{left:34px}
+.iconbtn{border:1px solid var(--line);background:#fff;border-radius:3px;width:26px;height:26px;padding:0;color:var(--mut)}
+.box input{border:0;background:transparent;font:inherit;flex:1;min-width:60px}
+/* words */
+.wordrow{border-top:1px solid var(--line);padding:12px 0}.wordrow:first-of-type{border-top:0}
+.ideas{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.idea{border:1px solid var(--line);background:#fff;border-radius:14px;padding:3px 11px;font-size:12px}
+.idea.on{background:var(--blue);border-color:var(--blue);color:#fff}
+/* routine */
+.rcard{border:1px solid var(--line);border-radius:var(--r);margin:8px 0;background:#fff}
+.rcard.on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.rcard .rh{padding:10px 12px;display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.rcard .items{border-top:1px solid var(--line);padding:6px 12px 10px 40px}
+.item{display:flex;gap:8px;align-items:center;padding:4px 0;font-size:13px}
+.tag{font-size:10px;border-radius:3px;padding:0 5px;border:1px solid var(--line);color:var(--mut)}
+.attach{display:flex;flex-wrap:wrap;gap:6px}
+.attach label{border:1px solid var(--line);border-radius:14px;padding:3px 10px 3px 6px;font-size:12px;display:flex;gap:5px;align-items:center;cursor:pointer;background:#fff}
+.attach label.on{border-color:var(--blue);background:var(--blue-l)}
+/* phone */
+.phone{width:270px;margin:0 auto;border:10px solid #1d1d20;border-radius:34px;background:#fff;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.phone .notch{height:22px;background:#1d1d20;display:flex;justify-content:center}.phone .notch i{width:80px;height:14px;background:#000;border-radius:0 0 10px 10px}
+.phone .ph{background:var(--purple);color:#fff;padding:10px 12px}
+.phone .pb{padding:10px 12px;min-height:330px;font-size:13px}
+.prow{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #eee;cursor:pointer}
+/* checklist/launcher */
+.check{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.check:first-of-type{border-top:0}
+.tick{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;flex:none}
+.tick.y{background:var(--green);border-color:var(--green);color:#fff}
+.bar{height:6px;background:var(--grey-l);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--blue)}
+.bar.g i{background:var(--green)}
+.empty{text-align:center;padding:28px 16px;border:1px dashed var(--line);border-radius:var(--r);background:#fff}
+.launcher{position:fixed;right:16px;bottom:16px;z-index:7}
+.launcher .pill{background:var(--purple);color:#fff;border-radius:22px;padding:9px 16px;box-shadow:0 4px 14px rgba(0,0,0,.2);display:flex;gap:10px;align-items:center;border:0}
+.launcher .panel{width:330px;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:14px;margin-bottom:8px}
+.ring{width:22px;height:22px;border-radius:50%;background:conic-gradient(#7fd17a calc(var(--p)*1%),rgba(255,255,255,.25) 0);display:grid;place-items:center}
+.ring:after{content:"";width:14px;height:14px;border-radius:50%;background:var(--purple)}
+/* FM pages */
+.side{background:#fff;border-right:1px solid var(--line);padding:14px 10px;font-size:13px}
+.side a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:16px;color:var(--ink)}
+.side a.on{background:var(--blue-l);outline:1px solid var(--teal);font-weight:600}
+.side .sub{padding-left:28px;font-size:12px}
+.side .lab{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin:14px 10px 4px}
+.fmbody{padding:18px 20px 90px;max-width:1080px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:900px){.cards{grid-template-columns:1fr}}
+.lr{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13px;border-top:1px solid #f0f0f0}
+.mini{width:60px;height:5px;background:var(--grey-l);border-radius:3px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:8px}.mini i{display:block;height:100%;background:var(--blue)}
+.daybar{display:inline-flex;border:1px solid var(--line);border-radius:4px;background:#fff;font-size:13px}.daybar span{padding:4px 10px;border-left:1px solid var(--line)}.daybar span:first-child{border:0}
+.hint{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:var(--r);padding:10px 12px;margin-bottom:14px;font-size:13px}
+.note{position:fixed;right:16px;top:40px;width:320px;box-shadow:0 8px 24px rgba(0,0,0,.18);background:#fffbe6;border:1px solid #e8d77a;border-radius:6px;padding:10px 12px;font-size:12px;z-index:6}
+.note b{display:block;margin-bottom:2px}
+.hide{display:none}
+/* ===== Match the FM prototype (v3.3): tokens and components ===== */
+:root{--blue:#0078B3;--link:#0078B3;--line:#DFDFE2;--mut:#636368;--ink:#19191A;--green:#167B00;--red:#CC2222;--amber:#9C6300;--blue-l:#F0F9FE}
+main{max-width:1320px;margin:0 auto;padding:16px 24px 90px}
+.foot .in{max-width:1272px}
+.card{border:1px solid #DFDFE2;border-radius:8px;padding:16px;background:#FEFEFE}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:4px 10px;border-radius:4px;border:1px solid transparent;background:#0078B3;color:#FEFEFE;font-size:15px;font-weight:600;white-space:nowrap}
+.btn:hover{background:#095F8C}
+.btn.sec{background:transparent;border-color:#AFAFB5;color:#636368}.btn.sec:hover{background:#F2F2F2}
+.btn.ghost{background:transparent;border-color:transparent;color:#0078B3;font-weight:400;padding:4px 4px}.btn.ghost:hover{text-decoration:underline;background:transparent}
+.btn.sm{height:26px;padding:4px 8px;font-size:13px}
+.btn:disabled{background:#F2F2F2;color:#AFAFB5;border-color:transparent;opacity:1}
+.chip{border-radius:4px;font-size:12px;font-weight:600;padding:2px 6px}
+.fseg{display:inline-flex;border:1px solid #AFAFB5;border-radius:4px;overflow:hidden;background:#FEFEFE;height:30px;flex:none}
+.fseg button{border:0;background:none;padding:2px 12px;font-size:14px;color:#19191A}
+.fseg button+button{border-left:1px solid #AFAFB5}
+.fseg button[aria-pressed="true"]{background:#F8FEFF;color:#0078B3;font-weight:600;box-shadow:inset 0 -2px 0 #0078B3}
+.fseg.sm{height:24px}.fseg.sm button{font-size:12px;padding:1px 8px}
+.tabs button.on{border-color:#0078B3;color:#0078B3}
+.rowlist{border:1px solid #DFDFE2;border-radius:8px;overflow:hidden;background:#FEFEFE}
+.rowlist>div{display:flex;gap:12px;align-items:center;padding:10px 14px;border-top:1px solid #DFDFE2}
+.rowlist>div:first-child{border-top:0}
+.srcic{width:34px;height:34px;border-radius:8px;background:#F2F2F2;display:grid;place-items:center;font-size:17px;flex:none}
+.find{background:#FEFEFE;border:1px solid #DFDFE2;border-radius:8px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start}
+.find.yes{border-color:#167B00;background:#F6FCEC}.find.no{border-color:#CC2222;background:#FFF6F6}
+.yn{display:flex;gap:4px;margin-left:auto;flex:none}
+.yn button{width:28px;height:28px;border-radius:50%;border:1px solid #AFAFB5;background:#FEFEFE;color:#636368;font-size:13px;padding:0}
+.yn button.y[aria-pressed="true"]{background:#167B00;border-color:#167B00;color:#fff}
+.yn button.n[aria-pressed="true"]{background:#CC2222;border-color:#CC2222;color:#fff}
+.ftree .box{background:#FEFEFE}
+.ftree .box.t-group{background:#EBF8D6;border-color:#4cb944}.ftree .box.t-site{background:#e2f1f7;border-color:#1597c4}.ftree .box.t-job{background:#e7eaf4;border-color:#5b6fb0}.ftree .box.t-crew{background:#fdf3e1;border-color:#c47a00}.ftree .box.t-asset{background:#f3eee6;border-color:#a1887f}
+.phone.small{transform:scale(.82);transform-origin:top center;margin-bottom:-70px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.pill{border:1px solid #AFAFB5;background:#FEFEFE;border-radius:80px;padding:6px 14px;font-size:14px;color:#19191A}
+.pill:hover{background:#F2F2F2}.pill.on{border-color:#009ACB;background:#F0F9FE;color:#0078B3;font-weight:600}
+.chip-rec{background:#F0F9FE;border-color:#C9EFFA;color:#0078B3}
+.phone.small{width:250px}
+.pnode.drag{opacity:.4}
+.selbox{margin:0;opacity:.35}.node:hover .selbox,.selbox:checked{opacity:1}
+.opts{display:flex;flex-direction:column;gap:8px}.opt{display:flex;align-items:center;gap:12px;text-align:left;width:100%;border:1px solid #DFDFE2;background:#fff;border-radius:8px;padding:10px 14px;font:inherit;color:inherit;cursor:pointer}.opt:hover{border-color:#009ACB}.opt.on{border-color:#009ACB;background:#F0F9FE;box-shadow:inset 3px 0 0 #0078B3}.opt small{display:block;color:#6b6b73;font-size:12px;margin-top:2px}.opt>i{color:#0078B3;font-size:18px}
+.v41{--line:#dfdfe2;--line2:#ececef;--blue-d:#005f8f;--blue-l:#f0f9fe;--blue-b:#c9effa;--teal:#1597c4;--teal-l:#e2f1f7;--violet:#5b6fb0;--violet-l:#eceffa;--amber:#b26b00;--amber-l:#fdf3e1;--green:#2e8540;--green-l:#e8f5e6;--mut:#5f6168}
+.v41 h2{font-size:20px;margin:0 0 4px;font-weight:600}.v41 h3{font-size:15px;margin:0;font-weight:600}
+.v41 .prev{position:sticky;top:12px;padding:0;overflow:hidden}.v41 .ph{padding:16px 18px 12px;border-bottom:1px solid var(--line2)}.v41 .pb{padding:14px 18px 16px}
+.v41 .empty{border:1.5px dashed var(--line);border-radius:8px;padding:28px 16px;text-align:center;color:var(--mut)}
+.v41 .tag{margin-left:auto;font-size:11px;border-radius:10px;padding:1px 8px;background:var(--line2);color:var(--mut);white-space:nowrap}
+.v41 .qh{display:flex;align-items:center;gap:10px;margin:24px 0 12px}.v41 .qh .qn{width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}.v41 .qh .qhint{margin-left:auto;font-size:12.5px;color:var(--mut)}.v41 /* Q1 picture cards */
+.places{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:780px){.v41 .places{grid-template-columns:1fr}}.v41 .pc{cursor:pointer;position:relative;text-align:left;border:1px solid var(--line);background:#fff;border-radius:10px;padding:0;overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s}.v41 .pc:hover{border-color:#9ccfe6;box-shadow:0 2px 10px rgba(0,60,100,.07)}.v41 .pc:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.v41 .pc.on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue),0 4px 14px rgba(0,120,179,.12)}.v41 .pc .pic{display:block;background:linear-gradient(180deg,#f6fbfe 0%,#eaf5fb 100%);border-bottom:1px solid var(--line2)}.v41 .pc .pic svg{display:block;width:100%;height:auto}.v41 .pc .body{position:relative;padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}.v41 .pc .tt{font-size:15.5px;font-weight:600;line-height:1.3;padding-right:30px}.v41 .pc .eg{margin-top:auto;padding-top:8px;border-top:1px solid var(--line2);font-size:12px;color:var(--mut)}.v41 .pc .eg b{font-weight:600;color:#3d3e44}.v41 .chk{position:absolute;top:14px;right:14px;width:22px;height:22px;border-radius:5px;border:1.5px solid #b9bac0;background:#fff;display:grid;place-items:center;font-size:12px;color:transparent;transition:all .15s}.v41 .pc.on .chk{background:var(--blue);border-color:var(--blue);color:#fff}.v41 .mix{display:flex;gap:10px;align-items:center;margin-top:12px;background:var(--green-l);border:1px solid #bfe0c2;border-radius:6px;padding:9px 12px;font-size:13px}.v41 .mix i{color:var(--green)}.v41 /* Q2 radio cards */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:780px){.v41 .how{grid-template-columns:1fr}}.v41 .rc{display:flex;gap:12px;align-items:flex-start;text-align:left;border:1px solid var(--line);background:#fff;border-radius:8px;padding:12px 14px;transition:border-color .15s}.v41 .rc:hover{border-color:#9ccfe6}.v41 .rc.on{border-color:var(--blue);background:var(--blue-l);box-shadow:0 0 0 1px var(--blue)}.v41 .rc .ri{width:34px;height:34px;border-radius:8px;background:var(--blue-l);color:var(--blue);display:grid;place-items:center;font-size:15px;flex:none}.v41 .rc.on .ri{background:#fff}.v41 .rc b{display:block;font-size:14px}.v41 .rc small{display:block;color:var(--mut);font-size:12px;margin-top:1px}.v41 .rc .radio{margin-left:auto;width:18px;height:18px;border-radius:50%;border:1.5px solid #b9bac0;flex:none;margin-top:2px;background:#fff}.v41 .rc.on .radio{border:5px solid var(--blue)}.v41 .help{display:flex;gap:8px;align-items:center;margin-top:20px;padding-top:14px;border-top:1px solid var(--line2);font-size:12.5px;color:var(--mut)}.v41 .help a{color:var(--blue);cursor:pointer}.v41 /* Preview */
+.prev{position:sticky;top:12px;padding:0;overflow:hidden}.v41 .prev .ph{padding:16px 18px 12px;border-bottom:1px solid var(--line2)}.v41 .prev .pb{padding:14px 18px 16px}.v41 .empty{border:1.5px dashed var(--line);border-radius:8px;padding:28px 16px;text-align:center;color:var(--mut)}.v41 .tree{position:relative}.v41 .node{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:#fff;position:relative}.v41 .node + .node,.v41 .kids{margin-top:8px}.v41 .node .ni{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;flex:none;font-size:13px}.v41 .node b{font-size:13.5px;display:block}.v41 .node small{display:block;color:var(--mut);font-size:12px;line-height:1.35}.v41 .n-pl .ni{background:var(--teal-l);color:var(--teal)}.v41 .n-wk .ni{background:var(--violet-l);color:var(--violet)}.v41 .n-pp .ni{background:var(--amber-l);color:var(--amber)}.v41 .n-rt .ni{background:var(--blue-l);color:var(--blue)}.v41 .kids{margin-left:15px;padding-left:15px;border-left:2px solid var(--line2)}.v41 .kids .node::before{content:"";position:absolute;left:-17px;top:50%;width:15px;border-top:2px solid var(--line2)}.v41 .tag{margin-left:auto;font-size:11px;border-radius:10px;padding:1px 8px;background:var(--line2);color:var(--mut);white-space:nowrap}.v41 .tag.go{background:var(--violet-l);color:var(--violet)}.v41 .li{display:flex;gap:10px;align-items:center;padding:7px 0;font-size:14px;font-weight:600;position:relative}.v41 .li .ni{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;flex:none;font-size:12.5px}.v41 .li.sub{margin-left:26px}.v41 .li.sub::before{content:"";position:absolute;left:-14px;top:-6px;bottom:50%;border-left:2px solid var(--line2);border-bottom:2px solid var(--line2);width:10px;border-bottom-left-radius:4px}.v41 .li.rt + .li.rt{margin-top:0;border-top:0;padding-top:4px}.v41 .li .tag{font-weight:500}.v41 .li.rt{margin-top:8px;padding-top:12px;border-top:1px solid var(--line2);font-weight:500;color:var(--mut)}.v41 .sep{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#8a8b92;margin:14px 0 6px;font-weight:600}.v41 .pf{display:flex;gap:8px;align-items:flex-start;background:#fafafb;border-top:1px solid var(--line2);padding:11px 18px;font-size:12.5px;color:var(--mut)}.v41 .foot{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 16px}.v41 .foot .in{max-width:1240px;margin:0 auto;display:flex;gap:10px;align-items:center}.v41 .btn{border:1px solid var(--blue);background:var(--blue);color:#fff;border-radius:4px;padding:7px 16px}.v41 .btn.sec{background:#fff;color:var(--blue)}.v41 .btn.ghost{border-color:transparent;background:none;color:var(--blue)}.v41 .saved{font-size:12.5px;color:var(--green)}.v41 .feats{display:grid;grid-template-columns:1fr 18px 1fr 18px 1fr 18px 1fr;gap:8px;align-items:stretch}
+@media(max-width:980px){.v41 .feats{grid-template-columns:1fr 1fr}.v41 .farr{display:none}}.v41 .feat{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;display:flex;flex-direction:column}.v41 .fpic{padding:18px 16px 0}.v41 .fic{width:44px;height:44px;border-radius:10px;background:var(--blue-l);color:var(--blue);display:grid;place-items:center;font-size:19px}.v41 .fb{padding:14px 16px 16px;position:relative}.v41 .fb b{font-size:15px}.v41 .fn{width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;margin-bottom:8px}.v41 .farr{display:grid;place-items:center;color:#b9bac0}.v41 .uses{margin-top:22px;padding:16px 18px;background:#fafafb;border:1px solid var(--line);border-radius:10px}.v41 .uh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:12px}.v41 .uh b{font-size:15px}.v41 .ug{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+@media(max-width:980px){.v41 .ug{grid-template-columns:repeat(2,1fr)}}.v41 .use{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--mut)}.v41 .use b{color:var(--ink);font-size:13.5px}.v41 .ui{color:var(--mut);font-size:15px;margin-bottom:4px}.v41 .layout{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+@media(max-width:1000px){.v41 .layout{grid-template-columns:1fr}}
+
+.v41 .pc .pic{margin:0}
+.adrow{display:flex;align-items:center;gap:8px;margin-top:8px;border:1px solid #DFDFE2;border-radius:8px;padding:8px 10px;background:#fff}
+.adw{position:relative}.adw.grow{flex:1;min-width:0}
+.adtype{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 8px;border:1px solid #AFAFB5;border-radius:4px;background:#fff;font-size:14px}
+.adin{width:100%;height:32px;border:1px solid #009ACB;border-radius:4px;padding:0 10px;font:inherit;font-size:14px;outline:none}
+.adpicked{display:flex;align-items:center;gap:8px;border-color:#AFAFB5}.adpicked button{margin-left:auto;border:0;background:none;color:#5f6168}
+.adlink{border:0;background:none;font-size:14px;padding:4px}.adsave{color:#167b00;font-weight:600}.adlink:disabled{color:#AFAFB5;font-weight:400;cursor:default}
+.admenu{position:absolute;z-index:20;top:calc(100% + 4px);left:0;min-width:160px;background:#fff;border:1px solid #DFDFE2;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.12);padding:4px}
+.admenu.adsug{right:0;max-height:240px;overflow:auto}
+.admenu button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:0;background:none;padding:7px 10px;border-radius:4px;font-size:14px}
+.admenu button:hover{background:#F0F9FE}
+.box.t-unset{background:#fff;border-style:dashed;border-color:#AFAFB5}
+.v41 .pc .pic{background:#f7f8fa}
+.v41 .pc .pic svg{filter:saturate(.3) opacity(.7);transition:filter .2s}
+.v41 .pc:hover .pic svg{filter:saturate(.55) opacity(.85)}
+.v41 .pc.on .pic{background:linear-gradient(180deg,#f6fbfe 0%,#eaf5fb 100%)}
+.v41 .pc.on .pic svg{filter:saturate(.6) opacity(.9)}
+.lvseg{display:inline-flex;border:1px solid #AFAFB5;border-radius:6px;overflow:hidden;margin:12px 0 4px}.lvseg button{border:0;border-right:1px solid #AFAFB5;background:#fff;padding:6px 14px;font-size:13px}.lvseg button:last-child{border-right:0}.lvseg button.on{background:#F0F9FE;color:#0078B3;font-weight:600;box-shadow:inset 0 -2px 0 #0078B3}
+.lvrow{display:flex;gap:10px;align-items:center;margin-top:8px}.lvn{width:58px;font-size:12px;color:#5f6168;flex:none}
+.wqs{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.wq{display:flex;gap:12px;align-items:center;border:1px solid #DFDFE2;border-radius:8px;padding:10px 14px;background:#fff}
+.wq.on{align-items:flex-start;border-color:#009ACB;box-shadow:0 0 0 1px #009ACB;padding:16px}
+.wok{width:34px;height:34px;border-radius:50%;border:1.5px solid #0078B3;background:#fff;color:#0078B3;display:grid;place-items:center;font-size:14px;flex:none;cursor:pointer;margin-left:auto}
+.wok:hover{background:#F0F9FE}
+.wok.on{background:#0078B3;color:#fff;cursor:default;width:26px;height:26px;font-size:12px}
+.wq.done .wn{color:#9a9ba1}
+.wq.locked{color:#9a9ba1;background:#FAFAFA}
+.wn{width:24px;height:24px;border-radius:50%;border:1.5px solid currentColor;display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.wq.on .wn{background:#fff;border-color:#0078B3;color:#0078B3}
+/* BIS chip, default surface (Storybook BisChip): white, grey border, blue text; selected = light blue (#F0F9FE) + a leading check */
+.wq .idea{display:inline-flex;align-items:center;gap:6px;height:28px;padding:4px 6px;border:1px solid #AFAFB5;border-radius:4px;background:#FEFEFE;color:#0078B3;font-size:14px;font-weight:600;box-shadow:none}
+.wq .idea.on{background:#F0F9FE;color:#0078B3;border-color:#AFAFB5}
+.wq .idea i{font-size:12px}
+.wacc{align-self:flex-end;flex:none;margin-left:auto;padding:7px 18px}
+.v41 .hero{max-width:640px;margin:24px auto 0;padding:40px 44px}
+@media(max-width:700px){.v41 .hero{padding:24px}}
+.v41 .hero-pic{display:block}.hero-pic svg{display:block;width:100%;max-width:420px;height:auto;margin:0 auto}
+.v41 .kicker{display:inline-block;background:var(--blue);color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:2px 9px;letter-spacing:.02em}
+.v41 .bul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.v41 .bul li{display:flex;gap:12px;align-items:flex-start;font-size:14px}
+.v41 .bul .bi{width:30px;height:30px;border-radius:8px;background:var(--blue-l);color:var(--blue);display:grid;place-items:center;flex:none;font-size:13px}
+.v41 .bul li span:last-child{padding-top:5px}
+.v41 .btn.big{padding:10px 22px;font-size:15px;font-weight:600;border-radius:6px}
+
+.aifill{display:flex;gap:10px;align-items:center;background:#F0F9FE;border:1px solid #C9EFFA;border-radius:8px;padding:9px 12px;margin-bottom:14px;font-size:13px}.aifill i{color:#0078B3}
+</style>
+</head>
+<body>
+<div class="proto"><b>FM onboarding</b><a href="web-mvp.html" target="_blank" style="color:inherit;margin-left:8px">Web ↗</a><a href="mobile.html" target="_blank" style="color:inherit;margin-left:8px">Mobile ↗</a><span>Version:</span><select id="wave" onchange="WAVE=this.value;reset();S.route='home';render()"><option value="W1">W1 · no AI</option><option value="W3">W3 · + checklist, new to safety</option><option value="ideal">Ideal · with AI</option></select>
+<span>Company: <select id="client" onchange="reset(this.value)"></select></span>
+<select id="variant" style="display:none"><option value="tree">tree</option></select>
+<span>After setup: <select id="day" onchange="S.day=this.value;render()"><option value="1">Day 1</option><option value="7">A week later</option></select></span>
+<span class="sp"></span><a onclick="reset()">Restart</a></div>
+<div class="top"><span class="bis">BIS<small>QAQC TEST<br>ENVIRONMENT</small></span><span class="sp"></span><span id="who"></span><span class="search">Search User</span><span class="mut">?</span><span class="mut">Log Out ›</span></div>
+<nav class="main" id="nav"></nav>
+<main id="app"></main>
+<div class="foot hide" id="foot"><div class="in" id="footIn"></div></div>
+<div class="launcher hide" id="launcher"></div>
+<div id="drawer"></div>
+<div class="note" id="note"></div>
+
+<script>
+/* Versions: W1 = the release-1 setup, no AI (D-018 to D-025, D-039). W3 = W1 + Finish setting up + the new-to-safety path (one of three open options).
+   Ideal = W1 + the AI layer (D-037): pre-filled answers, "Found in your portal", AI Overview in Bring it over, routine suggestions. */
+/* build.mjs sets <html data-wave=...> to make a fixed W1, W3 or ideal file; the source keeps the switch */
+const LOCKED=document.documentElement.dataset.wave;
+let WAVE=LOCKED||new URLSearchParams(location.search).get('wave')||'W1';
+const AI=()=>WAVE==='ideal', W3=()=>WAVE!=='W1';
+/* Live link to Locations: W3 (proposal) and the ideal. W1 imports once, no live link (scope §9). */
+const LIVE=()=>W3();
+/* ============ Test data (swap in a client's real export before each session; keep it local) ============ */
+const CLIENTS={
+ crew:{type:'A',typeName:'Crew on the move',label:'Prairie Paving',line:'Paving and roadwork. Crews start at the yard and move to a new job most weeks.',
+  who:'Dana, safety coordinator. Sets up BIS on her own, between site visits.',
+  day:'A crew\'s hazard assessment opens the day on a site that changes often. The foreman signs. Crews shift around daily.',
+  hangs:'Crew + job',based:'',
+  shape:['projects','crews'],
+  ai:'Looks like you work in divisions, with crews that go out to jobs.',
+  facts:['<b>Your locations are crews</b>, not places: 6 crews under 3 divisions','<b>752 jobs</b> set up as equipment, numbered like 25-516, never archived','Foremen type the job number into each form; that\'s the only link','Your most-used form is the <b>FLHA</b>, about 30 a day'],
+  words:{group:'Division',site:'Yard',job:'Job',crew:'Crew'},
+  forms:['Field Level Hazard Assessment (FLHA)','Foreman Daily Sign-Off','Toolbox Talk','Equipment Pre-Use Check','Traffic Control Plan','Spill Kit Check'],
+  chat:[['I can see 3 divisions and 6 crews in your Locations. How do your crews\' days usually go?',['They start at the yard, then go to a job','They go straight to the job','It depends on the season']],
+        ['How long does a job usually last?',['A day or two','A few weeks','All season']],
+        ['Who checks that the morning paperwork is done?',['The foreman','The division manager','Someone in the office']]],
+  proposal:{shape:['projects','crews'],words:{group:'Division',site:'Yard',job:'Job',crew:'Crew'},lines:['<b>Divisions</b> › <b>Crews</b>, from your Locations','<b>Jobs</b> crews move between, lasting a few weeks','A <b>Start of Day</b> on every job: FLHA, then foreman sign-off']},
+  tree:{id:'root',name:'Prairie Paving',users:164,kids:[
+   {id:'pav',name:'Paving',users:58,guess:'group',kids:[{id:'pA',name:'Paving Crew 1',users:12,guess:'crew'},{id:'pB',name:'Paving Crew 2',users:11,guess:'crew'},{id:'pyd',name:'North Yard',users:35,guess:'site'}]},
+   {id:'cnc',name:'Concrete',users:41,guess:'group',kids:[{id:'cA',name:'Flatwork Crew',users:9,guess:'crew'},{id:'cB',name:'Curb Crew',users:8,guess:'crew'},{id:'cyd',name:'South Yard',users:24,guess:'site'}]},
+   {id:'trk',name:'Trucking',users:33,guess:'group',kids:[{id:'tA',name:'Haul Crew',users:14,guess:'crew'},{id:'tB',name:'Lowbed Crew',users:6,guess:'crew'}]},
+   {id:'off',name:'Office',users:12,guess:'none',why:'office staff, no field work'},
+   {id:'sub',name:'Days off / Waiting for work',users:20,guess:'none',why:'a holding place for people not on a job'}]}},
+ wo:{type:'B',typeName:'Work-order led',label:'Bluebird Field Service',line:'Equipment service and repair. Another system sends out work orders; techs go where the order says.',
+  who:'Sam, HSE lead. The work orders live in SAP, which Sam can\'t change.',
+  day:'A work order comes from another system. A form follows each order. Techs work alone or in pairs.',
+  hangs:'Work order + asset',based:'',
+  shape:['dispatch','equipment'],
+  ai:'Looks like your techs work out of branches, and each work order needs its own forms.',
+  facts:['<b>Your locations are real branches</b>, with your techs in them','<b>Equipment isn\'t switched on</b>; work orders live in SAP','Your <b>FLHA folder</b> holds the forms techs use on each order'],
+  words:{group:'Region',site:'Branch',job:'Work order',crew:'Team'},
+  forms:['Pre-Task Hazard Assessment','Lockout / Tagout','Customer Sign-Off','Vehicle Circle Check','Ladder Inspection','Hot Work Permit'],
+  chat:[['I can see 4 branches and techs who fill in about 40 hazard assessments a day. Where do the work orders come from?',['Another system','We make them in BIS','Phone calls and email']],
+        ['Does each work order need its own forms?',['Yes, every order','Only some kinds of work','Just one per day']],
+        ['Do techs work alone or in teams?',['Mostly alone','In pairs','In teams of 3+']]],
+  proposal:{shape:['dispatch','equipment'],words:{group:'Region',site:'Branch',job:'Work order',crew:'Team'},lines:['<b>Branches</b> with their <b>Teams</b>, from your Locations','<b>Work orders</b> techs start on the phone, with the order number','A hazard assessment on <b>every work order</b>, plus lockout when the equipment needs it']},
+  tree:{id:'root',name:'Bluebird Field Service',users:140,kids:[
+   {id:'cal',name:'Calgary Branch',users:44,guess:'site',kids:[{id:'calT',name:'Calgary Techs',users:36,guess:'crew'}]},
+   {id:'edm',name:'Edmonton Branch',users:41,guess:'site',kids:[{id:'edmT',name:'Edmonton Techs',users:33,guess:'crew'}]},
+   {id:'fmm',name:'Grande Prairie Branch',users:30,guess:'site'},
+   {id:'sk',name:'Saskatoon Branch',users:15,guess:'site'},
+   {id:'adm',name:'Admin',users:10,guess:'none',why:'office staff, no field work'}]}},
+ asset:{type:'C',typeName:'Asset rounds',label:'Ridgeback Rail',line:'Rail yard services. Checks come due on locomotives and stations by hours, use or the calendar.',
+  who:'Jordan, compliance manager. Tracks due dates in a spreadsheet today.',
+  day:'Checks come due on equipment or stations, by hours, use or the calendar. Whoever is on shift does them.',
+  hangs:'Asset',based:'',
+  shape:['equipment','places'],
+  ai:'Looks like your work is organised around equipment at a few yards.',
+  facts:['<b>3 yards</b> in your Locations, with day and night shifts','<b>42 locomotives and 8 stations</b> in Equipment, each with a QR code','Your most-used forms are <b>locomotive inspections</b>, due every 92 days'],
+  words:{group:'Territory',site:'Yard',job:'Work order',crew:'Shift'},
+  forms:['Locomotive Inspection','Station Inspection','Daily Yard Walk','Fall Protection Check','Shift Handover','Spill Kit Check'],
+  chat:[['I can see 3 yards, 42 locomotives and 8 stations. What makes a check come due?',['A set number of days','Hours or use','Both']],
+        ['Who does the checks?',['Whoever is on shift','A set inspector','The crew that uses it']],
+        ['Do you need to see which checks are overdue across all yards?',['Yes, that\'s the main thing','Only per yard','Not really']]],
+  proposal:{shape:['equipment','places'],words:{group:'Territory',site:'Yard',job:'Work order',crew:'Shift'},lines:['<b>Yards</b> from your Locations, with their <b>Equipment</b>','Routines that point at each <b>locomotive</b> and <b>station</b>, due by days or hours','An <b>overdue across all yards</b> view on your Overview']},
+  tree:{id:'root',name:'Ridgeback Rail',users:96,kids:[
+   {id:'w',name:'West Territory',users:52,guess:'group',kids:[{id:'y1',name:'Sarnia Yard',users:28,guess:'site'},{id:'y2',name:'Windsor Yard',users:24,guess:'site'}]},
+   {id:'e',name:'East Territory',users:31,guess:'group',kids:[{id:'y3',name:'Hamilton Yard',users:31,guess:'site',kids:[{id:'ds',name:'Day Shift',users:16,guess:'crew'},{id:'ns',name:'Night Shift',users:15,guess:'crew'}]}]},
+   {id:'adm',name:'Head Office',users:13,guess:'none',why:'office staff, no field work'}]}},
+ place:{type:'D',typeName:'Fixed-place rounds',label:'Northline Services',line:'Engineering and testing. Branches and offices with regular inspections, done by whoever is there.',
+  who:'Alex, regional safety lead. Their Locations already sync from HR twice a day.',
+  day:'Branches, offices or sites have inspections every week or month, done by whoever is there.',
+  hangs:'Place',based:'',
+  shape:['places'],
+  ai:'Looks like you have regions with branches, and inspections at each branch.',
+  facts:['<b>Your offices are set up as equipment</b>, each with pending forms','Your Locations hold <b>3 regions</b>, updated from HR twice a day','Contractors are an equipment category too (a contractor record comes later)','Your most-used forms are the <b>monthly workplace inspection</b> and <b>fire extinguisher check</b>'],
+  words:{group:'Region',site:'Branch',job:'Project',crew:'Team'},
+  forms:['Monthly Workplace Inspection','Fire Extinguisher Check','First Aid Kit Check','Joint Health and Safety Meeting','Vehicle Inspection','Eyewash Station Check'],
+  chat:[['I can see 3 regions and 9 branches, kept up to date from your HR system. Who does the inspections at each branch?',['Whoever is there','A set person per branch','The safety committee']],
+        ['How often are they due?',['Weekly','Monthly','A mix']],
+        ['Do you need to compare branches?',['Yes, a branch score','Only overdue ones','Not really']]],
+  proposal:{shape:['places'],words:{group:'Region',site:'Branch',job:'Project',crew:'Team'},lines:['<b>Regions</b> › <b>Branches</b>, linked to Locations, so your HR updates flow through','A <b>monthly inspection</b> routine at every branch','A <b>branch-by-branch</b> view of what\'s done and overdue']},
+  tree:{id:'root',name:'Northline Services',users:410,kids:[
+   {id:'on',name:'Ontario',users:180,guess:'group'},{id:'qc',name:'Quebec',users:150,guess:'group'},{id:'we',name:'West',users:80,guess:'group'}]}},
+ gate:{type:'E',typeName:'Compliance gate',label:'Kestrel Mining',line:'A mine site with many contractors. The question is who\'s allowed on site, not the daily forms.',
+  who:'Priya, site HSE superintendent. Daily forms are in another system; BIS holds training.',
+  day:'The question is who is allowed on site: their competency, their company and their access. Daily forms live elsewhere.',
+  hangs:'Person / company / role',based:'',
+  shape:['places','office'],
+  ai:'Looks like you mostly use BIS to track who\'s qualified, across one site and many contractor companies.',
+  facts:['<b>Your locations are contractor companies</b>, plus one site with 4 areas','<b>Mostly training records</b>: few daily forms are filled in BIS','Certificates are kept in a folder, outside training records'],peopleOnly:true,
+  words:{group:'Site',site:'Area',job:'Contract',crew:'Company'},
+  forms:['Site Orientation','Confined Space Entry','Contractor Pre-Qualification','Working at Heights','Daily Area Inspection','Visitor Sign-In'],
+  chat:[['I can see one site with 4 areas and 12 contractor companies. What matters most each day?',['Who\'s allowed on site','That forms got done','Both']],
+        ['Who decides if someone can go in?',['Their training and tickets','Their company\'s approval','A gate guard']],
+        ['Should contractor companies be teams here?',['Yes, one team per company','No, just people','Not sure']]],
+  proposal:{shape:['places','office'],words:{group:'Site',site:'Area',job:'Contract',crew:'Company'},lines:['<b>One site</b> with <b>Areas</b>, from your Locations','Each <b>contractor company</b> as a team, with their people\'s training','A <b>who\'s allowed in today</b> check, using your Training Matrix']},
+  tree:{id:'root',name:'Kestrel Mining',users:620,kids:[
+   {id:'site',name:'Kestrel Mine',users:180,guess:'group',kids:[{id:'a1',name:'Mill',users:60,guess:'site'},{id:'a2',name:'Pit',users:70,guess:'site'},{id:'a3',name:'Shops',users:30,guess:'site'},{id:'a4',name:'Camp',users:20,guess:'site'}]},
+   {id:'con',name:'Contractor Companies',users:440,guess:'none',why:'a holder for contractor companies',kids:[{id:'c1',name:'Arctic Electrical',users:120,guess:'crew'},{id:'c2',name:'Deepline Drilling',users:180,guess:'crew'},{id:'c3',name:'Northern Catering',users:140,guess:'crew'}]}]}}
+};
+/* Not every client runs work through Locations. Some use it for training only and live in Equipment or Folders. */
+/* Where work lives in BIS today:
+   Locations rarely mean places, Assets fill the gap, Folders are libraries of on-demand forms. */
+const SRC={
+ crew:{start:'locations',
+  locations:{note:'Your locations are crews, not places'},
+  equipment:{note:'752 jobs set up as equipment, numbered like 25-516, never archived'},
+  folders:{note:'"Safety Forms": on-demand forms people pick when they need them'},
+  eq:{id:'eqr',name:'Equipment',users:0,kids:[{id:'ecproj',name:'Projects · 752 items',users:0,guess:'none',why:'a category: each job is one item, picked on demand',kids:[{id:'j1',name:'25-516 Oakridge Ave',users:0,guess:'job'},{id:'j2',name:'25-531 Riverbend Rd',users:0,guess:'job'},{id:'j3',name:'26-014 Hwy 2 Overlay',users:0,guess:'job'}]},{id:'ectrk',name:'Trucks · 64 items',users:0,guess:'none',why:'a category of equipment',kids:[{id:'t1',name:'Ford F-550 #12',users:0,guess:'asset'},{id:'t2',name:'Kenworth T880 #4',users:0,guess:'asset'}]},{id:'ecpav',name:'Pavers · 22 items',users:0,guess:'none',why:'a category of equipment',kids:[{id:'pv1',name:'Cat AP555 #2',users:0,guess:'asset'}]}]},
+  fo:{id:'for',name:'Folders',users:0,kids:[{id:'fsf',name:'Safety Forms',forms:['Field Level Hazard Assessment (FLHA)','Toolbox Talk','Worksite Inspection','Visitor Sign-In']},{id:'fcp',name:'Competency',forms:['Equipment Operator Competency','Flagger Competency']}]}},
+ wo:{start:'locations',
+  locations:{note:'Your locations are real branches, with your techs in them'},
+  equipment:{note:'Not switched on'},
+  folders:{note:'An FLHA folder and a safety talk folder, used on demand'},
+  eq:{id:'eqr',name:'Equipment',users:0,kids:[]},
+  fo:{id:'for',name:'Folders',users:0,kids:[{id:'fflha',name:'FLHA',forms:['Pre-Task Hazard Assessment','Lockout / Tagout','Customer Sign-Off']},{id:'ftalk',name:'Safety Talks',forms:['Weekly Safety Talk','Observation Card']}]}},
+ asset:{start:'locations',
+  locations:{note:'Your yards, with day and night shifts under them'},
+  equipment:{note:'42 locomotives and 8 stations, with QR codes on each'},
+  folders:{note:'Inspection forms, used on demand'},
+  eq:{id:'eqr',name:'Equipment',users:0,kids:[{id:'ecloco',name:'Locomotives · 42 items',users:0,guess:'none',why:'a category of equipment',kids:[{id:'l1',name:'Loco 4501',users:0,guess:'asset'},{id:'l2',name:'Loco 4502',users:0,guess:'asset'},{id:'l3',name:'Loco 4518',users:0,guess:'asset'}]},{id:'ecsta',name:'Stations · 8 items',users:0,guess:'none',why:'a category of equipment',kids:[{id:'st1',name:'Sarnia Fuel Station',users:0,guess:'asset'},{id:'st2',name:'Hamilton Sand Tower',users:0,guess:'asset'}]},{id:'ectab',name:'Tablets · 30 items',users:0,guess:'none',why:'devices, not checked on a schedule'}]},
+  fo:{id:'for',name:'Folders',users:0,kids:[{id:'finsp',name:'Inspections',forms:['Locomotive Inspection','Station Inspection','Daily Yard Walk']}]}},
+ place:{start:'equipment',
+  locations:{note:'Your regions, synced from HR twice a day'},
+  equipment:{note:'Your offices are set up as an equipment category, each with pending forms'},
+  folders:{note:'On-demand safety forms, and a Certificates folder'},
+  eq:{id:'eqr',name:'Equipment',users:0,kids:[{id:'ecoff',name:'Offices · 4 items',users:0,guess:'none',why:'a category: each office is one item',kids:[{id:'o1',name:'Toronto Office',users:0,guess:'site'},{id:'o2',name:'Ottawa Office',users:0,guess:'site'},{id:'o3',name:'Montreal Office',users:0,guess:'site'},{id:'o4',name:'Calgary Office',users:0,guess:'site'}]},{id:'ecveh',name:'Vehicles · 18 items',users:0,guess:'none',why:'a category of equipment',kids:[{id:'v1',name:'Truck - Toronto - RAM',users:0,guess:'asset'},{id:'v2',name:'Truck - Ottawa - F150',users:0,guess:'asset'}]},{id:'eccon',name:'Contractors · 12 items',users:0,guess:'none',why:'contractor companies: a contractor record comes later'}]},
+  fo:{id:'for',name:'Folders',users:0,kids:[{id:'fos',name:'Safety Forms',forms:['Monthly Workplace Inspection','Fire Extinguisher Check','First Aid Kit Check']},{id:'fcert',name:'Certificates',forms:[]}]}},
+ gate:{start:'locations',
+  locations:{note:'Your locations are contractor companies'},
+  equipment:{note:'Not used'},
+  folders:{note:'A Certificates folder, kept outside training records'},
+  eq:{id:'eqr',name:'Equipment',users:0,kids:[]},
+  fo:{id:'for',name:'Folders',users:0,kids:[{id:'fcert',name:'Certificates',forms:[]},{id:'fori',name:'Orientation',forms:['Site Orientation','Visitor Sign-In']}]}}};
+/* What setup offers to bring over, per company */
+/* What the AI found, as scannable cards: [icon, headline, detail, from] */
+const FOUND={
+ crew:[['<i class="fa-solid fa-helmet-safety"></i>','Your locations are crews','6 crews under 3 divisions, not places','Locations'],['<i class="fa-solid fa-trowel-bricks"></i>','752 jobs, kept as equipment','Numbered like 25-516, never archived','Assets'],['<i class="fa-solid fa-keyboard"></i>','Job numbers typed by hand','The only link between a form and a job','Forms'],['<i class="fa-solid fa-file-lines"></i>','About 30 FLHAs a day','Your most-used form','Forms']],
+ wo:[['<i class="fa-solid fa-location-dot"></i>','4 real branches','Your techs sit in them','Locations'],['<i class="fa-solid fa-ban"></i>','Equipment is off','Work orders live in SAP','Assets'],['<i class="fa-solid fa-folder"></i>','An FLHA folder','Forms techs pick for each order','Folders'],['<i class="fa-solid fa-file-lines"></i>','About 40 hazard assessments a day','Your most-used form','Forms']],
+ asset:[['<i class="fa-solid fa-location-dot"></i>','3 yards, 2 territories','With day and night shifts','Locations'],['<i class="fa-solid fa-train"></i>','42 locomotives, 8 stations','Each with a QR code','Assets'],['<i class="fa-solid fa-stopwatch"></i>','Checks due every 92 days','Locomotive inspection is your top form','Forms']],
+ place:[['<i class="fa-solid fa-building"></i>','Your offices are equipment','4 offices, each with pending forms','Assets'],['<i class="fa-solid fa-rotate"></i>','3 regions, synced from HR','Twice a day','Locations'],['<i class="fa-solid fa-handshake"></i>','Contractors are equipment too','A contractor record comes later','Assets','info'],['<i class="fa-solid fa-file-lines"></i>','Monthly inspections','Your most-used forms','Forms']],
+ gate:[['<i class="fa-solid fa-id-card"></i>','Mostly training records','Few daily forms are filled in BIS','Training'],['<i class="fa-solid fa-industry"></i>','Your locations are contractor companies','Plus one site with 4 areas','Locations'],['<i class="fa-solid fa-folder"></i>','Certificates in a folder','Kept outside training records','Folders']]};
+/* Connections into BIS today: [system, what it feeds, how often] or none */
+const SYNC={
+ crew:{list:[],none:'Crews, jobs and people are kept up to date by hand. What you change in Field Management stays here; nothing in Locations or Assets is changed.'},
+ wo:{list:[],none:'Work orders live in SAP. There\'s no connection yet and no date for one, so techs start each order on their phone and type the SAP order number.'},
+ asset:{list:[['Daily user upload','People','Every night']],none:''},
+ place:{list:[['HR system','Locations and people','Twice a day']],none:'',after:'Field Management only reads from it. It never changes anyone\'s access, location or HR record.'},
+ gate:{list:[],none:'Site access is set by hand in another system. Training expiry dates are not shared with it.'}};
+/* Other forms they fill in, from form history: [form, how often, routine name] */
+const ALSO={
+ crew:[['Toolbox Talk','Weekly, whole crew','Weekly toolbox talk'],['Visitor Sign-In','Whenever someone visits','Visitors'],['Equipment Pre-Use Check','Each time a truck is used','Pre-use checks']],
+ wo:[['Weekly Safety Talk','Weekly, per branch','Weekly safety talk'],['Observation Card','A few a week','Observations'],['Vehicle Circle Check','Daily, per tech','Vehicle checks']],
+ asset:[['Shift Handover','Every shift change','Shift handover'],['Fall Protection Check','Monthly','Monthly fall protection'],['Daily Yard Walk','Daily, per yard','Yard walk']],
+ place:[['Fire Extinguisher Check','Monthly, per branch','Monthly extinguisher check'],['Joint Health and Safety Meeting','Monthly','JHSC meeting'],['First Aid Kit Check','Quarterly','First aid kits']],
+ gate:[['Visitor Sign-In','Daily at the gate','Visitors'],['Daily Area Inspection','Daily, per area','Area inspection']]};
+const BRING={
+ crew:[{id:'b1',from:'Locations',what:'6 locations that are really crews',to:'crew',ids:['pA','pB','cA','cB','tA','tB']},
+       {id:'b2',from:'Locations',what:'3 divisions',to:'site',ids:['pav','cnc','trk']},
+       {id:'b3',from:'Equipment › Projects',what:'752 jobs, one item each (showing 3)',to:'job',ids:['j1','j2','j3'],extra:'Archive jobs with nothing done in the last year (701)',note:'Today workers pick the job when they fill in a form. That still works.'},
+       {id:'b5',from:'Equipment › Trucks, Pavers',what:'86 trucks and pavers',to:'asset',ids:['t1','t2','pv1']},
+       {id:'b4',from:'Locations',what:'2 yards',to:'site',ids:['pyd','cyd']}],
+ wo:[{id:'b1',from:'Locations',what:'4 branches',to:'site',ids:['cal','edm','fmm','sk']},{id:'b2',from:'Locations',what:'2 groups of techs',to:'crew',ids:['calT','edmT']}],
+ asset:[{id:'b1',from:'Locations',what:'3 yards in 2 territories',to:'site',ids:['y1','y2','y3']},{id:'b2',from:'Equipment › Locomotives, Stations',what:'42 locomotives and 8 stations',to:'asset',ids:['l1','l2','l3','st1','st2']},{id:'b3',from:'Locations',what:'Day and night shifts',to:'crew',ids:['ds','ns']}],
+ place:[{id:'b1',from:'Equipment › Offices',what:'4 offices, set up as equipment items',to:'site',ids:['o1','o2','o3','o4']},{id:'b2',from:'Locations',what:'3 regions',to:'site',ids:['on','qc','we']},{id:'b3',from:'Equipment › Vehicles',what:'18 vehicles, named by office',to:'asset',ids:['v1','v2']}],
+ gate:[{id:'b1',from:'Locations',what:'Kestrel Mine and its 4 areas',to:'site',ids:['a1','a2','a3','a4']},{id:'b2',from:'Locations',what:'12 contractor companies (showing 3)',to:'crew',ids:['c1','c2','c3']}]};
+const SRCNAME={locations:'Locations',equipment:'Assets',folders:'Folders'};
+function srcTree(src){ return src==='equipment'?SRC[S.client].eq:C.tree; }
+/* Plain descriptions, so nobody has to "be" a division */
+const DESC={asset:'Equipment that gets checked',group:'A way you group places',site:'A place work happens',job:'Work that comes and goes',crew:'A team',none:'Not for Field Management'};
+/* Word ideas: what clients actually said in the Oct 2026 tests */
+const IDEAS_W1={site:['Site','Facility','Yard'],job:['Job','Project','Work order'],crew:['Crew','Team']};
+const ideasFor=t=>WAVE==='W1'?IDEAS_W1[t]:IDEAS[t].slice(0,6);
+const IDEAS={group:['Region','Division','Branch','Territory','Area','Department','Umbrella'],
+ site:['Site','Yard','Facility','Branch','Location','Shop','Station','Plant','Rig'],
+ job:['Job','Project','Work order','Service call','Ticket','Well','Contract'],
+ crew:['Crew','Team','Group','Shift']};
+/* One question, mapped to workflow types (what the work hangs on) */
+/* Fallback question when the AI guess is wrong. Wording still open for team discussion (see 03b-onboarding-question-check.md). */
+const NEEDS=[
+ ['crew','Each crew or worker did a hazard assessment before starting','Crews or workers who move between jobs',['projects','crews']],
+ ['wo','Each job or work order has its safety forms done','Work that comes in as jobs or work orders',['dispatch','equipment']],
+ ['asset','Which equipment or vehicle checks are due or late','Checks by date, hours or use',['equipment','places']],
+ ['place','Each site or office has its inspections done','Weekly or monthly rounds at your places',['places']],
+ ['gate','Who is trained and allowed on site today','Training, tickets and contractor approval',['places','office']]];
+/* Schedules and counting, from the persona walkthrough (types A, B, C need more than daily / weekly) */
+const WHENS_ALL=['Every working day','Every day','Weekly','Monthly','Quarterly','Every N days','Every N hours of use','N per period','Each work order','Each time equipment is used'];
+const PERS_ALL=['Each person','Once per crew (one form, many signatures)','Once per site or job','Per work order','Per piece of equipment'];
+/* Per version (scope S-ids): W1 schedules S-3.3, W1 counts each person (D-033); W2+ adds monthly and one for the group (S-3.10) */
+const whens=()=>WAVE==='W1'?['Every working day','Every day','Weekly']:WAVE==='W3'?['Every working day','Every day','Weekly','Monthly']:WHENS_ALL;
+const pers=()=>WAVE==='W1'?['Each person']:WAVE==='W3'?['Each person','Once per crew (one form, many signatures)']:PERS_ALL;
+/* Routine items: W1 forms only (S-3.1), tasks W2 (S-3.11), training items never in release 1; W1 has one starter routine (S-3.6) */
+const ROUTINES=k=>{ let R=ROUTINES_ALL(k);
+ if(!AI()) R=R.map(r=>({...r,items:r.items.filter(it=>it.t==='form'||(W3()&&it.t==='task'))})).filter(r=>r.items.length||/^(f_|s_|a_)/.test(r.id));
+ /* Nov 4 (Design): with no AI, a template names the kind of form ("FLHA"), Required / Optional already set; the admin picks their own form for each */
+ if(!AI()) R=R.map(r=>{ const sl=SLOTS[r.id]; if(!sl) return r; let fi=0; return {...r,items:r.items.map(it=>{ if(it.t!=='form') return it; const w=sl[fi++]; return w?{...it,slot:w,n:null}:it; })}; });
+ if(WAVE==='W1'){ const first=(R.find(x=>x.id==='sod')||R.find(x=>!/^(f_|s_|a_)/.test(x.id))||{}).id; R=R.filter(r=>/^(f_|s_|a_)/.test(r.id)||r.id===first); }
+ return R; };
+const SLOTS={sod:['FLHA','Equipment pre-use check'],wk:['Weekly inspection','First aid kit check'],walk:['Site walk'],mon:['Monthly inspection','Fire extinguisher check'],qtr:['First aid kit check','Eyewash station check'],wop:['FLHA','Job hazard analysis','Work order sign-off'],loco:['Locomotive inspection']};
+const ROUTINES_ALL=k=>{const f=CLIENTS[k].forms; const extra=(S&&S.custom)||[];
+ if(S&&S.peopleOnly) return [{id:'req',name:'Site entry requirements',why:'Your most-tracked tickets',when:'Checked every day before work',per:'Each person',items:[{t:'ticket',n:'Site Orientation',req:true},{t:'ticket',n:'Working at Heights',req:true},{t:'ticket',n:'Confined Space Entry',req:false},{t:'form',n:'Contractor Pre-Qualification',req:true}]},...extra];
+ return [...extra,
+ ...(k==='place'?[{id:'mon',name:'Monthly inspection',why:'Your most-used form, filled in monthly',when:'Monthly',per:'Once per site or job',items:[{t:'form',n:f[0],req:true},{t:'form',n:f[1],req:true},{t:'task',n:'Fix anything flagged',req:false}]},{id:'qtr',name:'Quarterly checks',why:'First aid kits and eyewash, every 3 months',when:'Quarterly',per:'Once per site or job',items:[{t:'form',n:f[2],req:true},{t:'form',n:f[5]||f[4],req:true}]}]:[]),
+ ...(k==='asset'?[{id:'loco',name:'Locomotive inspection',why:'Due every 92 days, per locomotive',when:'Every N days',per:'Per piece of equipment',items:[{t:'form',n:f[0],req:true}],every:92}]:[]),
+ ...(k==='wo'?[{id:'wop',name:'Work order safety forms',why:'One set per order, from your FLHA folder',when:'Each work order',per:'Per work order',items:[{t:'form',n:f[0],req:true},{t:'form',n:f[1],req:false},{t:'form',n:f[2],req:true}]}]:[]),
+ {id:'sod',name:'Start of Day',why:'Your 2 most-used morning forms',when:'Every working day, before work starts',per:k==='crew'?'Once per crew (one form, many signatures)':'Each person',items:[{t:'form',n:f[0],req:true},{t:'form',n:f[2]||f[1],req:true},{t:'task',n:'Confirm the area is safe to start',req:false}]},
+ {id:'wk',name:'Weekly checks',why:'Filled in most Mondays',when:'Every Monday',per:'Once per place',items:[{t:'form',n:f[1],req:true},{t:'form',n:f[5]||f[4],req:false}]},
+ {id:'walk',name:'Site walk',why:'Used at most of your places',when:'Every day',per:'Once per place',items:[{t:'form',n:f[3],req:true},{t:'task',n:'Fix anything flagged',req:false}]}];};
+
+/* ============ State ============ */
+let C,TREE,S;
+function fresh(k){ return {route:'home',variant:document.getElementById('variant').value,day:document.getElementById('day').value,client:k,bannerOff:false,remind:false,navTip:true,started:false,finished:false,
+ aiAccepted:null,fok:{},when:{},per:{},nval:{},sel:{},flashI:null,ppl:null,na:{},moved:{},newCrews:[],pdrag:null,pflash:'',crewFrom:'loc',fopen:{},fpick:{},view:AI()?'overview':'detail',opt:{},need:[],custom:[],added:{},rsrc:'sug',peopleOnly:!!CLIENTS[k].peopleOnly,source:SRC[k].start,detail:false,archive:true,shape:[...CLIENTS[k].shape],words:{...CLIENTS[k].words},labels:{},mode:'link',build:[],dragI:null,drop:null,
+ where:{},how:null,levels:1,lvl:['Site'],routines:[],openR:'sod',name:{},edit:null,howMany:null,reqOff:{},attach:{},phoneDone:{},tipShown:true,notes:S?S.notes:true,launcherOpen:false,
+ chat:null,chatStep:0,fmPage:'overview',fmSite:null,hints:{overview:true,site:true,manage:true},
+ checklist:{crews:true,people:false,routine:false,invite:false,app:false}}; }
+function initLabels(n){ /* AI pre-labels from the portal (ideal only) */ if(AI()&&n.guess) S.labels[n.id]=n.guess==='group'?'site':n.guess; (n.kids||[]).forEach(initLabels); }
+function reset(k){ k=k||document.getElementById('client').value; document.getElementById('client').value=k; S=fresh(k); C=CLIENTS[k]; initLabels(C.tree); initLabels(SRC[k].eq); initLabels(SRC[k].fo); TREE=srcTree(S.source);
+ S.flash='';S.build=[{n:'Fort Yard',t:'site',d:0},{n:'Lake Shop',t:'site',d:0},{n:'Bow Yard',t:'site',d:0}];
+ firstSites().slice(0,1).forEach(id=>S.attach[id]=true); render(); window.scrollTo(0,0); }
+const plural=w=>!w?'':/(ch|sh|s|x)$/i.test(w)?w+'es':/[^aeiou]y$/i.test(w)?w.slice(0,-1)+'ies':w+'s';
+const sg=t=>t==='asset'?'Equipment':S.words[t], pl=t=>t==='asset'?'Equipment':plural(S.words[t]);
+const has=s=>S.shape.includes(s);
+const jobsOn=()=>has('projects')||has('dispatch');
+
+/* ============ Design notes ============ */
+const NOTES={};
+
+/* ============ Helpers ============ */
+const $=s=>document.querySelector(s);
+function go(r){ S.route=r; if(r!=='home') S.started=true; render(); window.scrollTo(0,0); }
+function fm(p,site){ S.route='fm'; S.fmPage=p; S.fmSite=site||null; render(); window.scrollTo(0,0); }
+function toggleNotes(){ S.notes=!S.notes; $('#notesBtn').textContent=S.notes?'Hide design notes':'Show design notes'; render(); }
+function navHtml(){ const items=['Home','Profile','Store','Rewards','Purchases','Users','Reporting','Calendar','Equipment','Folders','QR','Field','Admin'];
+ const cur=S.route==='home'?'Home':'Field';
+ const fieldGo=S.finished?"fm('overview')":S.started&&S.route!=='home'&&S.route!=='fm'?"go(S.route)":"go('welcome')";
+ return items.map(i=>`<a class="${i===cur?'on':''}" id="nav-${i}" onclick="${i==='Field'?fieldGo:i==='Home'?"go('home')":''}">${i}${i==='Field'&&!S.started?'<span class="new">New</span>':''}</a>`).join(''); }
+const STEPS=[['how','How your work runs'],['work','Found in your portal'],['words','Your words'],['structure','Bring it over'],['routine','First routine']];
+function stepsHtml(){ const ST=STEPS.filter(s=>s[0]!=='work'||AI()); const i=ST.findIndex(s=>s[0]===S.route);
+ return `<div class="steps">${ST.map((s,k)=>`<span class="step ${k===i?'on':''} ${k<i?'done':''}"><i>${k<i?'✓':k+1}</i>${s[1]}</span>`).join('')}</div>`; }
+function foot(html){ const f=$('#foot'); if(!html){f.classList.add('hide');return;} f.classList.remove('hide'); $('#footIn').innerHTML=html; }
+function setupHead(){ return `<div class="card row" style="padding:14px 20px"><div class="ico"><i class="fa-solid fa-gear"></i></div><div style="flex:1"><h1 style="margin:0">Set up Field Management</h1><div class="mut sm">About 10 minutes. Everything saves as you go, and you can change it later.</div></div><button class="btn ghost" onclick="go('home')">Finish later</button></div>`+stepsHtml(); }
+function find(n,id){ if(n.id===id) return n; for(const k of n.kids||[]){const f=find(k,id); if(f) return f;} return null; }
+function nodesOf(t){ const out=[]; if(S.source==='fresh'){ S.build.forEach((b,i)=>{ if(b.t===t) out.push({id:'b'+i,name:b.n,users:0}); }); return out; }
+ /* the structure can pull from Locations, Equipment and Folders together */
+ [C.tree,SRC[S.client].eq,SRC[S.client].fo].forEach(T0=>(function w(n){ if(S.labels[n.id]===t) out.push(n); (n.kids||[]).forEach(w); })(T0));
+ if(t==='crew') S.newCrews.forEach(c=>out.push(c)); return out; }
+function firstSites(){ return nodesOf('site').map(n=>n.id); }
+function counts(){ const c={group:0,site:0,job:0,crew:0,asset:0}; ['group','site','job','crew','asset'].forEach(t=>c[t]=nodesOf(t).length); return c; }
+function countLine(){ return Object.entries(counts()).filter(([t,v])=>v).map(([t,v])=>v+' '+(v===1?sg(t):pl(t)).toLowerCase()).join(' · '); }
+function parentOf(id){ let p=null; (function w(n,par){ if(n.id===id) p=par; (n.kids||[]).forEach(k=>w(k,n)); })(TREE,null); return p; }
+
+/* ============ Home ============ */
+function home(){
+ foot(null);
+ const rows=[['14290 Slides','2026/07/31','2026/09/21','80%','1.67 hrs','1/7','b'],['Continuous Learning 01','2026/04/16','-','80%','11 Mins','0/1','g'],['WHMIS Full','2026/03/31','2026/07/22','80%','11 Mins','1/1','b'],['Occupational Health And Safety Awareness For Supervisors','2026/03/30','-','100%','60 Mins','0/1','g'],['Safety Knowledge Evaluation (SKE)','2025/12/08','2026/07/21','0%','45 Mins','13/80','b']];
+ const banner=S.bannerOff||S.started?'':`<div class="banner"><div class="ico"><i class="fa-solid fa-helmet-safety"></i></div><div style="flex:1;min-width:220px"><b>New: Field Management.</b> ${C.peopleOnly?'See who\'s trained and allowed on site today, across your contractor companies, using the training you already track. ':''}See which crews are where, what's been done today${W3()?" and who's qualified":''}, using the locations and people you already have.<div class="sm mut">Only admins see this.</div></div>
+  <button class="btn" onclick="go('intro')">Set it up</button><button class="btn ghost" onclick="S.bannerOff=true;S.remind=true;render()">Remind me next week</button><button class="btn ghost" style="color:var(--mut)" onclick="S.bannerOff=true;render()">Not interested</button></div>`;
+ const tip=S.navTip&&!S.started?`<div class="anchored" id="navTip"><b>New: Field Management</b><br>Set up your places and teams from your Locations. About 10 minutes.<div class="row" style="margin-top:8px;gap:6px"><button onclick="go('intro')">Set it up</button><button class="x" onclick="S.navTip=false;render()">Later</button></div></div>`:'';
+ setTimeout(placeNavTip,0);
+ return `${tip}<div class="tools"><button class="btn sm">⊕ Add Course</button><button class="btn sec sm">Request Training</button><div class="seg2"><span>All</span><span>Training</span><span>Forms</span><span>Tasks</span><span>Folders</span></div></div>
+ ${banner}${S.remind?'<div class="sm mut" style="padding:0 12px 8px">OK, we\'ll remind you next week. You can start any time from <b>Field</b> in the menu.</div>':''}
+ <div class="pbar"><span>Assigned</span><span class="sm" style="border:1px solid #fff;padding:2px 8px">Show Asset Forms</span></div>
+ <table><tr><th>Training</th><th>Added</th><th>Started</th><th>Pass Mark</th><th>Estimated Time</th><th>Segment</th><th></th></tr>
+ ${rows.map(r=>`<tr><td><a>${r[0]}</a></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td><td style="text-align:right"><button class="btn ${r[6]}">${r[6]==='b'?'Resume':'Start'}</button></td></tr>`).join('')}</table>`;
+}
+function placeNavTip(){ const t=$('#navTip'),a=$('#nav-Field'); if(!t||!a) return; const r=a.getBoundingClientRect(); t.style.top=(r.bottom+window.scrollY+8)+'px'; t.style.left=Math.max(8,Math.min(r.left-14,window.innerWidth-290))+'px'; }
+
+/* ============ Setup ============ */
+function intro(){ S.route='how'; return how(); }
+function welcome(){ foot(null); S.started=true; return `<div class="v41">${V41.emptyHtml().replace("show('welcome')","go('how')")}</div>`; }
+function introOld(){
+ foot(`<button class="btn sec" onclick="go('welcome')">Back</button><span style="flex:1"></span><button class="btn" onclick="go('how')">Let's go →</button>`);
+ return setupHead()+`<div class="v41">${V41.welcomeHtml()}</div>`;
+}
+/* ===== v4.1: Welcome + How your work runs (from concepts/onboarding-how-work-runs.html) ===== */
+const V41=(function(){
+const B='#0078b3', BM='#9fd2ea', BL='#d6eefa', W='#ffffff', G='#c9ccd3', A='#f2a93b';
+const person=(x,y,c)=>`<circle cx="${x}" cy="${y}" r="6" fill="${c}"/><path d="M${x-9} ${y+20}c0-7 4-11 9-11s9 4 9 11z" fill="${c}"/>`;
+const PIC={
+ fixed:`<svg viewBox="0 0 260 130" aria-hidden="true"><ellipse cx="130" cy="110" rx="100" ry="7" fill="${BL}"/>
+  <rect x="62" y="56" width="64" height="54" rx="3" fill="${BL}"/><path d="M54 59l40-26 40 26z" fill="${B}"/><rect x="86" y="82" width="16" height="28" rx="2" fill="${B}"/>
+  <rect x="140" y="40" width="58" height="70" rx="3" fill="${B}"/>${[0,1,2].map(r=>[0,1].map(c=>`<rect x="${152+c*22}" y="${52+r*17}" width="12" height="9" rx="1.5" fill="${W}"/>`).join('')).join('')}</svg>`,
+ newplace:`<svg viewBox="0 0 260 130" aria-hidden="true"><ellipse cx="130" cy="110" rx="100" ry="7" fill="${BL}"/>
+  <path d="M86 96c32 0 46-30 88-30" fill="none" stroke="${BM}" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round"/>
+  <path d="M60 66c0-11 8-18 17-18s17 7 17 18c0 13-17 30-17 30S60 79 60 66z" fill="${BM}"/><circle cx="77" cy="66" r="6" fill="${W}"/>
+  <path d="M164 50c0-14 10-23 22-23s22 9 22 23c0 17-22 40-22 40s-22-23-22-40z" fill="${B}"/><circle cx="186" cy="50" r="8" fill="${W}"/></svg>`,
+ sent:`<svg viewBox="0 0 260 130" aria-hidden="true"><ellipse cx="130" cy="110" rx="100" ry="7" fill="${BL}"/>
+  <g stroke="${BM}" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round"><path d="M112 62L66 40"/><path d="M148 62l46-22"/><path d="M130 82v14"/></g>
+  <circle cx="130" cy="66" r="18" fill="${B}"/><circle cx="130" cy="66" r="6" fill="${W}"/>
+  <circle cx="58" cy="36" r="10" fill="${BM}"/><circle cx="202" cy="36" r="10" fill="${BM}"/><circle cx="130" cy="104" r="8" fill="${BM}"/></svg>`};
+const WHERE=[
+ ['fixed','The same places every day','People go to the same places, and checks happen there on a schedule.','A plant, an office, a yard, a store, a clinic'],
+ ['newplace','A new place for each piece of work','Each piece of work has its own place, a start and an end. People move on when it\'s done.','A project, a client\'s building, a well, a contract'],
+ ['sent','Wherever they\'re sent','Work comes in and people go to it, sometimes several times a day.','A service call, a work order, a delivery, an emergency']];
+const HOW=[['plan','fa-regular fa-calendar','Planned ahead','We know before it starts'],['both','fa-solid fa-shuffle','Both','Some planned, some come in on the day'],['call','fa-solid fa-phone-volume','As calls or orders','It comes in, and someone goes']];
+function toggleWhere(k){ S.where[k]=!S.where[k]; render(); }
+function setHow(k){ S.how=S.how===k?null:k; render(); }
+function picked(){ return WHERE.filter(w=>S.where[w[0]]).map(w=>w[0]); }
+function qsHtml(){ const p=picked();
+ return `<h2>How does your work run?</h2><p class="mut" style="margin:0">Two quick questions, so setup fits the way you work. There are no wrong answers.</p>
+ <div class="qh"><span class="qn">1</span><h3>Where does the work happen?</h3><span class="qhint">Pick all that fit</span></div>
+ <div class="places" role="group" aria-label="Where does the work happen">${WHERE.map(([k,t,d,eg])=>{ const on=!!S.where[k]; return `<div class="pc ${on?'on':''}" role="checkbox" tabindex="0" aria-checked="${on}" onclick="toggleWhere('${k}')" onkeydown="if(event.key===' '||event.key==='Enter'){event.preventDefault();toggleWhere('${k}')}"><span class="pic">${PIC[k]}</span><span class="body"><span class="chk"><i class="fa-solid fa-check"></i></span><span class="tt">${t}</span><span class="mut sm">${d}</span><span class="eg"><b>Like</b> ${eg}</span></span></div>`; }).join('')}</div>
+ ${p.length>1?`<div class="mix"><i class="fa-solid fa-circle-check"></i><span><b>A mix is normal.</b> Most companies work more than one way, and Field Management handles ${p.length===3?'all three':'both'} side by side.</span></div>`:''}
+ <div class="qh"><span class="qn">2</span><h3>How does work reach your people?</h3><span class="qhint">Pick one</span></div>
+ <div class="how" role="radiogroup" aria-label="How does work reach your people">${HOW.map(([k,ic,t,d])=>`<button class="rc ${S.how===k?'on':''}" role="radio" aria-checked="${S.how===k}" onclick="setHow('${k}')"><span class="ri"><i class="${ic}"></i></span><span><b>${t}</b><small>${d}</small></span><span class="radio"></span></button>`).join('')}</div>
+ <div class="help"><i class="fa-regular fa-circle-question"></i><span>Not sure? <a>Skip this</a> and set things up by hand, or <a>book 30 minutes</a> with our team.</span></div>`; }
+function li(cls,ic,t,tag){ return `<div class="li ${cls}"><span class="ni"><i class="${ic}"></i></span><span style="flex:1">${t}</span>${tag?`<span class="tag">${tag}</span>`:''}</div>`; }
+function prevHtml(){ const w=S.where, any=picked().length, call=S.how==='call'||S.how==='both';
+ const head=`<div class="ph"><h3>Your Field Management</h3><div class="mut sm">You'll name these next.</div></div>`;
+ if(!any&&!S.how) return head+`<div class="pb"><div class="empty sm">Answer on the left to see your setup.</div></div>`;
+ const tag={plan:'Planned ahead',both:'Planned or same day',call:AI()?'Started on the phone':'Comes in as calls'}[S.how];
+ const rows=[]; let work=0;
+ if(w.fixed) rows.push(li('n-pl','fa-solid fa-building','Places <span class="mut" style="font-weight:400;font-size:12px">· up to 3 levels</span>'));
+ const sub=w.fixed?' sub':'';
+ if(w.newplace){ work++; rows.push(li('n-wk'+sub,'fa-solid fa-flag-checkered','Work with a start and end',tag)); }
+ if(w.sent||(!w.newplace&&call)){ work++; rows.push(li('n-wk'+sub,'fa-solid fa-route','Work they’re sent to',tag)); }
+ rows.push(li('n-pp'+sub,'fa-solid fa-user-group','Teams'));
+ const how=S.how&&!work?li('n-rt rt','fa-regular fa-calendar','Work arrives: '+tag.toLowerCase()):'';
+ return head+`<div class="pb">${rows.join('')}<div class="li n-rt rt"><span class="ni"><i class="fa-solid fa-repeat"></i></span>Checks on a schedule</div>${how}</div>`; }
+
+const FEATS=[
+ ['places','fa-solid fa-location-dot','Your places and work','The places that stay, and the work that comes and goes, in one list.'],
+ ['teams','fa-solid fa-user-group','Who\'s working where','Teams and people, and where they are today.'],
+ ['routines','fa-solid fa-repeat','What\'s expected','Forms and checks that come due on a schedule, for each place, piece of work or team.'],
+ ['today','fa-solid fa-chart-simple','What\'s done today','Done, due and missing at a glance, so nobody has to phone around.']];
+const USES=[['fa-solid fa-location-dot','Locations','become your places'],['fa-solid fa-users','Users','become your teams'],['fa-solid fa-file-lines','Forms','go into routines as they are'],['fa-solid fa-truck','Assets','stay put; checks can point at them'],['fa-solid fa-graduation-cap','Training','shows who\'s qualified']];
+function emptyHtml(){
+ return `<div class="card hero">
+  <div class="hero-txt"><span class="kicker">New in BIS</span><h2 style="font-size:26px;margin:8px 0 6px">Welcome to Field Management</h2>
+  <p class="mut" style="margin:0 0 18px;font-size:15px">See that the work in the field gets done, every day.</p>
+  <ul class="bul">${[['fa-solid fa-location-dot','All your places and work in one list'],['fa-solid fa-user-group','Know who’s working where'],['fa-solid fa-repeat','Set the checks that are due, and when'],['fa-solid fa-chart-simple','See what’s done and what’s missing today'],['fa-solid fa-mobile-screen','Your people fill it in on their phone']].map(([ic,t])=>`<li><span class="bi"><i class="${ic}"></i></span><span>${t}</span></li>`).join('')}</ul>
+  <div style="display:flex;gap:14px;align-items:center;margin-top:24px;flex-wrap:wrap"><button class="btn big" onclick="show('welcome')">Get started <i class="fa-solid fa-arrow-right"></i></button><span class="mut sm"><i class="fa-regular fa-clock"></i> About 10 minutes. Nothing in your portal changes.</span></div></div></div>`; }
+function welcomeHtml(){
+ return `<div class="card"><h2>Here's what Field Management does</h2><p class="mut" style="margin:0 0 18px">Four things it helps you with. You.ll name each part in your own words.</p>
+ <div class="feats">${FEATS.map(([k,ic,t,d],i)=>`<div class="feat"><div class="fpic"><span class="fic"><i class="${ic}"></i></span></div><div class="fb"><b>${i+1}. ${t}</b><p class="mut sm" style="margin:4px 0 0">${d}</p></div></div>`).join('<div class="farr"><i class="fa-solid fa-chevron-right"></i></div>')}</div>
+ <div class="uses"><div class="uh"><b>Uses what you already have in BIS</b><span class="mut sm">Nothing is moved or copied by hand.</span></div><div class="ug">${USES.map(([ic,t,d])=>`<div class="use"><span class="ui"><i class="${ic}"></i></span><b>${t}</b><span>${d}</span></div>`).join('')}</div></div></div>`; }
+
+window.toggleWhere=toggleWhere; window.setHow=setHow;
+return {qsHtml,prevHtml,welcomeHtml,emptyHtml,picked};
+})();
+function applyHow(){ S.newSafety=AI()&&S.bisUse==='training'; if(S.newSafety){ S.source='fresh'; } const w=S.where||{}, how=S.how, any=Object.values(w).some(Boolean)||how, call=how==='call'||how==='both';
+ /* No company picker: the answers choose the closest sample portal for Bring it over and routines */
+ const k=!any?S.client:(w.sent||call)?'wo':w.newplace?'crew':w.fixed?'place':S.client;
+ 
+ if(AI()){ S.words={...C.words}; const g=C.tree.kids&&C.tree.kids.some(k=>k.guess==='group'); S.levels=g?2:1; S.lvl=g?[C.words.group,C.words.site]:[C.words.site]; } else { S.words={group:'Region',site:'Site',job:'Job',crew:'Crew'}; S.levels=1; S.lvl=['Site']; } S.wdone={}; S.wopen=null;
+ if(!any){ S.need2=null; return; }
+ S.need2={site:!!w.fixed, job:!!(w.newplace||w.sent||call), crew:true};
+ S.shape=[...new Set([...(w.fixed?['places']:[]),...(w.newplace?['projects']:[]),...(w.sent||call?['dispatch']:[]),'crews'])]; }
+const PREFILL={"crew":{"where":{"fixed":true,"newplace":true},"how":"plan"},"wo":{"where":{"sent":true},"how":"call"},"asset":{"where":{"fixed":true},"how":"plan"},"place":{"where":{"fixed":true},"how":"plan"},"gate":{"where":{"fixed":true},"how":"plan"}};
+/* W3: new to safety in BIS. One of three options still open (evidence/new-to-safety-signal-2026-11-04.md); shown here as option 1 (ask), pre-selected by a rule-based count (option 3) */
+const USES=[['training','Training and tickets only'],['some','Some safety forms'],['most','Most of our safety program']];
+function newSafetyHtml(){ if(S.bisUse==null) S.bisUse=S.client==='gate'?'training':'most';
+ return `<div class="v41" style="margin-top:22px"><div class="qh"><span class="qn">3</span><h3>What do you use BIS for today?</h3><span class="qhint">Pick one</span></div>
+ <div class="how" role="radiogroup">${USES.map(([k,t])=>`<button class="rc ${S.bisUse===k?'on':''}" role="radio" aria-checked="${S.bisUse===k}" onclick="S.bisUse='${k}';render()"><span><b>${t}</b></span><span class="radio"></span></button>`).join('')}</div>
+ <div class="sm mut" style="margin-top:6px"><i class="fa-solid fa-circle-info"></i> Picked from your form history. Change it if it's not right.</div></div>`; }
+function how(){ if(AI()&&!S.prefilled){ const p=PREFILL[S.client]||{where:{},how:null}; S.where={...p.where}; S.how=p.how; S.prefilled=true; }
+ const any=V41.picked().length||S.how;
+ foot(`<button class="btn sec" onclick="location.href='app.html#/overview'">Back</button><span class="saved">Saved</span><span style="flex:1"></span><span class="sm mut">${V41.picked().length&&!S.how?'One more question':''}</span><button class="btn" onclick="applyHow();go(AI()?'work':'words')">${any?'Continue':'Skip for now'}</button>`);
+ return setupHead()+`<div class="v41"><div class="layout"><div class="card">${AI()?'<div class="aifill"><i class="fa-solid fa-wand-magic-sparkles"></i><span><b>We filled this in from your portal.</b> Change anything that isn\'t right.</span></div>':''}${V41.qsHtml()}${AI()?newSafetyHtml():''}</div><div class="card prev">${V41.prevHtml()}</div></div></div>`; }
+
+function work(){
+ const a=S.aiAccepted;
+ foot(`<button class="btn sec" onclick="go('how')">Back</button><span class="saved">Saved</span><span style="flex:1"></span><button class="btn" ${a===null?'disabled':''} onclick="go('words')">Continue</button>`);
+ return setupHead()+`<div class="card">
+ <h2>Here's what we found in your portal</h2><p class="mut">We looked at your Locations, Assets, Folders and the forms you use most. Nothing changes until you say so. <a style="color:var(--blue)" onclick="S.aiAccepted=false;render()">Set up by hand instead</a></p>
+ <div class="ai" style="padding:18px"><div class="row" style="gap:10px"><span class="ico" style="width:40px;height:40px;font-size:20px;background:#fff"><i class="fa-solid fa-wand-magic-sparkles"></i></span><div style="flex:1"><div class="sm mut">Our best guess</div><b style="font-size:17px">${C.ai}</b></div></div>
+ <div class="row" style="margin-top:14px;gap:10px"><b class="sm">Is this right?</b><span class="sm mut">${Object.keys(S.fok).length} of ${FOUND[S.client].filter(x=>x[4]!=='info').length} checked</span></div>
+ <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-top:8px">${syncHtml()}${FOUND[S.client].map(([i,h,d,src],n)=>`<div class="find ${S.fok[n]===true?'yes':S.fok[n]===false?'no':''}"><span style="font-size:22px;line-height:1">${i}</span><div style="flex:1"><b class="sm" style="font-size:13px">${h}</b><div class="sm mut">${d}</div><div class="sm" style="color:var(--blue);margin-top:2px">From ${src}</div></div>${x4(n)?'<span class="chip" title="Nothing to decide yet">For your information</span>':`<div class="yn"><button class="y" title="Right" aria-pressed="${S.fok[n]===true}" onclick="setFok(${n},true)">✓</button><button class="n" title="Not right" aria-pressed="${S.fok[n]===false}" onclick="setFok(${n},false)">✕</button></div>`}</div>`).join('')}</div>
+ <div class="row" style="margin-top:12px"><button class="btn" style="height:40px;padding:6px 18px;font-size:16px" ${allOk()?'disabled':''} onclick="FOUND[S.client].forEach((x,n)=>{ if(x[4]!=='info') S.fok[n]=true; });S.aiAccepted=true;S.shape=[...C.shape];S.need=[];S.peopleOnly=!!C.peopleOnly;render()"><i class="fa-solid fa-check"></i> ${allOk()?'All correct':'Yes, all correct'}</button><span class="sm mut">${allOk()?'Change any card above if you need to.':'Or check each one above.'}</span></div>${C.peopleOnly?`<div class="sm" style="margin-top:8px;background:#fff;border:1px solid #b9dcee;border-radius:4px;padding:6px 8px"><b>So we'll start with who\'s allowed on site</b>, not daily routines. You can add routines any time.</div>`:''}
+ </div>
+ ${a===false?`<div class="ai row" style="margin-top:14px;gap:10px;background:#fff"><span class="ico" style="width:32px;height:32px;font-size:15px"><i class="fa-solid fa-comments"></i></span><div style="flex:1"><b>No problem. We'll go with your answers from step 1.</b><div class="sm mut">Or tell our setup assistant how your work runs. It asks 3 quick questions and suggests a setup.</div></div><button class="btn sec" onclick="openChat()">Describe your work</button></div>`:''}
+ </div>`;
+}
+function toggleNeed(k){ S.need=S.need[0]===k?[]:[k]; S.shape=[...new Set(S.need.flatMap(n=>NEEDS.find(x=>x[0]===n)[3]))]; if(!S.shape.length) S.shape=[...C.shape]; S.peopleOnly=S.need[0]==='gate'; render(); }
+function toggleShape(k){ S.shape=has(k)?S.shape.filter(s=>s!==k):[...S.shape,k]; render(); }
+
+/* --- setup assistant (guided, not an open chat) --- */
+function openChat(){ S.chat=[{b:C.chat[0][0]}]; S.chatStep=0; render(); }
+function reply(txt){ S.chat.push({m:txt}); S.chatStep++; if(S.chatStep<C.chat.length) S.chat.push({b:C.chat[S.chatStep][0]}); else S.chat.push({b:'Thanks, that helps. Here\'s what I\'d set up for you:',proposal:true}); render(); const bd=$('.drawer .bd'); if(bd) bd.scrollTop=bd.scrollHeight; }
+function useProposal(){ const p=C.proposal; S.shape=[...p.shape]; S.words={...p.words}; S.aiAccepted=true; S.chat=null; render(); }
+function drawerHtml(){ if(!S.chat) return '';
+ const last=S.chat[S.chat.length-1]; const p=C.proposal;
+ return `<div class="drawer"><div class="hd"><span class="ico" style="width:32px;height:32px;font-size:15px"><i class="fa-solid fa-wand-magic-sparkles"></i></span><div style="flex:1"><b>Setup assistant</b><div class="sm mut">Helps with setup only · ${Math.min(S.chatStep+1,3)} of 3</div></div><button class="btn ghost" onclick="S.chat=null;render()">✕</button></div>
+ <div class="bd">${S.chat.map(m=>m.m?`<div class="msg me">${m.m}</div>`:`<div class="msg bot">${m.b}</div>${m.proposal?`<div class="proposal"><b class="sm">Suggested setup</b><ul class="sm" style="padding-left:18px;margin:6px 0">${p.lines.map(l=>`<li>${l}</li>`).join('')}</ul><div class="row" style="gap:6px"><button class="btn sm" onclick="useProposal()">Use this</button><button class="btn sec sm" onclick="S.chat=null;render()">Change something</button></div><a class="sm" style="color:var(--blue);display:block;margin-top:8px">Talk to our team instead</a></div>`:''}`).join('')}
+ ${!last.proposal&&last.b?`<div class="quick">${C.chat[S.chatStep][1].map(q=>`<button onclick="reply(this.textContent)">${q}</button>`).join('')}</div>`:''}</div>
+ <div class="ft"><div class="row" style="gap:6px"><input class="sel" style="flex:1;font-size:13px;padding:7px" placeholder="Or type your own answer" onkeydown="if(event.key==='Enter'&&this.value){reply(this.value)}" ${last.proposal?'disabled':''}><button class="btn sm" onclick="const i=this.previousElementSibling;if(i.value)reply(i.value)">Send</button></div>
+ <div class="sm mut" style="margin-top:6px">I can only help with setup. For anything else, contact support.</div></div></div>`;
+}
+
+/* --- Your places --- */
+function fmParent(id){ let p=parentOf(id); while(p&&p.id!=='root'){ const l=S.labels[p.id]; if(l&&l!=='none') return l; p=parentOf(p.id); } return null; }
+/* equipment only comes from Assets; a location can never become equipment */
+let CATSEL=false;
+function selOpts(lab,pt){ return ['site','job','crew','asset','none'].filter(t=>(canSit(t,pt)||t===lab)&&(t!=='asset'||(S.source==='equipment'&&AI()))&&!(S.source==='equipment'&&(CATSEL?!['group','site','none'].includes(t):['crew','group'].includes(t)))).map(t=>`<option value="${t}" ${t===lab?'selected':''}>${DESC[t]}</option>`).join(''); }
+function nodeHtml(n){
+ const unset=!(n.id in S.labels); const lab=S.labels[n.id]||'none'; const kids=n.kids||[]; const pt=fmParent(n.id); const lv=lab==='site'?siteLevel(n.id):0, deep=lv>S.levels; const bad=lab!=='none'&&(!canSit(lab,pt)||deep);
+ const isCat=S.source==='equipment'&&!!n.kids; CATSEL=isCat; const nm=n.name.split(' · ')[0], total=parseInt((n.name.split(' · ')[1]||'0').replace(/[^0-9]/g,''))||0;
+ return `<div class="node"><input type="checkbox" class="selbox" ${S.sel[n.id]?'checked':''} onchange="S.sel['${n.id}']=this.checked;render()"><div class="box t-${unset?'unset':lab}" style="${bad?'outline:2px solid var(--red)':''};${S.sel[n.id]?'box-shadow:0 0 0 2px #0078B3':''}" onclick="if(event.ctrlKey||event.metaKey||event.shiftKey){S.sel['${n.id}']=!S.sel['${n.id}'];render()}">${isCat?'<i class="fa-solid fa-folder-tree" style="color:#AFAFB5"></i>':''}${lab==='site'?`<span class="chip t-site" style="font-size:10px">${lvlName(lv)}</span>`:''}<span style="flex:1">${nm}</span>${isCat?`<span class="chip">Category · ${total} assets</span>`:''}${n.users?`<span class="cnt">${n.users} people</span>`:""}</div>
+ <select class="sel" style="width:200px" onchange="setLabel('${n.id}',this.value)">${unset?'<option value="" selected disabled>Choose…</option>':''}${selOpts(unset?'':lab,pt)}</select></div>
+ ${bad?`<div class="sm" style="color:var(--red);margin:-2px 0 4px 2px">${deep?`Field Management goes up to ${S.levels} level${S.levels>1?'s':''} here. ${S.levels<3?`<a style="color:var(--blue)" onclick="addLevel()">Add a level</a> or pick another type.`:'Pick a higher one or leave it out.'}`:whyNot(lab,pt)+' Pick another type, or leave it out.'}</div>`:''}
+ `
+ +(kids.length?`<div class="indent">${isCat?`<div class="row sm" style="gap:8px;margin:4px 0 6px;background:#F0F9FE;border-radius:6px;padding:6px 8px"><i class="fa-solid fa-layer-group" style="color:#0078B3"></i><span>Make all ${total} assets</span><select class="sel" onchange="if(this.value)setAll('${n.id}',this.value)"><option value="" ${new Set(kids.map(k=>S.labels[k.id]||'none')).size>1?'selected':''}>Mixed: choose…</option>${['job','site','asset','none'].filter(t=>t!=='asset'||AI()).map(t=>`<option value="${t}" ${kids.length&&kids.every(k=>(S.labels[k.id]||'none')===t)?'selected':''}>${t==='none'?'Not for Field Management':pl(t)}</option>`).join('')}</select><span class="mut">and ignore the category? Set the category to Not for Field Management.</span></div>`:''}${kids.map(nodeHtml).join('')}${isCat&&total>kids.length?`<div class="sm mut" style="padding:4px 0 6px 28px">+ ${total-kids.length} more, set the same way</div>`:''}</div>`:'');
+}
+function setAll(cid,v){ const c=find(TREE,cid); (c.kids||[]).forEach(k=>S.labels[k.id]=v); render(); }
+function firstWhy(){ let f=null; (function w(n){ if(!f&&n.why) f=n; (n.kids||[]).forEach(w); })(TREE); return f; }
+function setLabel(id,v){ S.labels[id]=v; const n=find(TREE,id); if(n&&n.kids&&v==='none'&&S.source!=='equipment') (function w(m){ m.kids&&m.kids.forEach(k=>{S.labels[k.id]='none';w(k);}); })(n); render(); }
+function previewHtml(){
+ const box=(l,name,cnt,lab)=>`<div class="node"><div class="box t-${l}"><span class="chip t-${l}" style="font-size:10px">${lab||sg(l)}</span><span style="flex:1">${name||'<span class=mut>Unnamed</span>'}</span>${cnt?`<span class="cnt">${cnt}</span>`:''}</div></div>`;
+ if(S.source==='fresh'){ const B=S.build; return B.length?`<div class="tree ftree">${B.map((b,i)=>`<div style="margin-left:${b.d*22}px">${box(b.t,b.n,0,b.t==='site'?lvlName(bSiteDepth(i)):'')}</div>`).join('')}</div>`:'<div class="mut sm">Nothing yet.</div>'; }
+ /* flat list of what's in FM, each with its natural parent from Locations/Assets */
+ const all=[]; function walk(n,par,src){ const l=S.labels[n.id]; let p=par; if(l&&l!=='none'){ all.push({id:n.id,name:n.name,users:n.users,l,par,src}); p=n.id; } (n.kids||[]).forEach(k=>walk(k,p,src)); }
+ (C.tree.kids||[]).forEach(k=>walk(k,null,'loc')); (SRC[S.client].eq.kids||[]).forEach(k=>walk(k,null,'asset'));
+ S.newCrews.forEach(c=>all.push({id:c.id,name:c.name,users:c.users,l:'crew',par:null,src:'fm'}));
+ const parentOfX=x=>x.id in S.moved?S.moved[x.id]:x.par;
+ const depthX=x=>{ let d=1,p=parentOfX(x); while(p){ const y=all.find(z=>z.id===p); if(!y) break; if(y.l==='site') d++; p=parentOfX(y); } return d; };
+ /* locked = a place synced from Locations; everything FM owns (jobs, crews, equipment, new crews) can move */
+ const movable=x=>!LIVE()||x.src!=='loc'||x.l==='crew';
+ PV=all;
+ const draw=x=>{ const kids=all.filter(y=>parentOfX(y)===x.id); const mv=movable(x);
+  return `<div class="pnode ${S.pdrag===x.id?'drag':''}" draggable="${mv}" ondragstart="event.stopPropagation();S.pdrag='${x.id}'" ondragend="S.pdrag=null" ondragover="event.preventDefault();event.stopPropagation()" ondrop="event.stopPropagation();pDrop('${x.id}')">
+   <div class="node"><div class="box t-${x.l}" style="${mv?'cursor:grab':''}">${mv?'<i class="fa-solid fa-grip-vertical" style="color:#AFAFB5"></i>':'<i class="fa-solid fa-lock" style="color:#AFAFB5;font-size:11px" title="Synced from Locations. Change it there."></i>'}<span class="chip t-${x.l}" style="font-size:10px">${x.l==='site'?lvlName(depthX(x)):sg(x.l)}</span><span style="flex:1">${x.name}</span>${x.users?`<span class="cnt">${x.users} people</span>`:''}${x.id in S.moved?'<i class="fa-solid fa-link" style="color:#0078B3;font-size:11px" title="Linked in Field Management"></i>':''}</div></div>
+   ${kids.length?`<div class="indent">${kids.map(draw).join('')}</div>`:''}</div>`; };
+ const top=all.filter(x=>!parentOfX(x)||!all.some(y=>y.id===parentOfX(x)));
+ return `${S.pflash?`<div class="tip" style="background:var(--red)">${S.pflash}</div>`:''}<div class="tree ftree"><div class="node" ondragover="event.preventDefault()" ondrop="pDrop(null)"><div class="box" style="background:#eee;border-color:#999;font-weight:600"><span style="flex:1">${C.tree.name}</span><span class="cnt">${C.tree.users} people</span></div></div><div class="indent">${top.map(draw).join('')||'<div class="mut sm">Nothing yet.</div>'}</div></div>
+ <div class="sm mut" style="margin-top:8px"><i class="fa-solid fa-grip-vertical"></i> Drag ${pl('job').toLowerCase()} and ${pl('crew').toLowerCase()} onto a place${AI()?`, and equipment onto the ${sg('site').toLowerCase()} or ${sg('job').toLowerCase()} it's at today`:''}. ${LIVE()?'<i class="fa-solid fa-lock"></i> Places synced from Locations move there.':''}</div>`; }
+let PV=[];
+function pDrop(target){ const id=S.pdrag; S.pdrag=null; if(!id||id===target) return;
+ const x=PV.find(y=>y.id===id), t=target&&PV.find(y=>y.id===target);
+ /* no dropping into its own children */
+ let p=target; while(p){ if(p===id) return; const n=PV.find(y=>y.id===p); p=n&&(n.id in S.moved?S.moved[n.id]:n.par); }
+ if(t?!canSit(x.l,t.l):!canSit(x.l,null)){ S.pflash=whyNot(x.l,t?t.l:null); render(); return; }
+ S.moved[id]=target; S.pflash=''; render(); }
+
+function countSrc(x){ let n=0; (function w(m){ (m.kids||[]).forEach(k=>{ n++; w(k); }); })(x==='equipment'?SRC[S.client].eq:C.tree); return n; }
+function selIds(){ return Object.keys(S.sel).filter(k=>S.sel[k]); }
+function bulkSet(v){ selIds().forEach(id=>S.labels[id]=v); S.sel={}; render(); }
+function structure(){
+ foot(`<button class="btn sec" onclick="go('words')">Back</button><span class="saved">Saved</span><span style="flex:1"></span><span class="sm mut">${countLine()}</span><button class="btn" onclick="go('routine')">Continue</button>`);
+ const link=S.source!=='fresh';
+ const rec=SRC[S.client].start;
+ S.detail=S.view==='detail';
+ const tabs=`<div class="tabs"><button class="${link?'on':''}" onclick="S.source=S.lastSrc||'locations';render()">From your portal</button><button class="${!link?'on':''}" onclick="if(S.source!=='fresh')S.lastSrc=S.source;S.source='fresh';render()">Start fresh</button></div>
+ ${link?`<div class="row" style="margin:-2px 0 14px;gap:10px">${AI()?`<div class="fseg"><button aria-pressed="${S.view==='overview'}" onclick="S.view='overview';render()"><i class="fa-solid fa-wand-magic-sparkles"></i> Overview</button><button aria-pressed="${S.view==='detail'}" onclick="S.view='detail';render()">Detailed</button></div>`:''}${S.view==='detail'?`<div class="pills" style="margin:0">${['locations','equipment'].map(x=>`<button class="pill ${S.source===x?'on':''}" onclick="S.source='${x}';S.sel={};render()"><i class="fa-solid fa-${x==='locations'?'sitemap':'truck'}"></i> ${SRCNAME[x]} <span class="chip" style="margin-left:4px">${countSrc(x)}</span></button>`).join('')}</div>`:''}</div>`:'<div class="sm mut" style="margin:-2px 0 12px">Build it here. Not linked to Locations or Assets.</div>'}`;
+ const jobsNote=has('dispatch')&&AI()?`<div class="sync" style="background:var(--violet-l);border-color:#c9cfe6"><span style="font-size:18px"><i class="fa-solid fa-bolt"></i></span><div class="sm"><b>${pl('job')} are added on the go</b><br>Your ${pl('crew').toLowerCase()} start a ${sg('job').toLowerCase()} from their phone when they arrive. No address or setup needed here.</div></div>`:
+  has('mobile')?`<div class="sync" style="background:var(--violet-l);border-color:#c9cfe6"><span style="font-size:18px"><i class="fa-solid fa-right-left"></i></span><div class="sm"><b>Your ${pl('site').toLowerCase()} move</b><br>Their address is optional and can be updated from the phone when they move.</div></div>`:'';
+ let left;
+ if(S.source!=='fresh'&&S.view==='overview') left=bringHtml();
+ else if(!link) left=buildHtml();
+ else left=`<h2>${S.source==='locations'?'Your Locations':'Your Assets'}</h2><p class="mut" style="margin:0 0 12px">Choose what each one is, in the menu on the right.</p>
+  ${selIds().length?`<div class="row" style="position:sticky;top:0;z-index:5;background:#0078B3;color:#fff;border-radius:8px;padding:8px 12px;margin-bottom:10px;gap:10px"><b>${selIds().length} selected</b><span>Set as</span><select class="sel" onchange="if(this.value)bulkSet(this.value)"><option value="">Choose a type…</option>${['site','job','crew','asset','none'].filter(t=>S.source==='equipment'?!['group','crew'].includes(t):t!=='asset').map(t=>`<option value="${t}">${t==='none'?'Not for Field Management':sg(t)+' · '+DESC[t]}</option>`).join('')}</select><span style="flex:1"></span><a style="color:#fff" onclick="S.sel={};render()">Clear</a></div>`:''}
+  ${S.source==='locations'?`<div class="tree"><div class="node"><div class="box" style="background:#eee;border-color:#999;font-weight:600"><span style="flex:1">${TREE.name}</span>${TREE.users?`<span class="cnt">${TREE.users} people</span>`:""}</div></div>
+  <div class="indent">${TREE.kids.map(nodeHtml).join('')}</div></div>`:`<div class="tree">${(TREE.kids||[]).map(nodeHtml).join('')||'<div class="mut sm">Assets isn\'t used in this portal.</div>'}</div>`}
+  <p class="sm mut" style="margin-top:12px">${LIVE()?`To move things around, change them in <a style="color:var(--blue)">${SRCNAME[S.source]}</a>. Field Management follows.`:'This is a one-time copy. After setup, you change things in Field Management.'}</p>`;
+ return setupHead()+`<div class="grid2"><div class="card">${S.newSafety&&S.source==='fresh'?'<div class="aifill"><i class="fa-solid fa-seedling"></i><span><b>Your Locations aren\'t set up for field work yet</b>, so we started you here. Build your places, or switch to From your portal.</span></div>':''}${tabs}${left}</div>
+ <div class="card"><h3>Your Field Management</h3><p class="mut sm" style="margin-top:0">How it fits together, in your words.</p>
+ <div class="preview sm">${previewHtml()}</div>${jobsNote}
+ ${link&&!LIVE()?`<div class="sync"><span style="font-size:18px"><i class="fa-solid fa-file-import"></i></span><div class="sm"><b>Copied once from Locations and Assets</b><br>Names and people come over now. Later changes in Locations or Assets don't show here; you change things in Field Management.</div></div>`:link?`<div class="sync"><span style="font-size:18px"><i class="fa-solid fa-rotate"></i></span><div class="sm"><b>Stays in sync with Locations and Assets</b><br>Rename, move or add something there, and Field Management follows. ${AI()?'People who move in Locations move here too'+(SYNC[S.client].list.length?', including changes from your '+SYNC[S.client].list[0][0]:'')+'.':''}</div></div>`:`<div class="sync" style="background:var(--amber-l);border-color:#ecd3a3"><span style="font-size:18px">!</span><div class="sm"><b>Not linked to Locations</b><br>Changes in Locations won't show here. You can link it later.</div></div>`}
+ <details class="sm" style="margin-top:10px"><summary style="cursor:pointer;color:var(--blue)">Need help deciding?</summary><p class="mut">Book 30 minutes with our team and we'll set it up with you.</p></details></div></div>`;
+}
+function x4(n){ return FOUND[S.client][n][4]==='info'; }
+function allOk(){ return FOUND[S.client].every((x,n)=>x[4]==='info'||S.fok[n]===true); }
+function setFok(n,v){ S.fok[n]=v; const vals=Object.values(S.fok); if(vals.includes(false)) S.aiAccepted=false; else if(allOk()){ S.aiAccepted=true; S.shape=[...C.shape]; S.need=[]; S.peopleOnly=!!C.peopleOnly; } else S.aiAccepted=null; render(); }
+function syncHtml(){ const x=SYNC[S.client];
+ return `<div style="grid-column:1/-1;display:flex;gap:10px;align-items:center;background:${x.list.length?'var(--green-l)':'#fff'};border:1px solid ${x.list.length?'#bfe3bb':'var(--line)'};border-radius:10px;padding:10px 12px"><span style="font-size:22px">${x.list.length?'<i class="fa-solid fa-rotate"></i>':'<i class="fa-solid fa-hand"></i>'}</span><div class="sm" style="flex:1">${x.list.length?x.list.map(([a,b,c])=>`<b>Connected: ${a}</b> keeps your ${b.toLowerCase()} up to date (${c.toLowerCase()}). Field Management will follow it automatically.`).join('<br>')+(x.after?' '+x.after:''):`<b>No connections found.</b> ${x.none}`}</div>${x.list.length?'':'<a class="sm" style="color:var(--blue);white-space:nowrap">Ask about connecting</a>'}</div>`; }
+function bringHtml(){ const B=BRING[S.client]; const ic={Locations:'<i class="fa-solid fa-location-dot"></i>',Equipment:'<i class="fa-solid fa-truck"></i>',Assets:'<i class="fa-solid fa-truck"></i>'};
+ return `<h2><i class="fa-solid fa-wand-magic-sparkles" style="color:#0078B3;font-size:16px"></i> Bring these over</h2><p class="mut" style="margin-top:0">You've already set up a lot of this in BIS, sometimes in places built for something else. Your originals stay where they are.</p>
+ <div class="rowlist">${B.filter(b=>b.to!=='asset').concat(eqRows()).map(b=>{ const on=b.ids.length>0&&b.ids.every(id=>S.labels[id]===b.to); const na=S.na[b.id]||(!b.ids.length&&S.na[b.id]!==false); const src=b.from.split(' ')[0]; return `<div style="${on?'':'background:#FAFAFA'};${na?'opacity:.55':''}">
+  <span class="srcic">${ic[src]||'<i class="fa-solid fa-folder"></i>'}</span>
+  <div style="flex:1;min-width:0"><b style="${na?'text-decoration:line-through':''}">${b.what}</b>${na?' <span class="chip">Doesn\'t apply</span>':''}<div class="sm mut">From ${b.from.replace('Equipment','Assets')}${b.note?' · '+b.note:''}</div>
+  ${b.extra&&on?`<label class="sm row" style="gap:6px;margin-top:4px"><input type="checkbox" ${S.archive?'checked':''} onchange="S.archive=this.checked">${b.extra}</label>`:''}</div>
+  <span class="mut">→</span><span class="chip t-${b.to}" style="min-width:70px;text-align:center">${pl(b.to)}</span>
+  <div class="fseg"><button aria-pressed="${on}" onclick="bring('${b.id}',true)">Bring over</button><button aria-pressed="${!on&&!na}" onclick="bring('${b.id}',false)">Not now</button><button aria-pressed="${!!na}" title="This isn't right for us" onclick="bring('${b.id}','na')">Doesn't apply</button></div></div>`; }).join('')}</div>`; }
+function crewsHtml(){
+ const opts={loc:['By location','Everyone in a location, e.g. Calgary Yard'],title:['By job title','e.g. all foremen and labourers'],form:['From a recent sign-in','The names on yesterday\'s '+(C.forms[0]||'form')],file:['From a file','Crew name and people, one row each']};
+ return `<div style="margin-top:22px"><div class="row" style="gap:8px"><h2 style="margin:0">${pl('crew')}</h2><span class="chip">${nodesOf('crew').length}</span></div>
+ <p class="mut" style="margin:4px 0 10px">A ${sg('crew').toLowerCase()} is just a group of people. It can work at a ${sg('site').toLowerCase()}, on a ${sg('job').toLowerCase()}, or on its own, and it can change any day. Drag it onto a place on the right whenever you like.</p>
+ <div class="rowlist"><div style="flex-wrap:wrap">
+  <span class="srcic"><i class="fa-solid fa-users"></i></span>
+  <div style="flex:1;min-width:220px"><b>Make a ${sg('crew').toLowerCase()} from a group of people</b><div class="pills" style="margin-top:6px">${Object.entries(opts).map(([k,[t]])=>`<button class="pill ${S.crewFrom===k?'on':''}" onclick="S.crewFrom='${k}';render()">${t}</button>`).join('')}</div><div class="sm mut" style="margin-top:4px">${opts[S.crewFrom][1]}</div></div>
+  <input class="sel" id="crewName" style="width:170px;font-size:14px;padding:6px" placeholder="${sg('crew')} name"><button class="btn sm" onclick="addCrew()">+ Add ${sg('crew').toLowerCase()}</button></div>
+ ${S.newCrews.map(c=>`<div><span class="srcic"><i class="fa-solid fa-helmet-safety"></i></span><div style="flex:1"><b>${c.name}</b><div class="sm mut">${c.users} people · ${c.how}</div></div><span class="sm mut">${S.moved[c.id]?'At '+(PV.find(y=>y.id===S.moved[c.id])||{name:'a place'}).name:'Needs a place: drag it onto a '+sg('site').toLowerCase()+' or '+sg('job').toLowerCase()}</span><button class="btn ghost sm" onclick="S.newCrews=S.newCrews.filter(x=>x.id!=='${c.id}');render()"><i class="fa-solid fa-xmark"></i></button></div>`).join('')}</div>
+ <div class="sm mut" style="margin-top:6px">Crews that change every day? Foremen can pick today's crew on their phone. Nothing to set up here.</div></div>`; }
+function addCrew(){ const nm=(document.getElementById('crewName')||{}).value||(sg('crew')+' '+(S.newCrews.length+1)); const how={loc:'from a location',title:'by job title',form:'from a recent sign-in',file:'from a file'}[S.crewFrom]; S.newCrews.push({id:'nc'+Date.now(),name:nm,users:[6,8,5,7][S.newCrews.length%4],how}); render(); }
+function equipHtml(){ const cats=(SRC[S.client].eq.kids||[]).filter(c=>c.kids&&!c.kids.some(k=>['job','site'].includes(S.labels[k.id])));
+ const other=(SRC[S.client].eq.kids||[]).filter(c=>!c.kids);
+ if(!cats.length&&!other.length) return '';
+ return `<div style="margin-top:22px"><h2 style="margin:0">Equipment</h2><p class="mut" style="margin:4px 0 10px">Things that get checked: vehicles, machines, stations. They stay in Assets with their own hours and mileage schedules. Field Management shows what's due, at the ${sg('site').toLowerCase()} or ${sg('job').toLowerCase()} they're at today.</p>
+ <div class="rowlist">${cats.map(c=>{ const on=c.kids.every(k=>S.labels[k.id]==='asset'); return `<div><input type="checkbox" ${on?'checked':''} onchange="(SRC[S.client].eq.kids.find(x=>x.id==='${c.id}').kids||[]).forEach(k=>S.labels[k.id]=this.checked?'asset':'none');render()"><span class="srcic"><i class="fa-solid fa-truck"></i></span><div style="flex:1"><b>${c.name.split(' · ')[0]}</b><div class="sm mut">${c.name.split(' · ')[1]||''} · e.g. ${c.kids.map(k=>k.name).slice(0,2).join(', ')}</div></div>${on?'<span class="chip chip-rec">Checked by routines</span>':''}</div>`; }).join('')}
+ ${other.map(c=>`<div style="opacity:.6"><input type="checkbox" disabled><span class="srcic"><i class="fa-solid fa-laptop"></i></span><div style="flex:1"><b>${c.name.split(' · ')[0]}</b><div class="sm mut">${c.name.split(' · ')[1]||''} · ${c.why||'not checked on a schedule'}</div></div><a class="sm" style="color:var(--blue)">Include anyway</a></div>`).join('')}</div>
+ <div class="sm mut" style="margin-top:6px">Drag a piece of equipment onto a ${sg('site').toLowerCase()} or ${sg('job').toLowerCase()} on the right to say where it is today. It can move.</div></div>`; }
+/* equipment categories as bring-over rows: Assets › category → Equipment that gets checked */
+function eqRows(){ return (SRC[S.client].eq.kids||[]).filter(c=>!c.kids||!c.kids.some(k=>['job','site'].includes(S.labels[k.id]))).map(c=>({id:'eq_'+c.id,from:'Assets › '+c.name.split(' · ')[0],what:c.name.split(' · ')[0]+(c.name.split(' · ')[1]?' ('+c.name.split(' · ')[1]+')':''),to:'asset',ids:(c.kids||[]).map(k=>k.id),note:c.kids?'Stays in Assets with its own hours and mileage schedules':(c.why||'Not checked on a schedule')})); }
+function bring(id,yes){ const b=BRING[S.client].concat(eqRows()).find(x=>x.id===id); b.ids.forEach(i=>S.labels[i]=yes===true?b.to:'none'); S.na[id]=yes==='na'; render(); }
+function listHtml(){
+ const groups={group:[],site:[],crew:[],none:[]}; (function w(n){ const l=S.labels[n.id]; if(l&&groups[l]) groups[l].push(n); (n.kids||[]).forEach(w); })(TREE);
+ return `<h2>Here's what we'd set up</h2><p class="mut" style="margin-top:0">Taken from your Locations. Untick anything that doesn't belong.</p>
+ ${['group','site','crew','none'].filter(t=>groups[t].length).map(t=>`<h3 style="margin-top:14px">${DESC[t]} <span class="mut" style="font-weight:400">(${groups[t].length})</span></h3>
+ ${groups[t].map(n=>`<label class="row sm" style="gap:8px;padding:4px 0"><input type="checkbox" ${t!=='none'?'checked':''} onchange="setLabel('${n.id}',this.checked?'${t==='none'?'site':t}':'none')">${n.name}<span class="mut">· ${n.users} people${parentOf(n.id)&&parentOf(n.id).id!=='root'?' · under '+parentOf(n.id).name:''}</span>${n.why?`<span class="sug">${n.why}</span>`:''}</label>`).join('')}`).join('')}`;
+}
+/* Start fresh: drag to nest, or arrows */
+function buildHtml(){
+ const B=S.build;
+ return `<h2>Build your places</h2><p class="mut" style="margin-top:0">Drag a row onto another to put it underneath, or use the arrows. Then add people to each ${sg('site').toLowerCase()}, ${sg('job').toLowerCase()} or ${sg('crew').toLowerCase()}.</p>
+ <div class="sm mut" style="margin:-4px 0 10px">Places can sit inside places, up to ${S.levels} level${S.levels>1?'s':''} (${S.lvl.join(' › ')}). ${pl('job')} sit at a place; ${pl('crew').toLowerCase()} are the lowest.</div>
+
+ ${B.length?`<div id="build">${B.map((b,i)=>`<div class="brow ${S.dragI===i?'drag':''}" style="margin-left:${b.d*34}px" draggable="true" ondragstart="dStart(${i})" ondragend="dEnd()" ondragover="dOver(event,${i})" ondrop="dDrop(event)">
+  <span class="handle" title="Drag">⠿</span>
+  <div class="box t-${b.t}" style="${S.flash&&S.flashI===i?'outline:2px solid var(--red)':''}"><input value="${b.n}" placeholder="Name" onchange="S.build[${i}].n=this.value;render()" ${b.just?'autofocus':''}><select class="sel" style="font-size:11px" onchange="const N=S.build.map(x=>({...x}));N[${i}].t=this.value;tryBuild(N,${i});render()">${['site','job','crew'].filter(t=>canSit(t,bParent(i))||t===b.t).map(t=>`<option value="${t}" ${t===b.t?'selected':''}>${t==='site'?lvlName(bSiteDepth(i)):sg(t)}</option>`).join('')}</select></div>
+  <button class="iconbtn" title="Move out" onclick="shift(${i},-1)" ${b.d===0?'disabled':''}>‹</button><button class="iconbtn" title="Move under the one above" onclick="shift(${i},1)" ${i===0||b.d>B[i-1].d?'disabled':''}>›</button>
+  <button class="iconbtn" title="Add one underneath" onclick="addUnder(${i})">+</button>
+  ${b.t!=='group'?`<button class="btn ${b.people?'sec':'ghost'} sm" onclick="S.ppl=S.ppl===${i}?null:${i};render()"><i class="fa-solid fa-users"></i> ${b.people?b.people+' people':'Add people'}</button>`:''}
+  ${S.drop&&S.drop.i===i?`<div class="dropline ${S.drop.child?'child':''}"></div>`:''}</div>
+  ${S.flash&&S.flashI===i?`<div class="tip" style="background:var(--red);margin-left:${b.d*34+24}px;display:flex;gap:8px;align-items:center"><span style="flex:1">${S.flash}</span><a onclick="clearTimeout(FT);S.flash='';S.flashI=null;render()" style="color:#fff"><i class="fa-solid fa-xmark"></i></a></div>`:''}
+  ${S.ppl===i?`<div style="margin:4px 0 8px ${b.d*34+24}px;border:1px solid #DFDFE2;border-radius:8px;padding:10px;background:#fff"><div class="sm" style="margin-bottom:6px"><b>Add people to ${b.n||'this '+sg(b.t).toLowerCase()}</b> <span class="mut">· a ${sg('crew').toLowerCase()} can change any day</span></div><div class="pills">${['By location','By job title','From a recent sign-in','From a file','Pick people'].map((t,n)=>`<button class="pill" onclick="S.build[${i}].people=${[8,6,9,5,4][n]};S.ppl=null;render()">${t}</button>`).join('')}</div></div>`:''}`).join('')}</div>
+  <div class="row" style="margin-top:10px"><button class="btn sec" onclick="addTop()">+ Add at the top level</button>${W3()?'<button class="btn ghost">Import from a file</button>':''}</div>`:
+ `<div class="empty"><h3>No places yet</h3><p class="mut sm">Start with where work happens. You can group them later.</p><div class="row" style="justify-content:center">${W3()?'<button class="btn">Import from a file (fastest)</button>':''}<button class="btn sec" onclick="addTop()">Add one</button></div></div>`}`;
+}
+/* SM-01 rules: a group sits on top; a site sits under a group or at the top (never in a site or a job);
+   a job sits at a site, under a group or at the top (never in a job); a team is the lowest level. */
+/* Site levels (decided 2026-11-04): a Site can sit inside a Site, up to 3 levels. Same Site object, no group type. */
+const ALLOWED={asset:[null,'site','job'],group:[null],site:[null,'site'],job:[null,'site'],crew:['site','job']};
+const LVL_DEF={1:['Site'],2:['Branch','Site'],3:['Region','Branch','Site']};
+function lvlName(d){ return S.lvl[Math.min(Math.max(d,1),S.levels)-1]; }
+function setLevels(n){ S.levels=n; S.lvl=[...LVL_DEF[n]]; S.words.site=S.lvl[n-1]; render(); }
+function setLvl(k,v){ S.lvl[k]=v; if(k===S.levels-1) S.words.site=v; render(); }
+function siteLevel(id){ let d=1, p=parentOf(id); while(p&&p.id!=='root'){ if(S.labels[p.id]==='site') d++; p=parentOf(p.id); } return d; }
+function bSiteDepth(i,B){ B=B||S.build; let d=1, cur=B[i].d; for(let k=i-1;k>=0&&cur>0;k--) if(B[k].d<cur){ if(B[k].t==='site') d++; cur=B[k].d; } return d; }
+function addLevel(){ if(S.levels<3){ const low=S.lvl[S.lvl.length-1]; S.levels++; S.lvl=[...LVL_DEF[S.levels]]; S.lvl[S.levels-1]=low; S.words.site=low; } render(); }
+const canSit=(t,p)=>t==='none'||ALLOWED[t].includes(p||null);
+function whyNot(t,p){ if(t==='crew'&&!p) return 'A '+sg('crew').toLowerCase()+' always belongs to a '+sg('site').toLowerCase()+' or '+sg('job').toLowerCase()+'. Put it under one.'; if(t==='site') return 'A '+sg('site').toLowerCase()+' sits at the top or inside another place.'; return 'A '+sg(t).toLowerCase()+' can\'t go inside a '+sg(p).toLowerCase()+'.'+(t==='crew'?'':t==='group'?' Groups always sit at the top.':t==='site'?' '+pl('site')+' only sit under a '+sg('group').toLowerCase()+' or at the top.':' '+pl('job')+' sit at a '+sg('site').toLowerCase()+' or at the top.'); }
+function bParent(i,B){ B=B||S.build; for(let k=i-1;k>=0;k--) if(B[k].d<B[i].d) return B[k].t; return null; }
+function buildOk(B){ for(let i=0;i<B.length;i++){ if(i>0&&B[i].d>B[i-1].d+1) return 'skip'; if(B[i].t==='site'&&bSiteDepth(i,B)>S.levels) return 'Places go '+S.levels+' level'+(S.levels>1?'s':'')+' deep. Add a level in Your words.'; if(!canSit(B[i].t,bParent(i,B))) return whyNot(B[i].t,bParent(i,B)); } return ''; }
+let FT; function setFlash(i,msg){ clearTimeout(FT); S.flashI=i; S.flash=msg; render(); FT=setTimeout(()=>{ S.flash=''; S.flashI=null; render(); },3000); }
+const shortErr=e=>e==='skip'?'That would skip a level.':e.split('.')[0]+'.';
+function tryBuild(next,i){ const err=buildOk(next); if(err){ setFlash(i,shortErr(err)); return false; } S.build=next; S.flash=''; return true; }
+const childType=t=>t==='group'?'site':t==='site'?(jobsOn()?'job':'crew'):'crew';
+function block(i){ const d=S.build[i].d; let j=i+1; while(j<S.build.length&&S.build[j].d>d) j++; return [i,j]; }
+function shift(i,dir){ if(dir>0&&(i===0||S.build[i].d>S.build[i-1].d)) return; const [a,b]=block(i); const N=S.build.map(x=>({...x})); for(let k=a;k<b;k++) N[k].d=Math.max(0,N[k].d+dir); if(tryBuild(N,i)) render(); }
+function addUnder(i){ if(S.build[i].t==='crew'){ setFlash(i,'A '+sg('crew').toLowerCase()+' is the lowest level.'); return; } const [a,b]=block(i); S.build.forEach(x=>x.just=false); S.build.splice(b,0,{n:'',t:childType(S.build[i].t),d:S.build[i].d+1,just:true}); S.flash=''; render(); }
+function addTop(){ S.build.forEach(x=>x.just=false); S.build.push({n:'',t:'site',d:0,just:true}); render(); }
+function dStart(i){ S.dragI=i; }
+function dEnd(){ S.dragI=null; S.drop=null; render(); }
+function dOver(e,i){ e.preventDefault(); if(S.dragI===null||i===S.dragI) return; const r=e.currentTarget.getBoundingClientRect();
+ const child=(e.clientX-r.left)>60; if(!S.drop||S.drop.i!==i||S.drop.child!==child){ S.drop={i,child}; render(); } }
+function dDrop(e){ e.preventDefault(); if(S.dragI===null||!S.drop) return; const keep=S.build.map(x=>({...x}));
+ const [a,b]=block(S.dragI); const moved=S.build.splice(a,b-a); const tgtIdx=S.drop.i>S.dragI?S.drop.i-(b-a):S.drop.i;
+ if(tgtIdx<0||tgtIdx>=S.build.length){ S.build.splice(a,0,...moved); dEnd(); return; }
+ const tgt=S.build[tgtIdx]; const nd=S.drop.child?tgt.d+1:tgt.d; const off=nd-moved[0].d; moved.forEach(m=>m.d+=off);
+ const [ta,tb]=block(tgtIdx); S.build.splice(S.drop.child?tgtIdx+1:tb,0,...moved);
+ const err=buildOk(S.build); const di=S.dragI; if(err){ S.build=keep; dEnd(); setFlash(di,shortErr(err)); } else { S.flash=''; dEnd(); } }
+
+/* --- Your words --- */
+/* --- About you + What you need (from the v4 setup; multi-select) --- */
+const WORKK=[['con','Construction & Built Environment','Builders, trades, roadwork, developers',{site:'Site',job:'Job'}],['nrg','Energy & Resources','Oil and gas, mining, forestry, power',{site:'Yard',job:'Work order'}],['ind','Industrial & Manufacturing','Plants, shops, fabrication, processing',{site:'Site',job:'Work order'}],['trn','Transportation & Logistics','Fleets, depots, warehouses, distribution',{site:'Yard',job:'Job'}],['pub','Public Sector & Municipal','Municipalities, utilities, public works',{site:'Station',job:'Work order'}],['svc','Service & Professional','Field techs, maintenance, inspections',{site:'Location',job:'Service call'}],['oth','Something else','Tell us in a few words',null]];
+const ORGS=[['site','Mostly by place','fa-location-dot','Your work happens at places people go to on a regular schedule.'],['job','Mostly by job','fa-briefcase','Your work comes as jobs: some run for weeks, some are many in a day.'],['crew','Mostly by team','fa-helmet-safety','You mainly oversee teams and how they’re doing.']];
+function optBtn(on,body,act,multi){ return `<button class="opt ${on?'on':''}" role="${multi?'checkbox':'radio'}" aria-checked="${on}" onclick="${act}">${body}<i class="${multi?(on?'fa-solid fa-square-check':'fa-regular fa-square'):(on?'fa-solid fa-circle-dot':'fa-regular fa-circle')}"></i></button>`; }
+function pickWork(k){ S.work=k; const w=WORKK.find(x=>x[0]===k); if(w&&w[3]){ S.words.site=w[3].site; S.words.job=w[3].job; } render(); }
+function toggleOrg(k){ S.org=S.org||{}; S.org[k]=!S.org[k]; S.need2=null; render(); }
+function toggleNeed2(k){ S.need2=S.need2||{}; S.need2[k]=!S.need2[k]; render(); }
+function about(){ const O=S.org||{}, any=S.work||Object.values(O).some(Boolean);
+ foot(`<button class="btn sec" onclick="go('intro')">Back</button><span class="saved">Saved</span><span style="flex:1"></span><button class="btn" onclick="go('need')">${any?'Continue':'Skip for now'}</button>`);
+ return setupHead()+`<div class="card"><h2>Tell us a little about your work</h2><p class="mut" style="margin-top:0">Two quick questions, so setup fits how you work.</p>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start"><div><h3>What kind of work do you do?</h3><div class="opts">${WORKK.map(([k,h,sub])=>optBtn(S.work===k,`<span style="flex:1"><b>${h}</b><small>${sub}</small></span>`,`pickWork('${k}')`)).join('')}</div>${S.work==='oth'?`<input class="sel" style="margin-top:8px;width:100%;padding:7px" placeholder="Your industry, in a few words" value="${S.workOther||''}" oninput="S.workOther=this.value">`:''}</div>
+ <div><h3>How is your work organised? <span class="mut" style="font-weight:400">Pick all that apply.</span></h3><div class="opts">${ORGS.map(([k,h,ic,d])=>optBtn(!!O[k],`<span class="ico" style="width:36px;height:36px;font-size:16px"><i class="fa-solid ${ic}"></i></span><span style="flex:1"><b style="font-size:16px">${h}</b><small>${d}</small></span>`,`toggleOrg('${k}')`,true)).join('')}</div></div></div>
+ <p class="sm mut" style="margin-bottom:0"><i class="fa-solid fa-circle-info"></i> You can always change this after setup.</p></div>`;
+}
+function need(){ if(!S.need2){ const O=S.org||{}; S.need2={site:!!O.site,job:!!O.job,crew:!!O.crew}; }
+ const N=S.need2, any=N.site||N.job||N.crew, fromAbout=Object.values(S.org||{}).some(Boolean);
+ foot(`<button class="btn sec" onclick="go('about')">Back</button><span class="saved">Saved</span><span style="flex:1"></span><button class="btn" ${any?'':'disabled'} onclick="go('words')">Continue</button>`);
+ const card=(k,ic,h,d,eg)=>optBtn(!!N[k],`<span class="ico" style="width:36px;height:36px;font-size:16px"><i class="fa-solid ${ic}"></i></span><span style="flex:1"><b style="font-size:16px">${h}</b><small>${d}</small><small style="margin-top:4px;font-style:italic">${eg}</small></span>`,`toggleNeed2('${k}')`,true);
+ return setupHead()+`<div class="card"><h2>What do you need?</h2><p class="mut" style="margin-top:0">${fromAbout?'Based on your answers, this is what we recommend. Change it if it isn’t right. ':''}<b>Pick all that apply.</b> Only what you pick shows up in the next steps.</p>
+ <div class="opts" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+ ${card('job','fa-briefcase',pl('job'),'A piece of work with a start and an end.','e.g. a work order, a project, a service call')}
+ ${card('crew','fa-helmet-safety',pl('crew'),'A group of people who work together, on your '+pl('job').toLowerCase()+' or at your '+pl('site').toLowerCase()+'.','e.g. a paving crew, a night shift, the service techs')}
+ ${card('site','fa-location-dot',pl('site'),'A place where people work, that keeps going. '+pl('job')+' can sit inside it.','e.g. a yard, a plant, a station, a branch')}</div>
+ <p class="sm mut" style="margin-bottom:0"><i class="fa-solid fa-circle-info"></i> You can add more later, any time.</p></div>`;
+}
+/* Your words, one at a time: plain defaults (Region, Site, Job, Crew), "Next" opens the following one, Continue unlocks when all are set */
+const WQ={site_:['Your places','Do some places sit inside others?','Like a branch with sites inside it. Pick how many levels, then name each.'],group:['Groups of places','What do you call a group of places?','Like a region or a division.'],site:['Places','What do you call a place where work happens?','Like a site, a yard or a branch.'],job:['Pieces of work','What do you call a piece of work?','Something with a start and an end.'],crew:['Teams','What do you call a team?','A group of people who work together.']};
+function wordsUsed(){ const N=S.need2||{}, picked=N.site||N.job||N.crew; return picked?['site','job','crew'].filter(t=>N[t]):['site','job','crew']; }
+function wNext(t){ S.wdone=S.wdone||{}; S.wdone[t]=true; S.wopen=null; render(); }
+function words(){ const used=wordsUsed(), done=S.wdone||{}, all=used.every(t=>done[t]);
+ const open=S.wopen!=null?S.wopen:used.findIndex(t=>!done[t]);
+ foot(`<button class="btn sec" onclick="go(AI()?'work':'how')">Back</button><span class="saved">Saved</span><span style="flex:1"></span><span class="sm mut">${all?'':used.filter(t=>done[t]).length+' of '+used.length+' named'}</span><button class="btn" ${all?'':'disabled'} onclick="go('structure')">Continue</button>`);
+ const rows=used.map((t,i)=>{ const [lab,q,sub]=t==='site'?WQ.site_:WQ[t];
+  if(t==='site'&&i===open){ const pool=WAVE==='W1'?['Region','Division','Branch','Site','Facility','Yard']:['Region','Division','Branch','Site','Yard','Location'];
+   return `<div class="wq on"><div class="wn">${i+1}</div><div style="flex:1"><b style="font-size:16px">${q}</b><div class="mut sm">${sub}</div>
+   <div class="lvseg" role="radiogroup" aria-label="How many levels">${[1,2,3].map(n=>`<button role="radio" aria-checked="${S.levels===n}" class="${S.levels===n?'on':''}" onclick="setLevels(${n})">${n===1?'No, one level':n+' levels'}</button>`).join('')}</div>
+   ${S.lvl.map((nm,k)=>`<div class="lvrow"><span class="lvn">${S.levels>1?(k===0?'Top':k===S.levels-1?'Lowest':'Middle'):'Name'}</span><div class="ideas" style="margin:0">${pool.map(w=>`<button class="idea ${w===nm?'on':''}" onclick="setLvl(${k},'${w}')">${w===nm?'<i class="fa-solid fa-check"></i>':''}${w}</button>`).join('')}${WAVE==='W1'?'':`<input class="sel" style="width:140px" placeholder="Or type your own" value="${pool.includes(nm)?'':nm}" onchange="if(this.value)setLvl(${k},this.value)">`}</div></div>`).join('')}
+   ${S.levels>1?`<div class="sm mut" style="margin-top:8px"><i class="fa-solid fa-sitemap"></i> ${S.lvl.join(' › ')}. Share a ${S.lvl[0].toLowerCase()} and the person sees everything inside it.</div>`:''}
+   </div><button class="btn wacc" aria-label="Accept: places" onclick="wNext('site')">Accept</button></div>`; }
+  if(i===open){ const custom=!IDEAS[t].includes(sg(t)); return `<div class="wq on"><div class="wn">${i+1}</div><div style="flex:1"><b style="font-size:16px">${q}</b><div class="mut sm">${sub}</div>
+   <div class="ideas" style="margin-top:10px">${ideasFor(t).map(w=>`<button class="idea ${w===sg(t)?'on':''}" onclick="S.words['${t}']='${w}';render()">${w===sg(t)?'<i class="fa-solid fa-check"></i>':''}${w}</button>`).join('')}${WAVE==='W1'?'':`<input class="sel" style="width:160px" placeholder="Or type your own" value="${custom?sg(t):''}" onchange="if(this.value){S.words['${t}']=this.value;render()}">`}</div>
+   </div><button class="btn wacc" aria-label="Accept: ${pl(t)}" onclick="wNext('${t}')">Accept</button></div>`; }
+  if(done[t]) return `<div class="wq done"><div class="wn">${i+1}</div><span class="mut" style="width:140px">${lab}</span><b style="flex:1">${t==='site'?S.lvl.map(x=>plural(x)).join(' › '):pl(t)}</b><a style="color:var(--blue)" onclick="S.wopen=${i};render()">Change</a><span class="wok on" aria-label="Done"><i class="fa-solid fa-check"></i></span></div>`;
+  return `<div class="wq locked"><div class="wn">${i+1}</div><span>${lab}</span></div>`; }).join('');
+ return setupHead()+`<div class="card" style="max-width:760px;margin:0 auto"><h2>What do you call these?</h2><p class="mut" style="margin-top:0">${AI()?'One at a time. <i class="fa-solid fa-wand-magic-sparkles" style="color:#0078B3"></i> We suggested words from your portal; keep them or pick your own, then accept each one.':'One at a time. Pick a word or type your own, then accept it.'}${WAVE==='W1'?' <span class="mut">Typed names come later.</span>':''}</p><div class="wqs">${rows}</div>${all?'<div class="sm" style="margin-top:12px;color:var(--green)"><i class="fa-solid fa-circle-check"></i> All set. You can change these later.</div>':''}</div>`;
+}
+
+/* --- First routine --- */
+function targets(){ const T=[]; ['site','job','crew','group','asset'].filter(t=>t!=='asset'||AI()).forEach(t=>nodesOf(t).forEach(n=>T.push({id:n.id,name:n.name,t}))); return T; }
+function whenOf(r){ return S.when[r.id]||(whens().find(w=>r.when.startsWith(w))||r.when); }
+function perOf(r){ return S.per[r.id]||(pers().find(p=>p.startsWith(r.per))||r.per); }
+function isOpt(rid,j,it){ const k=rid+'_'+j; return k in S.opt?S.opt[k]:!it.req; }
+function itemsOf(r){ return r.items.concat(S.added[r.id]||[]).map((it,j)=>{ const nm=S.name&&S.name[r.id+'_'+j]; return {...it,n:nm||it.n,open:!(nm||it.n)}; }); }
+/* Nov 4 (Design): every item can be changed (pencil); an open template slot asks for the admin's own form */
+const qa=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+function edFocus(k,t){ if(S.edit&&S.edit.k===k) return; S.edit={k,q:'',t}; keepFocus('ed-'+k); }
+function edOpen(k,t,n){ S.edit={k,q:t==='task'?(n||''):'',t,was:n}; keepFocus('ed-'+k); }
+function edQ(k,v){ if(!S.edit||S.edit.k!==k) S.edit={k,q:'',t:'form'}; S.edit.q=v; keepFocus('ed-'+k); }
+function edPick(k,n){ S.name[k]=n; S.edit=null; render(); }
+function edSave(k){ const v=(S.edit&&S.edit.q||'').trim(); if(!v) return; S.name[k]=v; S.edit=null; render(); }
+function itemRow(r,it,j){
+ const k=r.id+'_'+j, o=isOpt(r.id,j,it), E=S.edit&&S.edit.k===k?S.edit:null, task=it.t==='task';
+ const seg=`<div class="fseg sm"><button aria-pressed="${!o}" onclick="S.opt['${k}']=false;render()">Required</button><button aria-pressed="${o}" onclick="S.opt['${k}']=true;render()">Optional</button></div>`;
+ if(!E&&!it.open) return `<div class="item" style="padding:6px 0;border-bottom:1px solid #F2F2F2"><span>${ICON[it.t]}</span><span style="flex:1;display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap"><span>${it.n}</span>${it.slot&&!it.n.toLowerCase().includes(it.slot.toLowerCase())?`<span class="sm mut">for ${it.slot}</span>`:''}<button class="btn ghost sm" title="Change" aria-label="Change ${qa(it.n)}" data-n="${qa(it.n)}" onclick="edOpen('${k}','${it.t}',this.dataset.n)" style="padding:2px 6px"><i class="fa-solid fa-pen" style="font-size:11px"></i></button></span><span class="chip">${TAG[it.t]}</span>${seg}</div>`;
+ const q=(E&&E.q||'').toLowerCase().trim(), words=(it.slot||'').toLowerCase().split(/[^a-z]+/).filter(w=>w.length>2);
+ const have=itemsOf(r).map(x=>x.n), all=allForms().filter(n=>!have.includes(n));
+ const hits=(q?all.filter(n=>n.toLowerCase().includes(q)):all.filter(n=>words.some(w=>n.toLowerCase().includes(w))).concat(all)).filter((n,i,a)=>a.indexOf(n)===i).slice(0,6);
+ const field=task?`<input class="adin" id="ed-${k}" placeholder="Write the task" value="${qa(E?E.q:'')}" maxlength="120" oninput="edQ('${k}',this.value)" onkeydown="if(event.key==='Enter')edSave('${k}')">`
+  :`<input class="adin" id="ed-${k}" placeholder="Search your forms${it.slot?' for '+qa(it.slot):''}" value="${qa(E?E.q:'')}" autocomplete="off" onfocus="edFocus('${k}','form')" oninput="edQ('${k}',this.value)">`;
+ const sugg=!task&&E?`<div class="admenu adsug">${hits.map(n=>`<button data-n="${qa(n)}" onclick="edPick('${k}',this.dataset.n)">${ICON.form}<span>${n}</span></button>`).join('')||'<div class="mut sm" style="padding:8px 10px">No forms match. Try another word.</div>'}</div>`:'';
+ const head=it.open?`<b>${it.slot}</b> <span style="color:#8A5300">· pick your form</span>`:`<span class="mut">Change ${task?'the task':it.n}</span>`;
+ const acts=E&&!it.open?`<button class="adlink" onclick="S.edit=null;render()">Cancel</button>${task?`<button class="adlink adsave" onclick="edSave('${k}')">Save</button>`:''}`:'';
+ return `<div class="item" style="padding:8px 0;border-bottom:1px solid #F2F2F2;flex-direction:column;align-items:stretch;gap:6px;${it.open?'background:#FFFBF2;box-shadow:inset 3px 0 0 #F0C46A;padding-left:8px;padding-right:8px':''}"><div style="display:flex;align-items:center;gap:8px"><span>${ICON[it.t]}</span><span class="sm" style="flex:1;min-width:0">${head}</span>${acts}${seg}</div><span class="adw grow" style="display:flex;position:relative">${field}${sugg}</span></div>`;
+}
+const ICON={form:'<i class="fa-solid fa-file-lines"></i>',task:'<i class="fa-solid fa-square-check"></i>',ticket:'<i class="fa-solid fa-graduation-cap"></i>'}, TAG={form:'Form',task:'Task',ticket:'Training'};
+function routine(){
+ const R=ROUTINES(S.client); const T=targets(); const sel=R.filter(r=>S.routines.includes(r.id));
+ const nAttach=Object.values(S.attach).filter(Boolean).length;
+ const openReq=sel.flatMap(r=>itemsOf(r).map((it,j)=>({it,j,r})).filter(x=>x.it.open&&!isOpt(x.r.id,x.j,x.it)).map(x=>x.it.slot));
+ foot(`<button class="btn sec" onclick="go('structure')">Back</button><span class="saved">Saved</span><span style="flex:1"></span><button class="btn ghost" onclick="finish(false)">Skip for now</button>${openReq.length?`<span class="sm" style="color:#8A5300">Pick a form for ${openReq[0]}${openReq.length>1?' and '+(openReq.length-1)+' more':''}</span>`:''}<button class="btn" ${sel.length&&nAttach&&!openReq.length?'':'disabled'} onclick="finish(true)">Create ${sel.length>1?sel.length+' routines':'routine'}</button>`);
+ const sugg=R.filter(r=>!/^(f_|s_|a_)/.test(r.id));
+ const row=(title,sub,cnt,on,act,rec)=>`<div style="${rec&&!on?'background:#F0F9FE;box-shadow:inset 3px 0 0 #0078B3':''}"><div style="flex:1"><b class="sm" style="font-size:14px">${title}</b>${rec?' <span class="chip chip-rec">Recommended</span>':''}<div class="sm mut">${sub}</div></div>${cnt?`<span class="sm mut">${cnt}</span>`:''}<button class="btn ${on?'sec':''} sm" onclick="${act}">${on?'✓ Added':'+ Add'}</button></div>`;
+ const left=S.rsrc==='folder'?`<div class="rowlist">${SRC[S.client].fo.kids.filter(x=>x.forms&&x.forms.length).map(x=>{ const open=S.fopen[x.id]; const pk=S.fpick[x.id]||(S.fpick[x.id]=Object.fromEntries(x.forms.map(n=>[n,true]))); const n=Object.values(pk).filter(Boolean).length; const added=S.routines.includes('f_'+x.id); return `<div style="flex-direction:column;align-items:stretch;gap:6px"><div class="row" style="gap:10px;flex-wrap:nowrap"><button class="btn ghost sm" onclick="S.fopen['${x.id}']=!S.fopen['${x.id}'];render()"><i class="fa-solid fa-chevron-${open?'down':'right'}"></i></button><i class="fa-solid fa-folder" style="color:#AFAFB5"></i><b class="sm" style="flex:1;font-size:14px">${x.name}</b><span class="sm mut">${n} of ${x.forms.length} forms</span><button class="btn ${added?'sec':''} sm" ${n?'':'disabled'} onclick="folderRoutine('${x.id}')">${added?'<i class="fa-solid fa-check"></i> Added':'+ Add'}</button></div>${open?`<div style="padding-left:38px">${x.forms.map(fm=>`<label class="row sm" style="gap:8px;padding:3px 0"><input type="checkbox" ${pk[fm]?'checked':''} onchange="S.fpick['${x.id}'][this.dataset.f]=this.checked;render()" data-f="${fm}"><i class="fa-solid fa-file-lines" style="color:#AFAFB5"></i>${fm}</label>`).join('')}</div>`:''}</div>`; }).join('')||'<div class="sm mut">No folders with forms.</div>'}</div><p class="sm mut">Open a folder to untick forms you don't want. The rest become one routine.</p>`
+  :S.rsrc==='scratch'?`<div class="row"><input class="sel" id="newR" style="flex:1;font-size:14px;padding:7px" placeholder="Name it, e.g. End of day"><button class="btn sm" onclick="scratchRoutine(document.getElementById('newR').value||'New routine')">+ Create</button></div><p class="sm mut">Then add forms and tasks to it on the right.</p>`
+  :`<div class="sm mut" style="margin-bottom:6px">${AI()?(S.peopleOnly?'Based on the training you track most':'Based on the forms you use most'):'Our routine templates'}</div><div class="rowlist">${sugg.map((r,i)=>row(r.name,(AI()?'<i class="fa-solid fa-wand-magic-sparkles"></i> '+r.why+' · ':'')+r.when,r.items.length+' items',S.routines.includes(r.id),`toggleR('${r.id}')`,AI()&&i===0)).join('')}</div>
+   ${AI()?`<div class="sm mut" style="margin:14px 0 6px"><i class="fa-solid fa-wand-magic-sparkles"></i> We also found these, from the forms you fill in now</div><div class="rowlist">${ALSO[S.client].map(([fm,how,name])=>{ const id='a_'+name.replace(/\W/g,''); return row(name,fm+' · '+how,'',S.routines.includes(id),`alsoRoutine('${id}','${name}','${fm}','${how}')`); }).join('')}</div>`:''}`;
+ return setupHead()+`<div style="display:grid;grid-template-columns:1fr 1.3fr 300px;gap:16px;align-items:start">
+ <div class="card"><h2>${S.peopleOnly?'What people need before they work here':'Add routines'}</h2>
+ <p class="mut" style="margin-top:0">${S.peopleOnly?'We\'ll check training and tickets every day, and show who\'s allowed in.':'A routine is what\'s expected on a schedule. Add as many as you like, from any of these.'}</p>
+ <div class="tabs">${[['sug',AI()?'Suggestions':'Templates'],['folder','From a folder'],['scratch','From scratch']].map(([k,t])=>`<button class="${S.rsrc===k?'on':''}" onclick="S.rsrc='${k}';render()">${t}</button>`).join('')}</div>${left}</div>
+ <div class="card"><div class="row"><h2 style="margin:0">Your routines</h2><span class="chip">${sel.length}</span></div>
+ ${sel.length?sel.map(r=>`<div style="border:1px solid #DFDFE2;border-radius:8px;margin-top:10px">
+  <div class="row" style="padding:10px 12px;border-bottom:1px solid #DFDFE2;gap:8px"><b style="flex:1">${r.name}</b><button class="btn ghost sm" title="Remove" onclick="toggleR('${r.id}')"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="row sm" style="padding:8px 12px;gap:8px;background:#F8F8F8;border-bottom:1px solid #DFDFE2;flex-wrap:nowrap"><span class="mut">When</span><select class="sel" style="flex:1;min-width:0" onchange="S.when['${r.id}']=this.value;render()">${whens().map(w=>`<option ${whenOf(r)===w?'selected':''}>${w}</option>`).join('')}</select>${/N /.test(whenOf(r))?`<input class="sel" style="width:60px" value="${S.nval[r.id]||r.every||(/hours/.test(whenOf(r))?250:7)}" onchange="S.nval['${r.id}']=this.value">`:''}${whenOf(r)==='Weekly'?`<select class="sel"><option>Monday</option><option>Friday</option></select>`:''}</div>
+  <div style="padding:4px 12px 10px">${itemsOf(r).map((it,j)=>itemRow(r,it,j)).join('')||'<div class="sm mut" style="padding:8px 0">Nothing in it yet.</div>'}
+  ${adderHtml(r.id)}</div></div>`).join(''):`<div class="empty" style="margin-top:10px;padding:24px;text-align:center"><p class="sm mut" style="margin:0 0 10px">No routines yet.</p><button class="btn" onclick="S.rsrc='scratch';render();const el=document.getElementById('newR');if(el)el.focus()"><i class="fa-solid fa-plus"></i> Create from scratch</button></div>`}
+ <h3 style="margin-top:18px">Where do these apply?</h3>
+ <p class="sm mut" style="margin-top:0">They set what's expected at the ${pl('site').toLowerCase()}${counts().crew?', '+pl('crew').toLowerCase():''}${jobsOn()?' or '+pl('job').toLowerCase():''} you choose.</p>
+ ${comboHtml(T)}
+ <div class="row sm" style="gap:8px;margin-top:12px;flex-wrap:nowrap"><span class="mut" style="white-space:nowrap">How many are needed at each one</span>${pers().length>1?`<select class="sel" style="flex:1;min-width:0" onchange="S.howMany=this.value;render()">${pers().map(p=>`<option ${(S.howMany||pers()[0])===p?'selected':''}>${p}</option>`).join('')}</select>`:`<b>${pers()[0]}</b>`}</div>
+ <p class="sm mut" style="margin:4px 0 0">This belongs to each place, not the routine, so one routine can work differently at each ${sg('site').toLowerCase()}. ${pers().length>1?'':'More options come later. '}You can change it for each place on its Requirements.</p></div>
+ <div class="card" style="position:sticky;top:12px"><h3 style="margin:0">What your team will see</h3><div class="sm mut">Tap items to try it</div><div style="padding-top:8px">${phoneHtml(sel,T).replace('class="phone"','class="phone small"')}</div></div>
+ </div>`;
+}
+function comboHtml(T){
+ const opts=[]; if(jobsOn()) opts.push({id:'alljobs',name:'Every new '+sg('job').toLowerCase(),t:'job'});
+ ['site','crew','group','asset'].forEach(t=>T.filter(x=>x.t===t).forEach(x=>opts.push(x)));
+ const q=(S.comboQ||'').toLowerCase(), chosen=opts.filter(o=>S.attach[o.id]);
+ const shown=opts.filter(o=>o.name.toLowerCase().includes(q));
+ const groups=[...new Set(shown.map(o=>o.t))];
+ return `<div style="position:relative">
+ <div class="sel" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;padding:5px 8px;min-height:38px;cursor:text;${S.comboOpen?'border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)':''}" onclick="S.comboOpen=true;render();document.getElementById('cq').focus()">
+  ${chosen.map(o=>`<span class="chip t-${o.t}" style="font-size:12px;padding:2px 6px 2px 8px">${o.name} <a onclick="event.stopPropagation();S.attach['${o.id}']=false;render()" style="margin-left:2px">✕</a></span>`).join('')}
+  <input id="cq" style="border:0;outline:0;font:inherit;flex:1;min-width:120px" placeholder="${chosen.length?'Add more…':'Search '+pl('site').toLowerCase()+', '+pl('crew').toLowerCase()+'…'}" value="${S.comboQ||''}" oninput="S.comboQ=this.value;S.comboOpen=true;render();const i=document.getElementById('cq');i.focus();i.setSelectionRange(i.value.length,i.value.length)">
+  <span class="mut">▾</span></div>
+ ${S.comboOpen?`<div style="position:absolute;left:0;right:0;top:100%;margin-top:4px;background:#fff;border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,.12);max-height:260px;overflow:auto;z-index:9;padding:4px 0">
+  ${groups.map(t=>{ const g=shown.filter(o=>o.t===t), all=g.every(o=>S.attach[o.id]); return `<div class="row sm" style="justify-content:space-between;padding:6px 12px 2px;color:var(--mut);font-weight:600">${t==='job'?pl('job'):pl(t)}${g.length>1?`<a style="color:var(--blue);font-weight:400" onclick="${g.map(o=>`S.attach['${o.id}']=${!all};`).join('')}render()">${all?'Clear':'All '+g.length}</a>`:''}</div>
+  ${g.map(o=>`<div class="row" style="gap:8px;padding:6px 12px;cursor:pointer;${S.attach[o.id]?'background:var(--blue-l)':''}" onclick="S.attach['${o.id}']=!S.attach['${o.id}'];render()"><span style="width:16px;color:var(--blue)">${S.attach[o.id]?'✓':''}</span><span style="flex:1">${o.name}</span>${o.users?`<span class="sm mut">${o.users} people</span>`:''}</div>`).join('')}`; }).join('')||'<div class="sm mut" style="padding:8px 12px">No matches</div>'}
+  <div style="border-top:1px solid var(--line);padding:6px 12px;text-align:right"><button class="btn sm" onclick="event.stopPropagation();S.comboOpen=false;S.comboQ='';render()">Done</button></div></div>`:''}
+ </div>`; }
+function folderRoutine(fid){ const fo=SRC[S.client].fo.kids.find(x=>x.id===fid); const id='f_'+fid; const pk=S.fpick[fid]||{}; S.custom=S.custom.filter(r=>r.id!==id); S.custom.push({id,name:fo.name,why:'From your '+fo.name+' folder',when:'Set a schedule',per:'Once per place',items:fo.forms.filter(n=>pk[n]!==false).map(n=>({t:'form',n,req:true}))}); if(!S.routines.includes(id)) S.routines.push(id); render(); }
+function allForms(){ return [...new Set([...(S.newSafety?['Starter · Field Level Hazard Assessment','Starter · Hazard ID','Starter · Near Miss','Starter · Toolbox Talk']:[]),...C.forms,...SRC[S.client].fo.kids.flatMap(x=>x.forms||[])])]; }
+/* Add an item: type (Form / Task) + search or write + Cancel / Save, like the routine editor in the prototype */
+function keepFocus(id){ render(); const el=document.getElementById(id); if(el){ el.focus(); const v=el.value; try{el.setSelectionRange(v.length,v.length);}catch(e){} } }
+function adOpen(rid){ S.add=S.add||{}; S.add[rid]={type:'form',q:'',pick:null,tm:false}; keepFocus('adq-'+rid); }
+function adSave(rid){ const A=S.add[rid]; const n=A.type==='task'?A.q.trim():A.pick; if(!n) return; (S.added[rid]=S.added[rid]||[]).push({t:A.type,n,req:A.type!=='task'}); S.add[rid]=null; render(); }
+function adderHtml(rid){ const A=(S.add||{})[rid];
+ if(!A) return `<div style="margin-top:8px"><button class="btn sec sm" onclick="adOpen('${rid}')"><i class="fa-solid fa-circle-plus"></i> Add item</button></div>`;
+ const task=A.type==='task', ready=task?!!A.q.trim():!!A.pick, q=A.q.toLowerCase().trim();
+ const have=itemsOf(ROUTINES(S.client).concat(S.custom).find(r=>r.id===rid)||{items:[]}).map(x=>x.n);
+ const hits=allForms().filter(n=>!have.includes(n)&&(!q||n.toLowerCase().includes(q))).slice(0,8);
+ const tmenu=A.tm?`<div class="admenu">${[['form','Form'],['task','Task']].filter(([k])=>k==='form'||W3()).map(([k,l])=>`<button onclick="S.add['${rid}'].type='${k}';S.add['${rid}'].tm=false;S.add['${rid}'].q='';S.add['${rid}'].pick=null;keepFocus('adq-${rid}')">${ICON[k]}<span>${l}</span>${A.type===k?'<i class="fa-solid fa-check" style="margin-left:auto;color:#0078B3"></i>':''}</button>`).join('')}</div>`:'';
+ const field=task?`<input class="adin" id="adq-${rid}" placeholder="Write the task, e.g. Sweep the loading bay" value="${A.q}" maxlength="120" oninput="S.add['${rid}'].q=this.value;keepFocus('adq-${rid}')" onkeydown="if(event.key==='Enter')adSave('${rid}')">`
+  :A.pick?`<div class="adin adpicked"><b>${A.pick}</b><span class="mut">Form</span><button aria-label="Clear" onclick="S.add['${rid}'].pick=null;keepFocus('adq-${rid}')"><i class="fa-solid fa-xmark"></i></button></div>`
+  :`<input class="adin" id="adq-${rid}" placeholder="Search Form" value="${A.q}" autocomplete="off" oninput="S.add['${rid}'].q=this.value;keepFocus('adq-${rid}')">`;
+ const sugg=!task&&!A.pick?`<div class="admenu adsug">${hits.map(n=>`<button onclick="S.add['${rid}'].pick=this.dataset.n;render()" data-n="${n}">${ICON.form}<span>${n}</span></button>`).join('')||'<div class="mut sm" style="padding:8px 10px">No forms match. Try another word.</div>'}</div>`:'';
+ return `<div class="adrow"><span class="adw"><button class="adtype" onclick="S.add['${rid}'].tm=!S.add['${rid}'].tm;render()">${ICON[A.type]}<span>${task?'Task':'Form'}</span><i class="fa-solid fa-chevron-down" style="font-size:10px"></i></button>${tmenu}</span><span class="adw grow">${field}${sugg}</span><button class="adlink" onclick="S.add['${rid}']=null;render()">Cancel</button><button class="adlink adsave" ${ready?'':'disabled'} onclick="adSave('${rid}')">Save</button></div>
+ <div class="sm mut" style="margin-top:4px">${task?'A routine task is always written new here. People get it each time the routine is due.':'<i class="fa-solid fa-circle-info"></i> <b>Optional</b> items show as "Also available": on demand, like an incident form. They never count as missing.'}</div>`; }
+function addItem(rid,n){ if(n==='__task'){ n=prompt('Task'); if(!n) return render(); (S.added[rid]=S.added[rid]||[]).push({t:'task',n,req:false}); } else (S.added[rid]=S.added[rid]||[]).push({t:'form',n,req:true}); render(); }
+function scratchRoutine(name){ const id='s_'+Date.now(); S.custom.push({id,name,why:'Built by you',when:'Set a schedule',per:'Once per place',items:[]}); S.routines.push(id); render(); }
+function alsoRoutine(id,name,fm,how){ if(S.routines.includes(id)){ S.routines=S.routines.filter(x=>x!==id); render(); return; } if(!S.custom.some(r=>r.id===id)) S.custom.push({id,name,why:'From your form history',when:how,per:'Once per place',items:[{t:'form',n:fm,req:true}]}); S.routines.push(id); render(); }
+function toggleR(id){ S.routines=S.routines.includes(id)?S.routines.filter(x=>x!==id):[...S.routines,id]; render(); }
+function phoneHtml(sel,T){
+ const where=(T.find(x=>S.attach[x.id])||{name:jobsOn()&&S.attach.alljobs?'New '+sg('job').toLowerCase():'Your '+sg('site').toLowerCase()}).name;
+ const items=[]; sel.forEach(r=>itemsOf(r).forEach((it,j)=>{ if(!it.open) items.push({k:r.id+j,r:r.name,n:it.n,opt:isOpt(r.id,j,it),t:it.t}); }));
+ const req=items.filter(i=>!i.opt), done=req.filter(i=>S.phoneDone[i.k]).length;
+ return `<div class="phone"><div class="notch"><i></i></div><div class="ph"><div class="sm" style="opacity:.8">Today</div><b>${where}</b></div>${S.client==='wo'?`<div style="padding:8px 12px;border-bottom:1px solid #eee"><div class="sm mut">SAP order number</div><input class="sel" style="width:100%;font-size:13px" placeholder="e.g. 4500128893"></div>`:''}
+ <div class="pb">${items.length?`<div class="sm mut">${done} of ${req.length} required done</div><div class="bar g" style="margin:6px 0 8px"><i style="width:${req.length?done/req.length*100:0}%"></i></div>
+ ${sel.map(r=>`<div class="sm" style="font-weight:600;margin-top:8px;color:var(--purple)">${r.name}</div>${items.filter(i=>i.r===r.name).map(i=>`<div class="prow" onclick="S.phoneDone['${i.k}']=!S.phoneDone['${i.k}'];render()"><span class="tick ${S.phoneDone[i.k]?'y':''}">${S.phoneDone[i.k]?'✓':''}</span><div style="flex:1;${S.phoneDone[i.k]?'color:var(--mut);text-decoration:line-through':''}">${i.n}${i.opt?' <span class="tag">Optional</span>':''}</div><span class="mut">›</span></div>`).join('')}`).join('')}
+ ${req.length&&done===req.length?'<div class="sm" style="color:var(--green);margin-top:10px;text-align:center">✓ All done for today</div>':''}`:'<div class="mut sm" style="text-align:center;margin-top:60px">Pick a routine to see it here.</div>'}</div></div>`;
+}
+function finish(made){ /* built: back to the web prototype's Overview (build.mjs) */ const b=new URLSearchParams(location.search).get('back'); location.href=b&&/^[\w./-]+\.html(#[\w/-]*)?$/.test(b)&&!b.includes('..')?b:'web-mvp.html#/overview'; }
+
+/* ============ FM pages after setup ============ */
+function sideHtml(){ const p=S.fmPage;
+ return `<div class="side"><a class="${p==='overview'?'on':''}" onclick="fm('overview')"><i class="fa-solid fa-chart-simple"></i> Overview</a>
+ <a class="sub ${p==='list'&&S.fmSite==='site'?'on':''}" onclick="fm('list','site')">${pl('site')}</a>${jobsOn()?`<a class="sub" onclick="fm('list','job')">${pl('job')}</a>`:''}<a class="sub ${p==='list'&&S.fmSite==='crew'?'on':''}" onclick="fm('list','crew')">${pl('crew')}</a><a class="sub">People</a>
+ <div class="lab">Manage</div><a class="${p==='manage'?'on':''}" onclick="fm('manage')"><i class="fa-solid fa-gear"></i> Setup and words</a><a class="${p==='routines'?'on':''}" onclick="fm('routines')"><i class="fa-solid fa-list-check"></i> Routines</a>
+ <div class="lab">Help</div><a onclick="go('intro')">? How it fits</a></div>`; }
+function hint(k,html){ return S.hints[k]?`<div class="hint"><span><i class="fa-solid fa-lightbulb"></i></span><div style="flex:1">${html}</div><a class="sm mut" onclick="S.hints['${k}']=false;render()">✕</a></div>`:''; }
+function wk(){ return S.day==='7'; }
+function stat(i){ const done=[17,9,12,6,14,8,11][i%7], exp=[18,12,12,8,16,8,14][i%7]; return {done,exp}; }
+function overview(){
+ const sites=nodesOf('site'), crews=nodesOf('crew'), R=ROUTINES(S.client).filter(r=>S.routines.includes(r.id));
+ const card=(t,list)=>{ if(!list.length) return '';
+  if(!wk()) return `<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${pl(t)}</h3><span class="sm mut">${list.length}</span></div>
+   ${R.length?`<div class="sm mut" style="margin:6px 0 8px">Starts tomorrow: ${R.map(r=>r.name).join(', ')}</div>`:''}
+   ${list.slice(0,4).map(n=>`<div class="lr"><a style="color:var(--link)" onclick="fm('place','${n.id}')">${n.name}</a><span class="sm mut">${R.length?'Nothing due yet':'No routine yet'}</span></div>`).join('')}</div>`;
+  const tot=list.reduce((a,n,i)=>a+stat(i).exp,0), dn=list.reduce((a,n,i)=>a+stat(i).done,0), out=list.filter((n,i)=>stat(i).done<stat(i).exp);
+  return `<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${pl(t)}</h3><span class="mut">›</span></div>
+  <div style="margin:6px 0"><b style="font-size:18px">${out.length}</b> <span style="color:var(--link)">outstanding</span> <span class="sm mut">· ${dn}/${tot} done</span></div><div class="bar"><i style="width:${dn/tot*100}%"></i></div>
+  ${list.slice(0,4).map((n,i)=>`<div class="lr"><a style="color:var(--link)" onclick="fm('place','${n.id}')">${n.name}</a><span class="sm mut">${stat(i).exp-stat(i).done}/${stat(i).exp} left<span class="mini"><i style="width:${stat(i).done/stat(i).exp*100}%"></i></span></span></div>`).join('')}</div>`; };
+ return `<div class="card row" style="padding:14px 20px;margin-bottom:14px"><div class="ico"><i class="fa-solid fa-chart-simple"></i></div><div style="flex:1"><h1 style="margin:0">Overview</h1><div class="sm mut">Field Management · ${countLine()}${S.source!=='fresh'?(LIVE()?' · synced with Locations':' · imported from Locations'):''}</div></div><div class="daybar"><span>‹</span><span>● Today</span><span>›</span></div></div>
+ ${C.peopleOnly&&W3()?`<div class="card" style="margin-bottom:14px"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Allowed on site today</h3><span class="sm mut">From your Training Matrix</span></div><div style="margin:6px 0"><b style="font-size:18px">412</b> <span class="sm mut">of 440 allowed in</span> · <span class="sm mut">28 with an expired ticket</span></div><div class="bar"><i style="width:94%"></i></div>${nodesOf('crew').slice(0,3).map((n,i)=>`<div class="lr"><span>${n.name}</span><span class="sm mut">${[3,17,8][i]} expired</span></div>`).join('')}</div>`:''}
+ ${!wk()?hint('overview',`<b>You're set up.</b> Tomorrow morning this page fills in as your ${pl('crew').toLowerCase()} complete their routines. You'll see what's done and what's missing at each ${sg('site').toLowerCase()}.`):''}
+ ${!R.length?`<div class="empty" style="margin-bottom:14px"><div class="ico" style="margin:0 auto 8px"><i class="fa-solid fa-list-check"></i></div><h3>No routines yet</h3><p class="mut sm">Routines set what's expected each day at your ${pl('site').toLowerCase()}. Once you add one, you'll see here what's done and what's missing.</p><button class="btn" onclick="go('routine')">Add your first routine</button></div>`:''}
+ <div class="cards">${card('site',sites)}${AI()?card('crew',crews):''}
+ ${jobsOn()?`<div class="card"><h3>${pl('job')}</h3>${wk()?`<div class="lr"><a style="color:var(--link)">${has('dispatch')?'#4471 · 12 Elm St':'Oakridge #4482'}</a><span class="sm mut">1/3 left</span></div><div class="lr"><a style="color:var(--link)">${has('dispatch')?'#4472 · 88 Bow Rd':'Riverbend #4471'}</a><span class="sm mut">Done</span></div>`:`<div class="empty" style="padding:16px"><p class="sm mut" style="margin:0 0 8px">${has('dispatch')&&AI()?`${pl('job')} show up here when your ${pl('crew').toLowerCase()} start one on their phone.`:`No ${pl('job').toLowerCase()} yet.`}</p>${has('dispatch')&&AI()?'':`<button class="btn sm">Add a ${sg('job').toLowerCase()}</button>`}</div>`}</div>`:''}
+ ${AI()&&nodesOf('asset').length?`<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Equipment due or late</h3><span class="sm mut">${nodesOf('asset').length} tracked</span></div>${wk()?nodesOf('asset').slice(0,4).map((n,i)=>`<div class="lr"><span><i class="fa-solid fa-truck" style="color:#AFAFB5"></i> ${n.name}</span><span class="chip ${i===0?'chip-late':'chip-warning'}">${i===0?'3 days late':'Due in '+(i*4)+' days'}</span></div>`).join(''):`<p class="sm mut">Checks on hours, mileage or a 92-day window come from each item's own schedule in Assets. They'll show here when they're due, at the ${sg('site').toLowerCase()} the equipment is at.</p>`}</div>`:''}
+ <div class="card"><h3>People</h3>${wk()?`<div style="margin:6px 0"><b style="font-size:18px">5</b> <span style="color:var(--link)">with something outstanding</span></div><div class="lr">D. Price<span class="sm mut">1/5 left</span></div>${W3()?'<div class="lr">K. Bennett<span class="sm mut" style="border:1px solid var(--line);border-radius:3px;padding:0 5px">WHMIS expired</span></div>':''}`:`<p class="sm mut">${sites.reduce((a,n)=>a+(n.users||0),0)} people brought in from your Locations${W3()?', with their training':''}.</p><button class="btn sec sm" onclick="S.checklist.invite=true;render()">Invite supervisors to the app</button>`}</div></div>`;
+}
+function place(){
+ const n=nodesOf('site').concat(nodesOf('crew')).find(x=>x.id===S.fmSite)||{name:'—',users:0};
+ const t=S.labels[n.id]||'site'; const R=ROUTINES(S.client).filter(r=>S.routines.includes(r.id));
+ const subs=[['Start of Day','A. Brooks','6:42 am','Completed'],['Start of Day','T. Nguyen','6:51 am','Completed'],['Site walk','E. Chen','10:10 am','Pending signature'],['Start of Day','D. Price','—','Missing']];
+ return `<div class="card row" style="padding:14px 20px;margin-bottom:14px"><div class="ico"><i class="fa-solid fa-house"></i></div><div style="flex:1"><h1 style="margin:0">${n.name}</h1><div class="sm mut">${sg(t)} · ${n.users} people${parentOf(n.id)&&parentOf(n.id).id!=='root'?' · in '+parentOf(n.id).name:''} · <a style="color:var(--link)">Edit</a></div></div>${W3()?'<button class="btn sec sm">Export</button>':''}<button class="btn sm">+ Assign</button></div>
+ ${hint('site',`Supervisors at <b>${n.name}</b> see this page on their phone. People here come from Locations, so moving someone in Locations moves them here too.`.replace(/People here come from Locations, so moving someone in Locations moves them here too\./,LIVE()?(AI()?'People here come from Locations, so moving someone in Locations moves them here too.':'This place follows your Locations.'):'People here were copied once from Locations.'))}
+ <div class="card"><div class="tabs">${(AI()?['Today','People','Routines','Calendar']:['Submissions','People','Requirements','Crews',sg('job')+' here']).map((x,i)=>`<button class="${i===0?'on':''}">${x}</button>`).join('')}</div>
+ ${wk()?`<table><tr><th>Submission</th><th>By</th><th>Completed</th><th>Status</th></tr>${subs.map(s=>`<tr><td><a>${s[0]}</a></td><td>${s[1]}</td><td>${s[2]}</td><td><span class="chip" style="border-color:${s[3]==='Missing'?'var(--red)':s[3]==='Completed'?'var(--green)':'var(--amber)'}">${s[3]}</span></td></tr>`).join('')}</table>`:
+ `<div class="empty"><div class="ico" style="margin:0 auto 8px"><i class="fa-solid fa-clipboard-list"></i></div><h3>Nothing submitted yet today</h3><p class="mut sm">${R.length?`Each morning, <b>${R.map(r=>r.name).join(' and ')}</b> show up here as people complete them, and anything missing is flagged.`:`Add a routine to set what's expected here each day.`}</p>${R.length?`<button class="btn sec" onclick="S.checklist.app=true;render()">See it on a phone</button>`:`<button class="btn" onclick="go('routine')">Add a routine</button>`}</div>`}</div>`;
+}
+function list(){ const t=S.fmSite; const L=nodesOf(t);
+ return `<div class="card row" style="padding:14px 20px;margin-bottom:14px"><div style="flex:1"><h1 style="margin:0">${pl(t)}</h1><div class="sm mut">${L.length} · from Locations</div></div><button class="btn sm">+ Add ${sg(t).toLowerCase()}</button></div>
+ <div class="card">${L.length?L.map((n,i)=>`<div class="lr"><a style="color:var(--link)" onclick="fm('place','${n.id}')">${n.name}</a><span class="sm mut">${n.users} people${wk()?` · ${stat(i).exp-stat(i).done} left today`:''}</span></div>`).join(''):`<div class="empty"><h3>No ${pl(t).toLowerCase()} yet</h3><button class="btn">Add one</button></div>`}</div>`; }
+function manage(){
+ return `<div class="card row" style="padding:14px 20px;margin-bottom:14px"><div style="flex:1"><h1 style="margin:0">Setup and words</h1><div class="sm mut">Change anything you chose in setup.</div></div><button class="btn sec sm" onclick="go('work')">Run setup again</button></div>
+ ${hint('manage','Renaming a word here changes it everywhere in Field Management, for everyone in your company.')}
+ <div class="grid2"><div class="card"><h3>Your words</h3>${['group','site','job','crew'].filter(t=>t!=='job'||jobsOn()).map(t=>`<div class="lr"><span>${DESC[t]}</span><b>${sg(t)} / ${pl(t)}</b></div>`).join('')}<button class="btn ghost" onclick="go('words')">Change words</button></div>
+ <div class="card"><h3>Structure</h3><p class="sm mut">${S.source!=='fresh'?(LIVE()?'Linked to your Locations. Changes there show up here.':'Copied once from your Locations. Change things here.'):'Built in Field Management. Not linked to Locations.'}</p><div class="sm">${countLine()}</div><button class="btn ghost" onclick="go('structure')">Change what's included</button></div></div>`; }
+function routinesPage(){ const R=ROUTINES(S.client).filter(r=>S.routines.includes(r.id));
+ return `<div class="card row" style="padding:14px 20px;margin-bottom:14px"><div style="flex:1"><h1 style="margin:0">Routines</h1><div class="sm mut">What's expected, and when.</div></div><button class="btn sm" onclick="go('routine')">+ New routine</button></div>
+ <div class="card">${R.length?`<table><tr><th>Routine</th><th>What</th><th>Schedule</th><th>Counts per</th></tr>${R.map(r=>`<tr><td><a>${r.name}</a></td><td>${r.items.filter((x,j)=>x.req&&!S.reqOff[r.id+j]).length} required · ${r.items.filter((x,j)=>!x.req||S.reqOff[r.id+j]).length} optional</td><td>${r.when}</td><td>${r.per}</td></tr>`).join('')}</table>`:`<div class="empty"><h3>No routines yet</h3><p class="sm mut">${AI()?'We can suggest some from the forms you already use.':'Start from a template or from scratch.'}</p><button class="btn" onclick="go('routine')">${AI()?'See suggestions':'Add a routine'}</button></div>`}</div>`; }
+function fmScreen(){ foot(null);
+ const body={overview,place,list,manage,routines:routinesPage}[S.fmPage]();
+ return sideHtml()+`<div class="fmbody">${body}</div>`; }
+
+/* ============ Checklist launcher ============ */
+function checklistItems(){ return [['crews','Check your '+pl('crew').toLowerCase(),'We brought them in from your Locations'],['people','Add people to '+pl('site').toLowerCase()+' with nobody','2 have nobody yet'],['routine','Start a routine','Your team sees what\'s due each day'],['invite','Invite your supervisors','They see their '+pl('crew').toLowerCase()+' on the mobile app'],['app','Try it on your phone','See what a supervisor sees']]; }
+function launcherHtml(){ if(!W3()) return '';
+ if(!S.finished||!['fm','home'].includes(S.route)) return '';
+ const L=checklistItems(), n=L.filter(([k])=>S.checklist[k]).length;
+ if(n===L.length) return '';
+ return `${S.launcherOpen?`<div class="panel"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Finish setting up Field Management</h3><a class="sm mut" onclick="S.launcherOpen=false;render()">✕</a></div>
+ <div class="bar g" style="margin:8px 0 6px"><i style="width:${n/L.length*100}%"></i></div>
+ ${L.map(([k,t,s])=>`<div class="check"><span class="tick ${S.checklist[k]?'y':''}">${S.checklist[k]?'✓':''}</span><div style="flex:1"><div style="${S.checklist[k]?'text-decoration:line-through;color:var(--mut)':''}">${t}</div><div class="sm mut">${s}</div></div>${S.checklist[k]?'':`<button class="btn ghost" onclick="S.checklist['${k}']=true;${k==='routine'?"go('routine')":'render()'}">Go</button>`}</div>`).join('')}
+ <div class="sm mut" style="margin-top:6px">Ticks itself when it's done. <a style="color:var(--blue)">Hide for good</a></div></div>`:''}
+ <button class="pill" onclick="S.launcherOpen=!S.launcherOpen;render()"><span class="ring" style="--p:${n/L.length*100}"></span>Finish setting up · ${n} of ${L.length}</button>`;
+}
+
+/* ============ Render ============ */
+const PEOPLE={
+ crew:{name:'Dana',role:'Safety coordinator',av:'D',col:'#2e7d32',bis:'Uses BIS daily for training; has never set up forms for crews.',need:'Needs to know every crew did its hazard assessment before work starts, without phoning foremen.',worry:'Foremen won\'t add another app. Crews move every week, so anything she sets up goes stale.',based:''},
+ wo:{name:'Sam',role:'HSE lead',av:'S',col:'#1565c0',bis:'Comfortable in BIS. IT owns the SAP side, and Sam can\'t change it.',need:'Wants each work order to carry its safety paperwork, matched to the order number.',worry:'Double entry. If it doesn\'t talk to SAP, techs will skip it.',based:''},
+ asset:{name:'Jordan',role:'Compliance manager',av:'J',col:'#6a1b9a',bis:'Light BIS user. Tracks due dates in a spreadsheet today.',need:'Wants to see which locomotives and stations are overdue, across every yard, in one place.',worry:'Due dates by hours of use, not just the calendar.',based:''},
+ place:{name:'Alex',role:'Regional safety lead',av:'A',col:'#00838f',bis:'BIS power user. Locations already sync from HR twice a day.',need:'Wants every branch\'s monthly inspection done, and a branch-by-branch score for leadership.',worry:'Anything that breaks the HR sync, or moves people by hand.',based:''},
+ gate:{name:'Priya',role:'Site HSE superintendent',av:'P',col:'#c62828',bis:'Uses BIS for training records only. Daily forms live in another system.',need:'Needs to know who is allowed on site today: tickets, orientation and their company\'s approval.',worry:'Contractors with expired tickets getting through the gate.',based:''}};
+function personHtml(k,big){ const p=PEOPLE[k]; return `<div class="row" style="gap:10px;align-items:flex-start;${big?'':'background:#fafafb;border:1px solid var(--line);border-radius:6px;padding:10px'}"><span style="width:38px;height:38px;border-radius:50%;background:${p.col};color:#fff;display:grid;place-items:center;font-weight:700;flex:none">${p.av}</span><div class="sm" style="flex:1"><b style="font-size:14px">${p.name}</b> · ${p.role}<div class="mut">${p.bis}</div><div style="margin-top:4px"><b>Needs:</b> ${p.need}</div><div><b>Worried about:</b> ${p.worry}</div></div></div>`; }
+const TYPEICON={A:'<i class="fa-solid fa-road-barrier"></i>',B:'<i class="fa-solid fa-receipt"></i>',C:'<i class="fa-solid fa-gear"></i>',D:'<i class="fa-solid fa-building"></i>',E:'<i class="fa-solid fa-id-card"></i>'};
+function pick(){ foot(null);
+ return `<h1>Pick a company to test as</h1><p class="mut" style="margin-top:0">One made-up company per way of working. Each is based on real clients.</p>
+ <div style="display:grid;gap:10px">${Object.entries(CLIENTS).map(([k,c])=>{ const p=PEOPLE[k]; return `<div class="card" style="cursor:pointer;display:grid;grid-template-columns:56px 1.1fr 1.4fr 1fr auto;gap:16px;align-items:center;padding:14px 16px" onclick="document.getElementById('client').value='${k}';reset('${k}')">
+  <div style="width:56px;height:56px;border-radius:12px;background:var(--blue-l);display:grid;place-items:center;font-size:26px">${TYPEICON[c.type]}</div>
+  <div><div class="sm mut">Type ${c.type}</div><b style="font-size:16px">${c.typeName}</b><div class="sm">${c.label}</div></div>
+  <div class="sm"><b>Their work hangs on:</b> ${c.hangs}<div class="mut" style="margin-top:2px">${c.line}</div></div>
+  <div class="row sm" style="gap:8px;flex-wrap:nowrap"><span style="width:30px;height:30px;border-radius:50%;background:${p.col};color:#fff;display:grid;place-items:center;font-weight:700;flex:none">${p.av}</span><div><b>${p.name}</b><div class="mut">${p.role}</div></div></div>
+  <button class="btn sm">Test</button>
+  ${S.noteOpen?`<div class="sm" style="grid-column:1/-1;background:#fffbe6;border:1px solid #e8d77a;border-radius:4px;padding:4px 8px">Company based on: ${c.based} · Person based on: ${p.based}</div>`:''}</div>`; }).join('')}</div>
+ <p class="sm mut" style="margin-top:12px">Open <b>ⓘ Design note</b> to see which real clients each one is based on.</p>`; }
+const SCREENS={pick,home,intro,welcome,work,about,need,how,structure,words,routine,fm:fmScreen};
+function render(){ if(C) TREE=srcTree(S.source);
+ $('#nav').innerHTML=navHtml();
+ const P=PEOPLE[S.client]; $('#who').innerHTML=S.route==='pick'?'':`<span class="sm mut" title="${P.need}" style="display:flex;gap:6px;align-items:center"><span style="width:24px;height:24px;border-radius:50%;background:${P.col};color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700">${P.av}</span>${P.name} · ${C.label}</span>`;
+ $('#app').className=S.route==='home'?'wide':S.route==='fm'?'fm':'';
+ $('#app').innerHTML=SCREENS[S.route]();
+ $('#drawer').innerHTML=S.route==='work'?drawerHtml():'';
+ const lh=launcherHtml(); $('#launcher').innerHTML=lh; $('#launcher').classList.toggle('hide',!lh);
+ const nt=NOTES[S.route==='fm'?(S.fmPage==='place'?'site':S.fmPage==='overview'?'overview':'manage'):S.route]; const el=$('#note');
+ if(S.noteOpen&&nt){ el.style.display='block'; el.innerHTML=`<div class="row" style="justify-content:space-between"><b>Design note · ${nt[0]}</b><a onclick="S.noteOpen=false;render()">✕</a></div>${nt[1]}`; } else el.style.display='none';
+ const f=document.querySelector('[autofocus]'); if(f) f.focus();
+}
+$('#client').innerHTML=Object.entries(CLIENTS).map(([k,c])=>`<option value="${k}">${c.type} · ${c.label}</option>`).join('');
+window.addEventListener('resize',placeNavTip);
+document.addEventListener('mousedown',e=>{ if(S.comboOpen&&!e.target.closest('#app [style*="position:relative"]')){ S.comboOpen=false; S.comboQ=''; render(); } });
+reset(new URLSearchParams(location.search).get('c')||'crew');S.route='home';render();document.getElementById('wave').value=WAVE; if(LOCKED){ const sel=document.getElementById('wave'); sel.outerHTML='<b>'+sel.options[sel.selectedIndex].text+'</b>'; }
+</script>
+</body>
+</html>
