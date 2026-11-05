@@ -10981,6 +10981,8 @@ svPin('svcode','D-056 · No code field','The client-facing <b>code</b> on Sites 
    ===================================================================== */
 const svOnbUrl=()=>SV_ONB.href+'?back='+encodeURIComponent(SV_ONB.back+'#/overview');
 b5GoSetup=function(){ if(RO()) return; location.href=svOnbUrl(); };
+/* Nov 5: an "Open onboarding ↗" button beside "Open mobile ↗", so web, mobile and onboarding all link to each other */
+{ const _rbo=reviewBar; reviewBar=function(){ const h=_rbo.apply(this,arguments), at=h.indexOf('<button class="rv-btn" onclick="resetAll()">'); return at<0?h:h.slice(0,at)+`<a class="rv-btn" href="${svOnbUrl()}" data-tip="Open this version's onboarding (setup)">Open onboarding ↗</a>`+h.slice(at); }; }
 { const _ov=overviewPage; overviewPage=function(){ return _ov.apply(this,arguments)
     .replace('Set up Field Management in four short steps: Sites or Jobs, your first one, a starter ritual, and a crew.','Setup opens on its own page: how your work runs, what you call things, bringing over what you have, and a first routine.')
     .replace('<span>Set up Field Management</span>','<span>Get started</span>'); }; }
