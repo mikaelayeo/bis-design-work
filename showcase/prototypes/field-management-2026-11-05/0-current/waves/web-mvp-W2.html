@@ -2425,6 +2425,20 @@ html[data-b6tab="768"] .ov:has(.modal.b6-fs){left:50%;right:auto;width:768px;tra
 .sv-hr > i{color:var(--icon-default,#8a8a90)}
 .sv-tst{margin:6px 0 4px;width:100%}
 
+/* 16. Review bar tidy (Nov 5, Design): the Annotations icon + popover, the Variants button and modal. Review chrome. */
+.rv .sv-annb{position:relative;padding:3px 8px;min-width:30px;justify-content:center}
+.rv .sv-annb i{font-size:14px}
+.rv .sv-annb.on{color:#0078b3;border-color:#0078b3;background:#f8feff}
+.rv .sv-annn{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#0078b3;color:#fff;font-size:10px;line-height:16px;font-weight:700}
+.rv .sv-varb i{font-size:13px}
+.sv-annpop{min-width:240px;padding:4px 4px 8px}
+.sv-annr{display:flex;flex-direction:column;gap:2px;padding:6px 12px}
+.sv-annr .tg{font-size:14px;font-weight:600;background:none;border:0;padding:0;color:var(--text-default,#19191a)}
+.sv-annr small{color:var(--text-secondary,#636368);font-size:12px;padding-left:40px}
+.modal.sv-varm{max-width:620px}
+.sv-varm-i{margin:0 0 12px}
+.sv-varm-b .var-g:last-child{margin-bottom:0}
+
 </style>
 </head>
 <body>
@@ -9879,7 +9893,7 @@ const SVR={W1:1,W2:2,W3:3,IDEAL:4}[SCOPE_V];
 /* where each version's web file is, from this file (build.mjs rewrites it per output folder) */
 const SV_HREF={W1:'web-mvp-W1.html',W2:'web-mvp-W2.html',W3:'../web-mvp.html',IDEAL:'../../1-ideal/web-ideal.html'};
 /* this version's onboarding page, and the way back to this file from it (build.mjs rewrites both per version; see section 12) */
-const SV_ONB={href:'../onboarding-w1.html',back:'waves/web-mvp-W2.html',label:'W1'};
+const SV_ONB={href:'../onboarding.html?wave=W1',back:'waves/web-mvp-W2.html',label:'W1'};
 const SV_LABEL={W1:'W1 · Wave 1',W2:'W2 · Waves 1–2',W3:'MVP · All of release 1',IDEAL:'Ideal · Full release'};
 const SV_IDS=[];
 const SVD={draft:null};  /* the saved setup draft (autosave and resume) */
@@ -10939,7 +10953,7 @@ svPin('svcode','D-056 · No code field','The client-facing <b>code</b> on Sites 
    version's file (W1 and W2 open W1, the MVP opens W3, the ideal opens the ideal). Finishing setup there comes
    back to this file's Overview.
    ===================================================================== */
-const svOnbUrl=()=>SV_ONB.href+'?back='+encodeURIComponent(SV_ONB.back+'#/overview');
+const svOnbUrl=()=>SV_ONB.href+(SV_ONB.href.includes('?')?'&':'?')+'back='+encodeURIComponent(SV_ONB.back+'#/overview');
 b5GoSetup=function(){ if(RO()) return; location.href=svOnbUrl(); };
 /* Nov 5: an "Open onboarding ↗" button beside "Open mobile ↗", so web, mobile and onboarding all link to each other */
 { const _rbo=reviewBar; reviewBar=function(){ const h=_rbo.apply(this,arguments), at=h.indexOf('<button class="rv-btn" onclick="resetAll()">'); return at<0?h:h.slice(0,at)+`<a class="rv-btn" href="${svOnbUrl()}" data-tip="Open this version's onboarding (setup)">Open onboarding ↗</a>`+h.slice(at); }; }
@@ -11251,10 +11265,45 @@ if(XNOTES.svtr3) XNOTES.svtr3[1]+=' <b>Visual only</b> in release 1: no link out
   return _r.call(this,ed,label,val,o); }; }
 XNOTES.b5w7=['W7 · Time zone · answered (D-059)','Answered: the time zone is <b>per Site</b>, from its address, with the portal default for a Site with no address. The day cutoff stays one time per portal, read in the Site’s zone.','s'];
 svPin('svtz','D-059 · Time zone per Site','Each Site’s time zone comes from its <b>address</b> (the portal default when it has none; a Job at a Site uses its Site’s). The <b>day cutoff</b> stays one time for the portal, read in the Site’s zone. Per-Site overrides keep one pattern (portal default, a Site can override); in wave 1 only working days, the sign-in proof (shown from wave 2) and “only expected when signed in” show one (dev q. 179). ⚑ Time zone per Site may get dev pushback.','Agreed');
+/* =====================================================================
+   16. REVIEW BAR TIDY (Nov 5, Design). Review chrome, not product UI. Every version.
+   Colours (stays ON), Loading and the Ticket ▾ picker leave the bar (?ticket= in the URL still works).
+   Annotations become one small note icon with a popover of two switches (Pins, Notes), and a Variants button
+   opens the rail's Variants tab content in a modal, so it works with the rail closed.
+   ===================================================================== */
+tkvPicker=function(){ return ''; };
+{ const _rb=reviewBar; reviewBar=function(){
+  let h=_rb.apply(this,arguments);
+  h=h.replace(/<div class="rv-f"><span class="rv-lb" aria-hidden="true">(?:Colours|Loading)<\/span><span class="rv-seg[\s\S]*?<\/span><\/div>/g,'');
+  const on=!!(S.pins||S.notes), n=(S.pins?1:0)+(S.notes?1:0);
+  const ann=`<button class="rv-btn sv-annb${on?' on':''}" data-anchor="svAnn" aria-haspopup="dialog" aria-expanded="${UI.pop==='svAnn'}" aria-label="Annotations: pins and notes${on?' ('+n+' on)':''}" data-tip="Annotations: pins and notes" onclick="togglePop('svAnn')">${I('fa-regular fa-note-sticky')}${on?`<span class="sv-annn">${n}</span>`:''}</button>`
+    +`<button class="rv-btn sv-varb" onclick="svVarOpen()" data-tip="Variants of this page: empty states, onboarding and other states">${I('fa-regular fa-clone')}Variants</button>`;
+  return h.replace(/<div class="rv-f"><span class="rv-lb" aria-hidden="true">Annotations<\/span><span class="rv-seg[\s\S]*?<\/span><\/div>/,ann);
+}; }
+function svAnnPop(){
+  return `<div class="menu sv-annpop" role="dialog" aria-label="Annotations"><div class="mhd">Annotations</div>`
+    +`<div class="sv-annr">${Toggle(S.pins,'set({pins:!S.pins});UI.pinPop=null','Pins')}<small>Numbered note pins on the prototype</small></div>`
+    +`<div class="sv-annr">${Toggle(S.notes,'set({notes:!S.notes})','Notes')}<small>The notes rail on the right</small></div></div>`;
+}
+{ const _pc=popContent; popContent=function(id){ return id==='svAnn'?svAnnPop():_pc.apply(this,arguments); }; }
+/* the rail's Variants tab, drawn with the rail open on that tab, then put back as it was */
+function svVarBody(){
+  const keep={notes:S.notes,notesCol:S.notesCol,railTab:S.railTab}; let h='';
+  try{ Object.assign(S,{notes:true,notesCol:false,railTab:'variants'}); h=notesCard(); } finally { Object.assign(S,keep); }
+  const d=document.createElement('div'); d.innerHTML=h; d.querySelectorAll('.notes-h,.rtabs').forEach(e=>e.remove());
+  const sec=d.querySelector('.notes'); return sec?sec.innerHTML:d.innerHTML;
+}
+const SV_VARM=()=>({title:'Variants',label:'Variants of this page',cls:'sv-varm',
+  body:`<p class="cap mut sv-varm-i">Other states of this page. Pick one to see it; pick it again to go back.</p><div class="sv-varm-b" onclick="svVarPick(event)">${svVarBody()}</div>`,
+  foot:Btn('Close',{on:'closeModal()'})});
+function svVarOpen(){ UI.pop=null; openModal(SV_VARM); }
+/* a variant closes the modal so its result shows (unless it opened something else) */
+function svVarPick(e){ if(!e.target.closest('.var-b')) return; setTimeout(()=>{ if(UI.modal===SV_VARM) closeModal(); },0); }
+
 render();
 
 /* ==== changelog lag (added by build.mjs) ==== */
-{ const _lagRb=reviewBar; reviewBar=function(){ const h=_lagRb.apply(this,arguments); const at=h.indexOf('<div class="rv-r">'); return at<0?h:h.slice(0,at)+"<span class=\"rv-f\" id=\"svLag\" title=\"Every decision up to D-063 is in this build.\" style=\"font-size:12px;padding:2px 8px;border-radius:10px;align-self:center;white-space:nowrap;background:#E7F6EC;color:#1E6B3A;border:1px solid #9BD3AE\">✓ Up to date with the changelog (D-063)</span>"+h.slice(at); }; }
+{ const _lagRb=reviewBar; reviewBar=function(){ const h=_lagRb.apply(this,arguments); const at=h.indexOf('<div class="rv-r">'); return at<0?h:h.slice(0,at)+"<span class=\"rv-f\" id=\"svLag\" title=\"Every decision up to D-064 is in this build.\" style=\"font-size:12px;padding:2px 8px;border-radius:10px;align-self:center;white-space:nowrap;background:#E7F6EC;color:#1E6B3A;border:1px solid #9BD3AE\">✓ Up to date with the changelog (D-064)</span>"+h.slice(at); }; }
 
 /* ==== W2 END ==== */
 

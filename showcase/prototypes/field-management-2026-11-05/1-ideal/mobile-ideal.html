@@ -553,42 +553,75 @@ body{font-family:var(--font-family-default);background:#E6E6EA;color:var(--color
 .sv-ffbox{height:180px}
 .row.sv-ro{cursor:default}
 
+/* Review bar tidy (Nov 5, Design): review chrome. The "subject to change" badge; Ticket leaves More ▾ (?ticket= still works).
+   From 1280px wide the bar becomes a side panel in the blank space left of the phone; narrower, it stays a bar above it. */
+.rbar .rv-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;background:#EEF0FF;color:#2E3192;border:1px solid #C7CBF5;font:600 12px/16px var(--font-family-default);white-space:normal}
+.rbar .rv-badge i{font-size:11px}
+#tkv-mf{display:none!important}
+@media (min-width:1280px){
+  body{--sp-w:272px}
+  .rbar{position:fixed;top:16px;left:16px;bottom:auto;max-height:calc(100vh - 32px);overflow-y:auto;width:var(--sp-w);z-index:50;
+    flex-direction:column;flex-wrap:nowrap;align-items:stretch;justify-content:flex-start;gap:14px;padding:16px;border:1px solid #dfdfe2;border-radius:10px;box-shadow:0 2px 10px #0000001a}
+  .rbar .rv-l,.rbar .rv-ctl,.rbar .rv-cl,.rbar .rv-r{display:contents}
+  .rbar .rv-div{display:none}
+  .rbar .rv-id{order:0;flex-direction:column;align-items:flex-start;gap:8px;padding:0 0 12px;border-bottom:1px solid #dfdfe2}
+  .rbar .rv-idr{flex-wrap:wrap;white-space:normal}
+  .rbar .rv-ttl{font-size:18px;line-height:24px}
+  .rbar .rv-date,.rbar .rv-dot{display:inline}
+  .rbar .rv-dot{display:inline-block}
+  .rbar .where{max-width:none;line-height:16px;font-size:12px;color:#636368;white-space:normal}
+  .rbar .rv-f{flex-direction:column;align-items:flex-start;gap:4px}
+  .rbar .rv-lb{font-size:11px}
+  #svVer{order:1}.rbar .sp-role{order:2}.rbar .sp-worker{order:3}#wHl{order:4}.rbar .sp-fm{order:5}.rbar .sp-notes{order:6}
+  #svLag{order:7;align-self:flex-start!important;white-space:normal!important}
+  #rbWeb{order:8}#rbOnb{order:9}#rbMoreWrap{order:10}
+  #rbWeb,#rbOnb,#rbMoreWrap>.rv-btn{justify-content:center;width:100%}
+  .rbar .rv-sel,.rbar .rv-sel select{width:100%}
+  #wHl .w-key{margin:4px 0 0}
+  .rbar .rv-menu{position:static;min-width:0;margin-top:8px;box-shadow:none}
+  .stage{padding-left:calc(var(--sp-w) + 48px)}
+  .rail{top:16px}
+}
+@media (min-width:1280px){#tkv-ban{margin-left:calc(var(--sp-w) + 48px)}}
+/* Version: the same look as the web bar's (blue when on, thin dividers) */
+#svVer .rv-seg{border-radius:4px}
+#svVer .rv-seg a{padding:3px 10px;min-height:26px;font:400 13px/20px var(--font-family-default);border-left:1px solid #afafb5}
+#svVer .rv-seg a:first-child{border-left:0}
+#svVer .rv-seg a.on{text-decoration:none;font-weight:600;color:#0078b3;background:#f8feff}
+
 </style>
 </head>
 <body>
 <div class="rbar" id="rbar">
-  <!-- Header restyle (Figma 151-7584, Oct 9): look only. Same ids and handlers; ON / OFF pairs and the Annotations group call the same toggle(). -->
+  <!-- Review bar tidy (Design, Nov 5): from 1280px wide this is a side panel in the blank space left of the phone (overlay-mobile.css);
+       narrower, it wraps as a bar above the phone. Flags (still a rail tab), Colours (stays on), Loading and Ticket left the bar. Same ids and handlers. -->
   <div class="rv-l">
     <div class="rv-id" title="Field Management v2 · mobile design-system prototype · review chrome, not product UI">
       <div class="rv-idr"><span class="rv-ttl">Mobile Prototype</span><span class="rv-ver">v2</span><i class="rv-dot" aria-hidden="true"></i><span class="rv-date" title="Today is fixed so the sample data lines up">Today: Thu Oct 8, 2026</span></div>
+      <span class="rv-badge"><i class="fa-solid fa-pen-ruler" aria-hidden="true"></i>Mobile prototype · design and UI subject to change</span>
       <span class="where" id="rbWhere"></span>
     </div>
     <div class="rv-ctl">
       <div class="rv-cl">
-        <div class="rv-f"><span class="rv-lb" aria-hidden="true">Role</span><span class="rv-seg" role="group" aria-label="Role"><button id="rbW" onclick="setRole('worker')">Worker</button><button id="rbS" onclick="setRole('supervisor')">Supervisor</button><button id="rbV" onclick="setRole('viewer')" title="W-29: someone with Can view access to a Site or Job. Supervisor layout, read-only.">Can view</button></span></div>
-        <div class="rv-f"><label class="rv-lb" for="rbMe" title="Which worker the Worker role shows. Pick someone you just marked present to see their phone.">Worker</label><span class="rv-sel"><select id="rbMe" title="Which worker the Worker role shows. Pick someone you just marked present to see their phone." onchange="S.me=this.value;S.role='worker';S.stack=[];S.sheet=null;render(true)"></select><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></span></div>
+        <div class="rv-f sp-role"><span class="rv-lb" aria-hidden="true">Role</span><span class="rv-seg" role="group" aria-label="Role"><button id="rbW" onclick="setRole('worker')">Worker</button><button id="rbS" onclick="setRole('supervisor')">Supervisor</button><button id="rbV" onclick="setRole('viewer')" title="W-29: someone with Can view access to a Site or Job. Supervisor layout, read-only.">Can view</button></span></div>
+        <div class="rv-f sp-worker"><label class="rv-lb" for="rbMe" title="Which worker the Worker role shows. Pick someone you just marked present to see their phone.">Worker</label><span class="rv-sel"><select id="rbMe" title="Which worker the Worker role shows. Pick someone you just marked present to see their phone." onchange="S.me=this.value;S.role='worker';S.stack=[];S.sheet=null;render(true)"></select><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></span></div>
       </div>
       <i class="rv-div" aria-hidden="true"></i>
       <div class="rv-cl">
-        <div class="rv-f"><span class="rv-lb" aria-hidden="true">Colours</span><span class="rv-seg" role="group" aria-label="Colours" id="rbColours"><button data-k="colours" data-v="1" onclick="rbSet('colours',true)">ON</button><button data-k="colours" data-v="0" onclick="rbSet('colours',false)">OFF</button></span></div>
-        <div class="rv-f"><span class="rv-lb" title="Portal has Field Management: on/off (decision 107)">Field Mgmt</span><span class="rv-seg" role="group" aria-label="Portal has Field Management" id="rbFm" title="Portal has Field Management. Off: the bottom nav keeps More (decision 107)"><button data-k="fm" data-v="1" onclick="setFm(true)">ON</button><button data-k="fm" data-v="0" onclick="setFm(false)">OFF</button></span></div>
-        <span class="rv-seg sq one"><button id="rbNotes" data-t="notes" onclick="toggle('notes')" title="The notes, variants and flags rail">Notes</button></span>
+        <div class="rv-f sp-fm"><span class="rv-lb" title="Portal has Field Management: on/off (decision 107)">Field Mgmt</span><span class="rv-seg" role="group" aria-label="Portal has Field Management" id="rbFm" title="Portal has Field Management. Off: the bottom nav keeps More (decision 107)"><button data-k="fm" data-v="1" onclick="setFm(true)">ON</button><button data-k="fm" data-v="0" onclick="setFm(false)">OFF</button></span></div>
+        <div class="rv-f sp-notes"><span class="rv-lb" aria-hidden="true">Annotations</span><span class="rv-seg sq one"><button id="rbNotes" data-t="notes" onclick="toggle('notes')" title="The notes, variants and flags rail">Notes</button></span></div>
       </div>
     </div>
   </div>
   <div class="rv-r">
-    <button class="rv-btn flagbtn" id="rbFlags" onclick="openFlags()" title="Flags for team review: conflicts and open questions, in the rail">⚑ Flags <span class="cnt" id="rbFlagCnt">9</span></button>
-    <!-- Batch 8 (Oct 9): the less-used controls live in "More ▾" so the bar fits on one row. Same ids and handlers as before. -->
+    <a class="rv-btn" id="rbWeb" href="web-ideal.html" target="_blank" title="Opens the web prototype with the same portal and Colours setting">Open web ↗</a>
+        <a class="rv-btn" id="rbOnb" href="../0-current/onboarding.html?wave=ideal&back=..%2F1-ideal%2Fweb-ideal.html%23%2Foverview" target="_blank" title="Opens this version's onboarding (setup)">Open onboarding ↗</a>
     <div class="rv-more" id="rbMoreWrap">
-      <button class="rv-btn" id="rbMore" aria-expanded="false" aria-controls="rbMenu" onclick="rbMore()" title="Loading, Portal, Pins and Reset">More <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+      <button class="rv-btn" id="rbMore" aria-expanded="false" aria-controls="rbMenu" onclick="rbMore()" title="Portal, Pins and Reset">More <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
       <div class="rv-menu" id="rbMenu" hidden>
-        <div class="rv-f"><span class="rv-lb" aria-hidden="true">Loading</span><span class="rv-seg" role="group" aria-label="Show loading" id="rbLoad"><button data-k="loading" data-v="1" onclick="rbSet('loading',true)">ON</button><button data-k="loading" data-v="0" onclick="rbSet('loading',false)">OFF</button></span></div>
         <div class="rv-f"><label class="rv-lb" for="rbPortal">Portal</label><span class="rv-sel"><select id="rbPortal" onchange="S.portal=this.value;render()" title="Sample portal: tints the section headers and Field header cards only. The app bar never changes."><option value="clean">Northwind Field Services</option><option value="inhouse">Contoso Industrial</option><option value="safetynet">Fabrikam Safety</option></select><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></span></div>
         <div class="rv-f"><span class="rv-lb" aria-hidden="true">Annotations</span><span class="rv-seg sq" role="group" aria-label="Annotations"><button id="rbAll" onclick="rbAll()" title="Pins and the notes rail together">All</button><button id="rbPins" data-t="pins" onclick="toggle('pins')" title="Pins on the phone. Red conflict pins stay visible">Pins</button></span></div>
         <i class="rv-sep" aria-hidden="true"></i>
-        <!-- Round 3 follow-up (Oct 14): Open web moved here so the screen trail fits at 1280px -->
-        <a class="rv-btn" id="rbWeb" href="web-ideal.html" target="_blank" title="Opens the web prototype with the same portal and Colours setting">Open web ↗</a>
-        <a class="rv-btn" id="rbOnb" href="onboarding.html?back=web-ideal.html%23%2Foverview" target="_blank" title="Opens this version's onboarding (setup)">Open onboarding ↗</a>
         <button class="rv-btn" onclick="rbMore(false);resetAll()">Reset Prototype</button>
       </div>
     </div>
@@ -1740,7 +1773,7 @@ function renderBar(){
   document.getElementById('rbPortal').value=S.portal;
   { const sel=document.getElementById('rbMe'); const ids=[...new Set(SUP_CTX.flatMap(c=>S.ctxPeople[c]))].filter(p=>p!==ME_SUP&&!P(p).guest); sel.innerHTML=ids.map(p=>`<option value="${p}" ${p===S.me?'selected':''}>${esc(P(p).n)}</option>`).join(''); }
   document.getElementById('rbWeb').href=`web-ideal.html?portal=${S.portal}&colours=${S.colours?'on':'off'}`;
-  document.getElementById('rbFlags').classList.toggle('on',S.notes&&S.rail==='flags'); document.getElementById('rbFlagCnt').textContent=FLAG_OPEN();
+  { const fb=document.getElementById('rbFlags'), fc=document.getElementById('rbFlagCnt'); if(fb) fb.classList.toggle('on',S.notes&&S.rail==='flags'); if(fc) fc.textContent=FLAG_OPEN(); } /* Nov 5: Flags left the bar (still a rail tab) */
   const trail=[S.role==='worker'?'Worker':S.role==='viewer'?'Can view':'Supervisor',{home:'Home',field:'Field',more:'More',forms:'Forms',folders:'Folders',equipment:'Equipment'}[S.tab]].concat(S.stack.map(x=>({site:CTX[x.id]&&CTX[x.id].n,attendance:'Attendance',sign:'Sign',signed:'Signed',add:'Add',guest:'Guest'}[x.s]||x.title||x.s)));
   document.getElementById('rbWhere').textContent='Screen: '+trail.join(' › ')+(S.sheet?' › ['+S.sheet.type+' sheet]':'');
   document.getElementById('rbWhere').title=document.getElementById('rbWhere').textContent; /* Batch 8: the trail can be cut short on a one-row bar */
@@ -2697,7 +2730,7 @@ FLAGS.forEach(f=>{ if(f.n===41||f.n===42){ f.type='settled'; f.dec='Settled Nov 
 render();
 
 /* ==== changelog lag (added by build.mjs) ==== */
-{ const put=()=>{ const cl=document.querySelector('.rv-ctl .rv-cl'); if(cl&&!document.getElementById('svLag')) cl.insertAdjacentHTML('beforeend',"<span class=\"rv-f\" id=\"svLag\" title=\"Every decision up to D-063 is in this build.\" style=\"font-size:12px;padding:2px 8px;border-radius:10px;align-self:center;white-space:nowrap;background:#E7F6EC;color:#1E6B3A;border:1px solid #9BD3AE\">✓ Up to date with the changelog (D-063)</span>"); };
+{ const put=()=>{ const cl=document.querySelector('.rv-ctl .rv-cl'); if(cl&&!document.getElementById('svLag')) cl.insertAdjacentHTML('beforeend',"<span class=\"rv-f\" id=\"svLag\" title=\"Every decision up to D-064 is in this build.\" style=\"font-size:12px;padding:2px 8px;border-radius:10px;align-self:center;white-space:nowrap;background:#E7F6EC;color:#1E6B3A;border:1px solid #9BD3AE\">✓ Up to date with the changelog (D-064)</span>"); };
   const _lagB=renderBar; renderBar=function(){ const r=_lagB.apply(this,arguments); put(); return r; };
   const _lagR=render; render=function(){ const r=_lagR.apply(this,arguments); put(); return r; }; put(); setTimeout(put,0); }
 
