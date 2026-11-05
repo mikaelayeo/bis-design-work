@@ -278,21 +278,43 @@ main{max-width:1320px;margin:0 auto;padding:16px 24px 90px}
 .proto .rv-r{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-left:auto}
 .proto .rv-btn{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;min-height:28px;border:1px solid #afafb5;border-radius:4px;background:#fff;color:#636368;font:600 13px/20px "Segoe UI",system-ui,sans-serif;text-decoration:none;white-space:nowrap;cursor:pointer}
 .proto .rv-btn:hover{background:#f4f4f6;color:#19191a}
+.proto .rv-sub{font-size:11px;line-height:14px;color:#8a8a90;white-space:nowrap}
+.proto.rv{flex-wrap:nowrap;gap:20px}
+.proto .rv-id{flex-direction:column;align-items:flex-start;gap:0;flex-wrap:nowrap}
+.proto .rv-more{position:relative}
+.proto .rv-more>.rv-btn[aria-expanded="true"]{background:#f8feff;color:#0078b3}
+.proto .rv-more>.rv-btn i{font-size:10px}
+.proto .rv-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:1000;min-width:320px;display:flex;flex-direction:column;gap:8px;padding:12px;background:#fff;border:1px solid #dfdfe2;border-radius:8px;box-shadow:0 2px 12px #00000026}
+.proto .rv-menu[hidden]{display:none}
+.proto .rv-menu .rv-f{justify-content:space-between;gap:12px}
+.proto .rv-sec{font-size:11px;line-height:14px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#8a8a90;padding-top:8px;border-top:1px solid #efeff1}
+.proto .rv-sec:first-child{border-top:0;padding-top:0}
+.proto .rv-open{display:flex;gap:6px;flex-wrap:wrap}
+.proto .rv-open .rv-btn,.proto .rv-menu>.rv-btn{flex:1;justify-content:center}
 </style>
 </head>
 <body>
-<!-- Review bar (Design, Nov 5): the same header style as the web and mobile review bars. Review chrome, not product UI. -->
+<!-- Minimal review bar (Design, Nov 5): title + small grey line · Version · More ▾ (Company, After setup, Open ↗, Restart). Review chrome, not product UI. -->
 <div class="proto rv" id="obBar">
- <div class="rv-id" title="Field Management onboarding · review chrome, not product UI"><span class="rv-ttl">Onboarding Prototype</span><span class="rv-badge"><i class="fa-solid fa-pen-ruler" aria-hidden="true"></i>Onboarding prototype · design and UI subject to change</span></div>
- <div class="rv-cl">
-  <div class="rv-f"><span class="rv-lb" aria-hidden="true">Version</span><span class="rv-seg sq" role="group" aria-label="Version" id="obVer"><button class="rv-o" data-w="W1" onclick="obWave('W1')" title="W1 · no AI">W1</button><button class="rv-o" data-w="W3" onclick="obWave('W3')" title="W3 · + checklist, new to safety">W3</button><button class="rv-o" data-w="ideal" onclick="obWave('ideal')" title="Ideal · with AI">Ideal</button></span><select id="wave" hidden aria-hidden="true" tabindex="-1" onchange="WAVE=this.value;reset();S.route='home';render()"><option value="W1">W1 · no AI</option><option value="W3">W3 · + checklist, new to safety</option><option value="ideal">Ideal · with AI</option></select></div>
-  <i class="rv-div" aria-hidden="true"></i>
-  <div class="rv-f"><label class="rv-lb" for="client">Company</label><span class="rv-sel"><select id="client" onchange="reset(this.value)"></select><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></span></div>
-  <select id="variant" style="display:none"><option value="tree">tree</option></select>
-  <div class="rv-f"><label class="rv-lb" for="day">After setup</label><span class="rv-sel"><select id="day" onchange="S.day=this.value;render()"><option value="1">Day 1</option><option value="7">A week later</option></select><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></span></div>
- </div>
- <div class="rv-r"><a class="rv-btn" id="obWeb" target="_blank" title="Opens this version’s web prototype">Open web ↗</a><a class="rv-btn" id="obMob" target="_blank" title="Opens this version’s mobile prototype">Open mobile ↗</a><button class="rv-btn" onclick="reset()">Restart</button></div>
+ <div class="rv-id" title="Field Management onboarding · review chrome, not product UI"><span class="rv-ttl">Onboarding prototype</span><span class="rv-sub">Design and UI subject to change</span></div>
+ <div class="rv-f rv-vf"><span class="rv-lb" aria-hidden="true">Version</span><span class="rv-seg sq" role="group" aria-label="Version" id="obVer"><button class="rv-o" data-w="W1" onclick="obWave('W1')" title="W1 · no AI">W1</button><button class="rv-o" data-w="W3" onclick="obWave('W3')" title="W3 · + checklist, new to safety">W3</button><button class="rv-o" data-w="ideal" onclick="obWave('ideal')" title="Ideal · with AI">Ideal</button></span><select id="wave" hidden aria-hidden="true" tabindex="-1" onchange="WAVE=this.value;reset();S.route='home';render()"><option value="W1">W1 · no AI</option><option value="W3">W3 · + checklist, new to safety</option><option value="ideal">Ideal · with AI</option></select></div>
+ <div class="rv-r"><div class="rv-more" id="obMoreWrap"><button class="rv-btn" id="obMore" aria-expanded="false" aria-controls="obMenu" onclick="obMore()">More <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+  <div class="rv-menu" id="obMenu" hidden>
+   <div class="rv-sec">View</div>
+   <div class="rv-f"><label class="rv-lb" for="client">Company</label><span class="rv-sel"><select id="client" onchange="reset(this.value)"></select><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></span></div>
+   <select id="variant" style="display:none"><option value="tree">tree</option></select>
+   <div class="rv-f"><label class="rv-lb" for="day">After setup</label><span class="rv-sel"><select id="day" onchange="S.day=this.value;render()"><option value="1">Day 1</option><option value="7">A week later</option></select><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></span></div>
+   <div class="rv-sec">Open</div>
+   <div class="rv-open"><a class="rv-btn" id="obWeb" target="_blank" title="Opens this version’s web prototype">Open web ↗</a><a class="rv-btn" id="obMob" target="_blank" title="Opens this version’s mobile prototype">Open mobile ↗</a></div>
+   <div class="rv-sec">Reset</div>
+   <button class="rv-btn" onclick="obMore(false);reset()">Restart</button>
+  </div></div></div>
 </div>
+<script>/* More ▾ (Nov 5): a disclosure; Esc or a click outside closes it */
+function obMore(open){ const b=document.getElementById('obMore'), m=document.getElementById('obMenu'); const on=open===undefined?m.hidden:!!open; m.hidden=!on; b.setAttribute('aria-expanded',on); }
+document.addEventListener('mousedown',e=>{ const w=document.getElementById('obMoreWrap'); if(w&&!w.contains(e.target)) obMore(false); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!document.getElementById('obMenu').hidden){ obMore(false); document.getElementById('obMore').focus(); } });
+</script>
 <div class="top"><span class="bis">BIS<small>QAQC TEST<br>ENVIRONMENT</small></span><span class="sp"></span><span id="who"></span><span class="search">Search User</span><span class="mut">?</span><span class="mut">Log Out ›</span></div>
 <nav class="main" id="nav"></nav>
 <main id="app"></main>
