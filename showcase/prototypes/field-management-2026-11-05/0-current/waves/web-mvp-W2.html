@@ -11548,7 +11548,7 @@ svWordAdd(/Assigned on demand/g,'Assigned as a one-off','on demand');
      members: add or remove members, put the crew on or take it off Sites and Jobs, assign one-offs, add or move an
      existing routine, sign in (attendance), Mark away, move (wave 2). Not: create, rename, archive or delete a crew,
      add supervisors, create or delete routines, Settings, editing, closing or archiving Sites and Jobs, excusing, exports.
-   - Supervisor · read-only = sees, changes nothing (the D-058 view-only mode, S.as 'viewer' + S.svSup).
+   - (Nov 6, D-080: there is no Read-only crew supervisor; that role is gone from the bar.)
    - Supervisor · no crew = no Field Management (D-079 (2)).
    Site and Job supervisors act for everyone on that Site or Job from wave 2; in wave 1 it is information only.
    ===================================================================== */
@@ -11566,15 +11566,14 @@ const svNotMine=()=>snack(SVR>=2?'You can do this for your own crew members, and
 { const _s=setAs; setAs=function(v){
   if(v==='sup'||v==='supnone'){ const was=S.as; S.svSup=true; S.svNoCrew=v==='supnone'; svGrantNow(); S.sel={}; UI.pop=null; UI.pinPop=null; S.panel=null; S.as='sup'; S.launch='after';
     if(S.top!=='field'||!['overview','list','place','person','b4crew'].includes(S.page)) Object.assign(S,{top:'field',page:'overview',id:null});
-    nav({}); snack(S.svNoCrew?'Viewing as '+SV_SUP+' · supervises no crew, so no Field Management':'Viewing as '+SV_SUP+' · crew supervisor, full edit: his own crew on the Sites and Jobs he can see','fa-solid fa-user-gear'); return; }
+    nav({}); snack(S.svNoCrew?'Viewing as '+SV_SUP+' · supervises no crew, so no Field Management':'Viewing as '+SV_SUP+' · crew supervisor: their own crew on the Sites and Jobs they can see','fa-solid fa-user-gear'); return; }
   S.svNoCrew=false;
-  if(v==='supro'){ if(S.as==='sup') S.as='admin'; return _s('sup'); }
   if(S.as==='sup'){ S.as='admin'; if(v==='admin'){ S.svSup=false; svGrantNow(); nav({}); snack('Viewing as the client admin (full access)','fa-solid fa-user-shield'); return; } }
   return _s(v); }; }
 { const _r=resetAll; resetAll=function(){ const a=S.as, n=S.svNoCrew; const x=_r.apply(this,arguments); if(a==='sup'){ S.as='sup'; S.svNoCrew=n; svGrantNow(); render(); } return x; }; }
 /* the nav: the read-only supervisor's nav (no Features, Edit or Settings), with a Full edit card instead of "View only" */
 { const _n=navPanel; navPanel=function(){ if(!svFull()) return _n.apply(this,arguments); S.as='viewer'; let h; try{ h=_n.apply(this,arguments); } finally { S.as='sup'; }
-  const ks=svMyCrews(), card=`<div class="vo-nav sv-supnav"><b>${I('fa-solid fa-user-gear')}Supervisor · Full edit</b><span>${S.svNoCrew?'You don’t supervise a crew.':'Your crew'+(ks.length===1?'':'s')+': '+esc(ks.map(k=>k.n).join(', '))+'. You run '+(ks.length===1?'it':'them')+' on the Sites and Jobs you see.'}${SVR<2?' Supervising a Site or Job only shows it to you in wave 1.':''}</span>${Pin('svsup2',{on:'parent'})}</div>`;
+  const ks=svMyCrews(), card=`<div class="vo-nav sv-supnav"><b>${I('fa-solid fa-user-gear')}Supervisor</b><span>${S.svNoCrew?'You don’t supervise a crew.':'Your crew'+(ks.length===1?'':'s')+': '+esc(ks.map(k=>k.n).join(', '))+'. You run '+(ks.length===1?'it':'them')+' on the Sites and Jobs you see.'}${SVR<2?' Supervising a Site or Job only shows it to you in wave 1.':''}</span>${Pin('svsup2',{on:'parent'})}</div>`;
   return h.replace(/<div class="vo-nav"[\s\S]*?<\/div>/,card); }; }
 /* admin-only actions leave the page, the menus and the modals */
 const SV_ADMIN_RX=/\b(?:goAdmin|openRemove|openAddTo|b5GoManage|b5GoSetup|b4NewRitual|b5OpenRitual|b5OpenNewCrew|openAddPeople|apAddGuest|bringBack|b5OpenExcuse|b5Chk|b5OpenArchive|svOpenArchJob|svOpenArchK|b5OpenClose|b5Restore|svRestoreK|b4BringCrew|b5OpenAttach|b5OpenLine|b10OpenJobExport|svOpenTs|openExport|openSiteExport|b5OpenPack)\b|page:'manage'|page:'settings'|ptab:'close'|ptab:\\'close\\'|S\.grp\.(?:manage|features)/;
@@ -11624,12 +11623,21 @@ b4OpenMoveCrew=svGuardK(b4OpenMoveCrew); b4OpenRemoveCrew=svGuardK(b4OpenRemoveC
   const d=document.createElement('div'); d.innerHTML=m.body; d.querySelectorAll('.ap-row[onclick]').forEach(r=>{ const k=(r.getAttribute('onclick').match(/sel\['([^']+)'\]/)||[])[1]; if(k&&!svMyK(k)) r.remove(); });
   if(!d.querySelector('.ap-row')){ const l=d.querySelector('.ap-list'); if(l) l.innerHTML='<div class="fp-empty">Your crews are already on this '+esc(ctx(UI.b4ac.cid).kind)+'.</div>'; }
   return Object.assign({},m,{body:d.innerHTML}); }; }
-/* the Role switch in the review bar: Admin · Supervisor · Supervisor · read-only · Supervisor · no crew · Can view */
-{ const _rb=reviewBar; reviewBar=function(){ const h=_rb.apply(this,arguments), ro=!!S.svSup&&S.as==='viewer';
-  const o=[['Admin',S.as==='admin',"setAs('admin')"],['Supervisor',svFull()&&!S.svNoCrew,"setAs('sup')"],['Supervisor · read-only',ro,"setAs('supro')"],['Supervisor · no crew',svFull()&&!!S.svNoCrew,"setAs('supnone')"]].concat(SVR>=2?[['Can view',S.as==='viewer'&&!S.svSup,"setAs('viewer')"]]:[]);
-  return h.replace(/(<span class="rv-seg[^"]*" role="group" aria-label="Viewing as"[^>]*>)[\s\S]*?(<\/span>)/,(m,a,b)=>a.replace(/title="[^"]*"/,'title="Who is looking: the client admin; A. Brooks, crew supervisor with Full edit, Read-only, or no crew; or someone with Can view (wave 2)"')+o.map(([l,on,f])=>`<button class="rv-o${on?' on':''}" aria-pressed="${on}" onclick="${f}">${l}</button>`).join('')+b); }; }
-svPin('svsup2','D-075 · D-078 · D-079 · Supervisors on the web','Supervisors have <b>the same permissions on the web and the app</b> (S-2.3, S-7.3, S-8.7; reverses D-058’s view only). <b>Full edit</b> crew supervisor, for <b>their own crew members only</b> (D-078 (1)): add or remove members (people already in BIS), put the crew on or take it off Sites and Jobs they can see, assign one-off forms, add or move an existing routine, sign in, Mark away, and move (wave 2). Not: create, rename, archive, restore or delete a crew, add supervisors, create or delete routines. <b>Read-only</b>: sees, changes nothing. <b>Supervising no crew = no Field Management.</b> <b>Site and Job supervisors</b> get the same actions for everyone on that Site or Job in <b>wave 2</b>; information only in wave 1 (dev q. 50). Try the Role switch under More.','Agreed');
-if(XNOTES.svsupw) XNOTES.svsupw[1]=XNOTES.svsupw[1].replace(/<b>view only<\/b>/,'<b>read-only</b> when their crew access is Read-only, and with Full edit otherwise (D-075, D-079; see the Supervisor role)');
+/* the Role switch in the review bar: Admin · Supervisor · Supervisor · no crew · Can view (D-080: no read-only role) */
+{ const _rb=reviewBar; reviewBar=function(){ const h=_rb.apply(this,arguments);
+  const o=[['Admin',S.as==='admin',"setAs('admin')"],['Supervisor',svFull()&&!S.svNoCrew,"setAs('sup')"],['Supervisor · no crew',svFull()&&!!S.svNoCrew,"setAs('supnone')"]].concat(SVR>=2?[['Can view',S.as==='viewer'&&!S.svSup,"setAs('viewer')"]]:[]);
+  return h.replace(/(<span class="rv-seg[^"]*" role="group" aria-label="Viewing as"[^>]*>)[\s\S]*?(<\/span>)/,(m,a,b)=>a.replace(/title="[^"]*"/,'title="Who is looking: the client admin; A. Brooks, a crew supervisor, or a supervisor with no crew; or someone with Can view (wave 2)"')+o.map(([l,on,f])=>`<button class="rv-o${on?' on':''}" aria-pressed="${on}" onclick="${f}">${l}</button>`).join('')+b); }; }
+svPin('svsup2','D-075 · D-078 · D-079 · Supervisors on the web','Supervisors have <b>the same permissions on the web and the app</b> (S-2.3, S-7.3, S-8.7; reverses D-058’s view only). A <b>crew supervisor</b> (one kind, D-080), for <b>their own crew members only</b> (D-078 (1)): add or remove members (people already in BIS), put the crew on or take it off Sites and Jobs they can see, assign one-off forms, add or move an existing routine, sign in, Mark away, and move (wave 2). Not: create, rename, archive, restore or delete a crew, add supervisors, create or delete routines. There is <b>no Read-only crew supervisor</b> (D-080): someone who should only look gets “Can view” (wave 2). <b>Supervising no crew = no Field Management.</b> <b>Site and Job supervisors</b> get the same actions for everyone on that Site or Job in <b>wave 2</b>; information only in wave 1 (dev q. 50). Try the Role switch under More.','Agreed');
+if(XNOTES.svsupw) XNOTES.svsupw[1]=XNOTES.svsupw[1].replace(/<b>view only<\/b>/,'with the crew supervisor’s actions (D-075, D-079, D-080; see the Supervisor role)');
+
+/* ---------- D-080 (Nov 6): one kind of crew supervisor. No Read-only / Full edit setting per crew (it came from the
+   prototype, decision 102); no "Supervisor · read-only" role. Anyone who should only look gets "Can view" (S-8.3, W2) ---------- */
+{ const _c=b5MCols; b5MCols=function(t){ const c=_c.apply(this,arguments); return t==='crew'?c.filter(x=>x.k!=='acc'):c; }; }
+{ const _m=b5MCrew; b5MCrew=function(){ let h=_m.apply(this,arguments); if(typeof h!=='string') return h;
+  h=h.replace(/<dt>Supervisor's access to members<\/dt><dd>[^<]*<\/dd>/,'');
+  const a=h.indexOf('<div class="fld"><span class="flabel">Their access to crew members</span>'); if(a>-1){ const e=h.indexOf('</div><div class="b5-sec-f">',a); if(e>-1) h=h.slice(0,a)+h.slice(e); }
+  return h.replace('The supervisor gets the "My Crew" view.','The supervisor gets the "My Crew" view.'+Pin('svksup')); }; }
+svPin('svksup','D-080 · One kind of crew supervisor','The Read-only / Full edit setting per crew is <b>removed</b>: every crew supervisor has the same actions (D-079 (1)). It came from the prototype (decision 102), not a scope decision. Anyone who should only look gets “Can view” sharing (S-8.3, wave 2).','Agreed');
 
 render();
 
