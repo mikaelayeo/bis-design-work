@@ -11439,6 +11439,210 @@ if(SVR<2){
 }
 svPin('svset1','D-068 · Wave 1 Settings','Wave 1 Settings holds <b>only</b> what the scope lists (S-10.4): kinds and labels with the custom-name mapping, working days, time zone, day cutoff, “only expected when signed in”, sharing and the Lone Worker switch. Sign-in and sign-out, Away, on-demand work and the other features come with their wave.','Agreed');
 
+/* =====================================================================
+   18. CHANGELOG CATCH-UP, D-075 to D-079 (Nov 6, from the scope chat). Phase 1: closing and archiving, moves, words.
+   D-078 (3) + D-079 (4)(5): a Job can close, and a Site, Job or crew can be archived, with work outstanding, after a
+   warning that counts and lists what is outstanding today; those items stop being owed and stay in the history as
+   unfinished (replaces the D-068 / decision 49 block). D-078 (2) + D-079 (6): after a move the old place shows "moved",
+   not "removed" with Bring back, and a move has no Undo (move back the normal way). D-078 (4): "Up to date", not current.
+   ===================================================================== */
+
+/* ---------- D-078 (3) + D-079 (4)(5): close and archive with a warning ---------- */
+const svToday=out=>out.filter(o=>o.today);
+const svUnf=()=>S.b5.unf||(S.b5.unf={});
+/* what is outstanding today on these places (for a crew: only its members) */
+function svOutToday(cids,pids){ return cids.map(ctx).filter(Boolean).flatMap(c=>svToday(b5Outstanding(c))).filter(o=>!pids||pids.includes(o.pid)); }
+function svWarn(out,what){ if(!out.length) return '';
+  return `<div class="banner warn sv-cw">${I('fa-solid fa-triangle-exclamation')}<div><b>${b5Plural(out.length,'item is','items are')} still outstanding today</b><span>${what} anyway and ${out.length===1?'it stops':'they stop'} being owed. ${out.length===1?'It stays':'They stay'} in the history, marked unfinished.${Pin('svd79')}</span></div></div>`
+    +b5OutList(out.slice(0,6),{compact:true})+(out.length>6?`<div class="hint">+${out.length-6} more</div>`:''); }
+/* run fn with nothing outstanding (so the old "can't be archived" branch never shows), and put the warning on its modal */
+function svUnblocked(fn,warn){ return function(){ const _o=b5Outstanding, _m=openModal, w=warn();
+  b5Outstanding=()=>[]; openModal=function(m){ return _m(()=>{ const x=Object.assign({},typeof m==='function'?m():m); x.body=w+(x.body||''); return x; }); };
+  try{ return fn.apply(this,arguments); } finally { b5Outstanding=_o; openModal=_m; } }; }
+/* mark them unfinished, and say so in the snack */
+function svMarkUnf(out){ out.forEach(o=>svUnf()[o.key]=Object.assign({},o,{day:iso(o.day),on:iso(TODAY)})); }
+function svWithUnf(fn,outOf){ return function(){ const out=outOf.apply(this,arguments), _s=snack;
+  if(out.length) snack=function(msg){ const a=[].slice.call(arguments); a[0]=msg+` ${b5Plural(out.length,'item')} outstanding today ${out.length===1?'stays':'stay'} in its history as unfinished.`; return _s.apply(this,a); };
+  try{ return fn.apply(this,arguments); } finally { snack=_s; svMarkUnf(out); SUBC.clear(); if(out.length) render(); } }; }
+/* the outstanding items left on a closed or archived place no longer count (they are in svUnf) */
+{ const _o=b5Outstanding; b5Outstanding=function(c){ const out=_o.apply(this,arguments); const u=S.b5&&S.b5.unf; return u?out.filter(o=>!u[o.key]):out; }; }
+{ const _f=formsFor; formsFor=function(p,c,d){ const r=_f.apply(this,arguments); const u=S.b5&&S.b5.unf; if(!u||!r.length||!c) return r; const k=c.id+'~'+iso(d)+'~'+p+'~'; return r.filter(f=>!u[k+f.form]); }; }
+/* Sites: Archive is never blocked */
+{ const _a=b5ArchiveBtn; b5ArchiveBtn=function(){ const _o=b5Outstanding; b5Outstanding=()=>[]; try{ return _a.apply(this,arguments); } finally { b5Outstanding=_o; } }; }
+const svSiteIds=cid=>{ const c=ctx(cid); return [cid].concat(c&&c.kind==='Site'&&typeof svDesc==='function'?svDesc(c).map(x=>x.id):[]); };
+b5OpenArchive=svUnblocked(b5OpenArchive,function(){ return svWarn(svOutToday(svSiteIds(UI.svArch)),'You can archive it'); });
+{ const _o=b5OpenArchive; b5OpenArchive=function(cid){ UI.svArch=cid; return _o.apply(this,arguments); }; }
+svOpenArchJob=svUnblocked(svOpenArchJob,function(){ return svWarn(svOutToday([UI.svArch]),'You can archive it'); });
+{ const _o=svOpenArchJob; svOpenArchJob=function(cid){ UI.svArch=cid; return _o.apply(this,arguments); }; }
+b5DoArchive=svWithUnf(b5DoArchive,cid=>svOutToday(svSiteIds(cid)));
+svDoArchJob=svWithUnf(svDoArchJob,cid=>svOutToday([cid]));
+/* crews: archive warns about its members' items today on its Sites and Jobs */
+const svCrewOut=kid=>{ const k=crew(kid); return k?svOutToday(crewPlaces(kid).map(c=>c.id),k.members):[]; };
+{ const _o=svOpenArchK; svOpenArchK=function(kid){ const out=svCrewOut(kid), _m=openModal;
+  openModal=function(m){ return _m(()=>{ const x=Object.assign({},typeof m==='function'?m():m); x.body=svWarn(out,'You can archive it')+(x.body||''); return x; }); };
+  try{ return _o.apply(this,arguments); } finally { openModal=_m; } }; }
+svDoArchK=svWithUnf(svDoArchK,kid=>svCrewOut(kid));
+/* Jobs: Close is never blocked by what is outstanding (the W2 close-out checklist still has to be ticked) */
+{ const _c=b5CloseTab; b5CloseTab=function(c){ const h=_c.apply(this,arguments); if(!c||UI.loading) return h;
+  const s=b5Stage(c);
+  if(s==='closed'){ const u=Object.values(S.b5.unf||{}).filter(o=>o.cid===c.id).map(o=>Object.assign({},o,{day:fromIso(o.day),today:false}));
+    return u.length?h.replace('Nothing outstanding</b><small>All clean','Nothing owed now</b><small>'+b5Plural(u.length,'item')+' left unfinished')+`<section class="card b5-co-card"><div class="b5-sec-h"><h3>${I('fa-regular fa-circle-xmark','style="color:var(--icon-default);margin-right:6px"')}${b5Plural(u.length,'item')} unfinished when it closed</h3>${Pin('svd79')}</div><p class="b5-sub">Still outstanding on the day it closed. They stopped being owed and stay here as unfinished.</p>${b5OutList(u).replace(/>Missing · /g,'>Unfinished · ')}</section>`:h; }
+  const out=b5Outstanding(c), m=b5Meta(c.id), chk=m.rule==='check'?(m.chk||[]):[], done=m.done||{}, chkOk=chk.every((x,i)=>done[i]);
+  if(out.length&&!chkOk) return h.replace(/Clean up the \d+ outstanding items? first/g,'Tick every item on the close-out checklist first').replace(/A Job can(?:\\'|')t close while anything is outstanding\./g,'');
+  if(!out.length||!chkOk) return h;
+  const n=svToday(out).length;
+  return h.replace(/A Job can't close while anything is outstanding\. ?/,'You can close it with work outstanding: what is outstanding today stops being owed and stays in its history as unfinished. ')
+    .replace(' Clean up first: excuse',' Or clean up first: excuse').replace('It can close early once it is clean.','It can close early.')
+    .replace(/Nothing outstanding<\/b><small>[^<]*/,`Outstanding</b><small>${b5Plural(out.length,'item')}${n?', '+n+' today':''}`)
+    .replace(/<section class="card b5-co-card b5-close">[\s\S]*?<\/section>/,`<section class="card b5-co-card b5-close"><div><b>Close ${esc(c.n)}</b><div class="hint">${n?b5Plural(n,'item is','items are')+' still outstanding today. You can close anyway, after a warning.':'Ready. Closing is confirmed by a person; it never happens on its own.'}${Pin('svd78c')}</div></div><span class="grow"></span>${Btn('Close Job…',{cls:'b-sp',icon:'fa-solid fa-flag-checkered',tip:'Confirm the Job is done',on:`b5OpenClose('${c.id}')`})}</section>`)
+    .replace('A person confirms, once nothing is outstanding','A person confirms; a warning lists what is outstanding today'); }; }
+{ const _o=b5OpenClose; b5OpenClose=function(cid){ const out=svOutToday([cid]), _m=openModal;
+  openModal=function(m){ return _m(()=>{ const x=Object.assign({},typeof m==='function'?m():m); x.body=svWarn(out,'You can close it')+(x.body||''); return x; }); };
+  try{ return _o.apply(this,arguments); } finally { openModal=_m; } }; }
+b5DoClose=svWithUnf(b5DoClose,cid=>svOutToday([cid]));
+svPin('svd78c','D-078 · Close and archive with work outstanding','A Job <b>can close</b>, and a Site, Job or crew <b>can be archived</b>, with work outstanding, after a warning (S-1.7, S-1.12; replaces D-068’s block and decision 49). In wave 1 there is no Excuse all; from wave 2, Excuse all with a note is still there to clean up first (S-1.8).','Agreed');
+svPin('svd79','D-079 · The warning and the history','The warning counts and lists what is outstanding <b>today</b> and says it stops being owed (dev q. 32). Those items stay in the history, marked <b>unfinished</b>: a closed Job lists them in its Close-out tab.','Agreed');
+if(XNOTES.svarch) XNOTES.svarch[1]=XNOTES.svarch[1].replace(/A Site or Job can’t be archived while anything is outstanding \(decision 49\)/,'A Site, Job or crew can be archived with work outstanding, after a warning (D-078, D-079)');
+if(XNOTES.svarchp) XNOTES.svarchp[1]=XNOTES.svarchp[1].replace(/Like any Site, it can’t be archived [^.]*\./,'Like any Site, it can be archived with work outstanding, after a warning (D-078).');
+if(XNOTES.svclose1) XNOTES.svclose1[1]=XNOTES.svclose1[1].replace(/A Job <b>can’t close whi[^.]*\./,'A Job can close with work outstanding, after a warning (D-078); there is no Excuse all in wave 1.');
+
+/* ---------- D-078 (2) + D-079 (6): a move shows "moved" at the old place, with no Bring back and no Undo ---------- */
+/* a moved person stays in S.removed (so nothing is owed there any more) with mv = where they went; the lists that show
+   "removed … Bring back" are drawn with those entries hidden, and a quiet "moved" line is added instead */
+let SV_REAL=null;
+{ const _ir=isRemoved; isRemoved=function(){ if(!SV_REAL) return _ir.apply(this,arguments); const a=S.removed, b=S.b4off; S.removed=SV_REAL.r; S.b4off=SV_REAL.o;
+  try{ return _ir.apply(this,arguments); } finally { S.removed=a; S.b4off=b; } }; }
+const svNoMv=m=>Object.fromEntries(Object.entries(m||{}).map(([id,o])=>[id,Object.fromEntries(Object.entries(o||{}).filter(([,x])=>!x.mv))]));
+function svHideMoved(fn){ return function(){ if(SV_REAL) return fn.apply(this,arguments); SV_REAL={r:S.removed,o:S.b4off};
+  S.removed=svNoMv(SV_REAL.r); if(SV_REAL.o) S.b4off=svNoMv(SV_REAL.o);
+  try{ return fn.apply(this,arguments); } finally { S.removed=SV_REAL.r; S.b4off=SV_REAL.o; SV_REAL=null; } }; }
+const svMvTo=x=>Array.isArray(x.mv)?andList(x.mv.map(i=>(ctx(i)||{n:'?'}).n)):(ctx(x.mv)||crew(x.mv)||{n:'another place'}).n;
+const svMvLine=(ic,items,rest)=>items.length?`<div class="rem-line sv-mv">${I(ic)}<span>Moved: ${items.join(', ')}. ${rest}</span>${Pin('svd78m')}</div>`:'';
+const svMovedPpl=c=>Object.entries((S.removed||{})[c.id]||{}).filter(([p,x])=>x.mv&&PEOPLE[p]);
+const svMovedCrews=c=>Object.entries((S.b4off||{})[c.id]||{}).filter(([k,x])=>x.mv&&crew(k));
+{ const _p=svHideMoved(peopleTab); peopleTab=function(c){ const h=_p.apply(this,arguments); if(UI.loading||!c||isEmpty('ppl')) return h;
+  const ln=svMvLine('fa-solid fa-arrow-right-arrow-left',svMovedPpl(c).map(([p,x])=>`${esc(PEOPLE[p].n)} to ${esc(svMvTo(x))} (${fmtS(fromIso(x.on))})`),'Their past records here stay.');
+  if(!ln) return h; const i=h.indexOf('<div class="rem-line"'); if(i>-1) return h.slice(0,i)+ln+h.slice(i); const j=h.indexOf('<div class="tbl'); return j>-1?h.slice(0,j)+ln+h.slice(j):ln+h; }; }
+{ const _p=personPage; personPage=function(){ let h=_p.apply(this,arguments); const pid=S.pid; if(!pid||!PEOPLE[pid]) return h;
+  CTX.forEach(c=>{ const x=((S.removed||{})[c.id]||{})[pid]; if(!x||!x.mv) return;
+    const k=h.indexOf(`bringBack('${c.id}',['${pid}'])`); if(k<0) return;
+    const a=h.lastIndexOf('<div class="pp-row">',k), e=h.indexOf('</button></div>',k); if(a<0||e<0) return;
+    h=h.slice(0,a)+`<div class="pp-row"><span class="t">${esc(c.n)}<small>Moved to ${esc(svMvTo(x))} ${fmtS(fromIso(x.on))} · past records kept</small></span>${Pin('svd78m')}</div>`+h.slice(e+15); });
+  return h; }; }
+{ const _p=svHideMoved(b4CrewsTab); b4CrewsTab=function(c){ const h=_p.apply(this,arguments); if(UI.loading||!c) return h;
+  const ln=svMvLine('fa-solid fa-helmet-safety',svMovedCrews(c).map(([k,x])=>`${esc(crew(k).n)} to ${esc(svMvTo(x))} (${fmtS(fromIso(x.on))})`),'History is kept.');
+  if(!ln) return h; const i=h.indexOf('<div class="rem-line"'); if(i>-1) return h.slice(0,i)+ln+h.slice(i);
+  const j=h.indexOf('<div class="tbl'); return j>-1?h.slice(0,j)+ln+h.slice(j):ln+h; }; }
+if(typeof b4CrewPage==='function'){ const _p=svHideMoved(b4CrewPage); b4CrewPage=function(){ const h=_p.apply(this,arguments), k=crew(S.b4crew); if(!k) return h;
+  const rows=Object.entries(S.b4off||{}).filter(([cid,o])=>o[k.id]&&o[k.id].mv&&ctx(cid)).map(([cid,o])=>`<div class="pp-row"><span class="t">${esc(ctx(cid).n)}<small>Moved to ${esc(svMvTo(o[k.id]))} ${fmtS(fromIso(o[k.id].on))} · history kept</small></span>${Pin('svd78m')}</div>`).join('');
+  return rows?h.replace(/(<h3><i[^>]*><\/i>Where this crew works<\/h3>[\s\S]*?)(<\/section>)/,'$1'+rows+'$2'):h; }; }
+crewGaps=svHideMoved(crewGaps);
+/* the moves: mark the old place "moved", and no Undo in the snack */
+function svNoUndo(fn){ return function(){ const _s=snack; snack=function(msg,icon,o){ return _s.call(this,msg+' To undo it, move them back.',icon,Object.assign({},o||{},{undo:null})); };
+  try{ return fn.apply(this,arguments); } finally { snack=_s; } }; }
+{ const _d=svNoUndo(doMove); doMove=function(){ const M=UI.mv, [t,id]=(M&&M.from||'').split(':'), to=M&&M.to, p=M&&M.pid; const r=_d.apply(this,arguments);
+  if(t&&t!=='crew'&&S.removed[id]&&S.removed[id][p]){ S.removed[id][p].mv=to; render(); } return r; }; }
+b4DoMoveMembers=svNoUndo(b4DoMoveMembers);
+{ const _d=b4DoMoveCrew; b4DoMoveCrew=function(){ const M=UI.b4mc, add=M&&(M.keep||!M.from), from=M&&M.from, kids=M?M.kids.slice():[], to=M?Object.keys(M.to).filter(x=>M.to[x]&&ctx(x)):[];
+  const r=(add?_d:svNoUndo(_d)).apply(this,arguments);
+  if(!add&&from){ const o=(S.b4off||{})[from]; kids.forEach(k=>{ if(o&&o[k]) o[k].mv=to; }); render(); } return r; }; }
+svPin('svd78m','D-078 · D-079 · “Moved”, not “removed”','After a move the old place shows the person or crew as <b>moved</b> (dev answer #59), not “removed” with Bring back. A move takes effect <b>today</b> (D-075) and has <b>no Undo</b>: move them back the normal way (D-079 (6)). Removing someone still shows “removed” with Bring back.','Agreed');
+
+/* ---------- D-078 (4): the words. "Up to date", not current; one-off, not "on demand" for assigned work ---------- */
+svWordAdd(/\bAll current\b/g,'All up to date','current');
+svWordAdd(/\bCurrent\b/g,'Up to date','current');
+svWordAdd(/Assigned on demand/g,'Assigned as a one-off','on demand');
+
+/* =====================================================================
+   19. CHANGELOG CATCH-UP, D-075 (2), D-078 (1), D-079 (1)-(3) (Nov 6, Design). Phase 2: supervisors on the web.
+   Supervisors have the same permissions on the web as on the app (reverses D-058's "view only"). The review bar's Role:
+   - Supervisor = a crew supervisor with Full edit (S.as 'sup'): their Sites and Jobs only, and only for their own crew
+     members: add or remove members, put the crew on or take it off Sites and Jobs, assign one-offs, add or move an
+     existing routine, sign in (attendance), Mark away, move (wave 2). Not: create, rename, archive or delete a crew,
+     add supervisors, create or delete routines, Settings, editing, closing or archiving Sites and Jobs, excusing, exports.
+   - Supervisor · read-only = sees, changes nothing (the D-058 view-only mode, S.as 'viewer' + S.svSup).
+   - Supervisor · no crew = no Field Management (D-079 (2)).
+   Site and Job supervisors act for everyone on that Site or Job from wave 2; in wave 1 it is information only.
+   ===================================================================== */
+const svFull=()=>S.as==='sup';
+const svMyCrews=()=>CREWS.filter(k=>svSupsOf(k).includes(SV_SUP));
+const svMyPlaces=()=>CTX.filter(c=>(c.supervisor||'').split(', ').includes(SV_SUP));
+function svMyPeople(){ const s=new Set(); svMyCrews().forEach(k=>k.members.forEach(p=>s.add(p))); if(SVR>=2) svMyPlaces().forEach(c=>c.people.forEach(p=>s.add(p))); return s; }
+const svMine=p=>!svFull()||svMyPeople().has(p);
+const svMyK=k=>!svFull()||svMyCrews().some(x=>x.id===k);
+const svNotMine=()=>snack(SVR>=2?'You can do this for your own crew members, and for people on the Sites and Jobs you supervise.':'You can do this for your own crew members only.','fa-solid fa-lock',{variant:'info'});
+/* scope: the same Sites and Jobs as the read-only supervisor */
+{ const _g=granted; granted=function(c){ if(svFull()) return !c||(!S.svNoCrew&&GRANT.ids.includes(c.id)); return _g.apply(this,arguments); }; }
+{ const _w=svSupWords; svSupWords=function(r){ if(!svFull()) return _w.apply(this,arguments); S.as='viewer'; try{ return _w.apply(this,arguments); } finally { S.as='sup'; } }; }
+/* the Role switch */
+{ const _s=setAs; setAs=function(v){
+  if(v==='sup'||v==='supnone'){ const was=S.as; S.svSup=true; S.svNoCrew=v==='supnone'; svGrantNow(); S.sel={}; UI.pop=null; UI.pinPop=null; S.panel=null; S.as='sup'; S.launch='after';
+    if(S.top!=='field'||!['overview','list','place','person','b4crew'].includes(S.page)) Object.assign(S,{top:'field',page:'overview',id:null});
+    nav({}); snack(S.svNoCrew?'Viewing as '+SV_SUP+' · supervises no crew, so no Field Management':'Viewing as '+SV_SUP+' · crew supervisor, full edit: his own crew on the Sites and Jobs he can see','fa-solid fa-user-gear'); return; }
+  S.svNoCrew=false;
+  if(v==='supro'){ if(S.as==='sup') S.as='admin'; return _s('sup'); }
+  if(S.as==='sup'){ S.as='admin'; if(v==='admin'){ S.svSup=false; svGrantNow(); nav({}); snack('Viewing as the client admin (full access)','fa-solid fa-user-shield'); return; } }
+  return _s(v); }; }
+{ const _r=resetAll; resetAll=function(){ const a=S.as, n=S.svNoCrew; const x=_r.apply(this,arguments); if(a==='sup'){ S.as='sup'; S.svNoCrew=n; svGrantNow(); render(); } return x; }; }
+/* the nav: the read-only supervisor's nav (no Features, Edit or Settings), with a Full edit card instead of "View only" */
+{ const _n=navPanel; navPanel=function(){ if(!svFull()) return _n.apply(this,arguments); S.as='viewer'; let h; try{ h=_n.apply(this,arguments); } finally { S.as='sup'; }
+  const ks=svMyCrews(), card=`<div class="vo-nav sv-supnav"><b>${I('fa-solid fa-user-gear')}Supervisor · Full edit</b><span>${S.svNoCrew?'You don’t supervise a crew.':'Your crew'+(ks.length===1?'':'s')+': '+esc(ks.map(k=>k.n).join(', '))+'. You run '+(ks.length===1?'it':'them')+' on the Sites and Jobs you see.'}${SVR<2?' Supervising a Site or Job only shows it to you in wave 1.':''}</span>${Pin('svsup2',{on:'parent'})}</div>`;
+  return h.replace(/<div class="vo-nav"[\s\S]*?<\/div>/,card); }; }
+/* admin-only actions leave the page, the menus and the modals */
+const SV_ADMIN_RX=/\b(?:goAdmin|openRemove|openAddTo|b5GoManage|b5GoSetup|b4NewRitual|b5OpenRitual|b5OpenNewCrew|openAddPeople|apAddGuest|bringBack|b5OpenExcuse|b5Chk|b5OpenArchive|svOpenArchJob|svOpenArchK|b5OpenClose|b5Restore|svRestoreK|b4BringCrew|b5OpenAttach|b5OpenLine|b10OpenJobExport|svOpenTs|openExport|openSiteExport|b5OpenPack)\b|page:'manage'|page:'settings'|ptab:'close'|ptab:\\'close\\'|S\.grp\.(?:manage|features)/;
+const SV_MOVE_RX=/\bopenMove\(|\bb4OpenMoveMembers\(|\bb4OpenMoveCrew\((?![^)]*,true\))/;
+/* Requirements: "Edit routines" (admin) becomes "Add a routine", an existing one (D-079 (1)); in the HTML, so the menu can anchor to it */
+{ const _t=b4RitTab; b4RitTab=function(c){ const h=_t.apply(this,arguments); if(!svFull()||!c) return h;
+  return h.replace(/<button[^>]*onclick="b4ManageRituals\(\)"[^>]*>[\s\S]*?<\/button>/,Btn('Add a routine',{icon:'fa-solid fa-plus',anchor:'b5att:'+c.id,tip:'Add an existing routine to '+c.n,on:`togglePop('b5att:${c.id}')`})+Pin('svsup2')); }; }
+function svSupPrune(){ if(!svFull()) return;
+  const roots=['page','drawer-root','modal-root','layer','portal','pband'].map(id=>document.getElementById(id)).filter(Boolean);
+  roots.forEach(r=>r.querySelectorAll('[onclick]').forEach(e=>{ const f=e.getAttribute('onclick')||''; if(SV_ADMIN_RX.test(f)||(SVR<2&&SV_MOVE_RX.test(f))){ const it=e.closest('.menu-i,.mi,li[role=menuitem]')||e; it.remove(); } }));
+  /* a person's row menu: nothing to do for someone outside your crew */
+  const pp=(UI.pop||'').match(/^prow:[^:]+:(.+)$/); if(pp&&!svMine(pp[1])) roots.forEach(r=>r.querySelectorAll('.menu [onclick]').forEach(e=>{ if(/openMove|openAway|markPresent|undoPresent|openAssign|b4OpenRemoveMembers|openAddTo/.test(e.getAttribute('onclick'))) e.remove(); }));
+  /* empty separators and menus left behind */
+  roots.forEach(r=>r.querySelectorAll('.menu').forEach(m=>{ [...m.children].forEach((c,i,a)=>{ if(c.matches('hr,.sep,.msep')&&(i===0||i===a.length-1||(a[i+1]&&a[i+1].matches('hr,.sep,.msep')))) c.remove(); }); }));
+}
+/* no crew: no Field Management */
+function svNoCrewPage(){ if(!svFull()||!S.svNoCrew) return; const p=document.getElementById('page'), n=document.getElementById('nav');
+  if(n) n.style.display='none';
+  if(p) p.innerHTML=`<div class="card" style="margin-top:24px">${EmptyState('fa-solid fa-user-slash','No Field Management for you yet',SV_SUP+' supervises no crew, so Field Management isn’t in the portal. It shows once they supervise a crew.','')}${Pin('svsup2')}</div>`;
+  document.querySelectorAll('#portal [onclick="goField()"]').forEach(e=>e.style.display='none'); }
+{ const _r=render; render=function(){ if(svFull()&&['manage','settings'].includes(S.page)) Object.assign(S,{page:'overview',id:null});
+  const n=document.getElementById('nav'); if(n&&!(svFull()&&S.svNoCrew)) n.style.display='';
+  document.querySelectorAll('#portal [onclick="goField()"]').forEach(e=>e.style.display='');
+  const x=_r.apply(this,arguments); svSupPrune(); svNoCrewPage(); return x; }; }
+{ const _t=togglePop; togglePop=function(){ const x=_t.apply(this,arguments); svSupPrune(); return x; }; }
+/* own crew only: the guards behind the buttons */
+const svGuardP=(fn,pidsOf)=>function(){ if(!svFull()) return fn.apply(this,arguments); const ps=[].concat(pidsOf.apply(this,arguments)||[]).filter(Boolean);
+  if(ps.length&&!ps.some(svMine)) return svNotMine(); return fn.apply(this,svFilterArgs(arguments,ps)); };
+function svFilterArgs(a,ps){ const b=[].slice.call(a); b.forEach((v,i)=>{ if(Array.isArray(v)) b[i]=v.filter(p=>!PEOPLE[p]||svMine(p)); }); return b; }
+openMove=svGuardP(openMove,pid=>[pid]);
+openAway=svGuardP(openAway,pids=>pids);
+markPresent=svGuardP(markPresent,(cid,pids)=>pids);
+b4OpenRemoveMembers=svGuardP(b4OpenRemoveMembers,(kid,pids)=>svMyK(kid)?[]:['__x']);
+b4OpenMoveMembers=svGuardP(b4OpenMoveMembers,(kid,pids)=>svMyK(kid)?[]:['__x']);
+{ const _o=openAssign; openAssign=function(cid,pids){ if(!svFull()) return _o.apply(this,arguments); const a=[].slice.call(arguments); if(Array.isArray(a[1])) a[1]=a[1].filter(svMine);
+  if(Array.isArray(pids)&&pids.length&&!a[1].length) return svNotMine(); return _o.apply(this,a); }; }
+const svGuardK=fn=>function(kids){ if(!svFull()) return fn.apply(this,arguments); const ks=[].concat(kids).filter(svMyK); if(!ks.length) return svNotMine(); const a=[].slice.call(arguments); a[0]=Array.isArray(kids)?ks:ks[0]; return fn.apply(this,a); };
+b4OpenMoveCrew=svGuardK(b4OpenMoveCrew); b4OpenRemoveCrew=svGuardK(b4OpenRemoveCrew); b4OpenAddToCrew=svGuardK(b4OpenAddToCrew);
+/* the lists in the pickers: their own crews and people */
+{ const _m=assignModal; assignModal=function(){ const A=UI.as, c=svFull()&&A&&A.cid?ctx(A.cid):null; if(!c) return _m.apply(this,arguments);
+  const pe=c.people, cr=c.crews; c.people=pe.filter(svMine); c.crews=cr.filter(svMyK);
+  let m; try{ m=_m.apply(this,arguments); } finally { c.people=pe; c.crews=cr; }
+  if(m&&m.body&&A.step==='who') m.body=`<div class="banner neutral">${I('fa-solid fa-user-gear')}<div><b>Your crew only</b><span>As a supervisor you assign to your own crew members${SVR>=2?' and the people on the Sites and Jobs you supervise':''}.${Pin('svsup2')}</span></div></div>`+m.body;
+  return m; }; }
+{ const _t=moveTos; moveTos=function(pid,from){ const r=_t.apply(this,arguments); if(!svFull()||!from) return r; return from.split(':')[0]==='crew'?r.filter(([k])=>svMyK(k)):r; }; }
+{ const _m=b4AddCrewModal; b4AddCrewModal=function(){ const m=_m.apply(this,arguments); if(!svFull()||!m||!m.body) return m;
+  const d=document.createElement('div'); d.innerHTML=m.body; d.querySelectorAll('.ap-row[onclick]').forEach(r=>{ const k=(r.getAttribute('onclick').match(/sel\['([^']+)'\]/)||[])[1]; if(k&&!svMyK(k)) r.remove(); });
+  if(!d.querySelector('.ap-row')){ const l=d.querySelector('.ap-list'); if(l) l.innerHTML='<div class="fp-empty">Your crews are already on this '+esc(ctx(UI.b4ac.cid).kind)+'.</div>'; }
+  return Object.assign({},m,{body:d.innerHTML}); }; }
+/* the Role switch in the review bar: Admin · Supervisor · Supervisor · read-only · Supervisor · no crew · Can view */
+{ const _rb=reviewBar; reviewBar=function(){ const h=_rb.apply(this,arguments), ro=!!S.svSup&&S.as==='viewer';
+  const o=[['Admin',S.as==='admin',"setAs('admin')"],['Supervisor',svFull()&&!S.svNoCrew,"setAs('sup')"],['Supervisor · read-only',ro,"setAs('supro')"],['Supervisor · no crew',svFull()&&!!S.svNoCrew,"setAs('supnone')"]].concat(SVR>=2?[['Can view',S.as==='viewer'&&!S.svSup,"setAs('viewer')"]]:[]);
+  return h.replace(/(<span class="rv-seg[^"]*" role="group" aria-label="Viewing as"[^>]*>)[\s\S]*?(<\/span>)/,(m,a,b)=>a.replace(/title="[^"]*"/,'title="Who is looking: the client admin; A. Brooks, crew supervisor with Full edit, Read-only, or no crew; or someone with Can view (wave 2)"')+o.map(([l,on,f])=>`<button class="rv-o${on?' on':''}" aria-pressed="${on}" onclick="${f}">${l}</button>`).join('')+b); }; }
+svPin('svsup2','D-075 · D-078 · D-079 · Supervisors on the web','Supervisors have <b>the same permissions on the web and the app</b> (S-2.3, S-7.3, S-8.7; reverses D-058’s view only). <b>Full edit</b> crew supervisor, for <b>their own crew members only</b> (D-078 (1)): add or remove members (people already in BIS), put the crew on or take it off Sites and Jobs they can see, assign one-off forms, add or move an existing routine, sign in, Mark away, and move (wave 2). Not: create, rename, archive, restore or delete a crew, add supervisors, create or delete routines. <b>Read-only</b>: sees, changes nothing. <b>Supervising no crew = no Field Management.</b> <b>Site and Job supervisors</b> get the same actions for everyone on that Site or Job in <b>wave 2</b>; information only in wave 1 (dev q. 50). Try the Role switch under More.','Agreed');
+if(XNOTES.svsupw) XNOTES.svsupw[1]=XNOTES.svsupw[1].replace(/<b>view only<\/b>/,'<b>read-only</b> when their crew access is Read-only, and with Full edit otherwise (D-075, D-079; see the Supervisor role)');
+
 render();
 
 /* ==== IDEAL END ==== */

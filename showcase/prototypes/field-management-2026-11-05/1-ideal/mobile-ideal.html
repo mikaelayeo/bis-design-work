@@ -2307,6 +2307,8 @@ function wWordsM(){
     if(/ritual/i.test(v)) v=v.replace(/Ritual/g,'Routine').replace(/ritual/g,'routine').replace(/RITUAL/g,'ROUTINE');
     /* D-028: "sign in / sign out" everywhere, never "check in" (Working Alone's own "Check-ins" stay) */
     if(/heck(ed)? in\b/.test(v)) v=v.replace(/\bChecked in\b/g,'Signed in').replace(/\bchecked in\b/g,'signed in').replace(/\bCheck in\b/g,'Sign in').replace(/\bcheck in\b/g,'sign in');
+    /* D-078 (4): "Up to date", not current */
+    if(/\bcurrent\b/i.test(v)) v=v.replace(/\bAll current\b/g,'All up to date').replace(/\bCurrent\b/g,'Up to date');
     if(v!==n.nodeValue) n.nodeValue=v; }
 }
 const _w_render=render;
@@ -2734,6 +2736,23 @@ svNote(46,'scope',['assign'],'You can’t assign into the past','When defaults t
 if(SVR>=2) svNote(48,'scope',['assign'],'Task: the “New Task” form','Task is written from scratch, so it opens a compact version of the Task Management create form: Task Name, Priority, Details / Instructions (all required), the Site or Job (locked), who it’s assigned to (your crew members here today) and the due date. One-time: work that repeats is a routine.','Figma Figma 50-12655 · '+svR('D-040'));
 if(SVR<3) svNote(31,'scope',['site','person','attendance'],'Where “Away” lives','The ⋮ menu on a person → <b>Away</b>, a switch (pin 215). Selected people can be marked away from the selection bar, and the People tab has an <b>Away</b> chip. Away applies to every Site and Job.','Feedback 4 · decision 89 · '+svR('D-043'));
 FLAGS.forEach(f=>{ if(f.n===41||f.n===42){ f.type='settled'; f.dec='Settled Nov 5 · '+(f.n===41?'D-057, D-062':'D-011, D-041'); f.q='Settled.'; } });
+
+/* ---------- D-076, D-079 (6) (Nov 6, from the scope chat): mobile parts ----------
+   D-076: a Job at a Site and its Site are ONE sign-in. Signing in to the Job signs the worker in to its Site (viaSite,
+   decision 92); signing out of the Job signs them out of the Site too, even if they had signed in at the Site first;
+   "I've moved" lists only other Sites and Jobs, never the Site they are already in. D-069's switch is unchanged.
+   D-079 (6): a move has no Undo; move back the normal way. */
+{ const _o=signOut; signOut=function(cid){ const s=CTX[cid]&&CTX[cid].kind==='Job'?CTX[cid].at:null; const r=_o.apply(this,arguments);
+  if(s&&S.ctxPeople[s]&&S.ctxPeople[s].includes(S.me)){ const b=att(s,S.me); if(b.st==='here'&&!b.out){ b.out=att(cid,S.me).out; S.snack&&(S.snack.msg=`Signed out of ${CTX[cid].n} and ${CTX[s].n} · ${b.out}`); render(); } }
+  return r; }; }
+{ const _h=sheetHtml; sheetHtml=function(){ let h=_h.apply(this,arguments); const sh=S.sheet; if(!sh||sh.type!=='switch') return h;
+  const at=workerAt(), site=at&&CTX[at].kind==='Job'?CTX[at].at:null; if(!site) return h;
+  const k=h.indexOf(`openSheet({type:'signin',id:'${site}'})`); if(k<0) return h;
+  const a=h.lastIndexOf('<div class="menu-i"',k), e=h.indexOf('</span></span></div>',k); if(a<0||e<0) return h; h=h.slice(0,a)+h.slice(e+20);
+  return h.includes('<div class="menu-i"')?h:h+`<div class="pad small muted">Nowhere else to move to today. You are signed in at ${esc(CTX[at].n)} and ${esc(CTX[site].n)}.</div>`; }; }
+{ const _s=snack; const noUndo=fn=>function(){ const s=snack; snack=function(msg){ return s.call(this,msg+' · to undo, move back',false); }; try{ return fn.apply(this,arguments); } finally { snack=s; } };
+  doMovePerson=noUndo(doMovePerson); moveCrew=noUndo(moveCrew); }
+svNote(223,'scope',['home','field-worker','site','signin','switch'],'One sign-in for a Job and its Site (D-076)','Signing in to a <b>Job at a Site</b> signs you in to that Site too, and signing out of the Job signs you out of the Site, as <b>one sign-in</b> (S-4.1, dev q. 240). <b>I’ve moved</b> lists only other Sites and Jobs, never the Site you are already in. D-069’s per-Job switch is unchanged: it only makes a Site sign-in count for the Job. A move has no Undo: move back the normal way (D-079).');
 
 render();
 
