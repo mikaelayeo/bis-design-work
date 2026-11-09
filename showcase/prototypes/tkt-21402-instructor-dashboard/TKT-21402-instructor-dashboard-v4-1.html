@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<!--
+  TKT-21402 · Instructor Dashboard (Classroom Calendar) · working prototype v1, 2026-10-20.
+  Built from Mika's wireframes (Figma wireframe nodes 375-7590 default, 375-7588 Progress,
+  375-7589 Results, 375-7594 Present window, 375-7617 Present empty, 375-6528 Documents variants)
+  in the style of the Field Management prototype (Field Management prototype):
+  the token block below is copied from it verbatim (Figma BIStrainer_UI-Library-Guide, Light, desktop).
+  Sample data is invented. LOCAL ONLY.
+  v4 lean (2026-11-02, Dan's impromptu meeting): copy of v3 with the overview cards, per-card assign and the
+  participant/document search and sort removed (not on today's page), plus colour accents (type icons,
+  avatars, green Done). Extended / Single screen setup kept.
+  Nov 5 (Dan): profile photo from the person's account (initials if none), Adobe-style PDF icon,
+  today's % correct bar graph kept on every Results question row.
+  Also cut: late-joiner note + Assign, auto-refresh + Update order, name links to Progress, sort buttons in Progress/Results.
+  v4.1 (2026-11-09, dev questions Nov 6 + Nov 9): keeps what today's page already does. HTML5 / link / .ppsx / slide-image
+  PowerPoint documents, Slides list, fullscreen button + B key, course Preview walks every part, form columns in Progress,
+  multi-answer questions in Results, Present greyed out with nothing selected, Question Pool tag + "Removed" option.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instructor Dashboard · TKT-21402</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ===================================================================
+   1. DESIGN TOKENS (copied from the FM prototype, Figma BIStrainer_UI-Library-Guide)
+   =================================================================== */
+:root{
+  --font-family-default:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --color-text-default:#19191A; --color-text-default-on-surface:#FEFEFE; --color-text-primary:#0078B3;
+  --color-text-secondary:#636368; --color-text-secondary-light:#AFAFB5; --color-text-disabled:#AFAFB5;
+  --color-text-success:#167B00; --color-text-error:#CC2222; --color-text-notice:#9C6300; --color-text-primary-alt:#3D63A7;
+  --color-surface-background:#F8F8F8; --color-surface-default:#FEFEFE; --color-surface-default-inverse:#19191A;
+  --color-surface-disabled:#F2F2F2; --color-surface-disabled-dark:#AFAFB5; --color-surface-secondary:#636368;
+  --color-surface-secondary-light:#96969D; --color-surface-secondary-lighter:#DFDFE2; --color-surface-secondary-lightest:#F2F2F2;
+  --color-surface-secondary-subtle:#F8F8F8; --color-surface-overlay:rgba(25,25,27,.25);
+  --color-surface-primary:#0078B3; --color-surface-primary-light:#26B1DC; --color-surface-primary-lighter:#F0F9FE;
+  --color-surface-primary-lightest:#F8FEFF; --color-surface-primary-dark:#095F8C;
+  --color-surface-primary-alt-lighter:#E5EDFB;
+  --color-surface-success:#167B00; --color-surface-success-lighter:#EBF8D6;
+  --color-surface-error:#CC2222; --color-surface-error-light:#E95B5B; --color-surface-error-lighter:#FEE3E3; --color-surface-error-lightest:#FFF2F2;
+  --color-surface-notice:#C37900; --color-surface-notice-lighter:#FFF3E1;
+  --color-stroke-default:#AFAFB5; --color-stroke-default-light:#DFDFE2; --color-stroke-default-dark:#4C4C4F;
+  --color-stroke-primary:#009ACB; --color-stroke-primary-lighter:#C9EFFA;
+  --color-stroke-success:#399300; --color-stroke-success-light:#C2E387; --color-stroke-error:#CC2222; --color-stroke-error-light:#F99A9A;
+  --color-stroke-notice-light:#FFD086;
+  --color-icon-default:#4C4C4F; --color-icon-default-light:#AFAFB5; --color-icon-primary:#009ACB;
+  --color-icon-success:#167B00; --color-icon-error:#CC2222; --color-icon-notice:#C37900;
+  --spacing-xxSmall:4px; --spacing-xSmall:6px; --spacing-small:8px; --spacing-base:12px; --spacing-medium:16px; --spacing-large:24px;
+  --border-radius-small:2px; --border-radius-base:4px; --border-radius-medium:8px; --border-radius-large:12px; --border-radius-round:80px;
+  --shadow-L1:0 0 3px 0 rgba(0,0,0,.15); --shadow-L2:0 0 4px 0 rgba(0,0,0,.15); --shadow-L3:0 0 8px 0 rgba(0,0,0,.15); --shadow-L4:0 0 14px 0 rgba(0,0,0,.15);
+  --shadow-menu:0 4px 16px 0 rgba(0,0,0,.08);
+}
+/* client portal theme (sample brand, local only): the calendar icon and the header bar take the portal colour */
+:root{--portal-band:#0099CC; --portal-tint:#E3F4FA;}
+/* aliases, same short names as the FM prototype */
+:root{
+  --font:var(--font-family-default);
+  --text-default:var(--color-text-default); --text-secondary:var(--color-text-secondary); --text-secondary-light:var(--color-text-secondary-light); --text-on:var(--color-text-default-on-surface);
+  --stroke-default:var(--color-stroke-default); --stroke-light:var(--color-stroke-default-light); --stroke-dark:var(--color-stroke-default-dark);
+  --surface-default:var(--color-surface-default); --surface-subtle:var(--color-surface-secondary-subtle); --surface-lightest:var(--color-surface-secondary-lightest);
+  --surface-lighter:var(--color-surface-secondary-lighter); --surface-inverse:var(--color-surface-default-inverse); --surface-background:var(--color-surface-background);
+  --icon-default:var(--color-icon-default-light); --icon-solo:var(--color-icon-default); --icon-primary:var(--color-icon-primary);
+  --r-sm:var(--border-radius-small); --r-base:var(--border-radius-base); --r-md:var(--border-radius-medium); --r-lg:var(--border-radius-large); --r-round:var(--border-radius-round);
+  --primary:var(--color-surface-primary); --primary-hover:var(--color-surface-primary-dark); --primary-tint:var(--color-surface-primary-lighter); --primary-tint-2:var(--color-surface-primary-lightest);
+  --primary-stroke:var(--color-stroke-primary); --primary-text:var(--color-text-primary);
+  --success:var(--color-text-success); --success-tint:var(--color-surface-success-lighter);
+  --danger:var(--color-text-error); --danger-fill:var(--color-surface-error); --danger-tint:var(--color-surface-error-lighter);
+  --warning:var(--color-text-notice); --warning-tint:var(--color-surface-notice-lighter);
+  --info:var(--color-text-primary); --info-tint:var(--color-surface-primary-lighter);
+  --overlay:var(--color-surface-overlay);
+  --h-btn:34px; --h-btn-sm:26px; --h-input:32px; --h-chip-sm:20px;
+}
+
+/* ===================================================================
+   2. BASE
+   =================================================================== */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#e6e6e9}
+body{font:400 14px/20px var(--font);color:var(--text-default);display:flex;flex-direction:column}
+button,input{font:inherit;color:inherit}
+button{background:none;border:none;cursor:pointer;text-align:inherit}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid var(--primary-stroke);outline-offset:2px}
+.mut{color:var(--text-secondary)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* review bar (not product UI) */
+#review{background:#fff;border-bottom:1px solid #dfdfe2;display:flex;align-items:center;gap:16px;padding:4px 12px;font-size:12px;flex-wrap:wrap}
+#review b{font-size:14px}
+/* hidden by default so it doesn't read as part of the design; a small pill bottom-left shows it */
+body:not(.rv-on) #review{display:none}
+#rv-tog{position:fixed;left:10px;bottom:10px;z-index:200;font-size:12px;padding:4px 10px;border-radius:80px;background:#2a2a2e;color:#fff;opacity:.35;display:inline-flex;align-items:center;gap:6px}
+#rv-tog:hover,body.rv-on #rv-tog{opacity:1}
+#review .rv-f{display:flex;align-items:center;gap:6px;color:#4c4c4f}
+#review .rv-seg{display:inline-flex;border:1px solid #afafb5;border-radius:80px;overflow:hidden}
+#review .rv-seg button{padding:2px 10px;font-size:12px;border-left:1px solid #afafb5}
+#review .rv-seg button:first-child{border-left:0}
+#review .rv-seg button.on{background:#f8feff;color:#0078b3;font-weight:600}
+
+/* ===================================================================
+   3. COMPONENTS (BIS library look-alikes, from the FM prototype)
+   =================================================================== */
+.b{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:var(--h-btn);padding:4px 8px;border-radius:var(--r-base);border:1px solid var(--stroke-default);background:transparent;font-size:16px;line-height:26px;font-weight:600;white-space:nowrap;color:var(--text-secondary)}
+.b.b-icon{width:var(--h-btn);padding:0}
+.b:hover{background:var(--surface-lightest)}
+.b i{font-size:15px}
+.b-primary{background:var(--primary);border-color:transparent;color:var(--text-on)}
+.b-primary:hover{background:var(--primary-hover)}
+.b-ghost{border-color:transparent;color:var(--text-default)}
+.b-ghost:hover{background:var(--surface-lightest)}
+.b-sm{height:var(--h-btn-sm);padding:4px 6px;font-size:14px;line-height:18px}
+.b-sm i{font-size:12px}
+.b:disabled{opacity:.45}
+.b-primary:disabled{opacity:1;background:var(--surface-disabled);color:var(--text-secondary-light)}
+.ib{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:var(--r-base);color:var(--icon-solo);font-size:14px;flex-shrink:0}
+.ib:hover{background:var(--surface-lightest)}
+.ib:disabled{color:var(--text-secondary-light)}
+.ib:disabled:hover{background:none}
+.ib-sm{width:24px;height:24px;font-size:13px}
+.colbtn{width:28px;height:28px;border-radius:50%;border:1px solid var(--stroke-default);background:var(--surface-default);display:inline-flex;align-items:center;justify-content:center;color:var(--icon-default);font-size:12px;flex-shrink:0}
+.colbtn:hover{background:var(--surface-lightest);color:var(--icon-solo)}
+.chip{display:inline-flex;align-items:center;gap:4px;height:var(--h-chip-sm);padding:2px 4px;border-radius:var(--r-sm);font-size:12px;line-height:16px;font-weight:600;white-space:nowrap;border:1px solid var(--stroke-default);background:var(--surface-default);color:var(--text-secondary)}
+.chip i{font-size:11px}
+.chip-danger{background:var(--danger-tint);border-color:transparent;color:var(--danger)}
+.chip-warning{background:var(--warning-tint);border-color:transparent;color:var(--warning)}
+.chip-success{background:var(--success-tint);border-color:transparent;color:var(--success)}
+.chip-info{background:var(--info-tint);border-color:transparent;color:var(--info)}
+.chip-grey{background:var(--surface-lightest);border-color:transparent;color:var(--text-secondary)}
+.cnt{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:2px 4px;border-radius:12px;background:var(--surface-lighter);font-size:12px;line-height:16px;font-weight:600;color:var(--text-secondary)}
+.cnt-primary{background:var(--primary);color:var(--text-on)}
+#tip{position:fixed;z-index:3000;display:none;max-width:340px;white-space:pre-line;background:var(--surface-inverse);color:var(--text-on);font-size:14px;line-height:20px;padding:4px 8px;border-radius:var(--r-base);pointer-events:none;box-shadow:var(--shadow-L2)}
+.seg{display:inline-flex;border:1px solid var(--stroke-default);border-radius:var(--r-base);overflow:hidden;background:var(--surface-default);height:30px}
+.seg button{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;font-size:14px;color:var(--text-default)}
+.seg button+button{border-left:1px solid var(--stroke-default)}
+.seg button i{font-size:13px;color:var(--icon-default)}
+.seg button[aria-pressed="true"]{background:var(--primary-tint-2);color:var(--primary-text);font-weight:600}
+.seg button[aria-pressed="true"] i{color:var(--primary-text)}
+.search{position:relative;display:flex;align-items:center;height:var(--h-input);flex:1;min-width:0}
+.search i{position:absolute;left:10px;color:var(--icon-default);font-size:12px;pointer-events:none}
+.search input{width:100%;height:var(--h-input);padding:4px 8px 4px 30px;border:1px solid var(--stroke-default);border-radius:var(--r-base);background:var(--surface-default);font-size:15px;outline:none}
+.search input:focus{border-color:var(--primary-stroke)}
+.cb{width:16px;height:16px;border-radius:2px;border:1.5px solid var(--stroke-dark);background:var(--surface-default);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.cb i{font-size:10px;color:#fff;display:none}
+.cb[aria-checked="true"]{background:var(--icon-primary);border-color:var(--icon-primary)}
+.cb[aria-checked="true"] i{display:block}
+.rd{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:15px;width:100%}
+.rd i.dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--stroke-dark);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.rd[aria-checked="true"] i.dot{border-color:var(--icon-primary)}
+.rd[aria-checked="true"] i.dot::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--icon-primary)}
+.menu{position:fixed;z-index:2500;min-width:230px;background:var(--surface-default);border:1px solid var(--stroke-default);border-radius:var(--r-base);box-shadow:var(--shadow-menu);padding:4px}
+.menu .mhd{padding:8px 12px 4px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary)}
+.menu .mi{display:flex;align-items:center;gap:8px;width:100%;padding:8px 12px;border-radius:var(--r-base);font-size:16px;line-height:24px}
+.menu .mi:hover{background:var(--surface-lightest)}
+.menu .mi.on{color:var(--primary-stroke)}
+.menu .mi .ck{margin-left:auto;font-size:12px}
+.ov{position:fixed;inset:0;background:var(--overlay);z-index:1500;display:flex;align-items:center;justify-content:center;padding:24px}
+.modal{background:var(--surface-default);border-radius:var(--r-base);box-shadow:var(--shadow-L1);width:100%;max-width:525px;display:flex;flex-direction:column;max-height:88vh}
+.modal .mh{display:flex;align-items:center;gap:8px;padding:16px 16px 6px}
+.modal .mh h2{font-size:20px;line-height:28px;font-weight:600;margin-right:auto}
+.modal .mb{padding:12px 16px 16px;overflow:auto;font-size:15px;line-height:22px}
+.modal .mf{display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:12px 16px 16px;border-top:1px solid var(--stroke-light)}
+.modal.wide{width:94vw;max-width:94vw;height:88vh}
+#snack{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:2800;display:flex;flex-direction:column;gap:8px;align-items:center}
+.snack{display:flex;align-items:center;gap:12px;background:var(--surface-default);padding:12px;border-radius:var(--r-md);box-shadow:var(--shadow-L2);font-size:14px;min-width:300px}
+.snack i{color:var(--icon-primary);font-size:16px}
+.es{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:32px 16px}
+.es .es-i{width:48px;height:48px;border-radius:50%;background:var(--surface-lightest);display:flex;align-items:center;justify-content:center;color:var(--icon-default);font-size:20px;margin-bottom:4px}
+.es b{font-size:16px;line-height:24px;font-weight:600}
+.es p{font-size:14px;line-height:20px;color:var(--text-secondary);max-width:300px}
+.es .es-a{margin-top:8px}
+.live{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border:1px solid var(--stroke-default);border-radius:var(--r-round);font-size:13px;font-weight:600;background:var(--surface-default);white-space:nowrap}
+.live .dot{width:10px;height:10px;border-radius:50%;background:var(--color-icon-success);box-shadow:0 0 0 2px var(--surface-lightest);animation:pulse 2s ease-in-out infinite}
+.live small{font-size:12px;font-weight:400;color:var(--text-secondary)}
+.live .fa-rotate{font-size:11px;color:var(--icon-default)}
+.live.spin .fa-rotate{animation:spin .8s linear infinite;color:var(--icon-primary)}
+@keyframes pulse{50%{opacity:.45}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.live .dot,.live.spin .fa-rotate{animation:none}}
+/* status value (FM statusValue): small tinted round icon + text */
+.sv{display:inline-flex;align-items:center;gap:6px}
+.sv .sv-i{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.sv-neg .sv-i{background:var(--danger-tint);color:var(--color-icon-error)}
+.sv-wait .sv-i{background:var(--warning-tint);color:var(--color-icon-notice)}
+.sv-pos .sv-i{background:var(--success-tint);color:var(--color-icon-success)}
+/* progress bar */
+.pb{height:6px;border-radius:6px;background:var(--surface-lightest);overflow:hidden;display:flex}
+.pb span{display:block;height:100%}
+.pb .ok{background:var(--color-surface-success)}
+.pb .bad{background:var(--stroke-default)}
+.pb .on{background:var(--primary-stroke)}
+
+/* ===================================================================
+   4. PAGE SHELL
+   =================================================================== */
+.app{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--surface-default);margin:12px;border:1px solid var(--stroke-light);box-shadow:var(--shadow-L2)}
+.topbar{display:flex;align-items:center;gap:8px;height:48px;padding:0 12px 0 16px;border-bottom:1px solid var(--stroke-light);background:var(--surface-default)}
+.crumb{display:flex;align-items:center;gap:8px;font-size:16px;line-height:24px;color:var(--text-secondary)}
+.crumb button{color:var(--text-secondary)}
+.crumb button:hover{text-decoration:underline;color:var(--primary-text)}
+.crumb .sl{color:var(--text-secondary-light)}
+.crumb b{color:var(--text-default);font-weight:600}
+.topbar .r{margin-left:auto;display:flex;align-items:center;gap:4px}
+.body{flex:1;min-height:0;display:flex}
+.side{flex-shrink:0;background:var(--surface-default);display:flex;flex-direction:column;min-height:0;transition:width .15s}
+.side.left{width:320px;border-right:1px solid var(--stroke-light)}
+.side.right{width:360px;border-left:1px solid var(--stroke-light)}
+.side .full{display:flex;flex-direction:column;min-height:0;flex:1}
+.side.c{width:0;border:0;overflow:hidden}
+/* a dismissed panel leaves only a floating tab on the page edge */
+.body{position:relative}
+.fab{position:absolute;top:50%;transform:translateY(-50%);z-index:20;width:26px;height:56px;display:flex;align-items:center;justify-content:center;background:var(--surface-default);border:1px solid var(--stroke-light);box-shadow:var(--shadow-L3);color:var(--icon-solo);font-size:12px}
+.fab:hover{background:var(--primary-tint);color:var(--primary-text);border-color:var(--primary-stroke)}
+.fab.l{left:0;border-left:0;border-radius:0 var(--r-md) var(--r-md) 0}
+.fab.r{right:0;border-right:0;border-radius:var(--r-md) 0 0 var(--r-md)}
+.sec-h{display:flex;align-items:center;gap:8px;padding:12px 12px 8px}
+.sec-h h3{font-size:16px;line-height:24px;font-weight:600}
+.sec-h .r{margin-left:auto;display:flex;gap:6px;align-items:center}
+.center{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--surface-background)}
+
+/* left: overview cards (FM .blk widget cards) */
+.ovw{padding:0 12px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;border-bottom:1px solid var(--stroke-light)}
+.blk{border:1px solid var(--stroke-light);border-radius:var(--r-md);padding:8px 10px;min-width:0;text-align:left;background:var(--surface-default);position:relative}
+button.blk:hover{border-color:var(--stroke-default);box-shadow:var(--shadow-L1)}
+.blk.wide{grid-column:1/-1}
+.blk .k{display:flex;align-items:center;gap:4px;font-size:11px;line-height:16px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary)}
+.blk .k i{font-size:9px}
+.blk .v{font-size:16px;line-height:24px;margin-top:2px}
+.blk .v b{font-weight:600}
+.blk .v2{font-size:12px;line-height:16px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+/* left: participant list */
+.plist{flex:1;min-height:0;overflow:auto;padding:0 4px 12px}
+.prow{display:flex;align-items:center;gap:10px;width:100%;padding:8px;border-radius:var(--r-base);border-bottom:1px solid var(--stroke-light)}
+.prow:hover{background:var(--surface-subtle)}
+.av{width:30px;height:30px;border-radius:50%;background:var(--color-surface-primary-alt-lighter);color:var(--color-text-primary-alt);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.prow .t{display:block;flex:1;min-width:0}
+.qh .st .gbar{justify-content:flex-start}.qh .st .gbar span{display:block;font-size:0}
+.gbar{display:flex;align-items:center;gap:8px;width:100%;min-width:220px;height:22px;border-left:2px solid #333}.gbar span{display:block;height:18px;border-radius:0 3px 3px 0}.gbar b{font-size:13px;white-space:nowrap}
+.pdf-adobe{width:1em;height:1.25em;display:inline-block;vertical-align:-.25em}.tile .th .pdf-adobe{width:30px;height:38px}
+.agraph{width:min(94%,900px);background:#fff;box-shadow:var(--shadow-L1);border-radius:4px;padding:10px 16px;max-height:100%;overflow:auto;align-self:flex-start;margin-top:12px}
+.ag-r{display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(140px,38%);gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--stroke-light);font-size:14px}
+.ag-q{font-weight:600}.ag-n{color:var(--primary-text);font-weight:600;text-align:right}
+.ag-b{display:flex;align-items:center;gap:8px;border-left:2px solid #333;padding-left:0;height:24px}.ag-f{display:block;height:20px;border-radius:0 3px 3px 0}.ag-b b{font-size:13px}
+/* v4 lean: colour accents */
+.av-photo{overflow:hidden;padding:0;background:none}.av-photo img{display:block;width:100%;height:100%;object-fit:cover}
+.k-pdf{color:#d93a2b!important}.k-course{color:#1f6fd1!important}.k-ppt{color:#d2591f!important}.k-video{color:#7a3fc4!important}.k-photo{color:#1d8a5a!important}
+.done-ok{color:#22743a;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.lean-btns{display:flex;gap:8px;padding:0 12px 10px}.lean-btns .b{flex:1;justify-content:center}
+.prow .n .chip{height:18px;padding:1px 4px;font-size:11px}
+.prow .n{font-weight:600;font-size:14px;display:flex;align-items:center;gap:6px}
+.prow .s{display:block;font-size:12px;line-height:16px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow .m small{white-space:nowrap}
+.prow .m .wr{color:var(--text-secondary);font-weight:600}
+/* present window: a question for the class, counts only */
+.pq{width:min(90%,900px);background:#fff;border-radius:12px;padding:28px 32px;color:var(--text-primary)}
+.pq-k{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary)}
+.pq h2{font-size:26px;line-height:34px;margin:6px 0 16px}
+.pq-o{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--stroke-light);border-radius:8px;margin-top:8px;font-size:18px}
+.pq-o .t{flex:1}.pq-o .t small{display:block;font-size:13px;color:var(--text-secondary)}
+.pq-o .n{font-weight:600}
+.pq-o .ltr{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--stroke-default);font-weight:600;flex-shrink:0}
+.pq-o.ok{background:var(--success-tint);border-color:var(--color-stroke-success-light)}
+.pq-o.ok .ltr{background:var(--color-surface-success);color:#fff;border-color:transparent}
+.prow .m{display:flex;flex-direction:column;align-items:flex-end;gap:4px;width:64px;flex-shrink:0}
+.prow .m .pb{width:64px}
+.prow .m small{font-size:12px;color:var(--text-secondary)}
+
+/* centre: the course header (FM hero, flushed) */
+.hero{background:var(--surface-default);border-bottom:1px solid var(--stroke-light)}
+.hero .hb{height:20px;background:var(--portal-tint);border-bottom:1px solid var(--stroke-light)}
+.hero .hm{display:flex;align-items:flex-start;gap:14px;padding:0 16px 12px}
+.hero .hi{width:48px;height:48px;border-radius:50%;background:var(--surface-default);border:3px solid var(--surface-default);box-shadow:var(--shadow-L2);margin-top:-18px;display:flex;align-items:center;justify-content:center;font-size:19px;color:var(--portal-band);flex-shrink:0}
+.hero .ht{flex:1;min-width:0;padding-top:6px}
+.hero h2{font-size:20px;line-height:28px;font-weight:600}
+.hero .hmeta{font-size:14px;line-height:22px;color:var(--text-secondary);display:flex;gap:6px;flex-wrap:wrap}
+.hero .hmeta b{color:var(--text-default);font-weight:600}
+.hero .hmeta .sep{color:var(--text-secondary-light)}
+.hero .hact{display:flex;gap:8px;padding-top:10px}
+/* centre: preview stage */
+.stage{flex:1;min-height:0;display:flex;flex-direction:column;padding:16px}
+.pv{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--surface-default);border:1px solid var(--stroke-light);border-radius:var(--r-md);overflow:hidden}
+.pv-h{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px;border-bottom:1px solid var(--stroke-light);min-height:50px}
+.pv-h .ti{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.pv-h .ti b{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-h .ti .tyi{color:var(--icon-default)}
+.pv-b{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:var(--surface-lightest);position:relative;overflow:hidden}
+.pv-f{display:flex;align-items:center;gap:8px;padding:6px 12px;border-top:1px solid var(--stroke-light);font-size:13px;color:var(--text-secondary)}
+.pv-f .r{margin-left:auto;display:flex;align-items:center;gap:4px}
+.onair{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:var(--r-round);background:var(--danger-tint);color:var(--danger);font-size:13px;font-weight:600;white-space:nowrap}
+.onair .dot{width:8px;height:8px;border-radius:50%;background:var(--danger-fill);animation:pulse 1.6s ease-in-out infinite}
+/* content renderings (shared by the preview and the second screen) */
+.cv-pdf{width:min(56%,420px);aspect-ratio:8.5/11;background:#fff;box-shadow:var(--shadow-L3);padding:7% 8%;display:flex;flex-direction:column;gap:8px}
+.cv-pdf .l{height:7px;background:#e4e4e8;border-radius:2px}
+.cv-pdf .h{height:14px;width:60%;background:#c9c9ce;border-radius:2px;margin-bottom:8px}
+.cv-media{width:min(84%,760px);aspect-ratio:16/9;background:#26262a;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:44px;position:relative}
+.cv-media small{position:absolute;left:12px;bottom:10px;font-size:13px;opacity:.8}
+.cv-photo{width:min(70%,640px);aspect-ratio:4/3;background:linear-gradient(135deg,#cfe6f1,#e9f3e1);border-radius:4px;display:flex;align-items:center;justify-content:center;color:#7c98a8;font-size:56px}
+.cv-slide{width:min(84%,760px);aspect-ratio:16/9;background:#fff;box-shadow:var(--shadow-L3);display:flex;flex-direction:column;justify-content:center;padding:6%;gap:12px}
+.cv-slide h4{font-size:clamp(18px,2.4vw,34px);line-height:1.2;color:var(--color-surface-primary-dark)}
+.cv-slide p{font-size:clamp(12px,1.2vw,18px);color:var(--text-secondary)}
+.cv-q{width:min(84%,700px);background:#fff;box-shadow:var(--shadow-L3);border-radius:4px;padding:24px}
+.cv-q .qn{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary)}
+.cv-q h4{font-size:20px;line-height:28px;margin:4px 0 14px}
+.cv-q .op{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--stroke-light);border-radius:var(--r-base);margin-top:8px;font-size:15px}
+.cv-q .op span{width:22px;height:22px;border-radius:50%;border:1px solid var(--stroke-default);display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text-secondary)}
+.cv-empty{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--text-secondary);text-align:center;padding:24px}
+.cv-empty .es-i{width:56px;height:56px;border-radius:50%;background:var(--surface-default);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--icon-default)}
+.cv-empty b{color:var(--text-default);font-size:16px}
+
+/* right: documents */
+.dtools{display:flex;align-items:center;gap:6px;padding:0 12px 10px}
+.dlist{flex:1;min-height:0;overflow:auto;padding:0 12px 12px}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{border:1px solid var(--stroke-light);border-radius:var(--r-md);background:var(--surface-default);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;position:relative;text-align:left}
+.tile:hover{border-color:var(--stroke-default);box-shadow:var(--shadow-L1)}
+.tile.sel{border-color:var(--primary-stroke);box-shadow:0 0 0 1px var(--primary-stroke)}
+.tile .tn{font-size:13px;line-height:18px;font-weight:600;padding:8px 8px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .th{height:84px;margin:0 8px;border-radius:var(--r-base);background:var(--surface-lightest);display:flex;align-items:center;justify-content:center;color:var(--icon-default);font-size:28px;overflow:hidden}
+.tile .th .mini{width:52px;height:68px;background:#fff;box-shadow:var(--shadow-L1);padding:6px;display:flex;flex-direction:column;gap:4px}
+.tile .th .mini i{display:block;height:3px;background:#e1e1e5;border-radius:1px}
+.tile .tf{display:flex;align-items:center;gap:2px;padding:6px 6px 6px 8px}
+.tile .tf .chip{margin-right:auto}
+.tile.off{background:var(--surface-lightest);cursor:not-allowed}
+.tile.off .tn,.tile.off .chip{color:var(--text-secondary-light)}
+.tile.off .th{opacity:.5}
+.drow{display:flex;align-items:center;gap:8px;padding:8px 6px 8px 8px;border-bottom:1px solid var(--stroke-light);cursor:pointer;border-radius:var(--r-base)}
+.drow:hover{background:var(--surface-subtle)}
+.drow.sel{background:var(--primary-tint)}
+.drow .t{flex:1;min-width:0}
+.drow .n{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drow .s{font-size:12px;line-height:16px;color:var(--text-secondary)}
+.drow.off{background:var(--surface-lightest);cursor:not-allowed}
+.drow.off .n,.drow.off .s{color:var(--text-secondary-light)}
+.warn-i{color:var(--color-icon-notice);font-size:12px}
+.na-t{font-size:12px;font-weight:400;color:var(--text-secondary);margin-left:6px}
+.selbar.warnbar{background:var(--warning-tint);border-color:var(--color-stroke-notice-light);color:var(--warning)}
+.selbar.warnbar button{margin-left:auto;font-weight:600;text-decoration:underline;color:var(--warning)}
+.selbar{display:flex;align-items:center;gap:8px;margin:0 12px 10px;padding:6px 10px;border-radius:var(--r-base);background:var(--info-tint);border:1px solid var(--color-stroke-primary-lighter);font-size:13px;color:var(--info)}
+
+/* Progress modal: table */
+.tbl{width:100%;border:1px solid var(--stroke-default);border-radius:var(--r-sm);border-collapse:separate;border-spacing:0;overflow:hidden}
+.tbl th{text-align:left;font-size:14px;font-weight:600;padding:0 10px 0 12px;height:42px;border-bottom:1px solid var(--stroke-default);white-space:nowrap;background:var(--surface-default);position:sticky;top:0}
+.tbl td{padding:8px 10px 8px 12px;border-bottom:1px solid var(--stroke-light);vertical-align:middle;font-size:14px}
+.tbl tr:last-child td{border-bottom:0}
+.tbl .sub{font-size:12px;line-height:16px;color:var(--text-secondary)}
+.tbl th .sub{font-weight:400}
+/* Progress: the table scrolls sideways for many courses; Participant and To review stay fixed on the left */
+.twrap{overflow:auto;border:1px solid var(--stroke-default);border-radius:var(--r-sm);max-height:calc(88vh - 190px)}
+.twrap .tbl{border:0;border-radius:0;overflow:visible;width:max-content;min-width:100%}
+.ptbl th{z-index:2}
+.ptbl th:nth-child(n+4),.ptbl td:nth-child(n+4){min-width:220px;width:220px}
+/* an empty last column takes the spare width, so the table fills the modal while course columns stay left */
+.ptbl th.fill,.ptbl td.fill{width:auto;min-width:0;padding:0}
+.ptbl th:first-child,.ptbl td:first-child{position:sticky;left:0;z-index:3;background:var(--surface-default);min-width:220px;width:220px;white-space:nowrap}
+.ptbl th:nth-child(2),.ptbl td:nth-child(2){position:sticky;left:220px;z-index:3;background:var(--surface-default);min-width:130px;width:130px}
+.ptbl th:nth-child(3),.ptbl td:nth-child(3){position:sticky;left:350px;z-index:3;background:var(--surface-default);min-width:100px;width:100px;border-right:1px solid var(--stroke-default)}
+.ptbl th:nth-child(-n+3){z-index:4}
+.ptbl tr.hl td{background:var(--primary-tint)}
+/* outlined status chip: neutral text and border, coloured icon */
+.ptbl td+td,.ptbl th+th{border-left:1px solid var(--stroke-light)}
+.oc{display:inline-flex;align-items:center;gap:6px;height:24px;padding:2px 0;font-size:13px;color:var(--text-default);white-space:nowrap;vertical-align:middle}
+.oc i{font-size:12px}
+.ic-ok{color:var(--color-icon-success)} .ic-bad{color:var(--color-icon-error)} .ic-warn{color:var(--color-icon-notice)} .ic-info{color:var(--color-icon-primary)} .ic-mute{color:var(--icon-default)}
+.cell-i{color:var(--color-icon-error);font-size:13px;margin-left:6px;vertical-align:middle;cursor:help}
+.asg{color:var(--text-secondary);font-weight:600;margin-left:4px}
+.asg:hover{color:var(--primary-text)}
+
+/* Results view */
+.res{display:flex;flex:1;min-height:0;border-top:1px solid var(--stroke-light)}
+.res-l{width:270px;flex-shrink:0;border-right:1px solid var(--stroke-light);overflow:auto;padding:8px}
+.pick{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:8px 10px;border-radius:var(--r-base);border:1px solid transparent;margin-bottom:2px}
+.pick:hover{background:var(--surface-lightest)}
+.pick.on{background:var(--primary-tint);border-color:var(--primary-stroke)}
+.pick b{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.pick.on b{color:var(--primary-text)}
+.pick small{font-size:12px;line-height:16px;color:var(--text-secondary)}
+.pick-h{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary);padding:10px 10px 4px;display:flex}
+.pick-h span{margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0;font-size:12px}
+.pick.ovp{flex-direction:row;align-items:center;padding:12px 10px}
+.pick.ovp .cnt{margin-left:auto}
+/* Most Challenging Questions: every question open, options picked instead with names */
+.mcq{display:flex;gap:10px;padding:4px 0 16px}
+.mcq .no{font-size:13px;color:var(--text-secondary);padding-top:2px;width:18px;flex-shrink:0}
+.mcq .mq-b{flex:1;min-width:0}
+.mcq .mq-h{display:flex;align-items:center;gap:8px}
+.mcq .mq-h b{font-size:15px;font-weight:600;margin-right:auto}
+.mcq .mq-sub{font-size:13px;color:var(--text-secondary);margin-top:2px}
+.mcq .mq-ok{color:var(--color-text-success,var(--text-primary));font-weight:600}
+.lnk{color:var(--primary-text);font-size:inherit}.lnk:hover{text-decoration:underline}
+.mcq .mq-oh{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary);margin:12px 0 6px}
+.mcq .mq-opt{border:1px solid var(--stroke-light);border-radius:var(--r-md);padding:9px;margin-bottom:8px}
+.mcq .mq-oh2{display:flex;align-items:center;gap:8px}.mcq .mq-oh2 b{font-size:14px;font-weight:600;margin-right:auto}
+.mcq .mq-opt .mq-s{font-size:13px;color:var(--text-secondary);margin:6px 0 4px}
+.mcq .mq-ppl{display:flex;flex-wrap:wrap;gap:6px}
+/* Students who need help: one card per person */
+.sp{margin-bottom:10px;border:1px solid var(--stroke-light);border-radius:var(--r-md);padding:10px 12px}.sp .mq-oh2{display:flex;align-items:center;gap:8px;margin-bottom:4px}.sp .mq-oh2 b{font-size:14px;font-weight:600;margin-right:auto}
+.spd summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--primary-text);padding:2px 0}
+.spd summary::-webkit-details-marker{display:none}
+.spd summary i{font-size:10px;transition:transform .12s}.spd[open] summary i{transform:rotate(90deg)}
+.spq{padding:8px 0 2px;border-top:1px solid var(--stroke-light);margin-top:6px}
+.spt{font-size:13px;font-weight:600}.spt small{display:block;font-weight:400;font-size:12px;color:var(--text-secondary)}
+.spa{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--text-secondary);margin-top:4px}.spa b{color:var(--text-primary);font-weight:600}.spa .mq-ok{color:var(--color-text-success,var(--text-primary))}
+/* single screen */
+.ptbl.mini th:nth-child(3),.ptbl.mini td:nth-child(3){position:static;min-width:220px;width:220px;border-right:0}
+.ptbl.mini th:nth-child(2),.ptbl.mini td:nth-child(2){border-right:1px solid var(--stroke-default)}
+.prow .m .oc{font-size:12px;white-space:nowrap}
+.blk .v.vq{font-size:14px;line-height:20px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.scr-chip{display:inline-flex;align-items:center;gap:4px}
+.hero .hact .scr-chip{align-self:center}
+.scr-mi{align-items:flex-start;gap:10px;white-space:normal;text-align:left}
+.scr-mi>i{margin-top:3px}
+.scr-mi b{display:block;font-weight:600}.scr-mi small{display:block;font-size:12px;line-height:16px;color:var(--text-secondary)}
+.modal{position:relative}
+.modal.priv>*:not(.mh):not(.mf):not(.cover){filter:blur(9px);pointer-events:none;user-select:none}
+.cover{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--surface-default);border:1px solid var(--stroke-light);border-radius:var(--r-md);box-shadow:var(--shadow-L1);padding:24px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;max-width:360px}
+.cover .es-i{font-size:20px}.cover b{font-size:16px}.cover p{font-size:14px;color:var(--text-secondary);margin:0 0 6px}
+#pres1{position:fixed;inset:0;z-index:300;background:#1d1d20;display:flex;flex-direction:column}
+#pres1 .pw-h{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#2a2a2e;color:#e8e8ec;font-weight:600}
+#pres1 .pw-h .r{margin-left:auto;display:flex;gap:6px}#pres1 .pw-h button{color:#e8e8ec;border-color:#5c5c62;background:transparent}#pres1 .pw-h button.on{background:#38383d}
+#pres1 .p1-b{flex:1;display:flex;min-height:0}
+.p1-docs{width:300px;flex-shrink:0;background:#2a2a2e;border-left:1px solid #3a3a3f;overflow:auto;padding:8px}
+.p1-h{color:#a9a9b0;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:6px 8px}
+.p1-d{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 8px;border-radius:8px;color:#e8e8ec;min-height:48px}
+.p1-d:hover{background:#34343a}.p1-d.on{background:#3d4a57}
+.p1-d b{display:block;font-size:14px;font-weight:600}.p1-d small{font-size:12px;color:#a9a9b0}
+.p1-d .tyi{width:28px;text-align:center;color:#a9a9b0}
+.res-gen{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;border:1px dashed var(--stroke-default);border-radius:var(--r-md);font-size:14px;margin:6px 0}
+.res-gen .b{margin-left:auto}
+.mq-oh .b{margin-left:10px;text-transform:none;letter-spacing:0;font-weight:400}
+.scr-badge{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 7px;border-radius:var(--r-round);border:1px solid var(--stroke-light);background:var(--surface-lightest);color:var(--text-secondary);font-size:11px;font-weight:400;white-space:nowrap;flex-shrink:0}
+.scr-badge i{font-size:10px;opacity:.8}.scr-badge:hover{border-color:var(--stroke-default)}
+#pres1 .pw-b{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;overflow:hidden}
+#pres1 .pw-b .cv-pdf{width:min(46%,560px)} #pres1 .pw-b .cv-media,#pres1 .pw-b .cv-slide,#pres1 .pw-b .cv-q{width:min(90%,1200px)}
+/* drag a document onto the preview */
+.stage.drop .pv{outline:2px dashed var(--primary-stroke,#1a73e8);outline-offset:-2px}
+.stage.drop .pv-b::after{content:'Drop to preview';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.8);font-weight:600;font-size:16px;color:var(--primary-text)}
+.res-r{flex:1;min-width:0;overflow:auto;padding:16px 20px 24px}
+.res-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.res-top h3{font-size:18px;line-height:26px;font-weight:600;margin-right:4px}
+.res-top .r{margin-left:auto;display:flex;gap:8px;align-items:center}
+.res-sum{font-size:14px;color:var(--text-secondary);margin-bottom:12px}
+.private{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary);padding:6px 10px;border-radius:var(--r-base);background:var(--surface-subtle);border:1px solid var(--stroke-light);margin-bottom:12px}
+.newbar{display:flex;align-items:center;gap:8px;padding:6px 10px;margin-bottom:8px;border-radius:var(--r-base);background:var(--info-tint);color:var(--info);font-size:13px;font-weight:600}
+.newbar button{margin-left:auto;color:var(--primary-text);text-decoration:underline}
+.qrow{border:1px solid var(--stroke-light);border-radius:var(--r-md);margin-bottom:8px;background:var(--surface-default);overflow:hidden}
+.ans .at .hot-i{color:var(--color-icon-warning,var(--warning));font-size:13px;margin-left:6px}
+.qh .rk{display:flex;align-items:center;justify-content:flex-start;gap:6px}
+.qh .rk .hot-i{color:var(--color-icon-warning,var(--warning));font-size:13px}
+.qh{display:grid;grid-template-columns:40px 1fr 300px 20px;gap:12px;align-items:center;width:100%;padding:10px 12px}
+.qh:hover{background:var(--surface-subtle)}
+.qh .rk{font-size:13px;font-weight:600;color:var(--text-secondary);text-align:center}
+.qh .qt{font-size:14px;line-height:20px;font-weight:600}
+.qh .qt small{display:block;font-weight:400;font-size:12px;color:var(--text-secondary)}
+.qh .st{display:flex;flex-direction:column;gap:4px}
+.qh .st span{font-size:13px;display:flex;justify-content:space-between}
+.qh .st span b{font-weight:600}
+.qh .st .pb{height:8px}
+.qh .ch{color:var(--icon-default);font-size:12px;transition:transform .12s}
+.qrow.open .qh .ch{transform:rotate(90deg)}
+.qd{display:none;padding:0 12px 12px 52px}
+.qrow.open .qd{display:block}
+.ans{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:var(--r-base);margin-top:6px;border:1px solid var(--stroke-light)}
+.ans .ltr{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;border:1px solid var(--stroke-default);color:var(--text-secondary)}
+.ans .at{flex:1;min-width:0}
+.ans .at b{font-weight:600;font-size:14px}
+.ans .ppl{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.ans .ct{font-size:13px;font-weight:600;white-space:nowrap}
+.ans.ok{}
+.ans.ok .ltr{background:var(--color-surface-success);border-color:transparent;color:#fff}
+.ans.bad{background:var(--surface-default)}
+.ans.none{border-style:dashed}
+/* v4 lean: chips are labels, no hover */
+.prow.flash{background:var(--primary-tint);box-shadow:inset 3px 0 0 var(--primary-stroke)}
+.pchip{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px 0 3px;border-radius:var(--r-round);background:var(--surface-default);border:1px solid var(--stroke-light);font-size:12px;font-weight:600}
+.pchip .av{width:16px;height:16px;font-size:8px}
+.ovsec{margin-bottom:20px}
+.ovsec h4{font-size:15px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.lrow{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--stroke-light);border-radius:var(--r-md);margin-bottom:6px}
+.lrow .n{font-weight:600}
+.lrow .s{font-size:12px;color:var(--text-secondary)}
+.rnd{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:var(--r-md);background:var(--warning-tint);color:var(--warning);font-size:14px}
+
+/* the hide/show tab sits on the panel's edge, in the same spot open or closed */
+.body{--lw:320px;--rw:360px}
+.side.left{width:var(--lw)} .side.right{width:var(--rw)}
+.side.c{width:0}
+.fab.l.open{left:var(--lw)} .fab.r.open{right:var(--rw)}
+.fab{transition:left .15s,right .15s}
+.okbar{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--r-base);background:var(--success-tint);color:var(--success);font-size:13px;font-weight:600}
+.tipu{text-decoration:underline dotted;text-underline-offset:3px;cursor:help;font-weight:600}
+.ov-empty .es i{font-size:20px;color:var(--icon-default)}
+.scrim{display:none}
+
+/* ===================================================================
+   RESPONSIVE
+   =================================================================== */
+.center{container-type:inline-size}
+.hero .hmeta>span{white-space:nowrap}
+@container (max-width:620px){
+  .hero .hm{flex-wrap:wrap}
+  .hero .hact{width:100%;padding-top:0;padding-left:62px}
+  .hero .hmeta .sep{display:none}
+  .hero .hmeta{flex-direction:column;gap:0}
+}
+/* small laptop: slimmer panels */
+@media (max-width:1279px){ .body{--lw:280px;--rw:300px} }
+/* tablet: panels become drawers over the page, one at a time, with a dimmed page behind */
+@media (max-width:1099px){
+  .body{--lw:min(340px,88vw);--rw:min(360px,88vw)}
+  .side{position:absolute;top:0;bottom:0;z-index:30;box-shadow:var(--shadow-L4)}
+  .side.left{left:0} .side.right{right:0}
+  .scrim{display:block;position:absolute;inset:0;z-index:25;background:var(--overlay)}
+  .fab{z-index:31}
+  .body:has(.side.left:not(.c)) .fab.r,.body:has(.side.right:not(.c)) .fab.l{display:none}
+}
+/* tablet and phone: question rows stack the numbers under the question */
+@media (max-width:900px){
+  .qh{grid-template-columns:36px 1fr 14px;gap:8px}
+  .qh .st{grid-column:2;grid-row:2}
+  .qh .ch{grid-column:3;grid-row:1}
+  .qd{padding:0 10px 10px 54px}
+  .res-l{width:220px}
+}
+/* phone */
+@media (max-width:640px){
+  .app{margin:0;border:0}
+  .topbar{padding:0 8px 0 12px}
+  .crumb{font-size:14px}
+  .stage{padding:8px}
+  .hero .hi{width:40px;height:40px;font-size:16px}
+  .hero .hact{padding-left:0}
+  .hero .hact .b{width:100%}
+  .ov{padding:0}
+  .modal,.modal.wide{max-width:none;height:100%;max-height:none;border-radius:0}
+  .res{flex-direction:column}
+  .res-l{width:auto;display:flex;gap:6px;overflow-x:auto;border-right:0;border-bottom:1px solid var(--stroke-light);flex-shrink:0}
+  .res-l .pick-h{display:none}
+  .pick{width:auto;min-width:180px;flex-shrink:0;margin:0}
+  .res-r{padding:12px}
+  .res-top .r{margin-left:0;width:100%}
+  .qd{padding:0 10px 10px}
+  .modal .mf .mut{display:none}
+  .ptbl th:first-child,.ptbl td:first-child{min-width:150px;width:150px}
+  .ptbl th:nth-child(2),.ptbl td:nth-child(2){position:static}
+  .ptbl th:nth-child(3),.ptbl td:nth-child(3){position:static;border-right:0}
+  #review{font-size:11px}
+}
+
+/* present window mock note */
+.qtag{font-size:11px;font-weight:600;color:var(--color-text-primary-alt);background:var(--color-surface-primary-alt-lighter);border-radius:var(--r-sm);padding:1px 5px;margin-left:4px;vertical-align:middle}
+
+/* ===================================================================
+   v4.1: what today's page already does
+   =================================================================== */
+/* new document type colours: HTML5 teal, external link grey-blue (PowerPoint keeps .k-ppt orange) */
+.k-html{color:#0d8a86!important}.k-link{color:#5b7893!important}.k-form{color:#8a5a1f!important}
+/* Present with nothing selected: greyed out, the tooltip sits on a wrapper because a disabled button gets no hover */
+.tipwrap{display:inline-flex}.tipwrap .b:disabled{pointer-events:none}
+/* fullscreen preview (button or the B key); the centre panel is a size container, so it drops that while fullscreen */
+body.fs-on .center{container-type:normal}
+.pv.fs{position:fixed;inset:0;z-index:250;border-radius:0;border:0}
+/* slide-image PowerPoint: the slide list sits beside the slide */
+.pv-b.has-sl{align-items:stretch;justify-content:flex-start}
+.pv-b.has-sl .sl-main{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;padding:12px}
+.pv-b.has-sl .cv-slide{width:min(96%,720px)}
+.sl-list{width:210px;flex-shrink:0;background:var(--surface-default);border-left:1px solid var(--stroke-light);overflow:auto;padding:8px}
+.sl-h{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary);padding:4px 8px 6px}
+.sl-i{display:flex;align-items:flex-start;gap:8px;width:100%;padding:6px 8px;border-radius:var(--r-base);border:1px solid transparent;margin-bottom:2px}
+.sl-i:hover{background:var(--surface-lightest)}
+.sl-i.on{background:var(--primary-tint);border-color:var(--primary-stroke)}
+.sl-i .no{font-size:12px;font-weight:600;color:var(--text-secondary);width:16px;flex-shrink:0;padding-top:1px}
+.sl-i .th{width:56px;height:34px;flex-shrink:0;background:#fff;box-shadow:var(--shadow-L1);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:7px;line-height:8px;color:var(--color-surface-primary-dark);padding:2px;text-align:center;font-weight:600;overflow:hidden}
+.sl-i .tx{min-width:0;font-size:12px;line-height:16px}.sl-i .tx b{display:block;font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sl-i .tx small{color:var(--text-secondary)}
+/* link / .ppsx cards */
+.cv-card{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;background:#fff;box-shadow:var(--shadow-L2);border-radius:var(--r-md);padding:28px 32px;max-width:420px}
+.cv-card .es-i{width:56px;height:56px;border-radius:50%;background:var(--surface-lightest);display:flex;align-items:center;justify-content:center;font-size:22px}
+.cv-card b{font-size:16px}.cv-card span.u{font-size:13px;color:var(--text-secondary);word-break:break-all}
+.cv-card p{font-size:14px;color:var(--text-secondary);margin-bottom:4px}
+.cv-html{width:min(84%,760px);aspect-ratio:16/9;background:#fff;box-shadow:var(--shadow-L3);border-radius:4px;display:flex;flex-direction:column}
+.cv-html .bar{display:flex;align-items:center;gap:6px;padding:6px 10px;background:#e7f4f3;border-bottom:1px solid #cfe7e5;font-size:12px;color:#0d6f6b;font-weight:600}
+.cv-html .bd{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:6%;text-align:center}
+.cv-html .bd h4{font-size:clamp(16px,2vw,28px);color:#0d6f6b}.cv-html .bd p{font-size:clamp(12px,1.1vw,16px);color:var(--text-secondary)}
+.cv-html .go{width:54px;height:54px;border-radius:50%;background:#0d8a86;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px}
+/* multi-answer questions */
+.cv-q .op span.sq{border-radius:4px}
+.cv-q .hint{font-size:12px;color:var(--text-secondary);margin:-8px 0 8px}
+.mp{border:1px solid var(--stroke-light);border-radius:var(--r-base);padding:8px 10px;margin-top:6px}
+.mp-who{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.mp-o{display:flex;flex-wrap:wrap;gap:6px}
+.opc{display:inline-flex;align-items:center;gap:6px;min-height:24px;padding:2px 8px;border-radius:var(--r-round);font-size:12px;border:1px solid var(--stroke-light)}
+.opc b{font-weight:600}
+.opc.ok{background:var(--success-tint);border-color:var(--color-stroke-success-light);color:var(--success)}
+.opc.bad{background:var(--danger-tint);border-color:var(--color-stroke-error-light);color:var(--danger)}
+.opc.miss{border-style:dashed;color:var(--text-secondary)}
+.mp-note{font-size:12px;color:var(--text-secondary);margin-top:6px}
+/* Question Pool tag + removed option */
+.ptag{display:inline-flex;align-items:center;gap:4px;height:18px;padding:0 6px;border-radius:var(--r-sm);background:var(--color-surface-primary-alt-lighter);color:var(--color-text-primary-alt);font-size:11px;font-weight:600;margin-left:6px;vertical-align:middle;white-space:nowrap}
+.ans.gone,.mcq .mq-opt.gone{border-style:dashed;background:var(--surface-subtle)}
+.ans.gone .ltr{border-style:dashed}
+</style>
+</head>
+<body>
+<div id="review">
+  <b>TKT-21402 · Instructor Dashboard</b><span class="mut">Prototype v1 · Oct 20 · sample data</span>
+  <div class="rv-f">Documents <span class="rv-seg"><button id="rv-docs-some" class="on" onclick="setDocs(true)">Some</button><button id="rv-docs-none" onclick="setDocs(false)">None</button></span></div>
+  <div class="rv-f">Courses <span class="rv-seg"><button id="rv-c2" class="on" onclick="setMany(false)">2</button><button id="rv-c10" onclick="setMany(true)">10</button></span></div>
+  <div class="rv-f">Class <span class="rv-seg"><button id="rv-s-live" class="on" onclick="setScen('live')">Mid-exam</button><button id="rv-s-good" onclick="setScen('good')">All good</button><button id="rv-s-empty" onclick="setScen('empty')">Nothing assigned</button></span></div>
+  <div class="rv-f" style="display:none">Live answers <span class="rv-seg"><button id="rv-live-on" class="on" onclick="setLive(true)">On</button><button id="rv-live-off" onclick="setLive(false)">Paused</button></span></div>
+  <div class="rv-f"><button class="b b-sm" onclick="resetAll()"><i class="fa-solid fa-rotate-left"></i>Reset</button></div>
+</div>
+<button id="rv-tog" onclick="document.body.classList.toggle('rv-on');render()"><i class="fa-solid fa-sliders"></i>Prototype controls</button>
+<div class="app" id="app"></div>
+<div id="tip" role="tooltip"></div>
+<div id="layer"></div>
+<div id="snack" aria-live="polite"></div>
+
+<script>
+/* =====================================================================
+   DATA (invented). 8 learners, 2 quizzes pushed through Student Access.
+   ===================================================================== */
+/* Noah Kim, Ella Park and Raj Gill (8, 9, 10) joined the class after the courses were assigned, so nothing is assigned to them (qz.na) */
+const PEOPLE=['Jordan Lee','Priya Shah','Marcus Chen','Aisha Bello','Tom Rivera','Mary Okafor','Sam Patel','Lena Novak','Noah Kim','Ella Park','Raj Gill'];
+const LATE=[]; /* v4 lean: courses go to everyone in the event automatically, so nobody is ever "not assigned" */
+const ini=n=>n.split(' ').map(x=>x[0]).join('');
+const L='ABCD';
+/* each question: text, options, correct index, wrong = {person index: option picked}; answered = person reached it */
+const QUIZZES=[
+  {id:'kc',name:'WHMIS Knowledge Check',short:'Check',pass:80,final:false,order:'fixed',na:LATE.slice(),
+   qs:[
+    {t:'What does WHMIS stand for?',o:['Workplace Hazardous Materials Information System','Workers Health and Materials Inspection System','Workplace Health Management Information Service','Waste Handling and Materials Information System'],c:0,w:{}},
+    {t:'Which pictogram means a product can catch fire?',o:['Flame','Flame over circle','Exploding bomb','Gas cylinder'],c:0,w:{1:1,3:1,7:1}},
+    {t:'Who must provide the Safety Data Sheet (SDS)?',o:['The supplier','The worker','The safety committee','The fire department'],c:0,w:{2:2}},
+    {t:'How often must WHMIS training be reviewed?',o:['At least once a year','Every five years','Only when you are hired','Never'],c:0,w:{1:1,5:1}},
+    {t:'When do you need a workplace label?',o:['When a product is poured into another container','Only on the original container','Only for liquids','Never, if you know the product'],c:0,w:{2:1}},
+    /* v4.1: a question with more than one correct answer ("select all that apply"). w[p] = every option that person chose (arrays); cs = the correct set */
+    {t:'Which of these must a workplace label include?',multi:true,o:['Product name','Safe handling instructions','A reference to the SDS','The purchase date'],c:0,cs:[0,1,2],w:{1:[0,3],3:[0,1],5:[0,1,2,3]}},
+   ],pre:[{k:'video',t:'Welcome to WHMIS',p:'3:10'},{k:'page',t:'Your rights as a worker',p:'The right to know, the right to participate and the right to refuse unsafe work'}],
+   reached:[6,6,6,6,3,6,0,6,0,0,0]},
+  {id:'fe',name:'WHMIS Final Exam',short:'Exam',pass:75,final:true,order:'fixed',na:LATE.slice(),pre:[{k:'page',t:'Before you start',p:'Read each question carefully. You can’t go back once you answer.'}],
+   qs:[
+    {t:'Which SDS section lists first-aid measures?',o:['Section 4','Section 2','Section 8','Section 11'],c:0,w:{2:1}},
+    {t:'The skull and crossbones pictogram means…',o:['Acute toxicity: can be fatal or toxic','Corrosive to skin','Long-term health hazard','Harmful to the environment'],c:0,w:{7:2}},
+    {t:'A container’s supplier label is missing. What do you do?',o:['Stop and tell your supervisor','Check the colour of the product','Make your own label from memory','Use it if you know what it is'],c:0,w:{0:2,1:2,3:1,5:2,7:2}},
+    {t:'Where must Safety Data Sheets be kept?',o:['Where workers can easily get them','Locked in the manager’s office','At the supplier','Online only'],c:0,w:{1:3,5:1}},
+    /* v4.1: a Question Pool question. Each learner gets their own copy (a different position, different option order), so Results groups by the original pool question and the original option position.
+       recv = who was given this question (Tom and Sam got other pool questions). 'x' = the option that person chose was removed from the pool later. */
+    {t:'Which pictogram warns that a product can burn skin or eyes?',o:['Corrosion','Exclamation mark','Flame','Health hazard'],c:0,w:{0:1,1:'x',7:2},pool:'Pictograms',recv:[0,1,2,3,5,7]},
+    {t:'What must a workplace label include?',o:['Product name, safe handling and an SDS reference','The supplier’s phone number only','A pictogram only','The purchase date'],c:0,w:{3:3}},
+    {t:'When must a supplier update an SDS?',o:['Within 90 days of significant new data','Every ten years','Never','Only if a worker asks'],c:0,w:{0:2}},
+    {t:'Who is responsible for WHMIS training at work?',o:['The employer','The supplier','The worker','A government inspector'],c:0,w:{}},
+   ],reached:[8,5,3,8,1,8,0,6,0,0,0]},
+];
+/* review only: "Courses: 10" adds 8 module quizzes (placeholder questions) to show a wide Progress table */
+const MODULES=['Hazard classes','Pictograms','Supplier labels','Workplace labels','SDS sections','Safe storage','Spills','Review'];
+function extraQuizzes(){
+  return MODULES.map((t,k)=>({id:'m'+k,name:`Module ${k+1}: ${t}`,short:'M'+(k+1),pass:80,final:false,order:'fixed',na:LATE.slice(),
+    qs:[1,2,3,4].map(n=>{const w={};PEOPLE.forEach((_,p)=>{if((p+n+k)%4===0)w[p]=1;});return {t:`${t}: practice question ${n}`,o:['Correct choice','Common mistake','Another option','Unlikely option'],c:0,w};}),
+    reached:PEOPLE.map((_,p)=>p>=8?0:Math.min(4,(p*3+k*5)%6))}));
+}
+/* documents in the right panel (course + event assets). kind decides the badge, the icon and what Present can do */
+const DOCS_ALL=[
+  {id:'d1',name:'Points Form Acceptance.pdf',kind:'pdf',assign:false},
+  {id:'d2',name:'WHMIS Knowledge Check',kind:'course',quiz:'kc',assign:true},
+  {id:'d3',name:'WHMIS Overview Slides',kind:'slides',assign:false},
+  {id:'d4',name:'Onboarding Video.mp4',kind:'video',assign:false},
+  {id:'d5',name:'WHMIS Final Exam',kind:'course',quiz:'fe',assign:true},
+  {id:'d6',name:'Spill Kit Photo.jpg',kind:'photo',assign:false},
+  {id:'d7',name:'Label Examples.pptx',kind:'pptx',assign:false},
+  {id:'d8',name:'Emergency Evacuation Plan.pdf',kind:'pdf',assign:false},
+  /* v4.1: the other types today's page already shows */
+  {id:'d9',name:'Chemical Storage Module',kind:'html5',assign:false},
+  {id:'d10',name:'SDS Online Library',kind:'link',assign:false,url:'https://sds.example.com/library'},
+  {id:'d11',name:'Toolbox Talk.ppsx',kind:'ppsx',assign:false},
+  {id:'d12',name:'Spill Response Slides',kind:'pptimg',assign:false},
+];
+/* v4: each type icon gets its own colour (k-*), like the Admin tab. v4.1: HTML5 teal </>, external link grey-blue arrow, PowerPoint (.ppsx and slide images) orange */
+const KIND={pdf:{l:'PDF',i:'pdf-adobe'},course:{l:'Course',i:'fa-solid fa-laptop k-course'},slides:{l:'Slides',i:'fa-solid fa-file-powerpoint k-ppt'},
+  video:{l:'Video',i:'fa-solid fa-circle-play k-video'},photo:{l:'Photo',i:'fa-solid fa-image k-photo'},pptx:{l:'PowerPoint',i:'fa-solid fa-file-powerpoint k-ppt'},
+  html5:{l:'HTML5',i:'fa-solid fa-code k-html'},link:{l:'Link',i:'fa-solid fa-arrow-up-right-from-square k-link'},ppsx:{l:'.ppsx',i:'fa-solid fa-file-powerpoint k-ppt'},pptimg:{l:'PowerPoint',i:'fa-solid fa-file-powerpoint k-ppt'}};
+/* v4.1: slide-image PowerPoint: today it lists the slides beside the preview */
+const PPT_SLIDES=[['Spill response','Contain, notify, clean up','0:30'],['Stop the source','Close valves, upright containers','0:45'],['Contain it','Dikes, pads and absorbent','0:40'],['Notify','Supervisor, then the emergency contact','0:35'],['Clean up','PPE first, then collect waste','0:50'],['Report it','Complete the incident form','0:30']];
+/* v4.1: assessment forms in the class. Today's Summary shows them as columns beside the online courses */
+const FORMS=[{id:'f1',name:'Practical Skills Assessment',done:[0,3,5]}];
+/* the live feed: who answers next and whether they get it wrong (picked option) or right (-1) */
+const FEED=[[1,'fe',-1],[7,'fe',2],[2,'fe',1],[4,'fe',-1],[6,'kc',-1],[1,'fe',-1],[7,'fe',-1],[2,'fe',2],[6,'kc',1],[4,'fe',2],[1,'fe',3],[2,'fe',-1],[6,'kc',-1],[4,'fe',-1],[6,'kc',-1],[2,'fe',-1],[4,'fe',-1],[6,'kc',2],[2,'fe',-1]];
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+let S, Q, FM, MANY=false, SCEN='live';
+/* tablet and phone: the side panels become drawers over the page, closed by default */
+const narrow=()=>matchMedia('(max-width:1099px)').matches;
+function fresh(){
+  const base=JSON.parse(JSON.stringify(QUIZZES));
+  Q=MANY?[base[0],...extraQuizzes(),base[1]]:base;
+  if(SCEN==='good'){Q.forEach(qz=>{qz.na=[];qz.qs.forEach(q=>q.w={});qz.reached=PEOPLE.map(()=>qz.qs.length);});}
+  if(SCEN==='empty') Q=[];
+  FM=FORMS.map(f=>({...f,done:SCEN==='good'?PEOPLE.map((_,p)=>p):f.done.slice()}));
+  const wide=!narrow();
+  S={left:wide,right:wide,docsOn:true,view:'grid',sort:'admin',q:'',pq:'',psort:'az',sel:null,seg:0,assign:false,picked:{},fs:false,slidesOpen:true,
+     presenting:false,single:false,showProg:false,rev:{},docs1:false,live:true,feed:0,lastUpd:Date.now(),
+     modal:null,res:{pick:'all',sort:'missed',open:{},order:null,pending:false}};
+}
+fresh();
+let PW=null; /* the second-screen window */
+
+/* =====================================================================
+   DERIVED NUMBERS
+   ===================================================================== */
+/* v4.1: a pool question only counts for the learners who were given a copy of it (recv) */
+const received=(qz,qi,p)=>{const r=qz.qs[qi].recv;return !r||r.includes(p);};
+const qAssigned=q=>!q.recv||q.recv.length>0; /* Results lists only questions that at least one learner received */
+const answered=(qz,qi,p)=>qz.reached[p]>qi&&received(qz,qi,p);
+const isNA=(qz,p)=>(qz.na||[]).includes(p);
+const assignedN=qz=>PEOPLE.filter((_,p)=>!isNA(qz,p)).length;
+const missingOf=p=>Q.filter(qz=>isNA(qz,p));
+const lateJoiners=()=>PEOPLE.map((_,p)=>p).filter(p=>missingOf(p).length);
+/* tooltip text: which questions someone got wrong, grouped by course */
+function wrongList(p){
+  return Q.map(qz=>{const qs=qz.qs.map((q,i)=>answered(qz,i,p)&&q.w[p]!==undefined?(q.pool?'Pool: '+q.pool:'Q'+(i+1)):null).filter(Boolean);return qs.length?`${qz.name}: ${qs.join(', ')}`:null;}).filter(Boolean).join('\n');
+}
+function qStats(qz,qi){
+  const q=qz.qs[qi]; let n=0,bad=0;
+  PEOPLE.forEach((_,p)=>{if(answered(qz,qi,p)){n++; if(q.w[p]!==undefined) bad++;}});
+  return {n,bad,pct:n?Math.round(bad/n*100):0};
+}
+function personQuiz(qz,p){
+  const r=qz.reached[p], tot=qz.qs.length;
+  if(isNA(qz,p)) return {r:0,tot,wrong:0,score:0,st:'na'};
+  let wrong=0; for(let i=0;i<r;i++) if(qz.qs[i].w[p]!==undefined) wrong++;
+  const score=r?Math.round((r-wrong)/tot*100):0;
+  const st=r===0?'not':r<tot?'prog':(score>=qz.pass?'pass':'fail');
+  return {r,tot,wrong,score,st};
+}
+const wrongTotal=p=>Q.reduce((a,qz)=>a+personQuiz(qz,p).wrong,0);
+function allMissed(){
+  const out=[]; Q.forEach(qz=>qz.qs.forEach((q,i)=>{const s=qStats(qz,i); if(s.bad) out.push({qz,i,q,...s});}));
+  return out.sort((a,b)=>b.bad-a.bad||b.pct-a.pct);
+}
+const needHelp=()=>PEOPLE.map((n,p)=>({p,n,w:wrongTotal(p)})).filter(x=>x.w>=3).sort((a,b)=>b.w-a.w);
+const docs=()=>S.docsOn?DOCS_ALL:[];
+
+/* v4.1: multi-answer questions + Question Pool labels.
+   Letters always follow the ORIGINAL option order (the admin's), even when a learner saw the options shuffled. */
+const cset=q=>q.multi?q.cs:[q.c];
+const pickedOf=(q,p)=>q.w[p]===undefined?cset(q):(q.multi?q.w[p]:(typeof q.w[p]==='number'?[q.w[p]]:[]));
+const pickedBy=(qz,i,o)=>PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p)&&pickedOf(qz.qs[i],p).includes(o));
+const optTxt=(q,o)=>o==='x'?'Removed option':`${L[o]}. ${esc(q.o[o])}`;
+const correctTxt=q=>cset(q).map(o=>`${L[o]}. ${esc(q.o[o])}`).join(' · ');
+const poolTag=q=>q.pool?`<span class="ptag" data-tip="Question Pool: each learner gets their own copy, in their own position. Results groups them as one question, and option letters follow the original order.">${I('fa-solid fa-shuffle')}Pool: ${esc(q.pool)}</span>`:'';
+const multiTag=q=>q.multi?`<span class="qtag">Select all that apply</span>`:'';
+const qLabel=(q,i)=>q.pool?`Pool: ${esc(q.pool)}`:`Question ${i+1}`;
+/* multi-answer question in Results: who chose which options. Correct picks are green, wrong picks red, missed correct options dashed. */
+function multiPeople(qz,i,key){
+  const q=qz.qs[i], ppl=PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p));
+  const rightP=ppl.filter(p=>q.w[p]===undefined), wrongP=ppl.filter(p=>q.w[p]!==undefined);
+  const head=`<div class="ans ok"><span class="ltr">${I('fa-solid fa-check')}</span><span class="at"><b>${correctTxt(q)}</b> <span class="mut" style="font-size:12px">correct answers · all of them must be chosen</span><div class="ppl">${masked(key)?'':(rightP.map(PChip).join('')||'<span class="mut" style="font-size:12px">Nobody yet</span>')}</div></span><span class="ct">${rightP.length}</span></div>`;
+  if(!wrongP.length) return head;
+  if(masked(key)) return head+`<div class="mp-note">${wrongP.length} ${wrongP.length===1?'student chose':'students chose'} a wrong combination. Names are hidden on a shared screen.</div>`;
+  return head+`<div class="mq-oh" style="margin:10px 0 0">Wrong combinations, with every option each person chose</div>`+wrongP.map(p=>{
+    const got=q.w[p], miss=cset(q).filter(o=>!got.includes(o));
+    return `<div class="mp"><div class="mp-who">${PChip(p)}</div><div class="mp-o">${got.map(o=>`<span class="opc ${cset(q).includes(o)?'ok':'bad'}">${I('fa-solid fa-'+(cset(q).includes(o)?'check':'xmark'))}<b>${L[o]}.</b> ${esc(q.o[o])}</span>`).join('')}${miss.map(o=>`<span class="opc miss" data-tip="A correct option this person did not choose"><b>${L[o]}.</b> ${esc(q.o[o])} · missed</span>`).join('')}</div></div>`;}).join('');
+}
+/* what one person chose, as text (Students who need help) */
+const choseTxt=(q,p)=>q.w[p]==='x'?'Removed option':q.multi?q.w[p].map(o=>L[o]).join(', '):`${L[q.w[p]]}. ${esc(q.o[q.w[p]])}`;
+
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+/* v4: 'pdf-adobe' draws an Adobe-style PDF file icon instead of a Font Awesome glyph */
+const PDF_SVG=`<svg class="pdf-adobe" viewBox="0 0 32 40" aria-hidden="true"><path d="M4 1h17.5L31 10.4V36a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3V4a3 3 0 0 1 3-3z" fill="#f5f5f5" stroke="#fa1e1e" stroke-width="2" stroke-linejoin="round"/><path d="M15.2 8.2c-1.3 0-1.4 2-.9 4.2.6 2.7 2.4 6 4.8 8.6 2.1 2.2 4.9 3.1 5.6 1.6.6-1.4-2.6-2.1-6-1.6-3.7.6-8 2.4-9.3 4.6-.8 1.4.6 2.5 2.5.9 2-1.7 4.3-6 5-9.5.6-3 .3-5.8-.9-5.8z" fill="none" stroke="#fa1e1e" stroke-width="1.3" stroke-linejoin="round"/><text x="16" y="35" text-anchor="middle" font-family="Segoe UI,Arial" font-weight="700" font-size="7.5" fill="#2d2d2d">PDF</text></svg>`;
+const I=c=>c.includes('pdf-adobe')?PDF_SVG:`<i class="${c}" aria-hidden="true"></i>`;
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+/* v4: fake profile photos, drawn as inline SVG portraits (no outside images) */
+const SKIN=['#f2d3b8','#e0ac85','#c68863','#8d5a3b','#f6dcc4','#a86d48'], HAIR=['#2b1d14','#6b4226','#c9a063','#151515','#8a3b1f','#4a4a4a'],
+  BG=['#dcebfb','#dff3e4','#fbe9d6','#ecdff8','#fbdfe3','#d9f1f1'], SHIRT=['#3b6fb6','#2f8a4e','#c0662a','#7a4bb3','#b8394c','#2a8587'];
+function face(p){
+  const s=SKIN[p%6], h=HAIR[(p*5+1)%6], long=p%3===1, sh=SHIRT[(p+2)%6];
+  return `<svg viewBox="0 0 40 40" width="100%" height="100%"><rect width="40" height="40" fill="${BG[p%6]}"/>`+
+    (long?`<path d="M9 20c0-9 5-13 11-13s11 4 11 13v12H9z" fill="${h}"/>`:'')+
+    `<path d="M6 40c1-8 7-11 14-11s13 3 14 11z" fill="${sh}"/><rect x="17" y="24" width="6" height="6" fill="${s}"/>`+
+    `<ellipse cx="20" cy="19" rx="7.5" ry="8.5" fill="${s}"/>`+
+    `<path d="M12 18c0-6 4-9.5 8-9.5s8 3.5 8 9.5c-2-3-5-4.5-8-4.5s-6 1.5-8 4.5z" fill="${h}"/>`+
+    `<circle cx="17.2" cy="19.5" r="1" fill="#2b2b2b"/><circle cx="22.8" cy="19.5" r="1" fill="#2b2b2b"/>`+
+    `<path d="M17.5 23.2q2.5 1.8 5 0" stroke="#7a3e2a" stroke-width="1" fill="none" stroke-linecap="round"/></svg>`;
+}
+/* sample profile photos (index = PEOPLE). Lena Novak has none, to show the initials fallback */
+const PHOTOS=["data:image/jpeg;base64,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","data:image/jpeg;base64,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","data:image/jpeg;base64,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","data:image/jpeg;base64,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","data:image/jpeg;base64,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","data:image/jpeg;base64,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","data:image/jpeg;base64,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",null,"data:image/jpeg;base64,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","data:image/jpeg;base64,/9j/4AAQSkZJRgABAgAAAQABAAD//gAPTGF2YzYwLjMuMTAwAP/bAEMACAoKCwoLDQ0NDQ0NEA8QEBAQEBAQEBAQEBISEhUVFRISEhAQEhIUFBUVFxcXFRUVFRcXGRkZHh4cHCMjJCsrM//EAJIAAAAHAQEAAAAAAAAAAAAAAAQHBQMBAgYACAEAAgMBAQAAAAAAAAAAAAAAAAQCAwEFBhAAAQMCBAIHBwMFAQAAAAAAAQACAwQREiExBUFxBmGhUYGRE2JyUrEiwRThMkLCsjQHM/ARAAIBAgQEBAcBAAAAAAAAAAABAgMRIVESMQRBYTKRwaEFgXIzcSITFGL/wAARCABgAGADASIAAhEAAxEA/9oADAMBAAIRAxEAPwA1Lrrpm6664QwP3U3Qe6tdYAIusdunS3bNteYsTp5Rq2KxAPcXnLna6RemG+voY2UVO4tlnbikcDmyLSwPAvN8+4HvRKSMx3ddN0qOtantyIt2Dij/ANgUxfZ9NKATlYtyHiczfkjA2/dKTc4vVppQ8fybo9vvN1HyXlMRPJyWh2upqqCVs8Dywg+HIji08QrZcOrYYMNR6duouknbNwZuVJHUMyxCz2/A8ZOb56dVkpLnvB2ZMvdTdUUrAA11F01dVugB66m6D4l2JAHnXpNWOm3qtec8MnpN6gwBv6pDgkkmdga2+mnNL240Yd0iqIJdHTuf7wcMS21Hts7zh/DpWxDQmO7uo4reea6utQjFf5RsKTnd9TAUwPqFpY8kfuaAb4bZkctU/wDhbk5x/Hp5ZWXyexpweenmjw2djJKeeEtYC11mkAZDhmr0m0V8MpL6t7mB1w0YcNu7S+fYq3WeNkX/AM65szPQWpdJBWxOuCyRji08C4EH+1GWsB0fhEW8b7hyb6zBbr+px+a3iTq97edn6C9rYZDl1N00pVRgnlyriTZKaLkGj2JRiQUuVcaAC66RURO80tTGLue04x3iMa+R7FrId0bTUJJsP44nZNF+8qm4getSTkZRy2d7sgwlZGn3VmKekqGiO73MLDm02cbYSeITKblFdF5jVB21Gv2eaZjpMMkWGSxvhc488tbrTwV8jpntivJF8ZaWgPGRAxajlokva6YNiaBOAw+HhkbdiEVtfHE6Kmp7Pc5wZcZ4QdXdfLislbkOPJfkOUETY6iukaP+krbnvcGXd2ut4JaugkUbYmBreHE6knMk9ZOZQi6XbuzkvFt5jqlN3U3WAIxKYc5c4oO5ykBJcmXShgLnENA1JNh2rOVe62cY4LZZF5/pH3KQJpJJv3vc7mcvLRWKDZ0KXBVJq7aivUVtz3yL03RQN9VxH7jkxvWPi+SL/C6YnHckm5J4nvSy6IaJoQOByz5fqmIpRQ/DhlT2+PUtTmpYMAmkDe7E63ldaGhe6mmZLfEWm9ikhjHdzvJKcbSNcu09iyWI5CmrNW33DQpquKpaCxwvxbf6hzH3Q7EirxEWIJBGljn5pVp91qYiA5/qNyuHZm3UdUs4ZHMq+3SV3Tkn0lv4hgYlN0GjkbIxr2m4cLhOqo5G2AhvKQtzq/xadzgfqd9LOZ4+ASu8ov8AepjLVenwjAHicz9lfBXZfQh+yolyWLAMLsTQeOhQm4SdCcJt3q5kzTNj0cZYA0tBVcCuw4gnbKJba5Vo6yhIHNNgJ4KJJIup0zXBRIbNPJYSNvsry+jvfSR4HLJLqz2xjDRN63uP2S8lpdzPJ8R9ap8zM48ot9w/zJz7ZRgvKLusN6mY+2UxT3L+D75fbzALn4bHrCaZPiecLQ7PUnLwQWqfZpt4KaZoaBY3HcdR1Jm2B0tT1WRpIiDwshgQCEpRaVUx6LJATgUXCsok7l2hdMLsNv8AwXAoRGz1ntj+MgeawG0ot5K5ttvj9Kkhb7AJ5uz+6UUwMle6VZ4+T1Scs234n//Z","data:image/jpeg;base64,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"];
+const hasPhoto=p=>!!PHOTOS[p];
+const Av=p=>hasPhoto(p)?`<span class="av av-photo" data-tip="Profile photo from ${esc(PEOPLE[p])}’s account"><img src="${PHOTOS[p]}" alt=""></span>`:`<span class="av" data-tip="No profile photo on ${esc(PEOPLE[p])}’s account, so their initials show">${ini(PEOPLE[p])}</span>`;
+const wa=n=>n+' wrong answer'+(n===1?'':'s');
+/* a name chip opens Progress with that person's row highlighted */
+function goPerson(p){S.rev={};openProgress(p);setTimeout(()=>document.querySelector('.ptbl tr.hl')?.scrollIntoView({block:'center'}),30);}
+const PChip=p=>`<span class="pchip">${Av(p)}${PEOPLE[p]}</span>`; /* v4 lean: names don't link to Progress */
+function sv(tone,html){const ic={neg:'fa-solid fa-xmark',wait:'fa-solid fa-hourglass-half',pos:'fa-solid fa-check'}[tone];return `<span class="sv sv-${tone}"><span class="sv-i">${I(ic)}</span><span>${html}</span></span>`;}
+function ago(){const s=Math.round((Date.now()-S.lastUpd)/1000);return s<5?'just now':s+'s ago';}
+function snack(msg,icon){
+  const el=document.createElement('div'); el.className='snack'; el.innerHTML=`${I(icon||'fa-solid fa-circle-check')}<span>${msg}</span>`;
+  document.getElementById('snack').appendChild(el); setTimeout(()=>el.remove(),3200);
+}
+
+/* =====================================================================
+   RENDER: page
+   ===================================================================== */
+function render(){
+  const scrim=narrow()&&(S.left||S.right)?`<div class="scrim" onclick="S.left=false;S.right=false;render()"></div>`:'';
+  document.getElementById('app').innerHTML=topbar()+`<div class="body">${leftPanel()}${centre()}${rightPanel()}${scrim}</div>`;
+  document.body.classList.toggle('fs-on',isFs());
+  renderModal(); syncPresent(); renderPres1();
+}
+function topbar(){
+  return `<div class="topbar">
+    <nav class="crumb" aria-label="Breadcrumb"><button onclick="snack('Back to the Classroom Calendar','fa-solid fa-calendar')">Classroom Calendar</button><span class="sl">/</span><b>Dashboard</b></nav>
+    <div class="r">
+      <button class="ib" data-tip="Instructor Dashboard Guide (PDF)" onclick="snack('Opens the Instructor Dashboard Guide in a new tab','fa-regular fa-file-pdf')">${I('fa-solid fa-circle-info')}</button>
+      <button class="b b-ghost b-sm" onclick="snack('Back to the Classroom Calendar','fa-solid fa-calendar')">${I('fa-solid fa-chevron-left')}Back</button>
+    </div></div>`;
+}
+
+/* ---------- left panel: overview + participant list ---------- */
+function leftPanel(){
+  const top=allMissed()[0], nh=needHelp();
+  const finished=p=>{const as=Q.filter(qz=>!isNA(qz,p));return as.length&&as.every(qz=>qz.reached[p]===qz.qs.length);};
+  const done=PEOPLE.filter((_,p)=>finished(p)).length, late=lateJoiners();
+  const card1=top?`<button class="blk wide" onclick="openResults('all')" data-tip="See who chose which answer">
+      <div class="k">Most challenging question ${I('fa-solid fa-chevron-right')}</div>
+      <div class="v vq">${esc(top.q.t)}</div>
+      <div class="v2">${top.bad} of ${top.n} chose a wrong answer · ${esc(top.qz.short)} Q${top.i+1}</div></button>`
+    :`<div class="blk wide"><div class="k">Most challenging question</div><div class="v">${Q.some(qz=>qz.reached.some(r=>r>0))?sv('pos','All correct so far'):sv('pos','None yet')}</div><div class="v2">${Q.some(qz=>qz.reached.some(r=>r>0))?'Everyone chose the correct answer so far':'Shows as answers come in'}</div></div>`;
+  const card2=`<button class="blk" onclick="openResults('people')" data-tip="People with 3 or more wrong answers">
+      <div class="k">Students who need help ${I('fa-solid fa-chevron-right')}</div>
+      <div class="v">${nh.length?sv('wait',`<b>${nh.length}</b> <span class="mut" style="font-size:13px">people</span>`):sv('pos','Nobody')}</div>
+      <div class="v2">${nh.length?'3+ wrong answers':'Everyone is on track'}</div></button>`;
+  const card3=`<button class="blk" onclick="openProgress()" data-tip="People who finished every course assigned to them">
+      <div class="k">Finished ${I('fa-solid fa-chevron-right')}</div>
+      <div class="v"><b>${done}</b> <span class="mut" style="font-size:13px">of ${PEOPLE.length}</span></div>
+      <div class="v2">${PEOPLE.length-done} still going</div></button>`;
+  const lateBar=late.length?`<div class="selbar">${I('fa-solid fa-circle-info')}<span>${late.length===1?PEOPLE[late[0]]+' was':`<span class="tipu" tabindex="0" data-tip="${late.map(p=>PEOPLE[p]).join('\n')}">${late.length} people</span> were`} added after courses were assigned</span><button onclick="assignMissing()">Assign</button></div>`:'';
+  const allGood=Q.length&&!top&&!nh.length&&done===PEOPLE.length;
+  const cards=!Q.length
+    ?`<div class="blk wide ov-empty"><div class="es" style="padding:12px 8px">${I('fa-regular fa-clipboard')}<b>Nothing assigned yet</b><p>Assign an online course from Documents. Results show here as people answer.</p></div></div>`
+    :card1+card2+card3+(allGood?`<div class="okbar wide">${I('fa-solid fa-circle-check')}Everyone is on track. No wrong answers yet.</div>`:'');
+  const fab=`<button class="fab l${S.left?' open':''}" data-tip="${S.left?'Hide':'Show'} overview and participants" aria-expanded="${S.left}" onclick="togSide('left')">${I('fa-solid fa-chevron-'+(S.left?'left':'right'))}</button>`;
+  return fab+`<aside class="side left${S.left?'':' c'}" aria-label="Overview and participants">
+    <div class="full">
+      <div class="sec-h"><h3>Participants</h3>${S.single?'':`<span class="cnt">${PEOPLE.length}</span>`}</div>
+      <div class="lean-btns"><button class="b b-sm" onclick="openResults('all')">${I('fa-solid fa-chart-simple')}Results</button><button class="b b-sm" ${Q.length?'':'disabled'} onclick="openProgress()">${I('fa-solid fa-users')}Progress</button></div>
+      ${lateBar}<div class="plist" id="plist">${peopleBody()}</div>
+    </div></aside>`;
+}
+/* wrong answers for one question, most picked first, with who picked each */
+const wrongPicks=(qz,i)=>{const q=qz.qs[i];const base=q.o.map((_,o)=>({o,ppl:PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p)&&q.w[p]===o)})).filter(x=>x.o!==q.c&&x.ppl.length).sort((a,b)=>b.ppl.length-a.ppl.length);
+  /* v4.1: people whose chosen option was removed from the pool afterwards still count, under "Removed option" */
+  const gone=PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p)&&q.w[p]==='x');return gone.length?[...base,{o:'x',ppl:gone}]:base;};
+const PSORTS=[['az','A to Z'],['wrong','Most wrong answers first'],['behind','Least progress first'],['late','Not assigned first']];
+function progressOf(p){const as=Q.filter(qz=>!isNA(qz,p));const tot=as.reduce((a,qz)=>a+qz.qs.length,0);return tot?as.reduce((a,qz)=>a+qz.reached[p],0)/tot:-1;}
+function peopleBody(){
+  /* v4 lean: no search or sort (not on today's page), always A to Z */
+  return PEOPLE.map((_,p)=>p).sort((a,b)=>PEOPLE[a].localeCompare(PEOPLE[b])).map(pRow).join('');
+}
+function renderPeople(){document.getElementById('plist').innerHTML=peopleBody();}
+function pRow(p){
+  if(S.single) return `<button class="prow" data-p="${p}" onclick="openProgress(${p})">${Av(p)}<span class="t"><span class="n">${PEOPLE[p]}</span></span><span class="m"><small>${miniStatus(p)}</small></span></button>`;
+  const xs=Q.map(qz=>({qz,...personQuiz(qz,p)})), as=xs.filter(x=>x.st!=='na'), w=wrongTotal(p), miss=xs.length-as.length;
+  const doneN=as.filter(x=>x.r===x.tot).length, cur=as.find(x=>x.st==='prog');
+  const now=!Q.length?'Nothing assigned yet':!as.length?'Added after courses were assigned':cur?`In ${cur.qz.name} · Q${cur.r+1} of ${cur.tot}`:
+    as.every(x=>x.st==='not')?'Not started':doneN===as.length?'Finished everything':'Waiting to start the next course';
+  return `<button class="prow" data-p="${p}" onclick="openProgress(${p})">${Av(p)}<span class="t"><span class="n">${PEOPLE[p]}${miss?`<span class="na-t" data-tip="${miss} course${miss===1?'':'s'} not assigned. They joined after the courses were assigned.">Not assigned</span>`:''}</span>
+      <span class="s">${now}</span></span>
+    <span class="m"><small>${!as.length?'':doneN===as.length?`<span class="done-ok">${I('fa-solid fa-circle-check')}Done</span>`:`${doneN}/${as.length} done`}</small></span></button>`;
+}
+function assignMissing(){const late=lateJoiners();Q.forEach(qz=>qz.na=[]);render();snack(`Assigned the missing courses to ${late.map(p=>PEOPLE[p]).join(', ')}`);}
+function assignPerson(p){const miss=missingOf(p);miss.forEach(qz=>qz.na=qz.na.filter(x=>x!==p));render();snack(`Assigned ${miss.length} courses to ${PEOPLE[p]}`);}
+function assignOne(qid,p){const qz=Q.find(x=>x.id===qid);qz.na=qz.na.filter(x=>x!==p);render();snack(`Assigned ${qz.name} to ${PEOPLE[p]}`);}
+
+/* ---------- centre: course header + preview ---------- */
+function centre(){
+  const d=docs().find(x=>x.id===S.sel);
+  const hero=`<div class="hero"><div class="hb"></div><div class="hm"><div class="hi">${I('fa-solid fa-calendar-days')}</div>
+    <div class="ht"><h2>WHMIS Classroom</h2><div class="hmeta"><span><b>Instructor:</b> Mikaela Yeo</span><span class="sep">•</span><span><b>Starts:</b> Oct 20, 2026, 8:00 AM</span><span class="sep">•</span><span>${PEOPLE.length} participants</span></div></div>
+    <div class="hact"><button class="b b-icon" data-tip="Screen setup" aria-label="Screen setup" onclick="event.stopPropagation();openScreen(this)">${I('fa-solid fa-gear')}</button><button class="b" onclick="snack('Opens the Discussion Board','fa-regular fa-comments')">${I('fa-regular fa-comments')}Discussion Board <span class="cnt cnt-primary">1</span></button></div></div></div>`;
+  const head=`<div class="pv-h"><span class="ti">${d?`<span class="tyi">${I(KIND[d.kind].i)}</span><b>${esc(d.name)}</b><span class="chip">${KIND[d.kind].l}</span>${false?`<div class="seg" role="group" aria-label="Course view" style="margin-left:8px"><button aria-pressed="${S.cview!=='q'}" onclick="S.cview='graph';render()">${I('fa-solid fa-chart-bar')}Answer graph</button><button aria-pressed="${S.cview==='q'}" onclick="S.cview='q';render()">${I('fa-regular fa-file-lines')}Questions</button></div>`:''}`:`<b class="mut" style="font-weight:400">Preview</b>`}${scrBadge()}</span>
+    ${d?`<button class="ib" data-tip="${isFs()?'Exit fullscreen (B)':'Fullscreen (B)'}" aria-label="${isFs()?'Exit fullscreen':'Fullscreen'}" onclick="toggleFs()">${I('fa-solid fa-'+(isFs()?'compress':'expand'))}</button>`:''}
+    ${S.presenting?`<span class="onair"><span class="dot"></span>${S.single?'On this screen':'On the second screen'}</span><button class="b b-sm" onclick="stopPresent()">${I('fa-solid fa-stop')}Stop</button>`
+      :`<span class="tipwrap" data-tip="${!d?'Select a document to present':S.single?'Fills this screen for the class. Exit presenting brings the dashboard back.':'Opens a second window for the projector. Only what you pick here shows there.'}"><button class="b b-primary" ${d?'':'disabled'} onclick="present()">${I('fa-solid fa-display')}Present</button></span>`}</div>`;
+  const slidesBtn=d&&d.kind==='pptimg'?`<button class="b b-sm" aria-pressed="${S.slidesOpen}" data-tip="${S.slidesOpen?'Hide':'Show'} the list of slides" onclick="S.slidesOpen=!S.slidesOpen;render()">${I('fa-solid fa-bars')}Slides</button>`:'';
+  const foot=d?`<div class="pv-f">${footInfo(d)}<span class="r">${slidesBtn}
+      <button class="ib ib-sm" data-tip="Previous document" onclick="step(-1)">${I('fa-solid fa-chevron-left')}</button>
+      <button class="ib ib-sm" data-tip="Next document" onclick="step(1)">${I('fa-solid fa-chevron-right')}</button></span></div>`:'';
+  const hasSl=d&&d.kind==='pptimg'&&S.slidesOpen;
+  const body=hasSl?`<div class="sl-main">${content(d,false)}</div>${slideList()}`:content(d,false);
+  return `<main class="center">${hero}<div class="stage" ondragover="if(S.drag){event.preventDefault();this.classList.add('drop')}" ondragleave="if(!this.contains(event.relatedTarget))this.classList.remove('drop')" ondrop="event.preventDefault();this.classList.remove('drop');if(S.drag)pick(S.drag);S.drag=null"><div class="pv${isFs()?' fs':''}" aria-label="Preview">${head}<div class="pv-b${hasSl?' has-sl':''}">${body}</div>${foot}</div></div></main>`;
+}
+/* v4.1: fullscreen preview, by the button or the B key (as today). Present is for the class screen; fullscreen only enlarges the instructor's own preview. */
+const isFs=()=>!!(S.fs&&S.sel&&docs().some(x=>x.id===S.sel));
+function toggleFs(){S.fs=!S.fs;render();}
+/* v4.1: slide-image PowerPoint: the list of slides beside the preview, as today */
+function slideList(){
+  return `<aside class="sl-list" aria-label="Slides"><div class="sl-h">Slides · ${PPT_SLIDES.length}</div>${PPT_SLIDES.map((s,k)=>`<button class="sl-i${S.seg===k?' on':''}" onclick="S.seg=${k};render()"><span class="no">${k+1}</span><span class="th">${esc(s[0])}</span><span class="tx"><b>${esc(s[0])}</b><small>${s[2]}</small></span></button>`).join('')}</aside>`;
+}
+function footInfo(d){
+  if(false) return `<span>${I('fa-solid fa-circle-info')} % of people who answered each question correctly</span><button class="b b-sm" onclick="tick()">${I('fa-solid fa-rotate')}Refresh</button>`;
+  /* v4.1: previewing a course walks through every part of it (videos, pages, questions), as today */
+  if(d.kind==='course'){const qz=Q.find(x=>x.id===d.quiz), parts=courseParts(qz), n=Math.min(S.seg,parts.length-1), pt=parts[n];
+    const lbl=`Part ${n+1} of ${parts.length} · ${pt.k==='q'?`Question ${pt.i+1} of ${qz.qs.length}`:pt.k==='video'?'Video':'Page'}`;
+    return `<button class="b b-sm" ${n<=0?'disabled':''} onclick="S.seg--;render()" aria-label="Previous part">${I('fa-solid fa-backward')}</button><span>${lbl}</span><button class="b b-sm" ${n>=parts.length-1?'disabled':''} onclick="S.seg++;render()" aria-label="Next part">${I('fa-solid fa-forward')}</button>`;}
+  if(d.kind==='pptimg') return `<button class="b b-sm" ${S.seg<=0?'disabled':''} onclick="S.seg--;render()" aria-label="Previous slide">${I('fa-solid fa-step-backward')}</button><span>Slide ${S.seg+1} of ${PPT_SLIDES.length}</span><button class="b b-sm" ${S.seg>=PPT_SLIDES.length-1?'disabled':''} onclick="S.seg++;render()" aria-label="Next slide">${I('fa-solid fa-step-forward')}</button>`;
+  if(d.kind==='html5') return `<span>HTML5 package · plays in the preview</span>`;
+  if(d.kind==='link') return `<span>Opens in a new tab</span>`;
+  if(d.kind==='ppsx') return `<span>Downloads to this computer</span>`;
+  if(d.kind==='slides') return `<button class="b b-sm" ${S.seg<=0?'disabled':''} onclick="S.seg--;render()">${I('fa-solid fa-backward')}</button><span>Slide ${S.seg+1} of 3</span><button class="b b-sm" ${S.seg>=2?'disabled':''} onclick="S.seg++;render()">${I('fa-solid fa-forward')}</button>`;
+  if(d.kind==='video') return `<button class="b b-sm">${I('fa-solid fa-play')}</button><span>0:00 / 3:42</span>`;
+  return `<span>${d.kind==='pdf'?'Page 1 of 2':''}</span>`;
+}
+const SLIDES=[['WHMIS 2015','What every worker needs to know'],['Labels','Supplier labels and workplace labels'],['Safety Data Sheets','16 sections · always within reach']];
+/* the same rendering serves the preview and the second screen (big = second screen) */
+/* v4: today's quiz statistics graph, kept as it is: one sideways bar per question, % answered correctly,
+   (n) = people who answered, red up to 30%, orange to 75%, blue to 95%, green above */
+function answerGraph(qz){
+  if(qz.order==='random') return `<div class="cv-empty"><b>This course shuffles its questions</b><span>The graph fills in as people answer.</span></div>`;
+  const col=p=>p<=30?'#d9342b':p<=75?'#e8892a':p<=95?'#1f86c9':'#2e9b47';
+  return `<div class="agraph">${qz.qs.map((q,i)=>{const s=qStats(qz,i), ok=s.n?Math.round((s.n-s.bad)/s.n*100):0;
+    return `<div class="ag-r"><span class="ag-q">${esc(q.t)}</span><span class="ag-n">(${s.n})</span><span class="ag-b"><span class="ag-f" style="width:${Math.max(ok,1)}%;background:${col(ok)}"></span><b>${ok}%</b></span></div>`;}).join('')}</div>`;
+}
+function content(d,big){
+  if(!d) return big?`<div class="cv-empty" style="color:#8a8a90"><div class="es-i" style="background:#2c2c30;color:#8a8a90">${I('fa-solid fa-display')}</div><b style="color:#d9d9dd">WHMIS Classroom</b><span>Waiting for the instructor to pick something to show</span></div>`
+    :`<div class="cv-empty"><div class="es-i">${I('fa-regular fa-hand-pointer')}</div><b>Click or drag a document here to view it</b><span>Only you see it until you press Present.</span></div>`;
+  if(d.kind==='pdf') return `<div class="cv-pdf"><span class="h"></span>${'<span class="l"></span>'.repeat(4)}<span class="l" style="width:70%"></span><br>${'<span class="l"></span>'.repeat(5)}<span class="l" style="width:40%"></span></div>`;
+  if(d.kind==='video') return `<div class="cv-media">${I('fa-solid fa-circle-play')}<small>${esc(d.name)}</small></div>`;
+  if(d.kind==='photo') return `<div class="cv-photo">${I('fa-regular fa-image')}</div>`;
+  if(d.kind==='slides'){const s=SLIDES[Math.min(S.seg,2)];return `<div class="cv-slide"><h4>${s[0]}</h4><p>${s[1]}</p></div>`;}
+  if(d.kind==='pptx') return `<div class="cv-empty"><div class="es-i" style="color:var(--color-icon-notice)">${I('fa-solid fa-triangle-exclamation')}</div><b>This PowerPoint can’t be shown</b><span>Only PowerPoints saved as HTML5 (.zip) can play here.<br>A .pptx file just downloads.</span></div>`;
+  /* v4.1: the other document types today's page shows */
+  if(d.kind==='html5') return `<div class="cv-html"><div class="bar">${I('fa-solid fa-code')}HTML5 package</div><div class="bd"><span class="go">${I('fa-solid fa-play')}</span><h4>${esc(d.name)}</h4><p>An interactive lesson. It plays right here.</p></div></div>`;
+  if(d.kind==='pptimg'){const s=PPT_SLIDES[Math.min(S.seg,PPT_SLIDES.length-1)];return `<div class="cv-slide"><h4>${esc(s[0])}</h4><p>${esc(s[1])}</p></div>`;}
+  if(d.kind==='link') return `<div class="cv-card"><div class="es-i k-link">${I('fa-solid fa-arrow-up-right-from-square')}</div><b>${esc(d.name)}</b><span class="u">${esc(d.url)}</span><p>An external website. It opens in a new tab.</p>${big?'':`<button class="b b-sm" onclick="snack('Opens ${esc(d.url)} in a new tab','fa-solid fa-arrow-up-right-from-square')">${I('fa-solid fa-arrow-up-right-from-square')}Open in a new tab</button>`}</div>`;
+  if(d.kind==='ppsx') return `<div class="cv-card"><div class="es-i k-ppt">${I('fa-solid fa-file-powerpoint')}</div><b>${esc(d.name)}</b><p>A .ppsx slide show can’t play in the browser. It downloads to this computer.</p>${big?'':`<button class="b b-sm" onclick="snack('Downloading ${esc(d.name)}','fa-solid fa-download')">${I('fa-solid fa-download')}Download</button>`}</div>`;
+  if(false) return answerGraph(Q.find(x=>x.id===d.quiz));
+  if(d.kind==='course'){const qz=Q.find(x=>x.id===d.quiz), parts=courseParts(qz), n=Math.min(S.seg,parts.length-1), pt=parts[n];
+    if(pt.k==='video') return `<div class="cv-media">${I('fa-solid fa-circle-play')}<small>${esc(pt.t)} · ${pt.p}</small></div>`;
+    if(pt.k==='page') return `<div class="cv-slide"><h4>${esc(pt.t)}</h4><p>${esc(pt.p)}</p></div>`;
+    const q=qz.qs[pt.i];
+    return `<div class="cv-q"><div class="qn">${esc(qz.name)} · Question ${pt.i+1} of ${qz.qs.length}</div><h4>${esc(q.t)}</h4>${q.multi?'<div class="hint">Select all that apply</div>':''}${q.o.map((o,i)=>`<div class="op"><span${q.multi?' class="sq"':''}>${L[i]}</span>${esc(o)}</div>`).join('')}</div>`;}
+  return '';
+}
+/* v4.1: every part of a course, in order: its intro video/pages first, then each question */
+function courseParts(qz){
+  const pre=qz.pre||[{k:'page',t:'Introduction',p:'What this course covers and how it is marked'}];
+  return [...pre,...qz.qs.map((_,i)=>({k:'q',i}))];
+}
+
+/* ---------- right panel: documents ---------- */
+const SORTS=[['admin','Order set by admin'],['az','A to Z'],['type','By type']];
+function docList(){
+  return docs(); /* v4 lean: admin order only, no search or sort */
+}
+function rightPanel(){
+  const n=Object.keys(S.picked).length, all=docs();
+  const head=S.assign
+    ?`<div class="r"><button class="b b-ghost b-sm" onclick="S.assign=false;S.picked={};render()">Cancel</button><button class="b b-primary b-sm" ${n?'':'disabled'} onclick="openAssign()">${I('fa-solid fa-user-plus')}Assign${n?' '+n:''}</button></div>`
+    :`<div class="r"><button class="b b-sm" ${all.some(d=>d.assign)?'':'disabled'} onclick="S.assign=true;render()" data-tip="Pick documents to give to participants">${I('fa-solid fa-user-plus')}Assign</button></div>`;
+  const tools=`<div class="dtools" style="justify-content:flex-end">
+    <div class="seg" role="group" aria-label="View"><button aria-pressed="${S.view==='grid'}" data-tip="Grid" onclick="S.view='grid';render()">${I('fa-solid fa-table-cells-large')}</button><button aria-pressed="${S.view==='list'}" data-tip="List" onclick="S.view='list';render()">${I('fa-solid fa-list')}</button></div></div>`;
+  const bar=S.assign?`<div class="selbar">${I('fa-solid fa-circle-info')}<span>${n?n+' selected':'Only online courses and quizzes can be assigned. Everything else can be presented.'}</span></div>`:'';
+  const fab=`<button class="fab r${S.right?' open':''}" data-tip="${S.right?'Hide':'Show'} documents" aria-expanded="${S.right}" onclick="togSide('right')">${I('fa-solid fa-chevron-'+(S.right?'right':'left'))}</button>`;
+  return fab+`<aside class="side right${S.right?'':' c'}" aria-label="Documents">
+    <div class="full">
+      <div class="sec-h"><h3>Documents</h3>${all.length?`<span class="cnt">${all.length}</span>`:''}${head}</div>
+      ${all.length?tools+bar:''}<div class="dlist" id="dlist">${docsBody()}</div></div></aside>`;
+}
+function docsBody(){
+  if(!docs().length) return `<div class="es"><div class="es-i">${I('fa-regular fa-folder-open')}</div><b>No documents yet</b><p>Add PDFs, videos and online courses to this class in the Classroom Course or this event’s Content section.</p><div class="es-a"><button class="b b-sm" onclick="snack('Opens the event’s Content section','fa-solid fa-arrow-up-right-from-square')">${I('fa-solid fa-plus')}Add documents</button></div></div>`;
+  const list=docList();
+  if(!list.length) return `<div class="es"><div class="es-i">${I('fa-solid fa-magnifying-glass')}</div><b>Nothing matches “${esc(S.q)}”</b><p>Try another word.</p></div>`;
+  return S.view==='grid'?`<div class="dgrid">${list.map(tile).join('')}</div>`:list.map(drow).join('');
+}
+function renderDocs(){document.getElementById('dlist').innerHTML=docsBody();}
+function thumb(d){return I(KIND[d.kind].i);}
+function acts(d,list){
+  const warn=d.kind==='pptx';
+  /* v4.1: as today, an external link opens in a new tab and a .ppsx downloads; neither goes on the class screen */
+  if(d.kind==='link') return `<button class="ib ib-sm" data-tip="Opens in a new tab" onclick="event.stopPropagation();snack('Opens ${esc(d.url)} in a new tab','fa-solid fa-arrow-up-right-from-square')">${I('fa-solid fa-arrow-up-right-from-square')}</button>`;
+  if(d.kind==='ppsx') return `<button class="ib ib-sm" data-tip="Downloads the .ppsx file" onclick="event.stopPropagation();snack('Downloading ${esc(d.name)}','fa-solid fa-download')">${I('fa-solid fa-download')}</button>`;
+  const pres=`<button class="ib ib-sm" ${warn?'disabled':''} data-tip="${warn?'Can’t present a .pptx. Save it as HTML5 (.zip) first.':S.single?'Present on this screen':'Present on the second screen'}" onclick="event.stopPropagation();pick('${d.id}');present()">${I('fa-solid fa-display')}</button>`;
+  const asg=''; /* v4 lean: no per-card assign; use the Assign button at the top */
+  return (warn?`<span class="warn-i" data-tip="PowerPoint must be HTML5 (.zip) to play">${I('fa-solid fa-triangle-exclamation')}</span>`:'')+(list?asg+pres:asg+pres);
+}
+/* click or drag a document onto the centre panel to preview it (not while picking for Assign) */
+const dragAttrs=d=>S.assign?'':`draggable="true" ondragstart="S.drag='${d.id}';event.dataTransfer.effectAllowed='copy';event.dataTransfer.setData('text/plain','${d.id}')" ondragend="S.drag=null;document.querySelector('.stage')?.classList.remove('drop')"`;
+function check(d){const on=!!S.picked[d.id];return `<span class="cb" role="checkbox" aria-checked="${on}" aria-label="Select ${esc(d.name)}">${I('fa-solid fa-check')}</span>`;}
+function tile(d){
+  const off=S.assign&&!d.assign, sel=!S.assign&&S.sel===d.id;
+  const on=S.assign?(off?'':`onclick="togPick('${d.id}')"`):`onclick="pick('${d.id}')"`;
+  return `<div class="tile${off?' off':''}${sel?' sel':''}" ${on} ${dragAttrs(d)}${off?'data-tip="Only online courses and quizzes can be assigned"':''} tabindex="0">
+    <div class="tn" title="${esc(d.name)}">${esc(d.name)}</div><div class="th">${thumb(d)}</div>
+    <div class="tf"><span class="chip">${KIND[d.kind].l}</span>${S.assign?(off?'':check(d)):acts(d)}</div></div>`;
+}
+function drow(d){
+  const off=S.assign&&!d.assign, sel=!S.assign&&S.sel===d.id;
+  const on=S.assign?(off?'':`onclick="togPick('${d.id}')"`):`onclick="pick('${d.id}')"`;
+  return `<div class="drow${off?' off':''}${sel?' sel':''}" ${on} ${dragAttrs(d)} tabindex="0"><span class="t"><div class="n">${esc(d.name)}</div><div class="s">Type: ${KIND[d.kind].l}</div></span>${S.assign?(off?'':check(d)):acts(d,true)}</div>`;
+}
+/* on tablet and phone only one drawer is open at a time */
+function togSide(k){S[k]=!S[k];if(S[k]&&narrow())S[k==='left'?'right':'left']=false;render();}
+function pick(id){S.presQ=null;S.sel=id;S.seg=0;S.cview='graph';render();}
+function togPick(id){S.picked[id]?delete S.picked[id]:S.picked[id]=1;render();}
+function step(n){const l=docList(), i=l.findIndex(x=>x.id===S.sel);const nx=l[(i+n+l.length)%l.length];if(nx)pick(nx.id);}
+function openSort(btn,which){
+  const r=btn.getBoundingClientRect(), ppl=which==='people', list=ppl?PSORTS:SORTS, key=ppl?'psort':'sort';
+  document.getElementById('layer').innerHTML=`<div class="menu" role="menu" style="top:${r.bottom+4}px;left:${Math.max(8,Math.min(innerWidth-268,r.right-260))}px"><div class="mhd">Sort ${ppl?'participants':'documents'}</div>
+    ${list.map(([k,l])=>`<button class="mi${S[key]===k?' on':''}" role="menuitemradio" aria-checked="${S[key]===k}" onclick="S.${key}='${k}';closeLayer();render()">${l}${S[key]===k?`<span class="ck">${I('fa-solid fa-check')}</span>`:''}</button>`).join('')}</div>`;
+  setTimeout(()=>document.addEventListener('click',closeLayer,{once:true}),0);
+}
+function closeLayer(){document.getElementById('layer').innerHTML='';}
+
+/* =====================================================================
+   PRESENT: a second window for the projector. Only the picked item shows there.
+   ===================================================================== */
+function present(){
+  const cur=docs().find(x=>x.id===S.sel);
+  if(!cur&&!S.presQ) return; /* v4.1: nothing selected, the button is greyed out */
+  if(cur&&cur.kind==='link'&&!S.presQ){snack(`Opens ${cur.url} in a new tab`,'fa-solid fa-arrow-up-right-from-square');return;}
+  if(cur&&cur.kind==='ppsx'&&!S.presQ){snack(`Downloading ${cur.name}`,'fa-solid fa-download');return;}
+  if(S.single){S.presenting=true;render();return;}
+  if(PW&&!PW.closed){PW.focus();S.presenting=true;render();return;}
+  PW=window.open('','bis-present','width=1100,height=680');
+  if(!PW){snack('Your browser blocked the second window. Allow pop-ups for this site.','fa-solid fa-triangle-exclamation');return;}
+  const css=[...document.styleSheets].map(s=>{try{return [...s.cssRules].map(r=>r.cssText).join('\n');}catch(e){return '';}}).join('\n');
+  PW.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>WHMIS Classroom · Present</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"><style>${css}
+    html,body{background:#1d1d20;height:100%} body{display:flex;flex-direction:column}
+    .pw-h{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#2a2a2e;color:#e8e8ec;font-weight:600}
+    .pw-h button{margin-left:auto;color:#e8e8ec;border-color:#5c5c62} .pw-h button:hover{background:#38383d}
+    .pw-b{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;overflow:hidden}
+    .pw-b .cv-pdf{width:min(46%,560px)} .pw-b .cv-media,.pw-b .cv-slide,.pw-b .cv-q{width:min(90%,1200px)}</style></head>
+    <body><div class="pw-h"><span id="pw-t">WHMIS Classroom</span><button class="b b-sm" onclick="document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()"><i class="fa-solid fa-expand"></i>Full screen</button></div><div class="pw-b" id="pw-b"></div></body></html>`);
+  PW.document.close();
+  S.presenting=true; render();
+  const t=setInterval(()=>{if(!PW||PW.closed){clearInterval(t);if(S.presenting){S.presenting=false;render();}}},800);
+}
+function presentQ(qid,i){S.presQ={qid,i};present();}
+function stopPresent(){S.presQ=null;if(PW&&!PW.closed)PW.close();PW=null;S.presenting=false;render();}
+/* what the class sees: the picked document, or a question with answer counts only (never names) */
+function presInner(){
+  const d=docs().find(x=>x.id===S.sel);
+  if(S.presQ){
+    const qz=Q.find(x=>x.id===S.presQ.qid), i=S.presQ.i, q=qz.qs[i];
+    return {t:'WHMIS Classroom · '+qz.name,h:`<div class="pq"><div class="pq-k">Let’s review${q.pool?'':` · Question ${i+1}`}</div><h2>${esc(q.t)}</h2>${q.multi?'<div class="pq-k" style="margin:-8px 0 8px">Select all that apply</div>':''}${q.o.map((o,oi)=>{
+      const n=pickedBy(qz,i,oi).length, okO=cset(q).includes(oi);
+      return `<div class="pq-o${okO?' ok':''}"><span class="ltr">${L[oi]}</span><span class="t">${esc(o)}${okO?`<small>Correct answer${q.multi?'':''}</small>`:''}</span><span class="n">${n}</span></div>`;}).join('')}</div>`};
+  }
+  return {t:'WHMIS Classroom'+(d?' · '+d.name:''),h:content(d,true)};
+}
+function syncPresent(){
+  if(S.single||!S.presenting||!PW||PW.closed) return;
+  const b=PW.document.getElementById('pw-b'); if(!b) return;
+  const p=presInner(); b.innerHTML=p.h; PW.document.getElementById('pw-t').textContent=p.t;
+}
+/* single screen: Present fills this screen; the instructor exits to get the dashboard back */
+function renderPres1(){
+  let el=document.getElementById('pres1');
+  if(!(S.single&&S.presenting)){if(el)el.remove();return;}
+  if(!el){el=document.body.appendChild(document.createElement('div'));el.id='pres1';}
+  const p=presInner();
+  const list=docs().filter(d=>!['pptx','link','ppsx'].includes(d.kind));
+  el.innerHTML=`<div class="pw-h"><span>${esc(p.t)}</span><span class="r"><button class="b b-sm${S.docs1?' on':''}" onclick="S.docs1=!S.docs1;render()">${I('fa-regular fa-folder-open')}Documents</button><button class="b b-sm" onclick="stopPresent()">${I('fa-solid fa-xmark')}Exit presenting</button></span></div><div class="p1-b"><div class="pw-b">${p.h}</div>${S.docs1?`<aside class="p1-docs" aria-label="Documents"><div class="p1-h">Documents</div>${list.map(d=>`<button class="p1-d${!S.presQ&&S.sel===d.id?' on':''}" onclick="pick('${d.id}')"><span class="tyi">${I(KIND[d.kind].i)}</span><span><b>${esc(d.name)}</b><small>${KIND[d.kind].l}</small></span></button>`).join('')}</aside>`:''}</div>`;
+}
+/* screen setup: extended (projector as a second window) or single (one shared touch screen) */
+/* single screen: names stay hidden until the instructor shows them for one item; they hide again when the modal closes */
+/* low-key badge in the preview bar: which screen setup is on */
+const scrBadge=()=>`<button class="scr-badge" data-tip="Screen setup" onclick="event.stopPropagation();openScreen(this)">${I(S.single?'fa-solid fa-tv':'fa-solid fa-display')}${S.single?'Single screen':'Extended screen'}</button>`;
+const masked=k=>S.single&&!S.rev[k];
+const showBtn=(k,l)=>S.rev[k]?`<button class="b b-sm" onclick="event.stopPropagation();delete S.rev['${k}'];render()">${I('fa-solid fa-eye-slash')}${(l||'Show names').replace('Show','Hide')}</button>`:`<button class="b b-sm" onclick="event.stopPropagation();S.rev['${k}']=1;render()">${I('fa-solid fa-eye')}${l||'Show names'}</button>`;
+const Ppl=(k,arr)=>masked(k)?'':arr.map(PChip).join('');
+function setScreen(single){if(S.presenting)stopPresent();S.single=single;S.rev={};S.showProg=false;closeLayer();render();snack(single?'Single screen: names stay hidden until you show them':'Extended screen: Present opens a second window');}
+function openScreen(btn){
+  const r=btn.getBoundingClientRect(), opt=(v,ic,l,sub)=>`<button class="mi scr-mi${S.single===v?' on':''}" role="menuitemradio" aria-checked="${S.single===v}" onclick="setScreen(${v})">${I(ic)}<span><b>${l}</b><small>${sub}</small></span>${S.single===v?`<span class="ck">${I('fa-solid fa-check')}</span>`:''}</button>`;
+  document.getElementById('layer').innerHTML=`<div class="menu" role="menu" style="width:320px;top:${r.bottom+4}px;left:${Math.max(8,Math.min(innerWidth-328,r.right-320))}px"><div class="mhd">Screen setup</div>${opt(false,'fa-solid fa-display','Extended screen','Laptop plus a projector. Present opens a second window for the class.')}${opt(true,'fa-solid fa-tv','Single screen','One touch screen the class can see. Names stay hidden until you show them, and Present uses this screen.')}</div>`;
+  setTimeout(()=>document.addEventListener('click',closeLayer,{once:true}),0);
+}
+
+/* =====================================================================
+   MODALS: Assign, Progress, Results
+   ===================================================================== */
+function renderModal(){
+  const L=document.getElementById('modal-root')||Object.assign(document.body.appendChild(document.createElement('div')),{id:'modal-root'});
+  if(!S.modal){L.innerHTML='';return;}
+  const keepScroll=L.querySelector('.res-r')?.scrollTop||0;
+  L.innerHTML=`<div class="ov" onclick="if(event.target===this)closeModal()">${S.modal.k==='assign'?assignModal():S.modal.k==='progress'?progressModal():resultsModal()}</div>`;
+  const rr=L.querySelector('.res-r'); if(rr) rr.scrollTop=keepScroll;
+}
+function closeModal(){if(S.modal?.k==='assign'&&!S.assign)S.picked={};S.modal=null;S.rev={};S.showProg=false;render();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.getElementById('layer').innerHTML)closeLayer();else if(S.modal)closeModal();else if(isFs())toggleFs();}});
+/* v4.1: the B key toggles a fullscreen preview, as on today's page (not while typing, or with a dialog open) */
+document.addEventListener('keydown',e=>{
+  if((e.key==='b'||e.key==='B')&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)&&!S.modal&&!(S.single&&S.presenting)&&docs().some(x=>x.id===S.sel)) toggleFs();
+});
+
+/* ---------- Assign ---------- */
+function openAssign(){S.modal={k:'assign',who:'all',ppl:{}};render();}
+function assignModal(){
+  const m=S.modal, names=Object.keys(S.picked).map(id=>DOCS_ALL.find(d=>d.id===id).name);
+  const nppl=m.who==='all'?PEOPLE.length:Object.keys(m.ppl).length;
+  return `<div class="modal" role="dialog" aria-modal="true" aria-label="Assign"><div class="mh"><h2>Assign ${names.length===1?'1 course':names.length+' courses'}</h2><button class="ib" aria-label="Close" onclick="closeModal()">${I('fa-solid fa-xmark')}</button></div>
+    <div class="mb"><div class="mut" style="font-size:14px;margin-bottom:8px">${names.map(esc).join(' · ')}</div>
+      <button class="rd" role="radio" aria-checked="${m.who==='all'}" onclick="S.modal.who='all';render()"><i class="dot"></i>Everyone in this class (${PEOPLE.length})</button>
+      <button class="rd" role="radio" aria-checked="${m.who==='some'}" onclick="S.modal.who='some';render()"><i class="dot"></i>Only some people</button>
+      ${m.who==='some'?`<div style="margin:4px 0 0 26px;max-height:180px;overflow:auto">${PEOPLE.map((n,p)=>`<button class="rd" style="font-size:14px;padding:4px 0" onclick="S.modal.ppl[${p}]?delete S.modal.ppl[${p}]:S.modal.ppl[${p}]=1;render()"><span class="cb" aria-checked="${!!m.ppl[p]}">${I('fa-solid fa-check')}</span>${n}</button>`).join('')}</div>`:''}
+      <div class="mut" style="font-size:13px;margin-top:10px">${I('fa-solid fa-circle-info')} It shows in their Home tab, and their answers appear in Results. People already assigned won’t get a second copy. Anyone who joins the class later gets it automatically.</div></div>
+    <div class="mf"><button class="b b-ghost" onclick="closeModal()">Cancel</button><button class="b b-primary" ${nppl?'':'disabled'} onclick="doAssign(${nppl})">Assign to ${nppl} ${nppl===1?'person':'people'}</button></div></div>`;
+}
+function doAssign(n){const k=Object.keys(S.picked).length;S.modal=null;S.assign=false;S.picked={};render();snack(`Assigned ${k===1?'1 course':k+' courses'} to ${n} ${n===1?'person':'people'}. It shows in their Home tab.`);}
+
+/* ---------- Progress ---------- */
+function openProgress(p){S.modal={k:'progress',hl:p===undefined?null:p,sort:'name'};render();}
+function cell(qz,p){
+  const x=personQuiz(qz,p);
+  /* outlined chips: the colour lives in the icon only */
+  if(x.st==='na') return `<span class="oc mut" data-tip="Added after this course was assigned">Not assigned</span><button class="b b-ghost b-sm asg" onclick="assignOne('${qz.id}',${p})">Assign</button>`;
+  if(x.st==='not') return `<span class="oc">${I('fa-regular fa-circle ic-mute')}Not started</span>`;
+  if(x.st==='prog') return `<span class="oc">${I('fa-solid fa-spinner ic-info')}Question ${x.r+1} of ${x.tot}</span>${x.wrong?`<span class="hot-i cell-i" tabindex="0" data-tip="${wa(x.wrong)} so far">${I('fa-solid fa-flag')}</span>`:''}`;
+  return x.st==='pass'?`<span class="oc">${I('fa-solid fa-circle-check ic-ok')}Passed · ${x.score}%</span>`:`<span class="oc">${I('fa-solid fa-circle-xmark ic-bad')}Failed · ${x.score}%</span>`;
+}
+/* simple overall status: Not started / In progress / Completed */
+function miniStatus(p){const as=Q.filter(qz=>!isNA(qz,p));if(!as.length)return `<span class="oc mut">Not assigned</span>`;
+  if(as.every(qz=>qz.reached[p]===qz.qs.length))return `<span class="oc">${I('fa-solid fa-circle-check ic-ok')}Completed</span>`;
+  return as.some(qz=>qz.reached[p]>0)?`<span class="oc">${I('fa-solid fa-spinner ic-info')}In progress</span>`:`<span class="oc">${I('fa-regular fa-circle ic-mute')}Not started</span>`;}
+/* overall status across every course assigned to the person */
+function statusCell(p){
+  const as=Q.filter(qz=>!isNA(qz,p)), done=as.filter(qz=>qz.reached[p]===qz.qs.length).length, started=as.some(qz=>qz.reached[p]>0);
+  if(!as.length) return `<span class="oc mut">Not assigned</span>`;
+  if(done===as.length) return `<span class="oc">${I('fa-solid fa-circle-check ic-ok')}Completed</span>`;
+  if(!started) return `<span class="oc">${I('fa-regular fa-circle ic-mute')}Not started</span>`;
+  return `<span class="oc">${I('fa-solid fa-spinner ic-info')}${done}/${as.length} done</span>`;
+}
+/* v4.1: assessment forms are columns too, as on today's Summary. Submitted or not yet; status above still counts online courses only. */
+function formCell(f,p,mini){return f.done.includes(p)?`<span class="oc">${I('fa-solid fa-circle-check ic-ok')}Submitted</span>`:`<span class="oc">${I('fa-regular fa-circle ic-mute')}${mini?'Not started':'Not submitted yet'}</span>`;}
+/* single screen: a minimal Progress (status only, nothing negative) until the instructor asks for more */
+function miniCell(qz,p){const x=personQuiz(qz,p);
+  if(x.st==='na') return `<span class="oc mut">Not assigned</span>`;
+  if(x.st==='not') return `<span class="oc">${I('fa-regular fa-circle ic-mute')}Not started</span>`;
+  if(x.st==='prog') return `<span class="oc">${I('fa-solid fa-spinner ic-info')}In progress</span>`;
+  return `<span class="oc">${I('fa-solid fa-circle-check ic-ok')}Completed</span>`;}
+function progressModal(){
+  const m=S.modal, mini=S.single&&!S.showProg; let ids=PEOPLE.map((_,p)=>p);
+  if(mini&&m.sort==='wrong') m.sort='name';
+  if(m.sort==='wrong') ids.sort((a,b)=>wrongTotal(b)-wrongTotal(a));
+  if(m.sort==='name') ids.sort((a,b)=>PEOPLE[a].localeCompare(PEOPLE[b]));
+  return `<div class="modal wide" role="dialog" aria-modal="true" aria-label="Progress"><div class="mh"><h2>Progress</h2>${liveChip()}<button class="ib" aria-label="Close" onclick="closeModal()">${I('fa-solid fa-xmark')}</button></div>
+    <div class="mb" style="flex:1">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span class="mut" style="font-size:14px">Everyone’s progress on the online courses and assessment forms in this class.</span>
+        <span style="margin-left:auto"></span>${S.single?`<button class="b b-sm" onclick="S.showProg=!S.showProg;render()">${I(mini?'fa-solid fa-eye':'fa-solid fa-eye-slash')}${mini?'Show more':'Show less'}</button>`:''}</div>
+      <div class="twrap"><table class="tbl ptbl${mini?' mini':''}"><thead><tr><th>Participant</th><th>Status</th>${mini?'':'<th>Wrong answers</th>'}${Q.map(qz=>`<th>${esc(qz.name)}<div class="sub">${qz.qs.length} questions${mini?'':` · pass ${qz.pass}%`}${qz.final?' · final exam':''}</div></th>`).join('')}${FM.map(f=>`<th>${esc(f.name)}<div class="sub">Assessment form</div></th>`).join('')}<th class="fill"></th></tr></thead>
+      <tbody>${ids.map(p=>{const miss=missingOf(p);return `<tr${m.hl===p?' class="hl"':''}><td><span style="display:flex;align-items:center;gap:8px">${Av(p)}<b style="font-weight:600">${PEOPLE[p]}</b>${miss.length>1?`<button class="b b-ghost b-sm asg" style="margin-left:auto" data-tip="Assign all ${miss.length} missing courses" onclick="assignPerson(${p})">Assign all</button>`:''}</span></td>
+        <td>${mini?miniStatus(p):statusCell(p)}</td>
+        ${mini?'':`<td>${wrongTotal(p)?`<span class="oc" tabindex="0" data-tip="${esc(wrongList(p))}">${I('fa-solid fa-flag')}${wrongTotal(p)}</span>`:'<span class="mut">0</span>'}</td>`}${Q.map(qz=>`<td>${mini?miniCell(qz,p):cell(qz,p)}</td>`).join('')}${FM.map(f=>`<td>${formCell(f,p,mini)}</td>`).join('')}<td class="fill"></td></tr>`;}).join('')}</tbody></table></div></div>
+    <div class="mf"><button class="b b-ghost" onclick="closeModal()">Close</button></div></div>`;
+}
+
+/* ---------- Results (with Most Challenging Questions) ---------- */
+function openResults(pick,qi,focus){
+  S.res.pick=pick||'all'; S.res.open={}; S.res.order=null; S.res.pending=false;
+  if(qi!==null&&qi!==undefined) S.res.open[pick+':'+qi]=1;
+  S.modal={k:'results'}; render();
+}
+function liveChip(){return `<span class="live snap" id="livechip"><small>updated ${ago()}</small><button class="ib ib-sm" style="width:18px;height:18px" data-tip="Refresh now" onclick="tick(true)">${I('fa-solid fa-rotate')}</button></span>`;}
+function resultsModal(){
+  const r=S.res, mis=allMissed();
+  const nh=needHelp();
+  const ov=(id,ic,label,n)=>`<button class="pick ovp${r.pick===id?' on':''}" onclick="openResults('${id}')"><b>${I(ic)}${label}</b><span class="cnt">${n}</span></button>`;
+  const picks=`<div class="pick-h">Overview</div>${ov('all','fa-solid fa-circle-exclamation','Most Challenging Questions',mis.length)}${ov('people','fa-solid fa-user-group','Students who need help',nh.length)}
+    <div class="pick-h">Online courses<span>${Q.length} course${Q.length===1?'':'s'}</span></div>${Q.map(qz=>{const st=qz.qs.map((_,i)=>qStats(qz,i)), hard=st.filter(s=>s.bad&&s.pct>=50).length, started=PEOPLE.filter((_,p)=>qz.reached[p]>0).length;
+      return `<button class="pick${r.pick===qz.id?' on':''}" onclick="openResults('${qz.id}')"><b>${esc(qz.name)}</b><small>${started} of ${assignedN(qz)} started${hard?` · <span style="font-weight:600" data-tip="Challenging = half or more of the people who answered chose a wrong answer (to confirm)">${hard} challenging</span>`:''}</small></button>`;}).join('')}`;
+  return `<div class="modal wide" role="dialog" aria-modal="true" aria-label="Results"><div class="mh"><h2>Results</h2>${liveChip()}<button class="ib" aria-label="Close" onclick="closeModal()">${I('fa-solid fa-xmark')}</button></div>
+    <div class="res"><nav class="res-l" aria-label="Pick a course">${picks}</nav><div class="res-r">${r.pick==='all'?resMCQ(mis):r.pick==='people'?resPeople(nh):resQuiz(Q.find(x=>x.id===r.pick))}</div></div>
+    <div class="mf"><span class="mut" style="font-size:13px;margin-right:auto">${S.single?I('fa-solid fa-tv')+' Single screen: the class can see this screen.':I('fa-solid fa-lock')+' Only you see this. The second screen only shows what you present.'}</span><button class="b b-ghost" onclick="closeModal()">Close</button></div></div>`;
+}
+/* Overview tab 1 (Figma 412:365): every question with mistakes, all open, hardest first */
+function resMCQ(mis){
+  return `<div class="res-top"><h3>Most Challenging Questions</h3></div><div class="res-sum">The most challenging questions across all the assigned courses.</div>
+    ${mis.length?mis.map((m,k)=>{const q=m.q;
+      return `<div class="mcq"><span class="no">${k+1}.</span><div class="mq-b">
+        <div class="mq-h"><b>${esc(q.t)}${poolTag(q)}${multiTag(q)}</b><span class="chip chip-warning">${m.bad} of ${m.n} chose a wrong answer</span><button class="ib ib-sm" data-tip="Present this question: answer counts only, no names" onclick="presentQ('${m.qz.id}',${m.i})">${I('fa-solid fa-display')}</button></div>
+        <div class="mq-sub">Course: <button class="lnk" onclick="openResults('${m.qz.id}',${m.i})">${esc(m.qz.name)}</button> · Correct answer${q.multi?'s':''}: <b class="mq-ok">${correctTxt(q)}</b></div>
+        <div class="mq-oh">${q.multi?'Options chosen':'Wrong options chosen'}${S.single?showBtn(m.qz.id+':'+m.i):''}</div>
+        ${q.multi?multiPeople(m.qz,m.i,m.qz.id+':'+m.i):wrongPicks(m.qz,m.i).map(x=>`<div class="mq-opt${x.o==='x'?' gone':''}"><div class="mq-oh2"><b>${x.o==='x'?'Removed':''}${x.o==='x'?'<span class="mut" style="font-weight:400"> · the option they chose was removed from the pool</span>':optTxt(q,x.o)}</b><span class="chip">${x.ppl.length} chose this</span></div>${masked(m.qz.id+':'+m.i)?'':`<div class="mq-s">Students who chose this option:</div><div class="mq-ppl">${x.ppl.map(PChip).join('')}</div>`}</div>`).join('')}
+      </div></div>`;}).join(''):`<div class="es"><div class="es-i">${I('fa-regular fa-face-smile')}</div><b>No wrong answers yet</b></div>`}`;
+}
+/* Overview tab 2: students who need help */
+function resPeople(nh){
+  return `<div class="res-top"><h3>Students who need help</h3></div><div class="res-sum">People with 3 or more wrong answers, across all the assigned courses.</div>
+      ${S.single&&!S.rev.people?`<div class="res-gen"><b>${nh.length} ${nh.length===1?'student has':'students have'} 3 or more wrong answers.</b>${showBtn('people','Show students')}</div>`:(S.single?`<div class="res-gen"><b>${nh.length} ${nh.length===1?'student has':'students have'} 3 or more wrong answers.</b>${showBtn('people','Show students')}</div>`:'')+nh.map(x=>{const qs=[];Q.forEach(qz=>qz.qs.forEach((q,i)=>{if(q.w[x.p]!==undefined&&answered(qz,i,x.p))qs.push({qz,q,i,o:q.w[x.p]});}));
+        /* one card per person: each question to go over, the option they chose and the correct one */
+        return `<div class="mq-opt sp"><div class="mq-oh2">${Av(x.p)}<b>${x.n}</b><span class="chip">${wa(x.w)}</span></div>
+          <details class="spd" ${S.res.sp?.[x.p]?'open':''} ontoggle="(S.res.sp=S.res.sp||{})[${x.p}]=this.open"><summary>${I('fa-solid fa-chevron-right')}See wrong questions</summary>${qs.map(y=>`<div class="spq"><div class="spt">${esc(y.q.t)}${poolTag(y.q)}<small>${esc(y.qz.name)} · ${qLabel(y.q,y.i)}</small></div>
+            <div class="spa"><span>Chose <b>${choseTxt(y.q,x.p)}</b></span><span>Correct <b class="mq-ok">${correctTxt(y.q)}</b></span></div></div>`).join('')}</details></div>`;}).join('')||'<div class="mut">Nobody yet.</div>'}`;
+}
+function resQuiz(qz){
+  const r=S.res, st=qz.qs.map((_,i)=>qStats(qz,i));
+  if(qz.order==='random') return `<div class="res-top"><h3>${esc(qz.name)}</h3></div><div class="rnd">${I('fa-solid fa-shuffle')}<span>This course shuffles its questions. Results show here as people answer.</span></div>`;
+  let order=qz.qs.map((_,i)=>i).filter(i=>qAssigned(qz.qs[i])); /* v4.1: only questions at least one learner received */
+  const ranked=order.slice().sort((a,b)=>st[b].bad-st[a].bad||st[b].pct-st[a].pct||a-b);
+  if(r.sort==='missed'){ if(!r.order||r.order.qz!==qz.id) r.order={qz:qz.id,ids:ranked}; order=r.order.ids; }
+  const started=PEOPLE.filter((_,p)=>qz.reached[p]>0).length, done=PEOPLE.filter((_,p)=>qz.reached[p]===qz.qs.length).length, na=(qz.na||[]).length;
+  const changed=r.sort==='missed'&&r.order&&r.order.ids.join()!==ranked.join();
+  return `<div class="res-top"><h3>${esc(qz.name)}</h3>${qz.final?'<span class="chip chip-info">Final exam</span>':''}<span class="chip">Pass ${qz.pass}%</span>
+      <span class="r"><span class="mut">Most wrong answers first</span></span></div>
+    <div class="res-sum">${started} of ${assignedN(qz)} started · ${done} finished · click a question to see who chose what</div>
+    ${false&&changed?`<div class="newbar">${I('fa-solid fa-arrow-down-up-across-line')}New answers changed the order<button onclick="S.res.order=null;render()">Update order</button></div>`:''}
+    ${order.map((i,k)=>qRow(qz,i,r.sort==='missed'?k+1:i+1,false)).join('')}`;
+}
+/* v4: today's quiz statistics bar, kept as it is: % of people who answered correctly,
+   red up to 30%, orange to 75%, blue to 95%, green above */
+const barCol=p=>p<=30?'#d9342b':p<=75?'#e8892a':p<=95?'#1f86c9':'#2e9b47';
+const barG=p=>`<span class="gbar" data-tip="${p}% answered correctly"><span style="width:calc((100% - 48px) * ${Math.max(p,2)} / 100);background:${barCol(p)}"></span><b>${p}%</b></span>`;
+function qRow(qz,i,rank,showQuiz){
+  /* the top-ranked question starts open so its answers and names show at a glance */
+  const q=qz.qs[i], s=qStats(qz,i), key=qz.id+':'+i, open=key in S.res.open?!!S.res.open[key]:(showQuiz||S.res.sort==='missed')&&rank===1;
+  const okN=s.n-s.bad, notYet=PEOPLE.map((_,p)=>p).filter(p=>!answered(qz,i,p)&&!isNA(qz,p)&&received(qz,i,p)), naP=qz.na||[]; /* v4.1: only learners who were given this question */
+  const goneP=PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p)&&q.w[p]==='x');
+  const right=PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p)&&q.w[p]===undefined);
+  const wrongBy=q.o.map((_,o)=>PEOPLE.map((_,p)=>p).filter(p=>answered(qz,i,p)&&q.w[p]===o));
+  const hot=s.n&&s.pct>=50, topWrong=Math.max(0,...wrongBy.filter((_,o)=>o!==q.c).map(x=>x.length));
+  const det=`<div class="qd">${S.single?`<div class="res-gen">${masked(key)?'Names are hidden on a shared screen.':'Names are showing.'}${showBtn(key)}</div>`:''}
+      ${q.multi?multiPeople(qz,i,key):`<div class="ans ok"><span class="ltr">${L[q.c]}</span><span class="at"><b>${esc(q.o[q.c])}</b> <span class="mut" style="font-size:12px">correct answer</span><div class="ppl">${masked(key)?'':right.map(PChip).join('')||'<span class="mut" style="font-size:12px">Nobody yet</span>'}</div></span><span class="ct">${right.length}</span></div>`}
+      ${q.multi?'':q.o.map((o,oi)=>oi===q.c||!wrongBy[oi].length?'':`<div class="ans bad"><span class="ltr">${L[oi]}</span><span class="at"><b>${esc(o)}</b>${hot&&wrongBy[oi].length===topWrong?`<span class="hot-i" data-tip="Most chosen wrong answer: the main reason this question is challenging">${I('fa-solid fa-circle-exclamation')}</span>`:''}<div class="ppl">${Ppl(key,wrongBy[oi])}</div></span><span class="ct">${wrongBy[oi].length} chose this</span></div>`).join('')}
+      ${goneP.length?`<div class="ans gone"><span class="ltr">${I('fa-solid fa-ban')}</span><span class="at"><b>Removed</b> <span class="mut" style="font-size:12px">the option they chose was removed from the pool after they answered</span><div class="ppl">${Ppl(key,goneP)}</div></span><span class="ct">${goneP.length} chose this</span></div>`:''}
+      ${notYet.length?`<div class="ans none"><span class="ltr">${I('fa-regular fa-clock')}</span><span class="at"><b class="mut">Not answered yet</b><div class="ppl">${Ppl(key,notYet)}</div></span><span class="ct mut">${notYet.length}</span></div>`:''}
+      
+    </div>`;
+  return `<div class="qrow${open?' open':''}"><button class="qh" aria-expanded="${open}" onclick="S.res.open['${key}']=${open?0:1};render()">
+      <span class="rk">${rank}${hot?`<span class="hot-i" data-tip="Challenging: half or more chose a wrong answer">${I('fa-solid fa-flag')}</span>`:''}</span><span class="qt">${esc(q.t)}${poolTag(q)}${multiTag(q)}<small>${showQuiz?esc(qz.name)+' · ':''}${q.pool?'Each learner gets their own copy, in their own position':'Question '+(i+1)}</small></span>
+      <span class="st"><span><b>${s.n?`${okN} of ${s.n} correct`:'No answers yet'}</b><span class="mut">${s.n?wa(s.bad):''}</span></span>
+        ${s.n?barG(Math.round(okN/s.n*100)):''}</span>
+      <span class="ch">${I('fa-solid fa-chevron-right')}</span></button>${det}</div>`;
+}
+
+/* =====================================================================
+   LIVE: every 10 seconds a learner answers the next question (sample feed)
+   ===================================================================== */
+/* v4 lean: no auto-refresh (today's page only has a manual refresh). Refresh pulls the newest answers and re-ranks. */
+function tick(){
+  for(let k=0;k<3;k++){const f=FEED[S.feed]; if(!f) break; S.feed++;
+    const [p,qid,wrong]=f, qz=Q.find(x=>x.id===qid);
+    if(qz.reached[p]<qz.qs.length){ const tq=qz.qs[qz.reached[p]]; if(wrong>=0) tq.w[p]=tq.multi?[wrong]:wrong; qz.reached[p]++; }}
+  S.res.order=null;
+  const c=document.getElementById('livechip'); if(c) c.classList.add('spin');
+  setTimeout(()=>{S.lastUpd=Date.now();render();},500);
+}
+setInterval(()=>{const c=document.getElementById('livechip');if(c&&!c.classList.contains('spin')){const sm=c.querySelector('small');if(sm)sm.textContent='updated '+ago();}},1000);
+
+/* review bar */
+function setDocs(on){S.docsOn=on;S.sel=null;S.fs=false;S.assign=false;S.picked={};document.getElementById('rv-docs-some').classList.toggle('on',on);document.getElementById('rv-docs-none').classList.toggle('on',!on);render();}
+function setLive(on){S.live=on;document.getElementById('rv-live-on').classList.toggle('on',on);document.getElementById('rv-live-off').classList.toggle('on',!on);render();}
+function setMany(on){MANY=on;const m=S.modal;fresh();S.modal=m;document.getElementById('rv-c2').classList.toggle('on',!on);document.getElementById('rv-c10').classList.toggle('on',on);render();}
+function setScen(k){SCEN=k;fresh();['live','good','empty'].forEach(x=>document.getElementById('rv-s-'+x).classList.toggle('on',x===k));render();}
+function resetAll(){stopPresent();MANY=false;SCEN='live';setScen('live');setMany(false);setDocs(true);setLive(true);}
+/* crossing into tablet width closes the drawers; back to desktop opens both panels */
+let wasNarrow=narrow();
+addEventListener('resize',()=>{const n=narrow();if(n!==wasNarrow){wasNarrow=n;S.left=S.right=!n;render();}});
+
+/* tooltips (data-tip) */
+const tip=document.getElementById('tip');
+document.addEventListener('mouseover',e=>{const t=e.target.closest('[data-tip]');if(!t){tip.style.display='none';return;}
+  tip.textContent=t.dataset.tip;tip.style.display='block';const r=t.getBoundingClientRect(),w=tip.offsetWidth;
+  tip.style.left=Math.max(8,Math.min(innerWidth-w-8,r.left+r.width/2-w/2))+'px';tip.style.top=(r.bottom+6+tip.offsetHeight>innerHeight?r.top-tip.offsetHeight-6:r.bottom+6)+'px';});
+document.addEventListener('focusin',e=>{if(!e.target.closest('[data-tip]'))tip.style.display='none';});
+
+render();
+</script>
+</body>
+</html>

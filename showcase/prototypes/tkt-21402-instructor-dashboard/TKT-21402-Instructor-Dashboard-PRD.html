@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <!--
-  TKT-21402 · Instructor Dashboard · PRD (lean v4 scope), 2026-11-02, updated 2026-11-05 (user stories; Dan: photos, PDF icon, bar graph). Built with the prd-builder skill (Variant A).
-  Embeds the v4 lean prototype that sits next to this file.
+  TKT-21402 · Instructor Dashboard · PRD (lean v4 scope), 2026-11-02, updated 2026-11-05 (user stories; Dan: photos, PDF icon, bar graph),
+  updated 2026-11-09 (v4.1: "Kept from today's page" for the dev questions, Question Pool rules). Built with the prd-builder skill (Variant A).
+  Embeds the v4.1 prototype that sits next to this file (TKT-21402-instructor-dashboard-v4-1.html).
 -->
 <html lang="en">
 <head>
@@ -93,9 +94,9 @@
     <div class="sub">A cleaner look for the live classroom dashboard, plus one new feature: the Results list of wrong answers.</div>
     <div class="meta">
       <div><b>Ticket</b>TKT-21402 (RailPros)</div>
-      <div><b>Status</b>Design review · lean scope</div>
+      <div><b>Status</b>Technical review · lean scope (v4.1)</div>
       <div><b>Audience</b>Dev · PM · QA · Writer</div>
-      <div><b>Updated</b>Nov 5, 2026</div>
+      <div><b>Updated</b>Nov 9, 2026</div>
       <div><b>Owner</b>Mikaela Yeo</div>
     </div>
     <div class="pending-banner"><i class="fa-solid fa-circle-info"></i>
@@ -110,6 +111,8 @@
       <div class="toc-h">Contents</div>
       <a href="#live">Live prototype</a>
       <a href="#scope">1 · Scope</a>
+      <a href="#kept">Kept from today's page</a>
+      <a href="#pool">Question Pool rules</a>
       <a href="#stories">User stories</a>
       <a href="#decisions">2 · Key decisions</a>
       <a href="#anatomy">3 · Anatomy</a>
@@ -130,13 +133,13 @@
 
       <section id="live">
         <h2>Live prototype</h2>
-        <p>The working prototype (v4, lean). The <b>Prototype controls</b> pill at the bottom left switches sample data: number of courses, mid-exam vs all good vs nothing assigned, and documents on or off. Sample names and data are invented.</p>
+        <p>The working prototype (v4.1: the lean v4 plus what today's page already does). The <b>Prototype controls</b> pill at the bottom left switches sample data: number of courses, mid-exam vs all good vs nothing assigned, and documents on or off. Sample names and data are invented.</p>
         <div class="embed-head">
-          <span style="font-size:13px;color:var(--ink-3)">TKT-21402 Instructor Dashboard · v4 lean · Nov 2, 2026</span>
-          <a href="TKT-21402-instructor-dashboard-v4-lean.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full screen</a>
+          <span style="font-size:13px;color:var(--ink-3)">TKT-21402 Instructor Dashboard · v4.1 · Nov 9, 2026</span>
+          <a href="TKT-21402-instructor-dashboard-v4-1.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full screen</a>
         </div>
         <div class="frame"><div class="bar"><i></i><i></i><i></i></div>
-          <iframe src="TKT-21402-instructor-dashboard-v4-lean.html" title="Instructor Dashboard prototype" loading="lazy"></iframe>
+          <iframe src="TKT-21402-instructor-dashboard-v4-1.html" title="Instructor Dashboard prototype" loading="lazy"></iframe>
         </div>
       </section>
 
@@ -152,6 +155,8 @@
           <li>Progress window, replacing today's Summary.</li>
           <li><b>Results window (new):</b> Most Challenging Questions, Students who need help, and results per course.</li>
           <li>Manual refresh, as today.</li>
+          <li><b>Everything today's page already does</b> keeps working (Nov 9, from the dev review): every document type, the slide list, fullscreen, previewing a whole course, forms in Progress and multi-answer questions. See "Kept from today's page".</li>
+          <li>Question Pool questions in Results, using the rules in "Question Pool rules".</li>
         </ul>
         <h3>Moved to a later ticket <span class="pill p-drop">✕ Dropped</span></h3>
         <ul>
@@ -180,6 +185,32 @@
         </ul>
       </section>
 
+      <section id="kept"><h2>Kept from today's page</h2>
+        <p>The dev review (Nov 9) found things today's page does that v4 didn't draw yet. The rule: <b>keep today's behaviour unless this design says otherwise</b>. No new technology. These are not new features, only the new look on what already exists.</p>
+        <div class="tw"><table><tr><th style="width:22%">Dev question</th><th>Decision</th><th style="width:9%"></th></tr>
+          <tr><td>1 · Other document types</td><td>HTML5 packages, external links, .ppsx files and slide-image PowerPoints stay. Icons: HTML5 teal <code>&lt;/&gt;</code>, external link grey-blue arrow, PowerPoint (.ppsx and slide images) orange. An external link still opens in a new tab and a .ppsx still downloads, as today. Neither goes on the class screen.</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td>2 · Slide list for slide-image PowerPoints</td><td>A <b>Slides</b> button in the Preview footer shows or hides the list of slides beside the slide (number, thumbnail, name, time). Clicking a slide jumps to it. The list is for the instructor only.</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td>3 · Fullscreen</td><td>Keep the fullscreen button (Preview header) and the B key. Present is for the class screen; fullscreen only enlarges the instructor's own Preview. Present does not replace it.</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td>4 · Previewing a course</td><td>Previewing a course still walks through every part in order: videos, pages and questions. The v4 prototype only drew the questions.</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td>5 · Forms in Progress</td><td>Assessment forms stay as columns in Progress, after the course columns. The Status column still counts online courses only.</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td>6 · Questions with more than one answer</td><td>Results marks them "Select all that apply" and shows every option each person chose (see B-55).</td><td><span class="pill p-new">+</span></td></tr>
+          <tr><td>7 · Present with nothing selected</td><td>The Present button still shows, greyed out, with the tooltip "Select a document to present". It does not open the first document, so the wrong thing can't reach the projector.</td><td><span class="pill p-chg">✎</span></td></tr>
+        </table></div>
+        <div class="callout warn"><b>Single-screen tooltip fix:</b> the Present tooltip no longer says "Opens a second window for the projector" in Single screen. It says "Fills this screen for the class. Exit presenting brings the dashboard back."</div>
+      </section>
+
+      <section id="pool"><h2>Question Pool rules</h2>
+        <p>Dev raised this on Nov 6. In a Question Pool, every learner gets their own copy of the pool questions and options, with different IDs, and pool questions can sit in different positions. Results must still show one question with one set of answers. Reuse the logic of the existing <b>Course Answers by Percentage</b> report, which already maps each copy back to its original pool question and matches options by their original position.</p>
+        <div class="tw"><table><tr><th style="width:22%">Dev question</th><th>Rule</th></tr>
+          <tr><td>Grouping answers</td><td>Map each learner's copy to the original pool question, and each option to its original position, the same way as the existing report. "Two learners chose option C" counts as one option with two names.</td></tr>
+          <tr><td>Unanswered questions</td><td>"Not answered yet" lists only learners who were given that question and haven't answered it.</td></tr>
+          <tr><td>Question list</td><td>Results lists only questions that at least one learner was given.</td></tr>
+          <tr><td>Question labels</td><td>The question text with a small "Pool: &lt;name&gt;" tag, and no question number, because its position differs per learner. Hover on the tag explains it.</td></tr>
+          <tr><td>Random option order</td><td>Option letters follow the original (admin) order, not the order the learner saw. The option text is always shown next to the letter.</td></tr>
+          <tr><td>Pool changed later</td><td>Results shows the current pool. If an option a learner chose was removed afterwards, their answer stays counted as wrong under a "Removed" row with the count and names. Edited or reordered options follow the same matching as the existing report (dev to confirm, see Open questions). No other new design in this ticket.</td></tr>
+        </table></div>
+      </section>
+
       <section id="stories"><h2>User stories</h2>
         <p>Who this is for and why. Each story links to the behaviour that proves it.</p>
         <div class="tw"><table><tr><th style="width:8%">ID</th><th>As a… I want… so that…</th><th style="width:18%">Behaviour</th></tr>
@@ -192,6 +223,14 @@
           <tr><td class="qid">US-7</td><td>As an <b>instructor</b> with a projector, I want to preview documents privately and present only what I choose, so that the class never sees names or scores by accident.</td><td>B-13, B-16, B-17, B-39</td></tr>
           <tr><td class="qid">US-8</td><td>As an <b>instructor</b> with one touch screen the class can see, I want names and results hidden until I choose to show them, so that nobody is put on the spot.</td><td>B-11, B-18, B-22, B-26, B-41</td></tr>
           <tr><td class="qid">US-9</td><td>As an <b>instructor</b>, I want to assign online courses and quizzes to everyone or to chosen people, so that the class starts the right course at the right time.</td><td>B-10, B-19</td></tr>
+          <tr><td class="qid">US-10</td><td>As an <b>instructor</b>, I want to keep presenting every document type my class already uses (HTML5 packages, external links, .ppsx files and slide-image PowerPoints), so that nothing I rely on today disappears.</td><td>B-47 to B-50</td></tr>
+          <tr><td class="qid">US-11</td><td>As an <b>instructor</b> showing a slide-image PowerPoint, I want the list of slides beside the slide, so that I can jump to the slide the class asks about.</td><td>B-50</td></tr>
+          <tr><td class="qid">US-12</td><td>As an <b>instructor</b>, I want to make my preview fullscreen with a button or the B key, so that I can read it from across the room.</td><td>B-51</td></tr>
+          <tr><td class="qid">US-13</td><td>As an <b>instructor</b>, I want to preview a whole course, part by part, so that I know what my class is about to see before I assign or present it.</td><td>B-53</td></tr>
+          <tr><td class="qid">US-14</td><td>As an <b>instructor</b>, I want to see who has submitted each assessment form, so that I can chase the people who haven't.</td><td>B-54</td></tr>
+          <tr><td class="qid">US-15</td><td>As an <b>instructor</b>, I want to see every option a person chose on a "select all that apply" question, so that I know whether they missed a correct option or added a wrong one.</td><td>B-55, B-56</td></tr>
+          <tr><td class="qid">US-16</td><td>As an <b>instructor</b> teaching a course with a Question Pool, I want each pool question to show as one question with all learners' answers together, so that I can still find what the class got wrong.</td><td>B-57 to B-62</td></tr>
+          <tr><td class="qid">US-17</td><td>As an <b>instructor</b>, I want Present to be unavailable until I have picked something, so that I can't put the wrong thing on the projector.</td><td>B-52</td></tr>
         </table></div>
       </section>
 
@@ -211,6 +250,9 @@
           <tr><td>Keep today's bar graph</td><td>Today's quiz statistics graph stays: one sideways bar per question with the % of people who answered correctly, red up to 30%, orange to 75%, blue to 95%, green above. It now sits on each question row in Results. (Dan, Nov 5: many clients use it)</td><td><span class="pill p-ok">✓</span></td></tr>
           <tr><td>No file changes</td><td>PowerPoint, photos and uploads work as today. A .pptx still can't be presented. (Dan, Oct 22)</td><td><span class="pill p-ok">✓</span></td></tr>
           <tr><td>Shuffled questions</td><td>Courses that shuffle questions are supported but not designed further in this ticket. Results shows a short note until people answer. (Dev, Oct 22)</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td>Keep today's behaviour</td><td>Unless this design says otherwise, today's page behaviour stays: document types, slide list, fullscreen and the B key, previewing every part of a course, forms in Progress. (Mika, Nov 9, answering dev)</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td>Present with nothing selected</td><td>Greyed out with a tooltip, never opens the first document. (Mika, Nov 9)</td><td><span class="pill p-chg">✎</span></td></tr>
+          <tr><td>Question Pool results</td><td>Reuse the Course Answers by Percentage logic (original question, original option position). Pool tag instead of a question number. (Dev question, Nov 6)</td><td><span class="pill p-new">+</span></td></tr>
         </table></div>
       </section>
 
@@ -219,9 +261,9 @@
           <tr><td>Header</td><td>Breadcrumb (Classroom Calendar / Dashboard), guide icon, Back.</td></tr>
           <tr><td>Left panel: Participants</td><td>Title with count. <b>Results</b> and <b>Progress</b> buttons. Participant list, A to Z: profile picture, name, what they're doing now, and "1/2 done" or a green "Done". Can be hidden from the tab on its edge.</td></tr>
           <tr><td>Course header</td><td>Course name, instructor, start time, number of participants, screen setup (gear), Discussion Board with unread count.</td></tr>
-          <tr><td>Preview</td><td>Document title and type, a badge for the screen setup, <b>Present</b>. Empty until a document is clicked or dragged in. Footer controls per type (question / slide / video / page).</td></tr>
+          <tr><td>Preview</td><td>Document title and type, a badge for the screen setup, a fullscreen button, <b>Present</b> (greyed out until a document is selected). Empty until a document is clicked or dragged in. Footer controls per type (course part / slide / video / page), plus a <b>Slides</b> button for slide-image PowerPoints.</td></tr>
           <tr><td>Right panel: Documents</td><td>Title with count, <b>Assign</b>, grid/list toggle, document cards (name, coloured type icon, type label, present icon). Can be hidden from the tab on its edge.</td></tr>
-          <tr><td>Progress window</td><td>One row per person: picture and name, Status, Wrong answers, one column per course. Refresh and "updated … ago" at the top.</td></tr>
+          <tr><td>Progress window</td><td>One row per person: picture and name, Status, Wrong answers, one column per course, then one column per assessment form. Refresh and "updated … ago" at the top.</td></tr>
           <tr><td>Results window</td><td>Left list: Overview (Most Challenging Questions, Students who need help) and Online courses. Right: the chosen view. Refresh at the top, privacy note at the bottom.</td></tr>
           <tr><td>Present</td><td>Extended: a second window for the projector. Single: full screen on the same screen, with a Documents side list and Exit presenting.</td></tr>
         </table></div>
@@ -232,9 +274,11 @@
         <div class="viz"><div class="cap">Each type has its own colour</div><div class="row">
           <span class="ty"><svg viewBox="0 0 32 40" width="22" height="28" aria-hidden="true"><path d="M4 1h17.5L31 10.4V36a3 3 0 0 1-3 3H4a3 3 0 0 1-3-3V4a3 3 0 0 1 3-3z" fill="#f5f5f5" stroke="#fa1e1e" stroke-width="2" stroke-linejoin="round"/><path d="M15.2 8.2c-1.3 0-1.4 2-.9 4.2.6 2.7 2.4 6 4.8 8.6 2.1 2.2 4.9 3.1 5.6 1.6.6-1.4-2.6-2.1-6-1.6-3.7.6-8 2.4-9.3 4.6-.8 1.4.6 2.5 2.5.9 2-1.7 4.3-6 5-9.5.6-3 .3-5.8-.9-5.8z" fill="none" stroke="#fa1e1e" stroke-width="1.3"/><text x="16" y="35" text-anchor="middle" font-family="Segoe UI,Arial" font-weight="700" font-size="7.5" fill="#2d2d2d">PDF</text></svg>PDF (Adobe-style)</span>
           <span class="ty"><i class="fa-solid fa-laptop" style="color:#1f6fd1"></i>Course</span>
-          <span class="ty"><i class="fa-solid fa-file-powerpoint" style="color:#d2591f"></i>Slides / PowerPoint</span>
+          <span class="ty"><i class="fa-solid fa-file-powerpoint" style="color:#d2591f"></i>Slides / PowerPoint / .ppsx</span>
           <span class="ty"><i class="fa-solid fa-circle-play" style="color:#7a3fc4"></i>Video</span>
           <span class="ty"><i class="fa-solid fa-image" style="color:#1d8a5a"></i>Photo</span>
+          <span class="ty"><i class="fa-solid fa-code" style="color:#0d8a86"></i>HTML5</span>
+          <span class="ty"><i class="fa-solid fa-arrow-up-right-from-square" style="color:#5b7893"></i>External link</span>
         </div></div>
 
         <h3>Participant rows</h3>
@@ -259,6 +303,20 @@
           <div class="row" style="justify-content:space-between;max-width:560px"><b style="font-size:14px">C. Make your own label from memory</b><span class="badge o">4 chose this</span></div>
           <div class="row" style="margin-top:8px"><span class="chipname"><span class="av">JL</span>Jordan Lee</span><span class="chipname"><span class="av">PS</span>Priya Shah</span><span class="chipname"><span class="av">MO</span>Mary Okafor</span></div>
           <div class="row" style="margin-top:12px"><span class="badge o">5 of 6 chose a wrong answer</span><span class="badge v">Correct answer: A</span><span class="badge h">5 wrong answers</span></div>
+        </div>
+
+        <h3>Results: a question with more than one answer</h3>
+        <div class="viz"><div class="cap">Every option each person chose</div>
+          <div class="row" style="max-width:560px"><b style="font-size:14px">Which of these must a workplace label include?</b><span class="badge f">Select all that apply</span></div>
+          <div class="row" style="margin-top:8px"><span class="chipname"><span class="av">PS</span>Priya Shah</span></div>
+          <div class="row" style="margin-top:6px"><span class="badge v"><i class="fa-solid fa-check"></i>A. Product name</span><span class="badge h"><i class="fa-solid fa-xmark"></i>D. The purchase date</span><span class="badge" style="border:1px dashed var(--stroke);color:var(--ink-2)">B. Safe handling instructions · missed</span><span class="badge" style="border:1px dashed var(--stroke);color:var(--ink-2)">C. A reference to the SDS · missed</span></div>
+          <p style="font-size:12.5px;margin:10px 0 0">Green: a correct option they chose. Red: a wrong option they chose. Dashed: a correct option they didn't choose. Correct only if every correct option was chosen, as today.</p>
+        </div>
+
+        <h3>Results: Question Pool tag and removed option</h3>
+        <div class="viz"><div class="cap">One question, however each learner saw it</div>
+          <div class="row"><b style="font-size:14px">Which pictogram warns that a product can burn skin or eyes?</b><span class="badge f"><i class="fa-solid fa-shuffle"></i>Pool: Pictograms</span></div>
+          <div class="row" style="margin-top:8px;max-width:560px;justify-content:space-between;border:1px dashed var(--stroke);border-radius:6px;padding:6px 10px"><span style="font-size:13px"><b>Removed</b> · the option they chose was removed from the pool</span><span class="badge o">1 chose this</span></div>
         </div>
 
         <h3>Results: today's bar graph, kept</h3>
@@ -354,6 +412,30 @@
           <tr><td class="qid">B-45</td><td>Question with no answers yet</td><td>No bar; the row says "No answers yet".</td></tr>
           <tr><td class="qid">B-46</td><td>A PDF in Documents</td><td>Shows the Adobe-style PDF icon on the card, in list view and in the Preview header.</td></tr>
         </table></div>
+
+        <h3>5.9 Kept from today's page <span class="pill p-new">+ Nov 9</span></h3>
+        <div class="tw"><table><tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-47</td><td>An HTML5 package in Documents</td><td>Teal <code>&lt;/&gt;</code> icon, type label "HTML5". Plays in Preview and can be presented.</td></tr>
+          <tr><td class="qid">B-48</td><td>An external link in Documents</td><td>Grey-blue arrow icon, type label "Link". Preview shows the link with "Open in a new tab"; the link opens in a new tab, as today. Present and the card's present icon open the link in a new tab too. It never goes on the class screen and isn't in the Single-screen Documents list.</td></tr>
+          <tr><td class="qid">B-49</td><td>A .ppsx file in Documents</td><td>Orange PowerPoint icon, type label ".ppsx". Preview says it can't play and offers Download; it downloads, as today. Can't be presented. The card's icon is Download, not Present.</td></tr>
+          <tr><td class="qid">B-50</td><td>A slide-image PowerPoint</td><td>Orange PowerPoint icon. Plays slide by slide in Preview with previous / next and "Slide &lt;n&gt; of &lt;total&gt;". The <b>Slides</b> button in the footer shows or hides a list of slides beside the slide (number, thumbnail, name, time); clicking one jumps to it. The list is open by default and is for the instructor only, not the class screen.</td></tr>
+          <tr><td class="qid">B-51</td><td>Press the fullscreen button, or press B</td><td>Preview fills the screen for the instructor only. Press the button again, B or Esc to exit. B does nothing while typing, with a window open, or while presenting on a Single screen. Present still opens the class view; fullscreen never changes what the class sees. Needs a document selected.</td></tr>
+          <tr><td class="qid">B-52</td><td>Nothing is selected in Preview</td><td>Present still shows but is greyed out. Tooltip: "Select a document to present". It does not open the first document. The fullscreen button isn't shown.</td></tr>
+          <tr><td class="qid">B-53</td><td>Preview an online course</td><td>Walks through every part in order, as today: its videos, pages and questions. Footer: previous / next and "Part &lt;n&gt; of &lt;total&gt; · Question &lt;n&gt; of &lt;total&gt;" (or "Video" / "Page"). Presenting shows the same part on the class screen.</td></tr>
+          <tr><td class="qid">B-54</td><td>The class has an assessment form</td><td>Progress adds one column per form after the course columns, headed with the form name and "Assessment form". Cell: "Submitted" or "Not submitted yet". Single screen's simple view: "Submitted" or "Not started". Status and "Wrong answers" ignore forms.</td></tr>
+          <tr><td class="qid">B-55</td><td>A question that allows more than one answer, in Results</td><td>Tagged "Select all that apply". Correct answers are listed together (e.g. A, B, C). People who chose all of them are listed as correct. Each person with a wrong combination is listed once, with every option they chose: green with a check if correct, red with a cross if wrong, and a dashed "missed" for a correct option they didn't choose. It counts as correct only if all correct options were chosen, as today. Single screen: only the count until Show names.</td></tr>
+          <tr><td class="qid">B-56</td><td>Present a multi-answer question</td><td>Every option shows how many people chose it; all correct options are highlighted. Counts only, never names.</td></tr>
+        </table></div>
+
+        <h3>5.10 Question Pool <span class="pill p-new">+ Nov 9</span></h3>
+        <div class="tw"><table><tr><th style="width:8%">ID</th><th style="width:40%">Scenario</th><th>Expected</th></tr>
+          <tr><td class="qid">B-57</td><td>Learners answer different copies of a pool question</td><td>Results shows one question. Each copy is mapped to the original pool question and each option to its original position, as in the Course Answers by Percentage report.</td></tr>
+          <tr><td class="qid">B-58</td><td>A pool question in Results</td><td>Question text with a "Pool: &lt;name&gt;" tag. No question number. Hover on the tag: each learner gets their own copy, and option letters follow the original order.</td></tr>
+          <tr><td class="qid">B-59</td><td>A learner saw the options shuffled</td><td>Letters in Results follow the original (admin) order. The option text is always shown.</td></tr>
+          <tr><td class="qid">B-60</td><td>"Not answered yet" on a pool question</td><td>Lists only learners who were given that question and haven't answered it.</td></tr>
+          <tr><td class="qid">B-61</td><td>A pool question nobody was given</td><td>Not listed in Results.</td></tr>
+          <tr><td class="qid">B-62</td><td>An option someone chose was removed from the pool afterwards</td><td>Their answer stays counted as wrong, under a dashed "Removed" row with the count and names. Other pool edits: see Open questions.</td></tr>
+        </table></div>
       </section>
 
       <section id="copy"><h2><span class="num">6</span>Copy <span class="pill p-pend">Pending writer review</span></h2>
@@ -367,7 +449,16 @@
           <tr><td>Participant progress</td><td>&lt;n&gt;/&lt;total&gt; done · Done</td></tr>
           <tr><td>Preview, empty</td><td>Click or drag a document here to view it / Only you see it until you press Present.</td></tr>
           <tr><td>Preview, presenting</td><td>On the second screen</td></tr>
-          <tr><td>Present tooltip</td><td>Opens a second window for the projector. Only what you pick here shows there.</td></tr>
+          <tr><td>Present tooltip, Extended</td><td>Opens a second window for the projector. Only what you pick here shows there.</td></tr>
+          <tr><td>Present tooltip, Single</td><td>Fills this screen for the class. Exit presenting brings the dashboard back.</td></tr>
+          <tr><td>Present tooltip, nothing selected</td><td>Select a document to present</td></tr>
+          <tr><td>Preview, presenting (Single)</td><td>On this screen</td></tr>
+          <tr><td>Fullscreen button</td><td>Fullscreen (B) · Exit fullscreen (B)</td></tr>
+          <tr><td>Slides</td><td>Slides · Slides · &lt;n&gt; (list title) · Slide &lt;n&gt; of &lt;total&gt; · Show / Hide the list of slides</td></tr>
+          <tr><td>Course preview footer</td><td>Part &lt;n&gt; of &lt;total&gt; · Question &lt;n&gt; of &lt;total&gt; · Video · Page · Previous part · Next part</td></tr>
+          <tr><td>Link</td><td>Opens in a new tab · Open in a new tab · An external website. It opens in a new tab.</td></tr>
+          <tr><td>.ppsx</td><td>Downloads the .ppsx file · Download · Downloads to this computer · A .ppsx slide show can’t play in the browser. It downloads to this computer.</td></tr>
+          <tr><td>HTML5</td><td>HTML5 package · An interactive lesson. It plays right here. · HTML5 package · plays in the preview</td></tr>
           <tr><td>Documents, empty</td><td>No documents yet / Add PDFs, videos and online courses to this class in the Classroom Course or this event’s Content section. / Add documents</td></tr>
           <tr><td>.pptx warning</td><td>This PowerPoint can’t be shown / Only PowerPoints saved as HTML5 (.zip) can play here. A .pptx file just downloads.</td></tr>
           <tr><td>Assign, picking</td><td>Only online courses and quizzes can be assigned. Everything else can be presented.</td></tr>
@@ -382,8 +473,9 @@
         </table></div>
         <h3>Progress</h3>
         <div class="tw"><table><tr><th style="width:34%">Element</th><th>Copy</th></tr>
-          <tr><td>Intro</td><td>Everyone’s progress on the online courses assigned in this class.</td></tr>
-          <tr><td>Columns</td><td>Participant · Status · Wrong answers · &lt;course&gt; (&lt;n&gt; questions · pass &lt;n&gt;%)</td></tr>
+          <tr><td>Intro</td><td>Everyone’s progress on the online courses and assessment forms in this class.</td></tr>
+          <tr><td>Columns</td><td>Participant · Status · Wrong answers · &lt;course&gt; (&lt;n&gt; questions · pass &lt;n&gt;%) · &lt;form&gt; (Assessment form)</td></tr>
+          <tr><td>Form status</td><td>Submitted · Not submitted yet (Single screen simple view: Not started)</td></tr>
           <tr><td>Status values</td><td>Completed · &lt;n&gt;/&lt;total&gt; done · Not started · In progress · Passed · &lt;n&gt;% · Failed · &lt;n&gt;% · Question &lt;n&gt; of &lt;total&gt;</td></tr>
           <tr><td>Single screen</td><td>Show more · Show less</td></tr>
           <tr><td>Refresh</td><td>updated &lt;time&gt; ago · Refresh now</td></tr>
@@ -399,7 +491,9 @@
           <tr><td>Per course</td><td>Most wrong answers first · Final exam · Pass &lt;n&gt;%</td></tr>
           <tr><td>Empty states</td><td>No wrong answers yet · Everyone chose the correct answer so far · Nobody yet · Everyone is on track</td></tr>
           <tr><td>Shuffled course</td><td>This course shuffles its questions. Results show here as people answer.</td></tr>
-          <tr><td>Presented question</td><td>Let’s review · Question &lt;n&gt;</td></tr>
+          <tr><td>Multiple answers</td><td>Select all that apply · Correct answers: · Options chosen · correct answers · all of them must be chosen · Wrong combinations, with every option each person chose · &lt;letter&gt;. &lt;answer&gt; · missed (hover: A correct option this person did not choose) · &lt;n&gt; students chose a wrong combination. Names are hidden on a shared screen.</td></tr>
+          <tr><td>Question Pool</td><td>Pool: &lt;name&gt; · Each learner gets their own copy, in their own position · Question Pool: each learner gets their own copy, in their own position. Results groups them as one question, and option letters follow the original order. (hover) · Removed · the option they chose was removed from the pool · the option they chose was removed from the pool after they answered</td></tr>
+          <tr><td>Presented question</td><td>Let’s review · Question &lt;n&gt; (pool questions: Let’s review) · Select all that apply</td></tr>
           <tr><td>Single screen</td><td>Show names · Hide names · Show students · Names are hidden on a shared screen. · Names are showing. · &lt;n&gt; students have 3 or more wrong answers.</td></tr>
           <tr><td>Footer note (Extended)</td><td>Only you see this. The second screen only shows what you present.</td></tr>
         </table></div>
@@ -412,11 +506,14 @@
           <li><b>Dev:</b> profile photos come from each person's account. Can the dashboard load them for the participant list without extra work?</li>
           <li><b>Dev:</b> is the screen setup (Extended / Single) a small add, or should it move to the later ticket too?</li>
           <li><b>PM:</b> who owns the later ticket for the cut features, and when do we gather client feedback?</li>
+          <li><b>Dev:</b> Question Pool, if the admin edits or reorders a pool's options after people answered, does the existing Course Answers by Percentage matching still point at the right option? Is a removed <i>question</i> (not just an option) detectable, so it can also show as "Removed"?</li>
+          <li><b>Dev:</b> do assessment forms in Progress need anything beyond "Submitted" / "Not submitted yet" (for example a score), or is that what today's Summary shows?</li>
+          <li><b>Dev:</b> external links: today's page opens them in a new tab. Is that still what you see for every link document, including links that block embedding?</li>
         </ul>
       </section>
 
       <footer>
-        Ticket TKT-21402 · Prototype: <a href="TKT-21402-instructor-dashboard-v4-lean.html">TKT-21402-instructor-dashboard-v4-lean.html</a> · Earlier version: <a href="TKT-21402-instructor-dashboard.html">v3</a>
+        Ticket TKT-21402 · Prototype: <a href="TKT-21402-instructor-dashboard-v4-1.html">TKT-21402-instructor-dashboard-v4-1.html</a> · Earlier versions: <a href="TKT-21402-instructor-dashboard-v4-lean.html">v4 lean</a> · <a href="TKT-21402-instructor-dashboard.html">v3</a>
       </footer>
     </main>
   </div>
