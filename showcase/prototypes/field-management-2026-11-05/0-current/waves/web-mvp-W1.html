@@ -11630,6 +11630,18 @@ if(XNOTES.svatt) XNOTES.svatt[1]=XNOTES.svatt[1].replace('the supervisor’s <b>
 svPin('sv82','D-082 · Guests','<b>“Guest” replaces “external”</b> for people who aren’t users here, with a <b>Guest</b> badge. A guest needs <b>only a name</b>; their company is optional (no setting). Wave 3 (S-8.4): today-only visitors; certificates later.','Agreed');
 svPin('sv83','D-083 · Admins can do what a crew supervisor can','On <b>every Site and Job</b>, on the web and the app: add or remove members, attach crews, assign one-off forms, add or move an existing routine, sign people in (the “my crew is here” checklist), Mark away, and move (wave 2). The web admin already had all of these; on the app, try Role › Admin. No new permission level (S-2.3, S-4.1, S-7.3).','Agreed');
 svPin('sv84','D-084 · Who can correct a past day','Wave 1 is the Away switch, so there are no dates to backdate. From wave 3, <b>only admins</b> can correct a past day (Yesterday, or a range that starts in the past), with who and when recorded. A supervisor’s Away starts today or later.','Agreed');
+/* D-086 (Nov 10, Design: "Yes, build it"): (1) "Why it counted" (S-5.3) is one line on the submission in Field Management's
+   Submissions tab (the View Submission panel): the Site or Job, and how it was decided. Not on the submission in the forms
+   module in wave 1. (2) A form finished late counts for the day it was owed, not the day it was sent (S-5.2). */
+{ const _p=subPanel; subPanel=function(P){ const h=_p.apply(this,arguments); const s=isEmpty('panel')?null:subOnDay(P); if(!s||h.indexOf('<div class="sgrid">')<0) return h;
+  const c=ctx(s.ctx), p=PEOPLE[s.who];
+  const how=s.one?'assigned here':s.rit?'the routine '+esc(RITUALS[s.rit].n)+' is on this '+c.kind:esc(p.n)+' was signed in here';
+  const day=s.rit||s.one?`for ${fmtDow(s.day)}, the day it was owed${s.late?' (counts there even though it was finished late)':''}`:`for ${fmtDow(s.day)}`;
+  const line=`<div class="banner neutral sv-why">${I('fa-solid fa-location-dot')}<div><b>Why it counted</b><span>Counts toward ${esc(c.n)}, because ${how}, ${day}.${Pin('sv86')}</span></div></div>`;
+  return h.replace('<div class="sgrid">',line+'<div class="sgrid">'); }; }
+function svLateTips(){ document.querySelectorAll('[data-tip="Completed after its due time"]').forEach(e=>e.setAttribute('data-tip','Completed after its due time. It still counts for the day it was owed.')); }
+{ const _r=render; render=function(){ const x=_r.apply(this,arguments); svLateTips(); return x; }; }
+svPin('sv86','D-086 · Why it counted, and late forms','<b>(1)</b> “Why it counted” (S-5.3) is one line on a submission in Field Management’s <b>Submissions</b> tab: the Site or Job and how it was decided (routine, assignment or sign-in). In wave 1 it isn’t on the submission in the forms module; that comes later (confirms D-068). <b>(2)</b> A form finished late <b>counts for the day it was owed</b>, not the day it was sent (S-5.2); the wave 2 Missed tray (S-3.12) builds on this.','Agreed');
 svPin('sv85','D-085 · No Site or Job picker on forms people start themselves','In the MVP a form gets its Site or Job only from the routine that owed it, the assignment it came from, or the Site or Job the person is signed in to (S-5.1). Someone not signed in and not assigned through Field Management isn’t tracked against a Site or Job, and shows as missing until they sign in or a supervisor ticks them present (D-042). The picker setting stays in the ideal; a per-form “where this form reports” setting is a later idea (#22312).','Agreed');
 
 render();
