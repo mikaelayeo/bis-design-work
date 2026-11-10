@@ -11651,6 +11651,17 @@ if(XNOTES.svsupw) XNOTES.svsupw[1]=XNOTES.svsupw[1].replace(/<b>view only<\/b>/,
   return h.replace('The supervisor gets the "My Crew" view.','The supervisor gets the "My Crew" view.'+Pin('svksup')); }; }
 svPin('svksup','D-080 · One kind of crew supervisor','The Read-only / Full edit setting per crew is <b>removed</b>: every crew supervisor has the same actions (D-079 (1)). It came from the prototype (decision 102), not a scope decision. Anyone who should only look gets “Can view” sharing (S-8.3, wave 2).','Agreed');
 
+/* =====================================================================
+   20. THE OLD DAY-ONE SETUP GOES TO THE CURRENT ONBOARDING (Nov 10, from FM - Direction Pt.6). Dev opened
+   web-mvp-W1.html#/setup from ticket #22683 and found the old Batch 5 setup. Onboarding is its own page (D-051, D-074):
+   #/setup (any step, also under /admin/field-management) now opens this version's onboarding.html, the same place
+   "Get started" goes, and the ticket screen lists say "Onboarding" instead of "Day one setup".
+   ===================================================================== */
+{ const _r=render; render=function(){ if(S.page==='b5setup'){ location.replace(svOnbUrl()+'&start=1'); return; } return _r.apply(this,arguments); }; }
+if(typeof TKV_INFO==='object'&&TKV_INFO){ const walk=o=>{ if(Array.isArray(o)) return o.forEach(walk); if(!o||typeof o!=='object') return;
+  if(typeof o.l==='string'&&o.w&&/^#\/setup/.test(o.w)) o.l='Onboarding (its own page)';
+  Object.values(o).forEach(walk); }; walk(TKV_INFO); }
+
 render();
 
 /* ==== IDEAL END ==== */
