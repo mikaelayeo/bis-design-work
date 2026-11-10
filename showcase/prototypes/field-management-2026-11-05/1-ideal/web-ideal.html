@@ -11738,6 +11738,34 @@ svPin('sv84','D-084 · Who can correct a past day','Wave 1 is the Away switch, s
 function svLateTips(){ document.querySelectorAll('[data-tip="Completed after its due time"]').forEach(e=>e.setAttribute('data-tip','Completed after its due time. It still counts for the day it was owed.')); }
 { const _r=render; render=function(){ const x=_r.apply(this,arguments); svLateTips(); return x; }; }
 svPin('sv86','D-086 · Why it counted, and late forms','<b>(1)</b> “Why it counted” (S-5.3) is one line on a submission in Field Management’s <b>Submissions</b> tab: the Site or Job and how it was decided (routine, assignment or sign-in). In wave 1 it isn’t on the submission in the forms module; that comes later (confirms D-068). <b>(2)</b> A form finished late <b>counts for the day it was owed</b>, not the day it was sent (S-5.2); the wave 2 Missed tray (S-3.12) builds on this.','Agreed');
+/* ---------- 22. D-088 (Nov 10, Design): no checkboxes without a bulk action ----------
+   A table only gets row checkboxes once it has a bulk action. BulkBar runs on every render (it returns '' with nothing
+   selected), so it records whether any of its actions survive this wave's prune and the supervisor's prune. A table
+   whose key has no surviving action (or no bulk bar at all) loses its checkbox column (Table's noSel). */
+const SVBULK={};
+/* D-089 (Nov 10): "Download PDFs" on Submissions is W3 with Export (S-8.5), so Submissions has no checkboxes in W1-W2 */
+W_FEAT.push([3,'[onclick*="Preparing a .zip"]']);
+function svBulkLive(actions){
+  const d=document.createElement('div'); d.innerHTML=actions||'';
+  W_FEAT.forEach(([w,sel])=>{ if(SVR<w) d.querySelectorAll(sel).forEach(e=>e.remove()); });
+  if(typeof svFull==='function'&&svFull()) d.querySelectorAll('[onclick]').forEach(e=>{ const f=e.getAttribute('onclick')||''; if(SV_ADMIN_RX.test(f)||(SVR<2&&SV_MOVE_RX.test(f))) e.remove(); });
+  return !!d.querySelector('button,a,[onclick]'); }
+{ const _b=BulkBar; BulkBar=function(key,noun,actions){ const live=svBulkLive(actions), was=SVBULK[key]; SVBULK[key]=live;
+  if(was!==undefined&&was!==live) setTimeout(render,0);
+  if(!live){ if(S.sel) S.sel[key]={}; return ''; }
+  return _b.apply(this,arguments); }; }
+{ const _t=Table; Table=function(cfg){ if(cfg&&!cfg.noSel&&SVBULK[cfg.key]!==true){ cfg=Object.assign({},cfg,{noSel:true}); if(S.sel) S.sel[cfg.key]={}; } return _t.call(this,cfg); }; }
+/* the first render of a page may draw the table before its bulk bar has run: draw again once the bar has reported */
+{ const _r=render; let again=false; render=function(){ const n=Object.keys(SVBULK).length; const x=_r.apply(this,arguments);
+  if(!again&&Object.keys(SVBULK).length!==n){ again=true; try{ _r.apply(this,arguments); } finally { again=false; } } return x; }; }
+{ const _l=listPage; listPage=function(){ const h=_l.apply(this,arguments); return SVR<3&&!S.as?.startsWith?.('view')?h.replace(Pin(4),Pin(4)+Pin('sv88')):h; }; }
+/* D-087 (Nov 10): sending a form at a Site isn't being on site. The prototype already counts presence only from a
+   sign-in or a supervisor or admin ticking someone present; the pin says so beside the attendance pin. */
+/* the pins go on the Site or Job's People tab (the b6 attendance page's anchor doesn't render in the MVP build) */
+{ const _p=peopleTab; peopleTab=function(c){ const h=_p.apply(this,arguments); return typeof h==='string'&&!RO()?Pin('sv83')+Pin('sv87')+h:h; }; }
+svPin('sv87','D-087 · A form isn’t a sign-in','Sending a form at a Site or Job <b>doesn’t put someone on site</b>. Only their own sign-in, or a supervisor or admin ticking them present, does (S-4.1). The form still <b>counts toward</b> that Site or Job (S-5.1, D-086 “Why it counted”). So someone who sent a form but never signed in isn’t on the People tab’s “here” list.','Agreed');
+svPin('sv88','D-088 · No checkboxes without a bulk action','A table only gets row checkboxes once it has a <b>bulk action</b> (scope: “Rules that apply everywhere”). Export, the first bulk action on the Sites, Jobs, Crews and People lists, is <b>wave 3</b> (D-057), so in waves 1 and 2 those lists have no checkbox column. Tables with real bulk actions (a crew’s members: Move, Remove) keep theirs. The same goes for someone whose role takes the action away.','Agreed');
+
 svPin('sv85','D-085 · No Site or Job picker on forms people start themselves','In the MVP a form gets its Site or Job only from the routine that owed it, the assignment it came from, or the Site or Job the person is signed in to (S-5.1). Someone not signed in and not assigned through Field Management isn’t tracked against a Site or Job, and shows as missing until they sign in or a supervisor ticks them present (D-042). The picker setting stays in the ideal; a per-form “where this form reports” setting is a later idea (#22312).','Agreed');
 
 render();
