@@ -11736,6 +11736,72 @@ if(typeof TKV_INFO==='object'&&TKV_INFO){ const walk=o=>{ if(Array.isArray(o)) r
   if(typeof o.l==='string'&&o.w&&/^#\/setup/.test(o.w)) o.l='Onboarding (its own page)';
   Object.values(o).forEach(walk); }; walk(TKV_INFO); }
 
+/* =====================================================================
+   21. CHANGELOG CATCH-UP, D-082 to D-085 (Nov 10, from FM - Direction Pt.6 and Pt.7; Design: "Scope is good").
+   - D-082: "Guest" replaces "External" for people who aren't users here (badge "Guest"); a guest needs only a name,
+     company optional (no setting). The MVP has guests only (the "another company" flow is ideal-only); in the ideal,
+     someone from another company's portal shows as a guest too.
+   - D-083: admins can do what a crew supervisor can, on every Site and Job. The web admin already had every one of
+     those actions, so the web gets pins and words; the app gets an Admin role (overlay-mobile.js).
+   - D-084: Mark away: wave 1 is the switch (no dates, so no backdating); in wave 3 only admins correct a past day, with
+     who and when kept. A supervisor's Away starts today or later. The ideal is unchanged (changelog: Ideal —).
+   - D-085: no Site or Job picker on forms people start themselves in the MVP: the Settings › On-demand work row is
+     ideal-only. A form gets its Site or Job from its routine, its assignment, or where the person is signed in.
+   ===================================================================== */
+/* D-082: the External chip becomes a Guest chip; the other words follow */
+{ const _t=PersonTags; PersonTags=function(pid){ const h=_t.apply(this,arguments), p=PEOPLE[pid]; if(!p||p.kind!=='external') return h;
+  return h.replace(Chip('External',{tone:'vo',icon:'fa-solid fa-building-user',tip:'External: uses their own BIS account from '+p.co+' and works here as a visitor. Not a seat here.'}),
+    Chip('Guest',{icon:'fa-solid fa-user-tag',tip:'Guest from '+p.co+': uses their own BIS account there and works here as a visitor. Not a seat here.'})); }; }
+const SV_GUEST_TXT=[[/External people/g,'Guests'],[/External means someone from another company's BIS portal/g,"A guest from another company's BIS portal"],[/ as External\b/g,' as a guest'],[/^External · /,'Guest · '],[/^(\s*)External(\s*)$/,'$1Guest$2']];
+function svGuestWords(){ ['page','drawer-root','modal-root','layer','portal','pband'].map(id=>document.getElementById(id)).filter(Boolean).forEach(r=>{
+  const w=document.createTreeWalker(r,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement&&n.parentElement.closest('.rnote,.pin,.note-pop,#notes')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+  for(let n;(n=w.nextNode());){ let t=n.nodeValue; const o=t; SV_GUEST_TXT.forEach(([a,b])=>{ t=t.replace(a,b); }); if(t!==o) n.nodeValue=t; }
+  r.querySelectorAll('[data-tip^="External"]').forEach(e=>e.setAttribute('data-tip',e.getAttribute('data-tip').replace(/^External:? ?/,'Guest: '))); }); }
+{ const _r=render; render=function(){ const x=_r.apply(this,arguments); svGuestWords(); return x; }; }
+{ const _s=snack; snack=function(m){ const a=[].slice.call(arguments); if(typeof m==='string') a[0]=m.replace('They show as External','They show as a guest'); return _s.apply(this,a); }; }
+XNOTES.pt16=['Naming · Guest (D-082)','Settled Nov 10 (D-082): people who aren’t users here are <b>guests</b>, with a <b>"Guest"</b> chip everywhere they appear (tables, panels, person page, Submissions "By", the Users list), plus "Today only" for visitors and "Away until …" for anyone away. "External" is no longer used.','s'];
+XNOTES.b5g1=['D-082 · Guest company is optional','Settled Nov 10 (D-082): a guest needs only a name; their company is optional. Was T-54 (S-06 acceptance criterion 1 asked for a name and company).','s'];
+if(SVR>=4&&XNOTES.pt14) XNOTES.pt14[1]+=' <b>Nov 10 (D-082):</b> they show with a “Guest” chip; “External” is no longer used.';
+
+/* D-084: who can backdate Away (wave 3 only; wave 1 and 2 have no dates, so the row is already hidden) */
+if(SVR===3) delete B5_BACK.sup7;
+
+/* Settings rows: Guest company (D-082), Who can backdate Away (D-084), the picker (D-085), Sign-in words (D-083) */
+SV_ROW_W['Site or Job picker on self-started forms']=4;
+{ const _r=b8R; b8R=function(ed,label,val,o){ o=Object.assign({},o||{});
+  if(label==='Guest company'){ val=ed?b8RO('Optional: a name is enough'):'Optional: a name is enough'; o.help='Set by BIS. The person adding a guest can add their company.'; o.pins=Pin('sv82'); delete o.id; }
+  if(label==='Who can backdate Away'&&SVR===3){ o.help='Only admins can correct a past day, and who and when is kept. Supervisors can’t backdate.'; o.pins=(o.pins||'')+Pin('sv84'); }
+  if(label==='Who can assign'&&SVR<4) o.pins=(o.pins||'')+Pin('sv85');
+  if(label==='Sign-in'&&typeof val==='string') val=val.split('the supervisor’s checklist').join('the checklist (a supervisor or an admin)');
+  return _r.call(this,ed,label,val,o); }; }
+if(SVR===3) XNOTES.b5a3=['D-084 · Who can backdate Away','Settled Nov 10 (D-084): only admins correct a past day, with who and when recorded; supervisors can’t. Wave 1 is the on/off switch (D-043), so there are no dates to backdate. Was W-23, dev pile D-04, T-07.','s'];
+if(SVR<4&&XNOTES.b8sod) XNOTES.b8sod[1]=XNOTES.b8sod[1].replace(/<b>Site or Job picker on self-started forms<\/b> is open: S-01 path \(c\), S-01 §9 Q5\./,'<b>No Site or Job picker on self-started forms</b> in the MVP (D-085): the row is in the ideal only.');
+if(SVR<4&&XNOTES.as9) XNOTES.as9[1]=XNOTES.as9[1].replace(/S-01 path \(c\) \("the person picks the Site or Job"\) stays for self-started forms \(settings audit O6\)\./,'Forms people start themselves have no Site or Job picker in the MVP (D-085): they count where the person is signed in.');
+
+/* D-084: a supervisor's Away starts today or later in wave 3; admins can still start it in the past */
+if(SVR===3){
+  const svT=()=>iso(TODAY);
+  { const _a=awRange; awRange=function(A){ const r=_a.apply(this,arguments); if(svFull()&&r.s<svT()){ r.s=svT(); if(r.e&&r.e<r.s) r.e=r.s; } return r; }; }
+  { const _o=openAway; openAway=function(){ const x=_o.apply(this,arguments); if(svFull()&&UI.aw){ if(UI.aw.mode==='yday') UI.aw.mode='today'; if(UI.aw.s<svT()) UI.aw.s=svT(); if(UI.aw.e<UI.aw.s) UI.aw.e=UI.aw.s; if(UI.aw.os<svT()) UI.aw.os=svT(); render(); } return x; }; }
+  { const _am=awayModal; awayModal=function(){ const m=_am.apply(this,arguments), A=UI.aw; if(!svFull()||!m||!m.body||!A||A.step==='confirm') return m;
+    m.body=m.body.replace(' It can start in the past, for example after someone was off sick.',' It starts today or later. Only an admin can correct a past day.'+Pin('sv84'))
+      .replace(Radio(A.mode==='yday',"UI.aw.mode='yday';render()",'Yesterday · '+fmtDow(addD(TODAY,-1))),'')
+      .replace(Radio(A.mode==='range',"UI.aw.mode='range';render()",'A date range (can start in the past)'),Radio(A.mode==='range',"UI.aw.mode='range';render()",'A date range'))
+      .replace('id="aw-s" value=',`id="aw-s" min="${svT()}" value=`).replace('id="aw-os" value=',`id="aw-os" min="${svT()}" value=`);
+    return m; }; }
+  XNOTES.aw1=['D-084 · Backdated Away: admins only','<b>Settled Nov 10 (D-084):</b> only admins correct a past day; supervisors start Away today or later. The record keeps who waived and when ("Waived by A. Brooks on Oct 7"), and Undo in the snackbar reverses it. Confirm modal first, listing the Sites, Jobs, crews and rituals affected. Try R. Gill (sick Oct 5–14, set on Oct 7).','s'];
+  if(XNOTES.svaway3) XNOTES.svaway3[1]=XNOTES.svaway3[1].replace('and backdating, which waives past items.','and backdating, which waives past items. <b>Only admins can correct a past day</b>, with who and when kept; a supervisor’s Away starts today or later (D-084).');
+}
+
+/* D-083: the web admin already has every crew supervisor action, on every Site and Job; the pin says so */
+{ const _p=b6Page; b6Page=function(){ return _p.apply(this,arguments).replace(Pin('svatt'),Pin('svatt')+Pin('sv83')); }; }
+if(XNOTES.svatt) XNOTES.svatt[1]=XNOTES.svatt[1].replace('the supervisor’s <b>checklist</b> only','the <b>checklist</b> only (a supervisor for their crew, or an admin for anyone, D-083)');
+
+svPin('sv82','D-082 · Guests','<b>“Guest” replaces “external”</b> for people who aren’t users here, with a <b>Guest</b> badge. A guest needs <b>only a name</b>; their company is optional (no setting). Wave 3 (S-8.4): today-only visitors; certificates later.','Agreed');
+svPin('sv83','D-083 · Admins can do what a crew supervisor can','On <b>every Site and Job</b>, on the web and the app: add or remove members, attach crews, assign one-off forms, add or move an existing routine, sign people in (the “my crew is here” checklist), Mark away, and move (wave 2). The web admin already had all of these; on the app, try Role › Admin. No new permission level (S-2.3, S-4.1, S-7.3).','Agreed');
+svPin('sv84','D-084 · Who can correct a past day','Wave 1 is the Away switch, so there are no dates to backdate. From wave 3, <b>only admins</b> can correct a past day (Yesterday, or a range that starts in the past), with who and when recorded. A supervisor’s Away starts today or later.','Agreed');
+svPin('sv85','D-085 · No Site or Job picker on forms people start themselves','In the MVP a form gets its Site or Job only from the routine that owed it, the assignment it came from, or the Site or Job the person is signed in to (S-5.1). Someone not signed in and not assigned through Field Management isn’t tracked against a Site or Job, and shows as missing until they sign in or a supervisor ticks them present (D-042). The picker setting stays in the ideal; a per-form “where this form reports” setting is a later idea (#22312).','Agreed');
+
 render();
 
 /* ==== W3 END ==== */

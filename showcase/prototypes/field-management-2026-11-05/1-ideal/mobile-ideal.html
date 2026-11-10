@@ -2754,6 +2754,38 @@ FLAGS.forEach(f=>{ if(f.n===41||f.n===42){ f.type='settled'; f.dec='Settled Nov 
   doMovePerson=noUndo(doMovePerson); moveCrew=noUndo(moveCrew); }
 svNote(223,'scope',['home','field-worker','site','signin','switch'],'One sign-in for a Job and its Site (D-076)','Signing in to a <b>Job at a Site</b> signs you in to that Site too, and signing out of the Job signs you out of the Site, as <b>one sign-in</b> (S-4.1, dev q. 240). <b>I’ve moved</b> lists only other Sites and Jobs, never the Site you are already in. D-069’s per-Job switch is unchanged: it only makes a Site sign-in count for the Job. A move has no Undo: move back the normal way (D-079).');
 
+/* ---------- D-082, D-083, D-084 (Nov 10, from FM - Direction; Design: "Scope is good"): mobile parts ----------
+   D-083: Role › Admin. An admin can do what a crew supervisor can, for everyone on every Site and Job (the three here);
+          no new permission level. Same waves as the supervisor (move is wave 2).
+   D-084: wave 3 (the MVP): only an admin can correct a past day. A supervisor's Away sheet starts today or later
+          (no Yesterday, no past From dates). The ideal is unchanged.
+   D-082: a guest's company is optional, settled; "Guest" is the word. */
+S.svAdm=false;
+{ const _m=svMine; svMine=function(cid,pid){ if(S.svAdm&&CAN_ACT()) return !!P(pid); return _m.apply(this,arguments); }; }
+{ const _s=setRole; setRole=function(r){ S.svAdm=r==='admin'; return _s.call(this,r==='admin'?'supervisor':r); }; }
+{ const b=document.getElementById('rbS'); if(b&&!document.getElementById('rbA')) b.insertAdjacentHTML('afterend','<button id="rbA" onclick="setRole(\'admin\')" title="D-083: an admin has the crew supervisor’s actions for everyone, on every Site and Job">Admin</button>'); }
+function svAdmBar(){ const a=S.svAdm&&S.role==='supervisor', s=document.getElementById('rbS'), b=document.getElementById('rbA');
+  if(s){ s.classList.toggle('on',S.role==='supervisor'&&!a); s.setAttribute('aria-pressed',S.role==='supervisor'&&!a); }
+  if(b){ b.classList.toggle('on',a); b.setAttribute('aria-pressed',a); }
+  const w=document.getElementById('rbWhere'); if(a&&w) w.textContent=w.textContent.replace('Screen: Supervisor','Screen: Admin'); }
+{ const _r=render; render=function(){ const x=_r.apply(this,arguments); svAdmBar(); return x; }; }
+{ const _b=renderBar; renderBar=function(){ const x=_b.apply(this,arguments); svAdmBar(); return x; }; }
+{ const _f=screenFor; screenFor=function(r){ const o=_f.apply(this,arguments); if(S.svAdm&&S.role==='supervisor'&&o&&o.body) o.body=o.body.replace('Your Sites &amp; Jobs','Every Site &amp; Job'+pin(224)); return o; }; }
+svNote(224,'scope',['field-sup','site','attendance','person','assign'],'Admins can do what a crew supervisor can (D-083)','Role › <b>Admin</b>: on <b>every Site and Job</b>, for everyone on it: add or remove members, attach crews, assign one-off forms, add or move an existing routine, sign people in (“my crew is here”), Mark away, and move (wave 2). The same on the web. No new permission level; Settings and creating routines stay on the web.',svR('D-083','S-2.3, S-4.1, S-7.3'));
+
+if(SVR===3){
+  const SV_PAST=['oct5','oct6','oct7'];
+  { const _h=sheetHtml; sheetHtml=function(){ const sh=S.sheet, sup=sh&&sh.type==='away'&&!S.svAdm;
+    if(sup){ const o=S.awayOpt; if(o.dur==='yesterday') o.dur='today'; if(SV_PAST.includes(o.from)) o.from='today'; }
+    let h=_h.apply(this,arguments); if(!sup) return h;
+    const k=h.indexOf(`onclick="S.awayOpt.dur='yesterday';render()"`); if(k>-1){ const a=h.lastIndexOf('<div class="menu-i"',k), e=h.indexOf('<div class="menu-i"',k); if(a>-1&&e>-1) h=h.slice(0,a)+h.slice(e); }
+    h=h.replace('<span class="sub">Can start in the past</span>','<span class="sub">From today on</span>');
+    SV_PAST.forEach(d=>{ h=h.replace(new RegExp(`<button class="chip (?:on)?" onclick="S\\.awayOpt\\.from='${d}'[\\s\\S]*?</button>`),''); });
+    return h.replace('<div class="pad" style="margin-top:10px;font:600 16px/20px var(--font-family-default)">Reason','<div class="pad small muted" style="margin-top:10px">Only an admin can correct a past day.'+pin(216)+'</div><div class="pad" style="margin-top:10px;font:600 16px/20px var(--font-family-default)">Reason'); }; }
+  svNote(216,'scope',['away','awayConfirm'],'Mark away: dates and ranges (D-043, D-084, wave 3)','Wave 1 has the simple switch. <b>Wave 3 adds</b> today, until a date and a range. <b>Only an admin can correct a past day</b> (Yesterday, or a range that starts in the past), which waives past items, with who and when kept; a supervisor’s Away starts today or later (D-084). Try Role › Admin to see the past days. No “Other” reason (D-028).',svR('D-043, D-084','S-4.3'));
+}
+{ const n=NOTES.find(x=>x.n===38); if(n) Object.assign(n,{tone:'scope',k:'scope',t:'Guest company is optional (D-082)',b:'<b>Settled Nov 10 (D-082):</b> “Guest” is the word for people who aren’t BIS users (no more “external”), with a Guest badge. A guest needs only a name; their company is optional.',r:'site-management/CHANGELOG.md D-082 · Agreed'}); }
+
 render();
 
 /* ==== IDEAL END ==== */
