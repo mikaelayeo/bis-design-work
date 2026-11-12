@@ -2287,7 +2287,7 @@ screenFor=function(r){ const o=_sv_screenFor2.apply(this,arguments); if(o&&o.key
 if(SVR<2){ carryCard=function(){ return ''; }; carryMine=function(){ return []; }; }   /* the Missed tray is W2 (S-3.12) */
 let W_HL=false; try{ W_HL=localStorage.getItem('fmWaveHl')==='1'; }catch(e){}
 function wSetHl(on){ W_HL=on; try{ localStorage.setItem('fmWaveHl',on?'1':'0'); }catch(e){} render(); }
-const W_M_FEAT=[[/^(Move\b|Move…|Add crew|Remove crew)/i,2],[/^(Hand the phone|Pass the phone|Own phones|Send request|Request$)/i,2],[/^Add a guest/i,3]];
+const W_M_FEAT=[[/^(Move\b|Move…)/i,2],  /* Nov 11 (scope): a crew supervisor adds and removes in W1 (S-2.3, D-079); only move is W2 */[/^(Hand the phone|Pass the phone|Own phones|Send request|Request$)/i,2],[/^Add a guest/i,3]];
 function wMark(e,w){ if(!e||e.classList.contains('w-hl')) return; w=w||2; e.classList.add('w-hl','w-hl'+w); e.setAttribute('data-wave','W'+w); }
 function wPruneM(){
   const chrome=e=>e.closest('.rv-ctl,.rv-bar,.rbar,.notes,#notes,.note-pop,#rail');
@@ -2779,6 +2779,29 @@ if(SVR===3){
   svNote(216,'scope',['away','awayConfirm'],'Mark away: dates and ranges (D-043, D-084, wave 3)','Wave 1 has the simple switch. <b>Wave 3 adds</b> today, until a date and a range. <b>Only an admin can correct a past day</b> (Yesterday, or a range that starts in the past), which waives past items, with who and when kept; a supervisor’s Away starts today or later (D-084). Try Role › Admin to see the past days. No “Other” reason (D-028).',svR('D-043, D-084','S-4.3'));
 }
 { const n=NOTES.find(x=>x.n===38); if(n) Object.assign(n,{tone:'scope',k:'scope',t:'Guest company is optional (D-082)',b:'<b>Settled Nov 10 (D-082):</b> “Guest” is the word for people who aren’t BIS users (no more “external”), with a Guest badge. A guest needs only a name; their company is optional.',r:'site-management/CHANGELOG.md D-082 · Agreed'}); }
+
+/* =====================================================================
+   W1 AUDIT (Nov 11, D-091, D-092; Design's go): wave 1 on the app
+   (1) one day, today or past: the day stepper stops at today (D-091)
+   (2) no routine owed once for the group: every routine is per person in W1 (S-3.10 is W2, D-092)
+   (3) stale words in tooltips: "ritual", and "Gate Access" on the Field tab
+   ===================================================================== */
+if(SVR<2){
+  Object.values(RITUALS).forEach(r=>{ if(r.per==='place'){ r.per='person'; r.sch=String(r.sch||'').replace(/ · anyone on the (Site|Job)/,' · each person'); if(r.tip) r.tip='Each person sends their own'; } });
+  { const _r=render; render=function(){ if(S.day>0) S.day=0; const x=_r.apply(this,arguments);
+      document.querySelectorAll('.datenav button[data-tip="Next day"]').forEach(b=>{ if(S.day>=0){ b.disabled=true; b.setAttribute('aria-disabled','true'); b.setAttribute('data-tip','Today is the latest day'); b.style.opacity='.4'; } });
+      return x; }; }
+}
+{ const _r=render; render=function(){ const x=_r.apply(this,arguments);
+    document.querySelectorAll('[data-tip="One-off work is owed once. Work that repeats is a ritual."]').forEach(e=>e.setAttribute('data-tip','One-off work is owed once. Work that repeats is a routine.'));
+    document.querySelectorAll('[data-tip*="Working Alone and Gate Access"]').forEach(e=>e.setAttribute('data-tip',e.getAttribute('data-tip').replace(', Working Alone and Gate Access',SVR<4?'':' and Working Alone').replace('Working Alone and Gate Access','')));
+    return x; }; }
+/* D-095 (Nov 11, Design): Lone Worker (the app's "Working Alone") leaves the Field tab in the MVP (S-7.1). Gate Access stays.
+   Portals without Field Management keep it in More, unchanged. What the tab shows in its place is with mobile dev. */
+if(SVR<4){
+  { const _t=toolRows; toolRows=function(){ return _t.apply(this,arguments).replace(/<div class="row tap" onclick="go\(\{s:'ph',title:'Working Alone'[\s\S]*?<i class="fa-solid fa-chevron-right chev"><\/i><\/div>\s*/,''); }; }
+  { const n=NOTES.find(x=>x.n===7); if(n) Object.assign(n,{t:'Gate Access lives here, unchanged',b:'Gate Access opens the existing screens (decision 107). <b>Nov 11 (D-095, Design):</b> Lone Worker (“Working Alone”) is <b>not</b> on the Field tab in release 1; portals without Field Management keep it in More, unchanged. What the tab shows in its place is with mobile dev.'}); }
+}
 
 render();
 

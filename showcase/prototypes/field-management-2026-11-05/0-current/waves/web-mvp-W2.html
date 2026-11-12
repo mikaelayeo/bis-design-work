@@ -11213,7 +11213,8 @@ if(XNOTES.svtime) XNOTES.svtime[1]=XNOTES.svtime[1].replace('which is wave 3 or 
    Underneath it is the same view-only mode as "Can view" (S.as='viewer'), with S.svSup set; "Can view" is wave 2 */
 const SV_SUP='A. Brooks', SV_CV={who:GRANT.who,role:GRANT.role,ids:GRANT.ids.slice()};
 function svSupIds(){ const mine=s=>(s||'').split(', ').includes(SV_SUP), ks=CREWS.filter(k=>mine(k.sup)).map(k=>k.id);
-  const ids=new Set(CTX.filter(c=>(c.state==='active'||c.state==='awaiting')&&(mine(c.supervisor)||(c.crews||[]).some(k=>ks.includes(k)))).map(c=>c.id));
+  /* Nov 11 (scope, S-2.3, S-8.7): in W1 a Site's or Job's supervisor is a name only; access comes from supervising a crew */
+  const ids=new Set(CTX.filter(c=>(c.state==='active'||c.state==='awaiting')&&((SVR>=2&&mine(c.supervisor))||(c.crews||[]).some(k=>ks.includes(k)))).map(c=>c.id));
   [...ids].forEach(id=>(ctx(id).jobsAt||[]).forEach(j=>ids.add(j)));  /* a Site's Jobs come with it; Sites inside it via D-038 */
   return [...ids]; }
 function svGrantNow(){ if(S.svSup) Object.assign(GRANT,{who:SV_SUP,role:'Supervisor',ids:svSupIds()}); else Object.assign(GRANT,{who:SV_CV.who,role:SV_CV.role,ids:SV_CV.ids.slice()}); }
@@ -11418,14 +11419,19 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&SV_MORE){ SV_MORE=
 /* ---------- D-068 (7): wave 1 Settings holds only the scope list (S-10.4): labels and custom names, working days, time zone,
    day cutoff, "only expected when signed in", sharing and the Lone Worker switch. Everything else comes with its wave ---------- */
 if(SVR<2){
-  const keep=['kinds','days','share','feat'];
+  /* Nov 11 (Design, W1 audit): no Features section (Lone Worker isn't needed) and no Meetings label */
+  const keep=['kinds','days','share'];
   for(let i=B5_SECS.length-1;i>=0;i--) if(!keep.includes(B5_SECS[i][0])) B5_SECS.splice(i,1);
-  if(!B5_SECS.find(x=>x[0]==='share')) B5_SECS.splice(B5_SECS.findIndex(x=>x[0]==='feat'),0,['share','Sharing','Who sees what.']);
-  { const s=B5_SECS.find(x=>x[0]==='feat'); if(s) s[2]='The Lone Worker switch.'; }
-  ['Who is expected','Day starts at','Late','Meetings','Reviewer sign-off','Field Management'].forEach(l=>SV_SKIP_ROWS.add(l));
-  B5_SEC_ROWS.share=function(v,ed){ return b8R(ed,'Who sees what',ed?b8RO('Supervisors see their own; the client admin sees everything'):'Supervisors see their own; the client admin sees everything',{help:'Supervisors of Sites, Jobs and crews see them automatically, view only (D-058). “Can view” for anyone else comes in wave 2.',pins:Pin('svset1')}); };
+  if(!B5_SECS.find(x=>x[0]==='share')) B5_SECS.push(['share','Sharing','Who sees what.']);
+  { const s=B5_SECS.find(x=>x[0]==='share'); if(s) s[2]='Who sees what.'; }
+  ['Who is expected','Day starts at','Late','Meetings','Reviewer sign-off','Field Management','Label for meetings'].forEach(l=>SV_SKIP_ROWS.add(l));
+  B5_SEC_ROWS.share=function(v,ed){ return b8R(ed,'Who sees what',ed?b8RO('Crew supervisors see their crews’ Sites and Jobs; the client admin sees everything'):'Crew supervisors see their crews’ Sites and Jobs; the client admin sees everything',{help:'Set by Field Management. There is nothing to change here.',pins:Pin('svset1')}); };
+  /* no grey "Not considered" chips (stale after D-059); the time zone help drops "late" (D-057) */
+  { const _r=b8R; b8R=function(ed,label,val,o){ if(o&&typeof o.tag==='string'&&/Not considered/.test(o.tag)) o=Object.assign({},o,{tag:''});
+    if(label==='Time zone'&&o&&o.help) o=Object.assign({},o,{help:'Sign-in times, “Today” and the cutoff. Sites can be cities apart.'});
+    return _r.call(this,ed,label,val,o); }; }
 }
-svPin('svset1','D-068 · Wave 1 Settings','Wave 1 Settings holds <b>only</b> what the scope lists (S-10.4): kinds and labels with the custom-name mapping, working days, time zone, day cutoff, “only expected when signed in”, sharing and the Lone Worker switch. Sign-in and sign-out, Away, on-demand work and the other features come with their wave.','Agreed');
+svPin('svset1','D-068 · Wave 1 Settings','Wave 1 Settings holds <b>only</b> what the scope lists (S-10.4): kinds and labels with the custom-name mapping, working days, time zone, day cutoff, and sharing (read-only: who sees what). <b>Nov 11 (Design):</b> no Features section and no Lone Worker (not needed), no Meetings label, no “Not considered” chips. Sign-in and sign-out, Away, on-demand work and the other features come with their wave.','Agreed');
 
 /* =====================================================================
    18. CHANGELOG CATCH-UP, D-075 to D-079 (Nov 6, from the scope chat). Phase 1: closing and archiving, moves, words.
@@ -11755,6 +11761,88 @@ svPin('sv87','D-087 · A form isn’t a sign-in','Sending a form at a Site or Jo
 svPin('sv88','D-088 · No checkboxes without a bulk action','A table only gets row checkboxes once it has a <b>bulk action</b> (scope: “Rules that apply everywhere”). Export, the first bulk action on the Sites, Jobs, Crews and People lists, is <b>wave 3</b> (D-057), so in waves 1 and 2 those lists have no checkbox column. Tables with real bulk actions (a crew’s members: Move, Remove) keep theirs. The same goes for someone whose role takes the action away.','Agreed');
 
 svPin('sv85','D-085 · No Site or Job picker on forms people start themselves','In the MVP a form gets its Site or Job only from the routine that owed it, the assignment it came from, or the Site or Job the person is signed in to (S-5.1). Someone not signed in and not assigned through Field Management isn’t tracked against a Site or Job, and shows as missing until they sign in or a supervisor ticks them present (D-042). The picker setting stays in the ideal; a per-form “where this form reports” setting is a later idea (#22312).','Agreed');
+
+/* =====================================================================
+   23. W1 AUDIT (Nov 11, FM - Direction Pt.8; Design's go; D-090, D-091, D-092, scope answers)
+   (a) Submissions: no tasks (W2) or Folder files (W3) in the feed, filter or tooltip      D-092
+   (b) dates: one day, today or past, on every date control; no ranges, no future         D-091
+   (c) routines: no Draft / Active / Inactive status and no Display order in W1           D-092
+   (d) guests are W3: no sample guest, Guest chips, Employee/Guest filter, Users › Guests D-092
+   (e) side menu: no Meetings or Lone Worker (MVP, every wave)                             D-090
+   (f) Outstanding panel header: no "· N people" (S-1.11, every wave)                      D-091
+   (g) small fixes: sorting (S-10.2), Missed tray words in W1, the Job close tip
+   ===================================================================== */
+/* (a) */
+if(SVR<3){
+  const _sd=subsForDay; subsForDay=function(){ return _sd.apply(this,arguments).filter(s=>!(s.type==='ffile'||(SVR<2&&s.type==='task'))).map(s=>s.folder?Object.assign({},s,{folder:null}):s); };
+  { const f=FILTERS.subs.find(x=>x.k==='type'); if(f){ if(SVR<2) FILTERS.subs.splice(FILTERS.subs.indexOf(f),1); else f.opts=()=>[['form','Form'],['task','Task']]; } }
+  { const t=PLACE_TABS.find(x=>x[0]==='subs'); if(t) t[2]=SVR<2?'Every form submitted here on this day':'Every form and task submitted here on this day'; }
+}
+/* (b) */
+if(SVR<2){
+  for(let i=PRESETS.length-1;i>=0;i--) if(!['today','yesterday'].includes(PRESETS[i][0])) PRESETS.splice(i,1);
+  const svDay=r=>{ if(!r) return r; let d=r.unit==='day'?r.s:r.e; if(d>TODAY) d=TODAY; return mkRange('day',d); };
+  { const _s=setRange; setRange=function(t,r){ return _s.call(this,t,svDay(r)); }; }
+  { const _n=nav; nav=function(o,opt){ if(o&&o.date) o=Object.assign({},o,{date:svDay(o.date)}); return _n.call(this,o,opt); }; }
+  { const _f=setFromRoute; setFromRoute=function(){ const x=_f.apply(this,arguments); if(S.date) S.date=svDay(S.date); if(S.panel&&S.panel.r) S.panel.r=svDay(S.panel.r); return x; }; }
+  { const _o=openDD; openDD=function(){ const x=_o.apply(this,arguments); if(S.panel&&S.panel.r) S.panel.r=svDay(S.panel.r); return x; }; }
+  { const _p=pickDay; pickDay=function(s){ const d=fromIso(s); if(d>TODAY) return; if(UI.dp) return setRange(UI.dp.t,mkRange('day',d)); return _p.apply(this,arguments); }; }
+  { const _d=dpPop; dpPop=function(){ let h=_d.apply(this,arguments);
+      h=h.replace(/<button class="day([^"]*)"([^>]*)onclick="pickDay\('(\d{4}-\d\d-\d\d)'\)">/g,(m,c,a,s)=>fromIso(s)>TODAY?`<button class="day${c} dis" disabled aria-disabled="true"${a}>`:m)
+        .replace(/<div class="qp-lbl[^"]*">Custom range<\/div><div class="qp-hint">[^<]*<\/div>/,`<div class="qp-lbl on">Any past day</div><div class="qp-hint">Click a day to look it up.${Pin('sv91')}</div>`);
+      return h; }; }
+  { const _df=DateFilter; DateFilter=function(t){ let h=_df.apply(this,arguments); const r=t==='page'?S.date:(S.panel&&S.panel.r);
+      if(r&&r.s>=TODAY) h=h.replace(/<button class="datef-a" data-tip="Next [^"]*" aria-label="Next [^"]*" onclick="stepDate\('[a-z]+',1\)">/,'<button class="datef-a" disabled aria-disabled="true" data-tip="Today is the latest day" aria-label="Next day (today is the latest)">');
+      return h; }; }
+  if(S.date) S.date=svDay(S.date);
+}
+svPin('sv91','D-091 · One day, today or past','In wave 1 every date control (the page date, Overview, the person and crew pages, the Outstanding panel) shows <b>one day</b>: today or a past day, read-only (S-1.3). No ranges, no This week or This quarter, and no future days. The Outstanding panel header says only how many are outstanding (S-1.11).','Agreed');
+/* (c) */
+if(SVR<2){
+  if(S.b5&&S.b5.rits) delete S.b5.rits.b5hw;
+  { const _f=fresh; fresh=function(){ const s=_f.apply(this,arguments); if(s&&s.b5&&s.b5.rits) delete s.b5.rits.b5hw; return s; }; }
+  { const _c=b5Card; b5Card=function(id){ return /^st:/.test(String(id))?'':_c.apply(this,arguments); }; }
+  const noOrd=h=>h.replace(/<div><small>Display order<\/small>[\s\S]*?<\/div>/g,'').replace(/<div><div class="k">Display order<\/div><div class="v">[\s\S]*?<\/div><\/div>/g,'');
+  { const _r=b5MRitPage; b5MRitPage=function(){ return noOrd(_r.apply(this,arguments)); }; }
+  /* the routine page is drawn by later batches too: take the status chip and the Display order line out of the page itself */
+  { const _r=render; render=function(){ const x=_r.apply(this,arguments); const pg=document.getElementById('page'); if(!pg) return x;
+      pg.querySelectorAll('dl.b5-kv dt').forEach(dt=>{ if(dt.textContent.trim()==='Display order'){ const dd=dt.nextElementSibling; if(dd&&dd.tagName==='DD') dd.remove(); dt.remove(); } });
+      pg.querySelectorAll('.chip').forEach(c=>{ if(c.querySelector('.fa-circle-play,.fa-circle-pause,.fa-pen-to-square')&&/^(Active|Draft|Inactive)$/.test(c.textContent.trim())) c.remove(); });
+      return x; }; }
+  { const _t=Table; Table=function(cfg){ if(cfg&&cfg.cols){ cfg=Object.assign({},cfg,{cols:cfg.cols.filter(c=>c.label!=='Display order'&&!(c.k==='st'&&c.label==='Status'&&cfg.cols.some(x=>x.k==='sch'))).map(c=>c.sortOpts?Object.assign({},c,{sortOpts:c.sortOpts.filter(o=>!/^Display order/.test(o[1]))}):c)}); } return _t.call(this,cfg); }; }
+}
+/* (d) */
+if(SVR<3){
+  const gids=Object.keys(PEOPLE).filter(id=>PEOPLE[id].kind);
+  CTX.forEach(c=>{ if(c.people) c.people=c.people.filter(p=>!gids.includes(p)); });
+  gids.forEach(id=>delete PEOPLE[id]);
+  ['people','ppl'].forEach(k=>{ const L=FILTERS[k]; if(!L) return; const i=L.findIndex(x=>x.k==='type'); if(i>=0) L.splice(i,1); });
+  { const _u=usersPage; usersPage=function(){ if(S.uview==='guests') S.uview='tree'; return _u.apply(this,arguments).replace(/<section class="ge-tile"[\s\S]*?<\/section>/,'').replace(' Guests are not included.',''); }; }
+  { const _r=render; render=function(){ const x=_r.apply(this,arguments); document.querySelectorAll('[data-tip="Users: User Administration, with Guests"]').forEach(e=>e.setAttribute('data-tip','Users: User Administration')); return x; }; }
+}
+/* (e) */
+if(SVR<4){
+  { const _n=navPanel; navPanel=function(){ let h=_n.apply(this,arguments);
+      h=h.replace(/<button class="ni" aria-disabled="true" data-tip="(?:Meetings|Lone Worker) · coming soon">[\s\S]*?<\/button>/g,'');
+      return h; }; }
+  /* a Features heading with nothing under it (Gate Access is ideal-only) goes too */
+  { const _r=render; render=function(){ const x=_r.apply(this,arguments);
+      document.querySelectorAll('button.grp[onclick^="S.grp.features"]').forEach(g=>{ const n=g.nextElementSibling; if(!n||n.classList.contains('grp')||!n.classList.contains('ni')) g.remove(); });
+      return x; }; }
+  ['Meetings','Lone Worker'].forEach(l=>SV_SKIP_ROWS.add(l));
+}
+/* (f) */
+{ const _d=ddPanel; ddPanel=function(){ return _d.apply(this,arguments).replace(/(<h3>\d+ (?:outstanding|missing)) · \d+ (?:person|people)(<\/h3>)/,'$1$2'); }; }
+/* (g) sorting (S-10.2): on the four list pages only the name, Supervisor, state and progress columns sort */
+{ const SV_SORTK=['name','sup','state','prog'];
+  const _t=Table; Table=function(cfg){ if(cfg&&/^list-(sites|jobs|crews|people)$/.test(String(cfg.key))&&cfg.cols) cfg=Object.assign({},cfg,{cols:cfg.cols.map(c=>c.type&&!SV_SORTK.includes(c.k)?Object.assign({},c,{type:undefined}):c)}); return _t.call(this,cfg); }; }
+/* (g) the Missed tray is W2 (S-3.12): in W1 a late form just says when it was sent; it still counts for the day it was owed (D-086) */
+if(SVR<2){ const _w=b10When; b10When=function(){ return _w.apply(this,arguments).replace(/Done late from the Missed tray · counts for/,'Sent late · counts for'); };
+  if(XNOTES.b10c95) XNOTES.b10c95=['D-086 · A late form counts for the day it was owed','A form sent after its day <b>counts for the day it was owed</b>, and the feed shows when it was actually sent (S-5.2). The Missed tray, where people pick up yesterday’s work, comes in wave 2 (S-3.12).']; }
+/* (g) the Job tip: D-078 lets a Job close after a warning */
+{ const _r=render; render=function(){ const x=_r.apply(this,arguments);
+    document.querySelectorAll('[data-tip*="still open before it can close"]').forEach(e=>e.setAttribute('data-tip',e.getAttribute('data-tip').replace(/(\d+) items? (?:is |are )?still open before it can close\./,(m,n)=>n+(n==='1'?' item is':' items are')+' still open. Closing lists them first; then they stop being owed.')));
+    return x; }; }
 
 render();
 
