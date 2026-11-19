@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <!--
   TKT-21402 · Instructor Dashboard · PRD (lean v4 scope), 2026-11-02, updated 2026-11-05 (user stories; Dan: photos, PDF icon, bar graph),
-  updated 2026-11-09 (v4.1: "Kept from today's page" for the dev questions, Question Pool rules). Built with the prd-builder skill (Variant A).
-  Embeds the v4.1 prototype that sits next to this file (TKT-21402-instructor-dashboard-v4-1.html).
+  updated 2026-11-19 (no cutoff for Students who need help; prototype v4.2. Earlier, v4.1: "Kept from today's page" for the dev questions, Question Pool rules). Built with the prd-builder skill (Variant A).
+  Embeds the v4.2 prototype that sits next to this file (TKT-21402-instructor-dashboard-v4-2.html).
 -->
 <html lang="en">
 <head>
@@ -94,7 +94,7 @@
     <div class="sub">A cleaner look for the live classroom dashboard, plus one new feature: the Results list of wrong answers.</div>
     <div class="meta">
       <div><b>Ticket</b>TKT-21402 (RailPros)</div>
-      <div><b>Status</b>Technical review · lean scope (v4.1)</div>
+      <div><b>Status</b>Technical review · lean scope (v4.2)</div>
       <div><b>Audience</b>Dev · PM · QA · Writer</div>
       <div><b>Updated</b>Nov 9, 2026</div>
       <div><b>Owner</b>Mikaela Yeo</div>
@@ -133,13 +133,13 @@
 
       <section id="live">
         <h2>Live prototype</h2>
-        <p>The working prototype (v4.1: the lean v4 plus what today's page already does). The <b>Prototype controls</b> pill at the bottom left switches sample data: number of courses, mid-exam vs all good vs nothing assigned, and documents on or off. Sample names and data are invented.</p>
+        <p>The working prototype (v4.2: v4.1 plus the staging feedback; the Version control in Prototype controls switches between Design (v4.1) and Updated for build). The <b>Prototype controls</b> pill at the bottom left switches sample data: number of courses, mid-exam vs all good vs nothing assigned, and documents on or off. Sample names and data are invented.</p>
         <div class="embed-head">
-          <span style="font-size:13px;color:var(--ink-3)">TKT-21402 Instructor Dashboard · v4.1 · Nov 9, 2026</span>
-          <a href="TKT-21402-instructor-dashboard-v4-1.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full screen</a>
+          <span style="font-size:13px;color:var(--ink-3)">TKT-21402 Instructor Dashboard · v4.2 · Nov 19, 2026</span>
+          <a href="TKT-21402-instructor-dashboard-v4-2.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full screen</a>
         </div>
         <div class="frame"><div class="bar"><i></i><i></i><i></i></div>
-          <iframe src="TKT-21402-instructor-dashboard-v4-1.html" title="Instructor Dashboard prototype" loading="lazy"></iframe>
+          <iframe src="TKT-21402-instructor-dashboard-v4-2.html" title="Instructor Dashboard prototype" loading="lazy"></iframe>
         </div>
       </section>
 
@@ -216,7 +216,7 @@
         <div class="tw"><table><tr><th style="width:8%">ID</th><th>As a… I want… so that…</th><th style="width:18%">Behaviour</th></tr>
           <tr><td class="qid">US-1</td><td>As an <b>instructor</b> running a live exam, I want to see which questions the class is getting wrong, most wrong first, so that I can go over them while people are still taking the exam.</td><td>B-29 to B-34</td></tr>
           <tr><td class="qid">US-2</td><td>As an <b>instructor</b>, I want to see which wrong answer each person chose, so that I know what they misunderstood, not just that they got it wrong.</td><td>B-31, B-33</td></tr>
-          <tr><td class="qid">US-3</td><td>As an <b>instructor</b>, I want a list of students with 3 or more wrong answers, so that I know who to help first.</td><td>B-35, B-36</td></tr>
+          <tr><td class="qid">US-3</td><td>As an <b>instructor</b>, I want a list of every student with at least one wrong answer, most wrong answers first, so that I know who to help first.</td><td>B-35, B-36</td></tr>
           <tr><td class="qid">US-4</td><td>As an <b>instructor</b>, I want to keep today's bar graph of how many people answered each question correctly, so that the view I already use doesn't go away.</td><td>B-37, B-44, B-45</td></tr>
           <tr><td class="qid">US-5</td><td>As an <b>instructor</b>, I want to see where each person is and who has finished, so that I can pace the class.</td><td>B-4 to B-9, B-23 to B-28</td></tr>
           <tr><td class="qid">US-6</td><td>As an <b>instructor</b>, I want people's profile photos on the list, so that I can match names to faces in the room.</td><td>B-5</td></tr>
@@ -239,6 +239,7 @@
           <tr><td>One dashboard, not a new tab</td><td>Redesign the existing Instructor Dashboard as one view, instead of the July ticket's separate "Course Overview" tab. (Dan, Oct 20)</td><td><span class="pill p-chg">✎</span></td></tr>
           <tr><td>Lean scope</td><td>New look plus Results only. Anything new besides Results moves to a later ticket. (Dan, Nov 2)</td><td><span class="pill p-chg">✎</span></td></tr>
           <tr><td>No "hard" cutoff</td><td>Every question with at least one wrong answer is listed, most wrong first. No threshold or percentages. (Dan, Oct 22)</td><td><span class="pill p-ok">✓</span></td></tr>
+          <tr><td>No cutoff for Students who need help</td><td>Lists every person with at least one wrong answer, most wrong answers first. Replaces the earlier 3 or more rule. (Dan, Nov 19)</td><td><span class="pill p-chg">✎</span></td></tr>
           <tr><td>Who chose what</td><td>Each wrong option shows how many people chose it and their names. The answer each person chose is already stored. (Dev, Oct 22)</td><td><span class="pill p-new">+</span></td></tr>
           <tr><td>Results opens over the dashboard</td><td>Results opens as a window over the same dashboard, not a new page. (Dan, Oct 22)</td><td><span class="pill p-ok">✓</span></td></tr>
           <tr><td>Screen setups kept</td><td>Extended (default) and Single screen stay in this version. (Mika, Nov 2)</td><td><span class="pill p-new">+</span></td></tr>
@@ -393,8 +394,8 @@
           <tr><td class="qid">B-32</td><td>Counting</td><td>Counts use the people who have answered that question so far, not the whole class.</td></tr>
           <tr><td class="qid">B-33</td><td>Two wrong options tie</td><td>Both shown; order within a tie is stable.</td></tr>
           <tr><td class="qid">B-34</td><td>No wrong answers yet</td><td>Message that everyone chose the correct answer so far.</td></tr>
-          <tr><td class="qid">B-35</td><td>Students who need help</td><td>One card per person with 3 or more wrong answers across all courses, most first. "See wrong questions" lists each question, the option they chose and the correct answer.</td></tr>
-          <tr><td class="qid">B-36</td><td>Nobody has 3 or more wrong answers</td><td>Message that nobody needs help yet.</td></tr>
+          <tr><td class="qid">B-35</td><td>Students who need help</td><td>One card per person with at least one wrong answer across all courses, most wrong answers first. No cutoff (Dan, Nov 19). "See wrong questions" lists each question, the option they chose and the correct answer.</td></tr>
+          <tr><td class="qid">B-36</td><td>Nobody has a wrong answer yet</td><td>Message that nobody needs help yet.</td></tr>
           <tr><td class="qid">B-37</td><td>Pick a course under Online courses</td><td>That course's questions, most wrong answers first; the top one starts open. Shows "&lt;n&gt; of &lt;total&gt; started". Each row has today's % correct bar (B-44).</td></tr>
           <tr><td class="qid">B-38</td><td>Course shuffles its questions</td><td>Note that results show as people answer.</td></tr>
           <tr><td class="qid">B-39</td><td>Present a question</td><td>The question shows on the presenting screen with answer counts only, never names.</td></tr>
@@ -486,7 +487,7 @@
           <tr><td>Most Challenging Questions intro</td><td>The most challenging questions across all the assigned courses.</td></tr>
           <tr><td>Bar graph</td><td>&lt;n&gt;% · &lt;n&gt;% answered correctly (hover)</td></tr>
           <tr><td>Question details</td><td>Course: &lt;course&gt; · Correct answer: &lt;letter&gt;. &lt;answer&gt; · &lt;n&gt; of &lt;n&gt; chose a wrong answer · Wrong options chosen · Students who chose this option: · &lt;n&gt; chose this · Not answered yet</td></tr>
-          <tr><td>Students who need help intro</td><td>People with 3 or more wrong answers, across all the assigned courses.</td></tr>
+          <tr><td>Students who need help intro</td><td>People with wrong answers, most wrong first, across all the assigned courses.</td></tr>
           <tr><td>Student card</td><td>&lt;n&gt; wrong answers · See wrong questions</td></tr>
           <tr><td>Per course</td><td>Most wrong answers first · Final exam · Pass &lt;n&gt;%</td></tr>
           <tr><td>Empty states</td><td>No wrong answers yet · Everyone chose the correct answer so far · Nobody yet · Everyone is on track</td></tr>
@@ -494,7 +495,7 @@
           <tr><td>Multiple answers</td><td>Select all that apply · Correct answers: · Options chosen · correct answers · all of them must be chosen · Wrong combinations, with every option each person chose · &lt;letter&gt;. &lt;answer&gt; · missed (hover: A correct option this person did not choose) · &lt;n&gt; students chose a wrong combination. Names are hidden on a shared screen.</td></tr>
           <tr><td>Question Pool</td><td>Pool: &lt;name&gt; · Each learner gets their own copy, in their own position · Question Pool: each learner gets their own copy, in their own position. Results groups them as one question, and option letters follow the original order. (hover) · Removed · the option they chose was removed from the pool · the option they chose was removed from the pool after they answered</td></tr>
           <tr><td>Presented question</td><td>Let’s review · Question &lt;n&gt; (pool questions: Let’s review) · Select all that apply</td></tr>
-          <tr><td>Single screen</td><td>Show names · Hide names · Show students · Names are hidden on a shared screen. · Names are showing. · &lt;n&gt; students have 3 or more wrong answers.</td></tr>
+          <tr><td>Single screen</td><td>Show names · Hide names · Show students · Names are hidden on a shared screen. · Names are showing. · &lt;n&gt; students have wrong answers. · 1 student has a wrong answer.</td></tr>
           <tr><td>Footer note (Extended)</td><td>Only you see this. The second screen only shows what you present.</td></tr>
         </table></div>
       </section>
@@ -513,7 +514,7 @@
       </section>
 
       <footer>
-        Ticket TKT-21402 · Prototype: <a href="TKT-21402-instructor-dashboard-v4-1.html">TKT-21402-instructor-dashboard-v4-1.html</a> · Earlier versions: <a href="TKT-21402-instructor-dashboard-v4-lean.html">v4 lean</a> · <a href="TKT-21402-instructor-dashboard.html">v3</a>
+        Ticket TKT-21402 · Prototype: <a href="TKT-21402-instructor-dashboard-v4-2.html">TKT-21402-instructor-dashboard-v4-2.html</a> · Earlier versions: <a href="TKT-21402-instructor-dashboard-v4-1.html">v4.1</a> · <a href="TKT-21402-instructor-dashboard-v4-lean.html">v4 lean</a> · <a href="TKT-21402-instructor-dashboard.html">v3</a>
       </footer>
     </main>
   </div>
