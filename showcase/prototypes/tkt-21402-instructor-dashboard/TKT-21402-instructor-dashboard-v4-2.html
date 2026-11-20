@@ -21,7 +21,7 @@
   header band + calendar icon take the course/event colour (grey fallback; "Course colour" control); Assign uses the BisButton
   look; the selected Present icon gets a full ring; while presenting, items that can't be shown are not clickable;
   Single screen: no Present, a secondary "Full screen" button instead (Extended: icon becomes a "Full screen" button);
-  Assigned success modal has a Close button; Results question header fully clickable, ^ when closed;
+  Assigned success modal has no Close button, closes by itself after 3 seconds with a timer bar; Results question header fully clickable, chevron v when closed and ^ when open (design system pattern);
   "Switch to the old dashboard" link becomes an "Old dashboard" toggle. v4.1 is kept untouched beside this file.
 -->
 <html lang="en">
@@ -640,9 +640,8 @@ body.fs-on .center{container-type:normal}
 .v-build .tile.lock:hover{border-color:var(--stroke-light);box-shadow:none}
 /* Assigned success modal (auto closes) */
 .modal.done{max-width:420px;overflow:hidden;position:relative}
-.modal.done .cl{position:absolute;top:10px;right:10px}
 .modal.done .bar{height:4px;background:var(--surface-lightest)}
-.modal.done .bar i{display:block;height:100%;width:0;background:var(--primary);animation:fill 4s linear forwards}
+.modal.done .bar i{display:block;height:100%;width:0;background:var(--primary);animation:fill 3s linear forwards}
 @keyframes fill{to{width:100%}}
 .modal.done .bd{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:24px 24px 28px}
 .modal.done .ok{width:68px;height:68px;border-radius:50%;border:3px solid var(--color-stroke-success);color:var(--color-icon-success);display:flex;align-items:center;justify-content:center;font-size:28px}
@@ -1207,10 +1206,10 @@ function assignModal(){
     <div class="mf"><button class="b b-ghost" onclick="closeModal()">Cancel</button><button class="b b-primary" ${nppl?'':'disabled'} onclick="doAssign(${nppl})">Assign to ${nppl} ${nppl===1?'person':'people'}</button></div></div>`;
 }
 function doAssign(n){const k=Object.keys(S.picked).length;S.modal=null;S.assign=false;S.picked={};
-  if(B()){ /* v4.2: the success modal, with a Close button (it still closes by itself after 4 seconds) */
-    const m={k:'assigned',txt:`Assigned ${k===1?'1 course':k+' courses'} to ${n} ${n===1?'person':'people'}. It shows in their Home tab.`};S.modal=m;render();setTimeout(()=>{if(S.modal===m)closeModal();},4000);return;}
+  if(B()){ /* v4.2: the success modal: no Close button, closes by itself after 3 seconds (timer bar) */
+    const m={k:'assigned',txt:`Assigned ${k===1?'1 course':k+' courses'} to ${n} ${n===1?'person':'people'}. It shows in their Home tab.`};S.modal=m;render();setTimeout(()=>{if(S.modal===m)closeModal();},3000);return;}
   render();snack(`Assigned ${k===1?'1 course':k+' courses'} to ${n} ${n===1?'person':'people'}. It shows in their Home tab.`);}
-function assignedModal(){return `<div class="modal done" role="dialog" aria-modal="true" aria-label="Assigned"><button class="ib cl" aria-label="Close" onclick="closeModal()">${I('fa-solid fa-xmark')}</button><div class="bar"><i></i></div>
+function assignedModal(){return `<div class="modal done" role="dialog" aria-modal="true" aria-label="Assigned"><div class="bar"><i></i></div>
   <div class="bd"><span class="ok">${I('fa-solid fa-check')}</span><h3>Assigned</h3><div class="mut" style="font-size:15px">${S.modal.txt}</div></div></div>`;}
 
 /* ---------- Progress ---------- */
@@ -1337,7 +1336,7 @@ function qRow(qz,i,rank,showQuiz){
       <span class="rk">${rank}${hot?`<span class="hot-i" data-tip="Challenging: half or more chose a wrong answer">${I('fa-solid fa-flag')}</span>`:''}</span><span class="qt">${esc(q.t)}${poolTag(q)}${multiTag(q)}<small>${showQuiz?esc(qz.name)+' · ':''}${q.pool?'Each learner gets their own copy, in their own position':'Question '+(i+1)}</small></span>
       <span class="st"><span><b>${s.n?`${okN} of ${s.n} correct`:'No answers yet'}</b><span class="mut">${s.n?wa(s.bad):''}</span></span>
         ${s.n?barG(Math.round(okN/s.n*100)):''}</span>
-      ${qpres}<span class="ch">${I(bld?'fa-solid fa-chevron-up':'fa-solid fa-chevron-right')}</span></${bld?'div':'button'}>${det}</div>`;
+      ${qpres}<span class="ch">${I(bld?'fa-solid fa-chevron-down':'fa-solid fa-chevron-right')}</span></${bld?'div':'button'}>${det}</div>`;
 }
 
 /* =====================================================================
