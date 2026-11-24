@@ -1,0 +1,1186 @@
+<!doctype html>
+<!-- BUILT FILE: do not edit. Edit prototypes/2-source/onboarding-v2.html and ds.css, then run node build.mjs there. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ds.css: stand-ins for BIS design system components, used by onboarding-v2.html (Nov 22, FM - Prototype).
+   The prototype is plain HTML, so each class copies the look of a bisComponents component (repo BISTrainingSolutions/bisComponents,
+   Storybook from the Pre_Release branch). Values are the repo's light tokens (colors/primitives.ts, tokens.ts), 4px radius, 8px spacing.
+   Naming: .bis-<component>. A "STAND-IN" tag marks something with no DS component yet (gap list in checkpoints\epic\field-management\prototype.md).
+   Rule: do not restyle a DS-named class to match a screen. If Figma differs from the component, that is a break: show Mika both options. */
+:root{
+  --bis-text:#19191A;--bis-text-2:#636368;--bis-text-disabled:#7C7C82;--bis-text-secondary-light:#AFAFB5;--bis-text-primary:#0078B3;--bis-text-success:#167B00;--bis-text-error:#CC2222;
+  --bis-bg:#F8F8F8;--bis-surface:#FEFEFE;--bis-surface-disabled:#F2F2F2;--bis-surface-2:#F2F2F2;
+  --bis-primary:#0078B3;--bis-primary-dark:#095F8C;--bis-primary-lighter:#F0F9FE;--bis-primary-lightest:#F8FEFF;--bis-primary-50:#C9EFFA;--bis-primary-150:#7BD7F1;--bis-primary-400:#009ACB;
+  --bis-success:#167B00;--bis-success-lighter:#EBF8D6;--bis-success-lightest:#FAFFF2;--bis-success-light:#ABD559;
+  --bis-stroke:#AFAFB5;--bis-stroke-light:#DFDFE2;--bis-stroke-dark:#4C4C4F;
+  --bis-r:4px;--bis-gap-xs:4px;--bis-gap-s:8px;--bis-gap-m:12px;--bis-gap-l:16px;--bis-gap-xl:24px;
+}
+/* BisButton: variants primary, secondary, tertiary, link; sizes sm, md */
+.bis-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:31px;padding:4px 8px;border:1px solid transparent;border-radius:var(--bis-r);font-weight:600;font-size:14px;line-height:21px;font-family:inherit;;cursor:pointer;white-space:nowrap;background:none;color:var(--bis-text)}
+.bis-btn.sm{min-height:31px;padding:4px 6px;font-size:14px}
+.bis-btn.lg{min-height:34px;padding:4px 12px;font-size:16px;line-height:24px}
+.bis-btn.primary{background:var(--bis-primary);border-color:var(--bis-primary);color:#fff}
+.bis-btn.primary:hover{background:#00547D;border-color:#00547D}.bis-btn.primary:active{background:#003C59;border-color:#003C59}
+.bis-btn.secondary{background:transparent;border-color:var(--bis-stroke);color:var(--bis-text-2)}
+.bis-btn.secondary:hover{background:var(--bis-surface-2)}.bis-btn.secondary:active{background:var(--bis-stroke-light)}
+.bis-btn.secondary-primary{background:transparent;border-color:var(--bis-stroke);color:var(--bis-primary)}
+.bis-btn.secondary-primary:hover{background:var(--bis-primary);border-color:var(--bis-primary);color:#fff}
+.bis-btn.tertiary{color:var(--bis-text)}.bis-btn.tertiary:hover{background:var(--bis-surface-2)}
+.bis-btn.link{padding:4px 8px;min-height:31px;font-weight:400;color:var(--bis-text-primary)}.bis-btn.link:hover{color:#00547D;text-decoration:underline}
+.bis-btn:disabled,.bis-btn[aria-disabled=true]{background:var(--bis-surface-disabled);border-color:var(--bis-surface-disabled);color:var(--bis-text-secondary-light);cursor:not-allowed}.bis-btn[aria-disabled=true]{pointer-events:none}
+.bis-btn.tertiary:disabled,.bis-btn.link:disabled{background:none;border-color:transparent}
+/* BisBadge (variants gray, blue, green, lined; surface default) */
+.bis-badge{display:inline-flex;align-items:center;gap:6px;min-height:20px;padding:2px 4px;border-radius:2px;font-weight:600;font-size:12px;line-height:16px;font-family:inherit;;text-transform:none;white-space:nowrap}
+.bis-badge.md{min-height:26px;padding:4px 6px;font-size:14px;line-height:18px;border-radius:4px}
+.bis-badge.blue{background:var(--bis-primary);color:#fff}
+.bis-badge.green{background:var(--bis-success-lighter);color:var(--bis-text-success)}
+.bis-badge.gray{background:var(--bis-surface-2);color:var(--bis-text-2)}
+.bis-badge.pill{border-radius:12px;padding:4px 8px}
+/* BisCounterBadge (gray) */
+.bis-counter{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:2px 4px;box-sizing:border-box;border-radius:12px;background:var(--bis-surface-secondary-lighter);color:var(--bis-text-2);font-weight:600;font-size:12px;line-height:16px;font-family:inherit;}
+/* BisChip (primary, default surface, pill; dismissible) */
+.bis-chip{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:4px 6px;box-sizing:border-box;border:1px solid var(--bis-stroke);border-radius:4px;background:var(--bis-surface);color:var(--bis-text-primary);font-weight:600;font-size:14px;line-height:18px;font-family:inherit;}
+.bis-chip button{border:0;background:none;color:inherit;cursor:pointer;padding:0;font-size:12px;line-height:1;display:inline-flex}
+.bis-chip.pill{border-radius:12px;padding:4px 8px}.bis-chip.sm.pill{border-radius:12px;padding:2px 8px}
+.bis-chip.sm{min-height:24px;padding:2px 4px;border-radius:2px;font-size:12px;line-height:16px}
+/* BisInput / BisSearchField */
+.bis-field{display:block}
+.bis-label{display:flex;align-items:center;gap:6px;font-weight:600;font-size:14px;line-height:21px;font-family:inherit;;margin-bottom:6px}
+.bis-help{font-size:12px;color:var(--bis-text-2);margin:0 0 6px}
+.bis-opt{font-style:italic;font-weight:400;font-size:12px;color:var(--bis-text-2)}
+.bis-input{display:flex;align-items:center;gap:8px;width:100%;min-height:34px;padding:0 13px;border:1px solid var(--bis-stroke);border-radius:var(--bis-r);background:var(--bis-surface)}
+.bis-input:focus-within{border-color:var(--bis-primary)}
+.bis-input input:focus-visible{box-shadow:none;outline:none}
+.bis-input input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:14px;line-height:20px;font-family:inherit;;color:var(--bis-text);padding:5px 0}
+.bis-input i{color:var(--bis-text-2);font-size:12px}
+.bis-input input::placeholder{color:var(--bis-stroke)}.bis-input input:disabled{background:var(--bis-surface-disabled);color:var(--bis-text-disabled);cursor:not-allowed}
+/* BisCheckbox */
+.bis-check{appearance:none;-webkit-appearance:none;width:12px;height:12px;margin:2px;border:1.33px solid var(--bis-text-2);border-radius:1.33px;background:transparent;box-sizing:border-box;cursor:pointer;display:inline-grid;place-items:center;flex:none}
+.bis-check:checked{background:var(--bis-primary);border-color:var(--bis-primary)}
+.bis-check:checked::after{content:"";width:3px;height:6px;border:solid #fff;border-width:0 1.5px 1.5px 0;transform:rotate(45deg) translate(-.5px,-.5px)}
+.bis-check:disabled{background:transparent;border-color:var(--bis-stroke);cursor:not-allowed}.bis-check:disabled:checked{background:var(--bis-stroke);border-color:var(--bis-stroke)}
+.bis-check:focus-visible{outline:3px solid var(--bis-primary-150);outline-offset:0}
+/* BisModal */
+.bis-overlay{position:fixed;inset:0;background:rgba(0,0,0,.25);display:flex;z-index:50;overflow:auto;padding:16px}
+.bis-modal{margin:auto;background:var(--bis-surface);border-radius:var(--bis-r);box-shadow:0 2px 10px rgba(0,0,0,.1);width:100%;max-width:750px}
+.bis-modal.sm{max-width:560px}
+.bis-modal-h{display:flex;align-items:center;gap:10px;padding:8px 16px;font-weight:600;font-size:20px;line-height:30px;font-family:inherit;}
+.bis-modal-h i.lead.ok{color:var(--bis-icon-success)}
+.bis-modal-h i.lead{color:var(--bis-primary-400);font-size:18px}
+.bis-modal-h .x{margin-left:auto;border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--bis-stroke);padding:4px 8px;border-radius:4px}.bis-modal-h .x:hover{background:var(--bis-surface-2)}.bis-modal-h .x:active{color:#96969D}
+.bis-modal-b{padding:6px 16px 8px;font-size:16px;line-height:24px}
+.bis-modal-f{display:flex;justify-content:flex-end;gap:12px;padding:8px 16px 12px}
+/* BisTooltip */
+.bis-tip::after{content:"";position:absolute;top:-4px;left:16px;width:8px;height:8px;background:inherit;transform:rotate(45deg)}
+.bis-tip{position:absolute;z-index:30;max-width:320px;background:var(--bis-text);color:var(--bis-surface);border-radius:var(--bis-r);padding:8px 12px;font-size:14px;font-weight:600;line-height:21px}
+/* BisSnackbar (surface) */
+.bis-snack{position:fixed;right:16px;top:56px;z-index:60;display:flex;align-items:flex-start;gap:8px;background:var(--bis-surface);color:var(--bis-text);padding:12px;border-radius:8px;font-size:14px;line-height:20px;min-width:250px;max-width:302px;box-shadow:0 0 4px rgba(25,25,26,.15)}
+.bis-snack .sn-i{color:var(--bis-icon-success);font-size:16px;line-height:20px;flex:none}.bis-snack .sn-b{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px}.bis-snack .sn-x{border:0;background:none;color:#C9C9CE;cursor:pointer;padding:0 2px;font-size:14px;line-height:20px;flex:none}.bis-snack .sn-x:hover{color:var(--bis-text-2)}
+/* BisSelect (multiple, combobox, chips): the DS pre-release has it; this mirrors it for the user pickers */
+.bis-select{position:relative}
+.bis-select .dd{position:absolute;left:0;right:0;top:100%;margin-top:2px;overflow:hidden;background:var(--bis-surface);border:1px solid var(--bis-stroke-light);border-radius:var(--bis-r);box-shadow:0 4px 12px rgba(0,0,0,.12);z-index:10}
+
+@keyframes bisdrop{from{opacity:0;transform:translateY(-4px)}}
+.bis-select .dd-list{max-height:200px;overflow:auto}
+.bis-select .dd-foot{display:flex;justify-content:flex-end;gap:8px;padding:8px;border-top:1px solid var(--bis-stroke-light);background:var(--bis-surface)}
+.bis-select .dd .opt{display:flex;gap:8px;align-items:baseline;padding:7px 10px;font-size:14px;line-height:20px;cursor:pointer;border-bottom:1px solid var(--bis-stroke-light)}
+.bis-select .dd .opt:hover,.bis-select .dd .opt.hl{background:var(--bis-primary-lighter)}
+.bis-select .dd .none{padding:10px;color:var(--bis-text-2);font-size:12px}
+.bis-select .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.bis-login{font-size:12px;color:var(--bis-text-2)}
+/* BisSection / Collapse is not used in phase 1 */
+
+/* ===== FM components proposed by "DS - FM Components" (work\projects\field-management\ds-components\review.html, log.md) =====
+   Copied from review.html and prefixed .bis-. Names and props can still change until Mika approves G1, G4, G5 (G6, G7, G8 approved).
+   If review.html changes, change this block to match; do not restyle it to fit one screen (that is a break: ask Mika). */
+:root{--bis-stroke-success:#399300;--bis-stroke-success-light:#C2E387;--bis-icon-success:#167B00;--bis-icon-default-light:#AFAFB5;--bis-stroke-primary-lighter:#C9EFFA;--bis-stroke-primary-alt:#5378BB;--bis-surface-success-lighter:#EBF8D6;--bis-surface-error-lighter:#FEE3E3;--bis-stroke-error-lighter:#FDD4D4;--bis-surface-secondary-lighter:#DFDFE2;--bis-focus:0 0 0 3px #7BD7F1}
+.bis-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid var(--bis-primary-150);outline-offset:0;box-shadow:none}
+/* G1 BisStepper (+ save status) */
+.bis-stepper-wrap{background:var(--bis-surface);border:1px solid var(--bis-stroke-light);border-radius:8px;padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.bis-stepper{list-style:none;margin:0;padding:0;display:flex;align-items:center;flex:1 1 380px;min-width:0;gap:0;flex-wrap:nowrap}
+.bis-step{display:flex;align-items:center;gap:8px;color:var(--bis-text-2);font-size:16px;line-height:26px}
+.bis-step+.bis-step::before{content:"";width:32px;flex:1 1 16px;min-width:12px;max-width:48px;height:1px;background:var(--bis-stroke);margin:0 4px 0 12px}
+.bis-step.done+.bis-step::before{background:var(--bis-stroke-success)}
+.bis-step-dot{width:24px;height:24px;border-radius:999px;display:grid;place-items:center;font-size:12px;line-height:16px;font-weight:600;border:1px solid var(--bis-stroke);background:var(--bis-bg);color:var(--bis-text-2);flex:none}
+.bis-step.current{color:var(--bis-text);font-weight:600}
+.bis-step.current .bis-step-dot{background:var(--bis-primary);border-color:var(--bis-primary);color:var(--bis-primary-lighter)}
+.bis-step.done .bis-step-dot{background:var(--bis-surface-success-lighter);border-color:var(--bis-stroke-success-light);color:var(--bis-icon-success)}
+.bis-step>button{display:flex;align-items:center;gap:8px;border:0;background:none;padding:0;font:inherit;color:inherit;cursor:pointer;border-radius:4px}
+.bis-step>button:hover .bis-step-label{text-decoration:underline}
+.bis-savestat{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;font-size:12px;line-height:16px;font-weight:600;white-space:nowrap;border:1px solid transparent}
+.bis-savestat[hidden]{display:none}
+.bis-savestat.fresh{background:var(--bis-surface-success-lighter);color:var(--bis-text-success)}
+.bis-savestat.old{background:var(--bis-surface-2);color:var(--bis-text-2);border-color:var(--bis-stroke-light)}
+.bis-savestat.saving{background:var(--bis-surface-2);color:var(--bis-text-2)}
+.bis-savestat.err{background:var(--bis-surface-error-lighter);color:var(--bis-text-error);border-color:var(--bis-stroke-error-lighter)}
+.bis-savestat button{border:0;background:none;color:var(--bis-text-primary);font:inherit;font-weight:600;padding:0 2px;border-radius:4px;text-decoration:underline;cursor:pointer}
+.bis-spin{width:10px;height:10px;border:2px solid var(--bis-stroke);border-top-color:var(--bis-primary);border-radius:50%;animation:bisspin .8s linear infinite}
+@keyframes bisspin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.bis-spin{animation:none}}
+/* G4 BisBanner (variants info, success, warning, danger, neutral) */
+.bis-banner{display:flex;gap:12px;align-items:center;padding:8px 12px;border-radius:4px;border:1px solid;font-size:12px;line-height:18px;background:var(--bis-primary-lighter);border-color:var(--bis-stroke-primary-lighter)}
+.bis-banner .b-icon{flex:none;display:flex;color:var(--bis-primary-400)}
+.bis-banner .b-body{flex:1;min-width:0}
+.bis-banner .b-title{font-weight:600}
+.bis-banner.success{background:var(--bis-surface-success-lighter);border-color:var(--bis-stroke-success-light);color:#00310E}.bis-banner.success .b-icon{color:var(--bis-icon-success)}
+.bis-banner .b-counter{font-size:12px;line-height:16px;font-weight:600;padding:0 8px;border-radius:999px;background:var(--bis-surface);border:1px solid var(--bis-stroke-light);color:var(--bis-text-2)}
+.bis-banner .b-x{border:0;background:none;padding:4px;border-radius:4px;color:var(--bis-text-2);display:flex;cursor:pointer}
+.bis-banner .b-x:hover{background:rgba(0,0,0,.06)}
+/* G5 BisBulkBar (the fixed placement is the page's: .bis-bulk-fixed) */
+.bis-bulkbar{display:flex;align-items:center;gap:12px;padding:12px;background:var(--bis-primary-lighter);border:1px solid var(--bis-stroke);border-radius:4px;box-shadow:0 0 8px rgba(0,0,0,.15);flex-wrap:wrap}
+.bis-bulkbar .sel{font-weight:600}.bis-bulkbar .grow{flex:1}
+.bis-bulkbar .bdiv{width:1px;align-self:stretch;min-height:20px;background:var(--bis-stroke)}
+.bis-bulk-fixed{position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:20;width:min(640px,calc(100% - 32px))}
+/* G6 BisTreeList (role=tree; nested lists; level colours by depth) */
+.bis-tree,.bis-tree ul{list-style:none;margin:0;padding:0}
+.bis-tree ul{margin:6px 0 0 14px;padding-left:12px;border-left:1px solid var(--bis-stroke-light)}
+.bis-tree li{margin-top:6px}.bis-tree>li:first-child{margin-top:0}
+.bis-trow{display:flex;align-items:center;gap:10px;min-height:34px;padding:4px 8px 4px 12px;border:1px solid var(--bis-stroke);border-radius:4px;background:var(--bis-surface)}
+.bis-trow:hover,.bis-trow:focus-within{background:var(--bis-primary-lighter);border-color:var(--bis-primary-400)}
+.bis-trow.sel{background:var(--bis-primary-lighter);border-color:var(--bis-primary-400)}
+.bis-dot{width:9px;height:9px;border-radius:2px;flex:none}
+.bis-tname{flex:1;min-width:0}
+.bis-create{opacity:0;border:0;background:none;color:var(--bis-text-primary);font-weight:600;padding:0 4px;border-radius:4px;cursor:pointer;font-size:14px;font-family:inherit}
+.bis-trow:hover .bis-create,.bis-trow:focus-within .bis-create,.bis-create:focus-visible{opacity:1}
+.bis-created{color:var(--bis-text-success);font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:4px}
+/* STAND-IN extension (flag B3, Nov 24): a created row keeps its "Created" badge and always shows an Edit pencil to the right of it (no hover reveal, no hover "Create"; rows are created from the bulk bar). Row height is fixed so hover never changes it. */
+.bis-trow .bis-edit{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;padding:0;border:0;background:none;border-radius:4px;cursor:pointer;font-size:14px;color:var(--bis-icon-default-light)}.bis-trow .bis-edit:hover,.bis-trow .bis-edit:focus-visible{color:var(--bis-primary-400);background:var(--bis-primary-lighter)}
+.bis-trow{height:36px;box-sizing:border-box}
+/* G8 BisEmptyState and BisSummaryCard */
+.bis-empty{background:var(--bis-surface);border:1px solid var(--bis-stroke-light);border-radius:8px;padding:28px 16px;display:grid;justify-items:center;gap:4px;text-align:center}
+.bis-empty.embedded{border:0;padding:56px 16px}  /* STAND-IN (flag B6): borderless variant for use inside a card */
+.bis-empty .e-ic{color:var(--bis-text-secondary-light);margin-bottom:4px;font-size:32px;line-height:1}
+.bis-empty .e-t{font-weight:600}
+.bis-empty .e-d{font-size:12px;line-height:16px;color:var(--bis-text-2);max-width:36ch}
+.bis-empty .bis-btn{margin-top:12px}
+.bis-scard{background:var(--bis-surface);border:1px solid var(--bis-stroke-light);border-radius:4px;padding:8px 12px 12px}
+.bis-scard-h{display:flex;align-items:center;gap:8px}
+.bis-scard-h .n{font-weight:600;flex:1;min-width:0}
+.bis-scard-h .src{font-size:12px;line-height:16px;color:var(--bis-text-2)}
+.bis-scard-h .ed{border:0;background:none;color:var(--bis-primary-400);padding:4px;border-radius:4px;display:flex;cursor:pointer}
+.bis-scard-h .ed:hover{background:var(--bis-primary-lighter)}
+.bis-slot{margin-top:6px;border:1px solid var(--bis-stroke-light);background:var(--bis-bg);border-radius:4px;padding:6px 8px}
+.bis-slot .k{font-size:10px;line-height:14px;font-weight:600;color:var(--bis-text-2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+.bis-slot .none{text-align:center;color:var(--bis-text-2);font-size:12px;line-height:16px;padding:2px 0}
+.bis-slot .chips{display:flex;gap:6px;flex-wrap:wrap}
+.bis-tip-badge{display:inline-flex}
+
+/* BisGrid (not live yet; Mika's Figma setup, Nov 22): 12 columns, stretch, margin 30, gutter 16. Page content sits on it:
+   <div class="bis-grid"><section class="c-7">…</section><aside class="c-5">…</aside></div> */
+.bis-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:16px;row-gap:16px;padding:0 30px}
+.bis-grid>.c-12{grid-column:span 12}.bis-grid>.c-7{grid-column:span 7}.bis-grid>.c-5{grid-column:span 5}.bis-grid>.c-6{grid-column:span 6}.bis-grid>.c-4{grid-column:span 4}.bis-grid>.c-8{grid-column:span 8}
+@media(max-width:900px){.bis-grid>*{grid-column:span 12!important}}
+
+/* STAND-IN motion (Mika Nov 22: hover felt abrupt): 160ms ease on hover and focus changes; reduced motion switches it off */
+.bis-btn,.bis-chip,.bis-check,.bis-input,.bis-trow,.bis-create,.bis-step>button,.bis-scard-h .ed,.bis-banner .b-x,.bis-select .dd .opt,.bis-select .chips button,.bis-savestat button{transition:background-color .16s ease,border-color .16s ease,color .16s ease,opacity .16s ease,box-shadow .16s ease}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
+/* G7 Collapse type="step" (approved by Mika Nov 22; from ds-components\review.html) */
+:root{--bis-surface-secondary-lightest:#F2F2F2;--bis-surface-success-lightest:#FAFFF2}
+.bis-acc{border:1px solid var(--bis-stroke-light);border-radius:8px;padding:12px;background:var(--bis-surface-secondary-lightest);display:flex;align-items:center;gap:10px;margin-top:8px}
+.bis-acc>.sn{width:18px;height:18px;border-radius:999px;border:1px solid var(--bis-stroke);background:var(--bis-surface-2);color:var(--bis-text-2);font-size:12px;line-height:16px;font-weight:600;display:grid;place-items:center;flex:none}
+.bis-acc>.lb{font-weight:600;color:var(--bis-text-2);flex:1}
+.bis-acc.done{background:var(--bis-surface-success-lightest);border-color:var(--bis-stroke-success-light)}
+.bis-acc.done>.sn{background:var(--bis-surface-success-lighter);border-color:var(--bis-stroke-success-light);color:var(--bis-icon-success)}
+.bis-acc.done>.lb{color:var(--bis-text)}
+.bis-acc.active{background:var(--bis-surface);border-color:var(--bis-primary);align-items:flex-start;flex-wrap:wrap}
+.bis-acc.active>.sn{background:var(--bis-primary);border-color:var(--bis-primary);color:#fff}
+.bis-acc.active>.lb{color:var(--bis-text)}
+.bis-acc>.body{width:100%;padding-left:28px;font-size:12px;line-height:16px;color:var(--bis-text-2)}
+/* BisSegmentedButtons variant=tonal shape=pill (values read from the live Storybook, Pre_Release) */
+.bis-seg.filter{margin:2px 0 8px}
+.bis-seg{display:inline-flex;border:1px solid var(--bis-stroke);border-radius:999px;background:var(--bis-surface)}
+.bis-seg button{border:1px solid transparent;background:transparent;padding:2px 6px;min-height:24px;font:inherit;font-size:14px;font-weight:400;color:var(--bis-text);cursor:pointer}
+.bis-seg button:first-child{border-radius:999px 0 0 999px}.bis-seg button:last-child{border-radius:0 999px 999px 0}
+.bis-seg button+button{border-left-color:var(--bis-stroke)}
+/* BisSelect multi combobox, from Storybook (field 34px min, 1px #AFAFB5, blue when open; chips = BisChip dismissible primary 24px pill; menu rows 40px, selected = leading check + blue text; highlighted = #F2F2F2 + inset blue ring) */
+.bis-sg.field{display:block;width:100%}
+.bis-sg.field .selbox{display:flex;align-items:center;flex-wrap:wrap;gap:4px;min-height:34px;box-sizing:border-box;padding:4px 8px;border:1px solid var(--bis-stroke);border-radius:var(--bis-r);background:var(--bis-surface);cursor:text}
+.bis-sg.field .selbox:hover{border-color:var(--bis-primary)}.bis-sg.field .selbox.open,.bis-sg.field .selbox:focus-within{border-color:var(--bis-primary)}
+.bis-sg.field .sgq{flex:1 1 80px;min-width:80px;border:0;outline:0;background:transparent;font:inherit;font-size:14px;line-height:24px;padding:0;color:var(--bis-text)}
+.bis-sg.field .sgq::placeholder{color:var(--bis-text-2)}
+.bis-sg.field .bis-chip{height:24px;box-sizing:border-box;padding:2px 6px;border:1px solid var(--bis-stroke);border-radius:12px;background:var(--bis-surface);color:var(--bis-text-primary);font-size:12px;line-height:16px;font-weight:600;gap:4px}
+.bis-sg.field .sgclr,.bis-sg.field .sgchev{margin-left:auto;color:var(--bis-text-2);font-size:14px}
+.bis-sg.field .sgclr{border:0;background:none;padding:0 0 0 4px;cursor:pointer}.bis-sg.field .sgclr:hover{color:var(--bis-text)}.bis-sg.field .sgchev{font-size:12px;padding-left:4px}
+.bis-sg .sgp{padding:4px;border-color:var(--bis-stroke)}.bis-sg.field .sgp{left:0;right:0;width:auto;max-width:none;min-width:0;margin-top:4px;max-height:248px;overflow:auto}
+.bis-sg.field.up .sgp{margin:0 0 4px}
+.bis-sg.field .sgl{max-height:none;overflow:visible}
+.bis-sg .opt{min-height:40px;box-sizing:border-box;padding:8px 12px;border-radius:var(--bis-r);line-height:24px;gap:8px;white-space:normal}
+.bis-sg .opt .ck{order:-1;margin-left:0;font-size:12px;color:var(--bis-text-primary)}
+.bis-sg .opt[aria-selected=true]{color:var(--bis-text-primary)}
+.bis-sg .opt:hover{background:var(--bis-surface-secondary-lightest)}.bis-sg .opt:active{background:#96969D}.bis-sg .opt.hl{background:var(--bis-surface-secondary-lightest);box-shadow:inset 0 0 0 1px var(--bis-primary)}
+.bis-sg .opt .sgt{margin-left:auto}
+/* Segmented control (Mika, Nov 24, Figma 452:30797 and Storybook tonal-disabled): a segment can be disabled, and carry a small outlined trailing count badge (.bs; .bs.err = error colour). .rect = the 4px tonal shape (Storybook "tonal"), default stays the pill. Stand-in B25: the DS has no trailing badge yet */
+.bis-seg.rect{border-radius:4px}.bis-seg.rect button:first-child{border-radius:3px 0 0 3px}.bis-seg.rect button:last-child{border-radius:0 3px 3px 0}
+.bis-seg button{display:inline-flex;align-items:center;gap:4px}
+.bis-seg button:hover:not([disabled]):not([aria-checked=true]){background:var(--bis-surface-secondary-lightest)}
+.bis-seg button[disabled]{background:var(--bis-surface-secondary-lightest);color:var(--bis-text-secondary-light);cursor:not-allowed}
+.bis-seg .bs{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;border:1px solid currentColor;border-radius:999px;font-size:12px;line-height:16px;font-weight:400;box-sizing:border-box}
+.bis-seg .bs.err{color:var(--bis-text-error)}
+.bis-bulkbar.none{background:var(--bis-surface-secondary-lightest);border-color:var(--bis-stroke-light);color:var(--bis-text-2)}.bis-bulkbar.none .sel{color:var(--bis-text-2)}
+.bis-seg button[aria-checked=true]{background:var(--bis-primary-lighter);color:var(--bis-text-primary);font-weight:600;border-color:transparent}
+/* BisTab default (Storybook navigation-bistab--default): tablist with a 1px #DFDFE2 bottom line; tabs 38px, padding 6px 12px, 16px/600/24px; selected #19191A with a 4px #0078B3 bar (radius 2px 2px 0 0) over the line, others #636368 */
+.bis-tabs{display:flex;gap:0;border-bottom:1px solid var(--bis-stroke-light);position:relative}
+.bis-tabs button{position:relative;display:inline-flex;align-items:center;gap:6px;height:38px;box-sizing:border-box;padding:6px 12px;border:0;border-bottom:4px solid transparent;background:transparent;font:inherit;font-size:16px;font-weight:600;line-height:24px;color:var(--bis-text-2);cursor:pointer}
+.bis-tabs button[aria-selected=true]{color:var(--bis-text)}
+.bis-tabs button[aria-selected=true]::after{content:"";position:absolute;left:0;right:0;bottom:-5px;height:4px;background:var(--bis-primary);border-radius:2px 2px 0 0}
+.bis-tabs button:hover:not([aria-selected=true]){color:var(--bis-text)}
+.bis-tabs button:disabled{color:var(--bis-text-secondary-light);cursor:not-allowed}
+/* STAND-IN BisSelect (single, with search): flag B16, the pre-release single select was not compared in detail */
+.bis-sg{position:relative;display:inline-block}.bis-sg.full{display:block;width:100%}
+.bis-sg .sgb{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:34px;padding:0 13px;border:1px solid var(--bis-stroke);border-radius:var(--bis-r);background:var(--bis-surface);font:inherit;font-size:14px;color:var(--bis-text);cursor:pointer;text-align:left}
+.bis-sg .sgb:hover{border-color:var(--bis-primary)}
+.bis-sg .sgb[aria-expanded=true]{border-color:var(--bis-primary)}
+.bis-sg .sgb:disabled{background:var(--bis-surface-disabled);color:var(--bis-text-2);cursor:not-allowed}
+.bis-sg .sgb .sgph{color:var(--bis-text-2)}
+.bis-sg .sgb i{font-size:12px;color:var(--bis-stroke-dark)}
+.bis-sg.compact .sgb{min-height:34px;padding:0 12px;width:auto;min-width:130px}.bis-sg.pillsel .sgb{min-height:28px;border-radius:999px;font-size:12px}
+.bis-sg .sgp{position:absolute;left:0;min-width:max(100%,200px);width:max-content;max-width:min(360px,90vw);top:100%;margin-top:2px;background:var(--bis-surface);border:1px solid var(--bis-stroke-light);border-radius:var(--bis-r);box-shadow:0 4px 16px rgba(0,0,0,.08);z-index:30;overflow:hidden}
+.bis-sg.up .sgp{top:auto;bottom:100%;margin:0 0 2px}
+
+.bis-sg .sgp .bis-input{margin:6px;width:auto;min-height:30px}
+.bis-sg .sgl{max-height:200px;overflow:auto}
+.bis-sg .opt{display:flex;align-items:center;font-size:14px;cursor:pointer}
+
+
+.bis-sg .none{padding:10px;color:var(--bis-text-2);font-size:12px}
+.bis-seg button,.bis-sg .sgb{transition:background-color .16s ease,border-color .16s ease,color .16s ease}
+
+/* tooltip on a disabled segment: the reason it is off (stand-in B25) */
+.bis-seg button[data-tip],.lchip[data-tip]{position:relative}
+.bis-seg button[data-tip]::after,.lchip[data-tip]::after{content:attr(data-tip);position:absolute;z-index:40;top:100%;left:0;margin-top:8px;width:max-content;max-width:260px;padding:8px 12px;border-radius:var(--bis-r);background:var(--bis-text);color:var(--bis-surface);font-size:14px;font-weight:600;line-height:21px;text-align:left;white-space:normal;opacity:0;visibility:hidden;pointer-events:none}
+.bis-seg button[data-tip]::before,.lchip[data-tip]::before{content:"";position:absolute;z-index:41;top:100%;left:16px;margin-top:4px;width:8px;height:8px;background:var(--bis-text);transform:rotate(45deg);opacity:0;visibility:hidden;pointer-events:none}
+.bis-seg button[data-tip]:hover::after,.bis-seg button[data-tip]:hover::before,.lchip[data-tip]:hover::after,.lchip[data-tip]:hover::before{opacity:1;visibility:visible}
+
+/* bulk bar with a field: one row; the field takes the free width, chips scroll inside it instead of growing the bar */
+.bis-bulkbar .bis-sg.field{flex:1 1 240px;width:auto;min-width:200px}
+.bis-bulkbar .bis-sg.field~.grow{display:none}
+.bis-bulkbar .bis-sg.field .selbox{max-height:72px;overflow:auto}
+
+/* error states (Mika, Nov 24): Continue stays active; what is missing turns red and stays red until it is fixed, and a BisSnackbar (error) says what to do */
+.bis-acc.active.invalid{border-color:var(--bis-text-error)}.bis-acc.active.invalid>.sn{background:var(--bis-text-error);border-color:var(--bis-text-error)}
+.bis-snack.err .sn-i{color:var(--bis-text-error)}
+/* dismissible chip: the whole chip is the target (Mika, photo 3; the DS chip only has the X button: note for DS) */
+.bis-chip:has(>button[data-act]){cursor:pointer}.bis-chip:has(>button[data-act]):hover{background:var(--bis-surface-secondary-lightest)}
+/* a disabled dropdown has no hover state */
+.bis-sg .sgb:disabled:hover{border-color:var(--bis-stroke)}
+/* next step: the level select is the thing to use now (static, no animation) */
+.bis-sg.invalid .sgb:not(:disabled){border-color:var(--bis-text-error);box-shadow:0 0 0 3px var(--bis-surface-error-lighter)}
+.bis-sg.next .sgb:not(:disabled){border-color:var(--bis-primary);box-shadow:0 0 0 3px var(--bis-primary-50)}
+/* combobox "view" state: chips only; the typing area appears when the field is open (Mika, photo 6) */
+.bis-sg.field .selbox:not(.open):has(.bis-chip) .sgq{flex:0 0 1px;min-width:1px;width:1px;opacity:0;padding:0}
+/* ModalService look (Storybook feedback-modalservice): 450px, 24px padding, 8px radius, centred icon, title 24/600, text 16/24 */
+.bis-modal.svc{max-width:450px;padding:24px;border-radius:8px;box-shadow:0 0 8px rgba(0,0,0,.15);text-align:center;position:relative}
+.bis-modal.svc .x{position:absolute;top:12px;right:12px;border:0;background:none;color:var(--bis-text-2);font-size:20px;line-height:1;cursor:pointer;padding:4px 8px}
+.bis-modal.svc .svc-ic{width:64px;height:64px;box-sizing:border-box;border:3px solid var(--bis-icon-success);border-radius:50%;color:var(--bis-icon-success);display:grid;place-items:center;font-size:28px;margin:0 auto 16px}
+.bis-modal.svc h2{margin:0 0 8px;font-size:24px;line-height:32px;font-weight:600}
+.bis-modal.svc p{margin:0 0 20px;font-size:16px;line-height:24px}
+.bis-modal.svc .svc-f{display:flex;justify-content:center;gap:8px}
+
+/* multi combobox panel: list scrolls, Cancel / Accept stay in the footer (Mika, Nov 24; B24) */
+.bis-sg.field .sgp:not([hidden]){display:flex;flex-direction:column;overflow:hidden;max-height:300px}
+.bis-sg.field .sgp .sgl{max-height:216px;overflow:auto;flex:1 1 auto}
+.bis-sg.field .sgp .sgf{flex:none;margin:4px -4px -4px}
+
+/* tight empty states: icon above centred text, one line (Mika, Nov 24) */
+.plist .pempty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:12px 8px;color:var(--bis-text-2);font-size:12px;line-height:16px;text-align:center}
+.plist .pempty i{font-size:18px;color:var(--bis-text-secondary-light)}
+.bis-sg .none{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;text-align:center}
+.bis-sg .none i{font-size:18px;color:var(--bis-text-secondary-light)}
+.bis-empty.compact{padding:12px 12px;gap:2px}.bis-empty.compact .e-ic{font-size:20px;margin-bottom:0}
+
+/* empty crew box: the state lives in the field itself; error = red outline only, options and text stay normal (Mika, Nov 24) */
+.noatt,.noatt.err{border:0;background:none;padding:0;color:var(--bis-text)}
+.noatt.err .selbox{border-color:var(--bis-text-error)}.noatt.err .sgq::placeholder{color:var(--bis-text-error)}
+.noatt.err .sgp,.noatt.err .sgp .opt{color:var(--bis-text)}.noatt.err .sgp .opt[aria-selected=true]{color:var(--bis-text-primary)}
+
+/* the next place to work: the Created panel glows while crews still need adding (same cue as the level select) */
+.card.next{border-color:var(--bis-primary);box-shadow:0 0 0 3px var(--bis-primary-50)}
+
+/* step 3 on the left is only a pointer: the arrow shows the work is in the Created panel (right on wide screens, below when stacked) */
+.nextcue{display:flex;align-items:center;gap:12px}.nextcue .ssub{flex:1;margin:0}
+.nextcue i{color:var(--bis-text-primary);font-size:16px;flex:none}.nextcue .nc-d{display:none}
+@media(max-width:900px){.nextcue .nc-r{display:none}.nextcue .nc-d{display:inline}}
+
+/* Add to several (Created panel): the toggle sits in the panel header; rows get a checkbox and show their crews as read-only chips */
+.card-h2 .multi-t{margin-left:auto}
+.slist.multi .srow-h .bis-check{margin-left:auto}.slist.multi li.sel{background:var(--bis-primary-lighter)}
+.noatt.muted{border:0;background:none;color:var(--bis-text-2);font-size:12px;padding:4px 0 2px}
+.attk .chips .bis-chip{text-transform:none;letter-spacing:normal}
+.attk .chips{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
+
+/* bulk add crews: the row look from Figma 513:16763 (row #f8f8f8, Attach card #f2f2f2 with Clear, dismissible chips); the whole row is clickable */
+.slist.multi>li{background:var(--bis-bg);padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--bis-stroke-light);transition:background-color .16s ease}
+.slist.multi>li:hover,.slist.multi>li.sel{background:var(--bis-primary-lighter)}
+.slist.multi .srow-h{gap:8px}.slist.multi .srow-h .src{margin-left:0}
+.slist.multi .srow-h .bis-counter{margin-left:auto}.slist.multi .srow-h .bis-check{margin-left:0}
+.slist.multi .attbox{margin:8px 0 0;background:var(--bis-surface-secondary-lightest);padding:4px}
+.slist.multi .attk .bis-btn.link{opacity:1}
+.slist.multi .attk{margin-bottom:4px}
+.card-h2 .multi-t i{font-size:14px}
+.nextcue i{font-size:24px}
+
+</style>
+<title>FM Onboarding · Wave 1</title>
+<style>
+/* FM onboarding, new flow (Nov 22, FM - Prototype). W1 first, W3 later in this same file.
+   Built from the final Figma (Final Design 517:10931). Components follow ds.css (BIS design system look, incl. the FM components approved in
+   work\projects\field-management\ds-components\review.html); layout follows BisGrid (12 columns, margin 30, gutter 16).
+   Keyboard rules (Mika, Nov 22): every field and list works from the keyboard; see the KEYBOARD section in the script. */
+*{box-sizing:border-box}
+body{margin:0;background:var(--bis-bg);color:var(--bis-text);font:14px/1.45 "Segoe UI",system-ui,-apple-system,Arial,sans-serif}
+button{font:inherit}
+h1,h2,p{margin:0}
+/* Review bar: Layout 4 of the document system (title + sub, State ‹ select ›, Controls menu, Hide bar). Flat, BIS tokens. */
+#review{position:relative;z-index:900;background:var(--bis-surface);color:var(--bis-text);border-bottom:1px solid var(--bis-stroke-light);font-family:inherit}
+.rv{display:flex;align-items:center;gap:16px;padding:4px 16px;min-height:40px}
+.rv-mt{display:flex;flex-direction:column;min-width:0}.rv-ttl{font-size:15px;line-height:20px;font-weight:600;white-space:nowrap}
+.rv-sub{font-size:12px;line-height:14px;color:var(--bis-text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rv-right{margin-left:auto;display:flex;align-items:center;gap:20px;min-width:0}.rv-state{display:flex;align-items:center;gap:6px;min-width:0}
+.rv-lb{font-size:12px;line-height:14px;font-weight:600;text-transform:uppercase;color:var(--bis-stroke-dark);white-space:nowrap}
+.rv-nav{width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--bis-stroke);border-radius:var(--bis-r);background:var(--bis-surface);color:var(--bis-text-2);font-size:13px;flex:none;cursor:pointer}.rv-nav:hover{background:var(--bis-surface-secondary-lightest);color:var(--bis-text)}
+.rv-sel{position:relative;display:inline-flex;align-items:center;min-width:0}
+.rv-sel select{appearance:none;-webkit-appearance:none;height:28px;width:240px;max-width:100%;padding:2px 26px 2px 8px;border:1px solid var(--bis-stroke);border-radius:var(--bis-r);background:var(--bis-surface);color:var(--bis-text);font:inherit;font-size:13px;line-height:20px;cursor:pointer}
+.rv-sel i{position:absolute;right:9px;font-size:9px;font-style:normal;color:var(--bis-text-2);pointer-events:none}
+.rv-btn{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;min-height:28px;border:1px solid var(--bis-stroke);border-radius:var(--bis-r);background:var(--bis-surface);color:var(--bis-text-2);font:inherit;font-size:13px;line-height:20px;font-weight:600;white-space:nowrap;cursor:pointer}.rv-btn:hover{background:var(--bis-surface-secondary-lightest);color:var(--bis-text)}
+.rv-more{position:relative;flex:none}.rv-more>.rv-btn[aria-expanded="true"]{background:var(--bis-primary-lighter);color:var(--bis-text-primary);border-color:var(--bis-primary)}
+.rv-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:1000;width:360px;max-width:calc(100vw - 24px);display:none;flex-direction:column;gap:10px;padding:14px;background:var(--bis-surface);border:1px solid var(--bis-stroke-light);border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.15)}.rv-menu.on{display:flex}
+.rv-now{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border-radius:6px;background:var(--bis-primary-lighter);font-size:13px;line-height:18px}.rv-now span{font-size:12px;color:var(--bis-text-2);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.rv-sec{font-size:12px;line-height:14px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--bis-text-2);padding-top:10px;border-top:1px solid var(--bis-stroke-light)}
+.rv-row{display:flex;flex-direction:column;gap:6px}.rv-row>.rv-lb{text-transform:none;font-size:12px}
+.rv-row select{height:30px;box-sizing:border-box;padding:0 8px;border:1px solid var(--bis-stroke);border-radius:var(--bis-r);background:var(--bis-surface);color:var(--bis-text);font:inherit;font-size:13px;cursor:pointer}.rv-row select:hover{border-color:var(--bis-primary)}
+.rv-chips{display:flex;flex-wrap:wrap;gap:6px}.rv-note{margin:0;font-size:12px;line-height:16px;color:var(--bis-text-2)}
+body.folded #review{position:fixed;left:0;right:0;top:0;transform:translateY(-100%);transition:transform .18s;box-shadow:0 2px 10px rgba(0,0,0,.15)}body.folded #review.peek{transform:none}
+#pc{display:none;position:fixed;left:14px;top:10px;z-index:950;align-items:center;gap:7px;padding:5px 12px;min-height:30px;border:1px solid var(--bis-stroke);border-radius:999px;background:var(--bis-surface);color:var(--bis-text-2);font:inherit;font-size:13px;font-weight:600;box-shadow:0 0 8px rgba(0,0,0,.15);cursor:pointer}
+#pc:hover,#pc:focus-visible{color:var(--bis-text-primary);border-color:var(--bis-primary)}body.folded #pc{display:inline-flex}
+@media (prefers-reduced-motion:reduce){body.folded #review{transition:none}}
+@media (max-width:760px){.rv-sub{display:none}.rv{gap:10px}.rv-right .rv-lb{display:none}.rv-sel select{width:150px}}
+.obp{--portal-brand:#1A9E7A;--portal-logo:#1A9E7A;--portal-nav-active:#00779F;--pfont:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;background:#fff;font-family:var(--pfont)}
+.obp button{border:0;background:none;font:inherit;cursor:pointer;color:inherit}
+.obp .ptop{display:flex;align-items:center;gap:16px;padding:10px 20px;min-height:64px;flex-wrap:wrap}
+.obp .plogo{display:flex;align-items:center;gap:10px;flex:0 0 auto;border-radius:4px;padding:2px 4px 2px 2px}
+.obp .plogo svg{width:42px;height:42px;display:block}
+.obp .plogo-w{display:flex;flex-direction:column;line-height:1;color:#111;text-align:left}
+.obp .plogo-w b{font:900 21px/20px var(--pfont);letter-spacing:.04em}
+.obp .plogo-w small{font:400 10.5px/13px var(--pfont);letter-spacing:.22em;color:#444;margin-top:2px}
+.obp .pright{margin-left:auto;display:flex;align-items:center;gap:14px;color:#6B6B70;flex-wrap:wrap;justify-content:flex-end}
+.obp .psearch{display:flex;align-items:center;gap:8px;height:30px;width:230px;border:1px solid #B2B2B3;border-radius:4px;padding:0 8px;background:#fff}
+.obp .psearch input{border:0;outline:0;flex:1;min-width:0;font-size:12px;background:transparent;color:#19191A}
+.obp .psearch i{font-size:12px;color:#888}
+.obp .ib{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:4px;color:#6B6B70;font-size:18px}
+.obp .pav{width:28px;height:28px;border-radius:50%;background:#D9D9D9;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:12px}
+.obp .plogout{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:#6B6B70;padding:4px 6px;border-radius:4px}
+.obp .plogout:hover,.obp .pnav button:hover{text-decoration:underline}
+.obp .pnav{display:flex;align-items:center;gap:2px;min-height:38px;padding:0 14px;background:#F5F5F5;border-top:1px solid #E5E5E5;border-bottom:1px solid #E5E5E5;overflow-x:auto;scrollbar-width:thin}
+.obp .pnav button{position:relative;padding:9px 8px;font-size:14px;line-height:20px;color:#2B2B2B;white-space:nowrap}
+.obp .pnav button.on{font-weight:700;color:var(--portal-nav-active);text-decoration:none}
+.obp .pnav button.on::after{content:"";position:absolute;left:8px;right:8px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--portal-nav-active)}
+.obp .pnav .pinfo{margin-left:auto;width:26px;height:26px;border-radius:3px;background:var(--portal-nav-active);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;padding:0;flex:0 0 auto}
+.obp .pnav .pinfo::after{display:none}
+@media(max-width:760px){.obp .psearch{width:160px}}
+.obp .pnav button{border:0;background:none}
+main{padding-bottom:120px}
+/* Home */
+.home-tools{display:flex;justify-content:flex-end;gap:6px;padding:8px 10px;background:#fff;flex-wrap:wrap;align-items:center}
+.home-seg{display:flex;border:1px solid #333}.home-seg span{padding:3px 30px;border-left:1px solid #333;font-size:12px;background:#fff}.home-seg span:first-child{border:0;background:#433a5c;color:#fff}
+.home-bar{background:#433a5c;color:#fff;padding:11px 12px;font-size:16px;display:flex;justify-content:space-between;align-items:center}
+.home-bar span.o{border:1px solid #fff;padding:2px 10px;font-size:12px;border-radius:3px}
+.home-t{width:100%;border-collapse:collapse;background:#fff}.home-t th{background:#e9e9ec;text-align:center;padding:10px 8px;font-weight:600;font-size:12px}.home-t th:first-child,.home-t td:first-child{text-align:left}
+.home-t td{padding:11px 8px;border-bottom:1px solid #eee;font-size:12px;text-align:center}.home-t td a{color:#1a73c8}
+.home-t .st{display:inline-block;color:#fff;font-size:12px;border-radius:3px;padding:3px 12px}
+.home-t .go{background:#4cb944}.home-t .re{background:#1aa1d6}
+.home-banner{margin:12px 14px}
+.home-banner .bis-banner{padding:12px 14px;font-size:14px;line-height:20px}
+/* Welcome */
+.welcome{padding-top:140px}
+.wcard{grid-column:4/span 6;background:var(--bis-surface);border:1px solid var(--bis-stroke-light);border-radius:8px;padding:28px 32px}
+.wcard h1{font-size:32px;font-weight:300;line-height:1.15;margin:14px 0 8px}.wcard h1 b{font-weight:600}
+.wcard .lead{font-size:16px;color:var(--bis-text);margin-bottom:22px}
+.wlist{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;margin-bottom:26px}
+.wlist div{display:flex;align-items:center;gap:12px;font-size:14px}
+.wlist i{width:32px;height:32px;border-radius:6px;background:var(--bis-primary-lighter);color:var(--bis-primary-400);display:grid;place-items:center;font-size:14px;flex:none}
+.wfoot{display:flex;align-items:center;justify-content:space-between;color:var(--bis-text-2)}
+/* Setup */
+.setup{padding-top:20px;align-items:start}
+.settitle{grid-column:span 12;font-size:18px;font-weight:500;color:var(--bis-text-2);display:flex;gap:8px;align-items:center}
+.card{background:var(--bis-surface);border:1px solid var(--bis-stroke-light);border-radius:var(--bis-r);padding:16px}
+.card h2{font-size:18px;font-weight:500;margin-bottom:2px}
+.card .sub{font-size:14px;margin:4px 0 14px}
+.card-h{display:flex;align-items:flex-start;gap:8px}.card-h .grow{flex:1}
+.card-h2{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-weight:600;font-size:14px}
+.card-h2 .sp{flex:1}
+.hint{position:relative;display:inline-block}
+.hint .bis-tip{display:block;opacity:0;visibility:hidden;transition:opacity .18s ease,visibility 0s linear .18s;top:100%;left:0;margin-top:6px;width:300px}
+.hint.r .bis-tip{left:auto;right:0}
+.hint.r .bis-tip::after{left:auto;right:20px}
+.hint:hover .bis-tip,.hint:focus-within .bis-tip{opacity:1;visibility:visible;transition:opacity .18s ease .12s,visibility 0s}
+/* Help popover (Mika, Nov 24): white, with a header, blue step numbers and a small grey closing line. Stand-in (B23): the DS BisTooltip is dark and text-only. */
+.bis-tip.bis-pop{background:var(--bis-surface);color:var(--bis-text);border:0;border-radius:8px;padding:0;width:340px;max-width:340px;font-weight:400;box-shadow:0 2px 10px rgba(25,25,26,.15)}
+.bis-tip.bis-pop::after{left:20px;top:-4px;box-shadow:-1px -1px 2px rgba(25,25,26,.06)}
+.bis-pop .pop-h{display:flex;align-items:center;gap:8px;padding:12px 16px 0;font-size:14px;line-height:21px;font-weight:600;color:var(--bis-text)}
+.bis-pop .pop-h i{color:var(--bis-stroke-dark);font-size:14px}
+.bis-pop ol{list-style:none;margin:0;padding:12px 16px 4px;counter-reset:pop}
+.bis-pop li{counter-increment:pop;display:flex;gap:8px;font-size:12px;line-height:18px;color:var(--bis-text);padding-bottom:10px}
+.bis-pop li::before{content:counter(pop) ".";flex:0 0 18px;font-weight:600;color:var(--bis-primary)}
+.bis-pop li b{font-weight:600}
+.bis-pop .pop-f{margin:0;padding:0 16px 12px;font-size:12px;line-height:16px;color:var(--bis-text-2)}
+.hint>.bis-btn,.hint .bis-btn{cursor:default}
+.hint .bis-btn.link{font-size:inherit;font-weight:500;text-decoration:underline;padding:0;min-height:0;vertical-align:baseline}
+.root{display:flex;align-items:center;gap:8px;font-weight:600;font-size:12px;margin:2px 0 6px;padding:0 9px 0 0}
+.root .sp{flex:1}
+.bis-check[aria-disabled=true]{background:var(--bis-surface-disabled);border-color:var(--bis-stroke-light);cursor:default}
+.crew-list{display:grid;gap:8px}
+.bis-select .dd .opt .ck{margin-left:auto;color:var(--bis-primary-400)}
+.clist{list-style:none;margin:0;padding:0}.clist li{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--bis-stroke-light)}.clist li:last-child{border-bottom:0}.clist .n{flex:1;min-width:0}
+.clist .ed{transition:background-color .16s ease,color .16s ease;border:0;background:none;color:var(--bis-icon-default-light);padding:4px;border-radius:4px;display:flex;cursor:pointer}.clist .ed:hover{background:var(--bis-primary-lighter)}
+.bis-select .dd .none{padding:10px;color:var(--bis-text-2);font-size:14px}
+.bis-empty.compact{padding:18px 12px}.bis-empty.compact .e-ic{font-size:24px}
+.sgrel{position:relative}
+/* List group (Figma Field-Management 394:4040): title + count + subtitle above; one bordered box with the search row first, then the rows (name 14px + username 12px, 6px gap, 6px 8px padding, light divider). Stand-in for BisListBox + List item (B28). */
+.plbox{border:1px solid var(--bis-stroke);border-radius:var(--bis-r);background:var(--bis-surface)}.plbox:focus-within{border-color:var(--bis-primary)}
+.plsearch,.bis-sg.field.withlist .selbox{display:flex;align-items:center;gap:6px;min-height:32px;box-sizing:border-box;padding:2px 8px;border:0;border-bottom:1px solid var(--bis-stroke);border-radius:0;background:transparent}
+.bis-sg.field.withlist .selbox:hover,.bis-sg.field.withlist .selbox.open,.bis-sg.field.withlist .selbox:focus-within{border-color:transparent;border-bottom-color:var(--bis-stroke)}
+.plsearch input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:14px;line-height:20px;color:var(--bis-text);padding:0}.plsearch input::placeholder{color:var(--bis-text-2)}
+.plsearch i,.bis-sg.field.withlist .sgchev{color:var(--bis-text-2);font-size:14px;margin-left:auto}
+.bis-sg.field.withlist .sgp{margin-top:1px}
+.plist{list-style:none;margin:0;padding:0;max-height:198px;overflow:auto;border-radius:0 0 3px 3px}
+.plist .pli{display:flex;align-items:center;gap:6px;min-height:32px;box-sizing:border-box;padding:6px 8px;border-bottom:1px solid var(--bis-stroke-light);font-size:14px;line-height:20px}
+.plist .pli:last-child{border-bottom:0}.plist .pn{flex:0 1 auto;color:var(--bis-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.plist .bis-login{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plist .pli.none{color:var(--bis-text-2);font-size:12px}
+.plist .pdel{margin-left:auto;flex:none;width:24px;height:24px;border:0;border-radius:var(--bis-r);background:none;color:var(--bis-text-2);cursor:pointer;display:grid;place-items:center;font-size:14px;padding:0}
+.plist .pdel:hover{background:var(--bis-surface-secondary-lightest);color:var(--bis-text-error)}
+.plist.locked{background:var(--bis-surface-disabled)}.plist.locked .pn{color:var(--bis-text-2)}
+.plist::-webkit-scrollbar{width:5px}.plist::-webkit-scrollbar-track{background:var(--bis-surface-secondary-lightest)}.plist::-webkit-scrollbar-thumb{background:var(--bis-surface-secondary-light);border-radius:12px}
+.mgrid .bis-help{margin:0 0 8px;line-height:20px}
+.mlist{border:1px solid var(--bis-stroke);border-radius:var(--bis-r);max-height:210px;overflow:auto;margin-top:6px}
+.mlist>div:not(.bis-empty){display:flex;gap:8px;align-items:baseline;padding:7px 10px;border-bottom:1px solid var(--bis-stroke-light)}
+.mlist>div:not(.bis-empty):last-child{border-bottom:0}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px}
+@media(max-width:700px){.mgrid{grid-template-columns:1fr}}
+.loc-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--bis-stroke-light);border-radius:var(--bis-r);padding:3px 8px;font-size:12px;background:var(--bis-surface)}
+.loc-chip .dot{width:8px;height:8px;border-radius:2px}
+/* Site step */
+.ssub{font-size:12px;line-height:16px;color:var(--bis-text-2);margin:2px 0 10px}
+.lvl-row{display:flex;align-items:center;gap:12px;margin:8px 0}.lvl-row .lk{width:52px;font-size:12px;color:var(--bis-text-2);flex:none}
+.lchips{display:flex;gap:4px;flex-wrap:wrap}
+/* BisChip selectable (values from the live Storybook): level words and filter pills */
+.lchip,.fpill{border:1px solid var(--bis-stroke);border-radius:4px;background:var(--bis-surface);color:var(--bis-text-primary);padding:4px 6px;min-height:28px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;gap:6px;align-items:center;transition:background-color .16s ease,border-color .16s ease,color .16s ease,opacity .16s ease}
+.lchip:hover:not(:disabled),.fpill:hover{filter:brightness(.97)}
+.lchip.on,.fpill[aria-pressed=true]{background:var(--bis-primary-lighter)}
+.lchip:disabled{opacity:1;cursor:default;color:color-mix(in srgb,var(--bis-text-primary) 50%,transparent);border-color:color-mix(in srgb,var(--bis-stroke) 50%,transparent)}
+.fpill{border-radius:999px;padding:2px 10px;min-height:26px;font-size:12px}
+.step-foot{display:flex;justify-content:flex-end;margin-top:12px}
+.srow-s{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--bis-stroke-light)}
+.srow-s .ic{width:20px;color:var(--bis-text-2);text-align:center}
+.srow-s .tx{flex:1;min-width:0}.srow-s .tx b{display:block;font-size:12px;line-height:18px;color:var(--bis-text)}.srow-s .tx span{font-size:12px}
+.srow-s .act{display:flex;align-items:center;gap:8px}
+.fpills{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 8px;align-items:center}
+.clist2{list-style:none;margin:6px 0 0;padding:0;border:1px solid var(--bis-stroke);border-radius:var(--bis-r);max-height:330px;overflow:auto;background:var(--bis-surface)}
+.crow{border-bottom:1px solid var(--bis-stroke-light)}.crow:last-child{border-bottom:0}
+.crow-h{display:flex;align-items:center;gap:10px;padding:8px 10px;font-size:14px;color:var(--bis-text);transition:background-color .16s ease}.crow-h .n{flex:1;min-width:0}
+.crow.sel .crow-h,.crow-h:hover{background:var(--bis-primary-lighter)}
+.attbox{margin:0 10px 8px;border:1px solid var(--bis-stroke-light);background:var(--bis-bg);border-radius:4px;padding:4px 8px 6px}
+.attk{display:flex;align-items:center;font-size:10px;line-height:14px;font-weight:600;color:var(--bis-text-2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}.attk>span{flex:1}
+.attk .bis-btn.link{font-size:12px;min-height:0;padding:0;opacity:0;text-transform:none;letter-spacing:0}
+.attbox:hover .attk .bis-btn.link,.attbox:focus-within .attk .bis-btn.link{opacity:1}
+.attbox .chips{display:flex;gap:6px;flex-wrap:wrap}
+.card.invalid{border-color:var(--bis-text-error)}
+.noatt.err{border-color:var(--bis-text-error);background:var(--bis-surface-error-lighter);color:var(--bis-text-error)}
+.noatt{margin:6px 0 2px;border:1px solid var(--bis-stroke-light);background:var(--bis-bg);border-radius:4px;padding:6px;text-align:center;color:var(--bis-text-2);font-size:12px}
+.slist{list-style:none;margin:10px 0 0;padding:0}.slist>li{padding:8px 0;border-bottom:1px solid var(--bis-stroke-light)}.slist>li:last-child{border-bottom:0}
+.srow-h{display:flex;align-items:center;gap:8px}.srow-h .n{flex:1;min-width:0}.srow-h .src{font-size:12px;color:var(--bis-text-2)}
+.srow-h .ed{border:0;background:none;color:var(--bis-icon-default-light);padding:4px;border-radius:4px;display:flex;cursor:pointer;transition:background-color .16s ease}.srow-h .ed:hover{background:var(--bis-primary-lighter)}
+.bis-modal.narrow{max-width:550px}
+.imp-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0}.imp-bar .grow{flex:1}
+.implist{list-style:none;margin:6px 0 0;padding:0;border:1px solid var(--bis-stroke);border-radius:var(--bis-r);max-height:300px;overflow:auto}
+.irow,.crow-h,.bis-trow{cursor:pointer}
+.irow{display:flex;align-items:center;gap:10px;padding:7px 10px;border-bottom:1px solid var(--bis-stroke-light);transition:background-color .16s ease}.irow:last-child{border-bottom:0}
+.irow:hover,.irow.sel{background:var(--bis-primary-lighter)}.irow.locked{cursor:default}.irow.locked:not(.sel):hover{background:none}.irow .tx{flex:1;min-width:0}.irow .tx small{display:block;font-size:12px;color:var(--bis-text-2)}
+.bis-bulkbar.inmodal{margin-top:8px;box-shadow:none;gap:8px;flex-wrap:nowrap}.bis-bulkbar.inmodal .bis-sg.pillsel .sgb{min-width:0}.bis-bulkbar.inmodal .sel{white-space:nowrap}
+.lvl-loc{display:flex;gap:16px;align-items:flex-start}.lvl-loc>div:first-child{flex:1;min-width:0}
+.req{color:var(--bis-text-error)}
+
+.slist .attbox{margin:6px 0 2px}
+.slist .card.invalid{border-color:var(--bis-text-error)}
+.noatt.err{border-color:var(--bis-text-error);background:var(--bis-surface-error-lighter);color:var(--bis-text-error)}
+.noatt{margin:6px 0 2px;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;padding:4px 6px 4px 8px}
+.attk .bis-sg,.noatt .bis-sg{text-transform:none;letter-spacing:normal;font-weight:400;line-height:1.4}
+.attk .bis-sg{margin-right:8px}
+/* BisSelect field beside the label (Mika, Nov 24) */
+.attk.fld{align-items:flex-start}.attk.fld>span:first-child{flex:0 0 auto;padding-top:9px}.attk.fld .bis-sg{flex:1;margin:0 0 0 12px;text-transform:none;letter-spacing:normal;font-weight:400}
+.slist .noatt{justify-content:flex-start;gap:12px}.noatt .bis-sg.field{flex:1}
+.bis-seg button{display:inline-flex}
+.bis-sg .sgf{display:flex;justify-content:flex-end;gap:8px;padding:8px;border-top:1px solid var(--bis-stroke-light);background:var(--bis-surface)}
+.clist .ed:not(.rm):hover,.clist .ed:not(.rm):focus-visible,.srow-h .ed:not(.rm):hover,.srow-h .ed:not(.rm):focus-visible{color:var(--bis-primary-400)}
+.clist .ed.rm:hover,.clist .ed.rm:focus-visible,.srow-h .ed.rm:hover,.srow-h .ed.rm:focus-visible{color:var(--bis-text-error);background:var(--bis-surface-error-lighter)}
+.bis-snack .bis-btn.link{color:var(--bis-text-primary);padding:0;min-height:0;font-weight:600;line-height:18px}
+
+/* Routine step */
+.rbody{margin-top:10px}.rtrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--bis-stroke);border-radius:var(--bis-r);margin-top:6px}.rtrow .tx{flex:1;display:flex;flex-direction:column;min-width:0}.rtrow .tx span{font-size:12px;color:var(--bis-text-2)}
+.rcard{border:1px solid var(--bis-stroke);border-radius:8px;margin-top:10px;background:var(--bis-surface)}
+.rhd{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--bis-stroke-light)}.rhd .grow,.radd-row .grow{flex:1;min-width:0}
+.rhn{display:inline-flex;align-items:center;gap:4px;min-width:0}.rhn b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:16px}
+.radin{height:30px;flex:1;min-width:0;border:1px solid var(--bis-primary);border-radius:var(--bis-r);padding:0 10px;font:inherit}.radin:focus-visible{outline:none;box-shadow:none}
+.rwhen{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bis-surface-2);border-bottom:1px solid var(--bis-stroke-light);font-size:14px}
+.ritems{padding:4px 12px 10px}
+.ritem{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bis-surface-2)}.ritem>i{color:var(--bis-icon-default-light)}
+.ritem .rin{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.ritem .rnl{display:flex;align-items:center;gap:4px;min-width:0}.rnn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rsub{font-size:12px;color:var(--bis-text-2)}
+.rkind{font-size:12px;line-height:16px;padding:0 5px;color:var(--bis-text-2);background:var(--bis-surface-2);border:1px solid var(--bis-stroke);border-radius:4px;flex:none}
+.ritem.open{flex-direction:column;align-items:stretch;gap:6px;padding:8px;background:#FFFBF2;box-shadow:inset 3px 0 0 #F0C46A}.ritem.open .rih{display:flex;align-items:center;gap:8px}.ritem.open .rin{flex-direction:row}
+.rpick{color:#8A5300}.ritem.err .sgb{border-color:var(--bis-text-error)}.rmsg{font-size:12px;color:var(--bis-text-error)}
+.radd{margin-top:8px}.radd-row{display:flex;align-items:center;gap:8px}.rnote{font-size:12px;color:var(--bis-text-2);margin:4px 0 0}
+.rfoot{border-top:1px solid var(--bis-stroke-light);background:var(--bis-surface-2);padding:10px 12px 12px;border-radius:0 0 8px 8px}.rfh{font-weight:600;font-size:14px;margin-bottom:6px}
+.rfoot .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.rhow{display:flex;gap:8px;margin-top:8px;font-size:14px}.rhint{font-size:12px;color:var(--bis-text-2);margin-top:6px}
+.bis-seg.sm button{padding:2px 10px;min-height:22px;font-size:12px}
+.rhd .ed,.ritem .ed{border:0;background:none;color:var(--bis-icon-default-light);padding:4px;border-radius:4px;display:flex;cursor:pointer;transition:background-color .16s ease,color .16s ease}
+.rhd .ed:hover,.ritem .ed:hover,.rhd .ed:focus-visible,.ritem .ed:focus-visible{color:var(--bis-primary-400);background:var(--bis-primary-lighter)}
+.rhd .ed.rm:hover,.ritem .ed.rm:hover,.rhd .ed.rm:focus-visible,.ritem .ed.rm:focus-visible{color:var(--bis-text-error);background:var(--bis-surface-error-lighter)}
+.bis-sg .opt .sgt{margin-left:auto;font-size:12px;color:var(--bis-text-2)}.bis-sg .opt .sgt+.ck{margin-left:0}
+/* Footer */
+.foot{position:fixed;left:0;right:0;bottom:0;background:var(--bis-surface);border-top:1px solid var(--bis-stroke-light);padding:12px 30px;display:flex;align-items:center;gap:8px;z-index:15}
+.foot[hidden]{display:none}
+.foot .sp{flex:1}
+.foot .back{font-size:16px;padding:0 12px;min-height:36px}
+.ph{padding:48px 24px;text-align:center;color:var(--bis-text-2)}
+.ph b{display:block;color:var(--bis-text);font-size:16px;margin-bottom:4px}
+</style>
+</head>
+<body>
+<div id="review" role="region" aria-label="Prototype controls"><div class="rv">
+ <div class="rv-mt"><span class="rv-ttl">FM onboarding · Wave 1</span><span class="rv-sub">Phase 4: Home, Welcome, Crew, Site, Job, Routine · sample data</span></div>
+ <div class="rv-right"><div class="rv-state"><span class="rv-lb">State</span><button class="rv-nav" id="pv" type="button" aria-label="Previous screen">‹</button>
+  <span class="rv-sel"><select id="jump" aria-label="Go to screen"><option value="home">Home</option><option value="welcome">Welcome</option><option value="crew">1 Crew</option><option value="site">2 Site</option><option value="job">3 Job</option><option value="routine">4 Routine</option></select><i>▼</i></span>
+  <button class="rv-nav" id="nx" type="button" aria-label="Next screen">›</button></div>
+  <div class="rv-more"><button class="rv-btn" id="cb" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="rvmenu">Controls ▾</button>
+   <div class="rv-menu" id="rvmenu">
+    <div class="rv-now"><span>Now showing</span><b id="now"></b></div>
+    <div class="rv-sec">Prototype</div>
+    <div class="rv-row"><label class="rv-lb" for="portal">Portal</label><select id="portal" aria-label="Portal state"><option value="users">With users</option><option value="none">No users</option></select></div>
+    <div class="rv-row"><label class="rv-lb" for="ssdemo">Save badge</label><select id="ssdemo" aria-label="Save badge state"><option value="live">Live (auto)</option><option value="saving">Saving</option><option value="min12">Saved 12 min ago</option><option value="hr3">Saved 3 hours ago</option><option value="err">Couldn’t save</option></select></div>
+    <div class="rv-chips"><button class="rv-btn" id="reset" type="button">Reset prototype</button></div>
+    <p class="rv-note">Everything on this page is sample data.</p>
+    <div class="rv-sec">This bar</div>
+    <div class="rv-chips"><button class="rv-btn" id="hide" type="button">Hide bar</button></div>
+    <p class="rv-note">When hidden, hover the Prototype controls button (top left) to peek; click it to dock the bar again. Press H to toggle.</p>
+   </div></div></div></div></div>
+<button id="pc" type="button" aria-label="Prototype controls">☰ Prototype controls</button>
+<header class="portal obp"><div class="ptop"><button class="plogo" aria-label="Portal home" data-act="goto" data-r="home"><!--ob-logo--><svg viewBox="0 0 44 44" aria-hidden="true" focusable="false"><circle cx="22" cy="22" r="19.5" fill="none" stroke="var(--portal-brand)" stroke-width="3.5"></circle><circle cx="22" cy="22" r="14.5" fill="var(--portal-brand)"></circle><path d="M14.5 29.5 C13.5 20 19.5 14 30 13.5 C30.5 23.5 24.5 30 14.5 29.5 Z" fill="#fff"></path><path d="M15.5 28.5 C19 24.5 22.5 21 26.5 17.5" fill="none" stroke="var(--portal-brand)" stroke-width="1.6" stroke-linecap="round"></path></svg><span class="plogo-w"><b>CLEAN</b><small>ENVIRONMENT</small></span><!--/ob-logo--></button>
+ <div class="pright"><span id="who" hidden></span><label class="psearch"><input type="search" placeholder="Search User" aria-label="Search user"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></label><button class="ib" aria-label="Help"><i class="fa-regular fa-circle-question" aria-hidden="true"></i></button><span class="pav" aria-label="Your account"><i class="fa-regular fa-user" aria-hidden="true"></i></span><button class="plogout">Log Out <i class="fa-solid fa-angle-right" aria-hidden="true"></i></button></div></div>
+<nav class="pnav" id="nav" aria-label="Portal"></nav></header>
+<main id="app"></main>
+<div id="bulk"></div>
+<div class="foot" id="foot" hidden></div>
+<div id="modal"></div>
+<div id="toast"></div>
+<div class="bis-sr" id="live" role="status" aria-live="polite"></div>
+
+<script>
+/* ============ Sample data (a paving company) ============ */
+const USERS=['Alex Brooks','Tessa Nguyen','Marcus Chen','Priya Patel','Jordan Price','Sam Okafor','Lena Fischer','Diego Ramos','Hannah Lee','Omar Haddad','Grace Kim','Noah Tremblay','Ivy Morgan','Ravi Singh','Elena Costa','Kai Johnson'].map((n,i)=>({id:'u'+i,n,l:(n[0]+n.split(' ')[1]).toLowerCase()+(i+1)}));
+/* BisTreeList level colours: grey, green, blue, indigo (DS tokens); the fifth (orange) is in Figma only: DS asked Mika */
+const LC=['#AFAFB5','#399300','#009ACB','#5378BB','#EA8D00'];
+const ROOT={n:'Paving Company',c:120};
+const T=[['Head Office',10,0],['Leadership',10,1],['Office',10,1],['Paving',0,1],['Paving Crew 1',10,2],['Paving Crew 2',3,2],['Concrete',0,1],['Flatwork Crew',3,2],['Curb Crew',0,2],["John's Curb Crew",2,3],["Sally's Curb Crew",3,3],['Night Curb Crew',2,4],['Trucking',0,1],['Haul Crew',3,2],['Lowbed Crew',2,2]];
+const LOCS=(()=>{const st=[],roots=[];const a=T.map(([n,c,d],i)=>{st.length=d;const path=st.slice();st[d]=n;const members=Array.from({length:c},(_,k)=>USERS[(i*3+k)%USERS.length].id);return {id:'l'+i,n,c,d,path:path.length?path.join(' › '):ROOT.n,members,kids:[]};});
+ const stack=[];a.forEach(l=>{if(l.d>0)stack[l.d-1].kids.push(l);else roots.push(l);stack[l.d]=l;});a.roots=roots;return a;})();
+const NAV=['Home','Profile','Store','Rewards','Purchases','Users','Reporting','Calendar','Assets','Folders','QR','Field','Admin'];
+const STEPS=[['crew','Crew'],['site','Site'],['job','Job'],['routine','Routine']];
+const ROUTES=['home','welcome','crew','site','job','routine'];
+const fresh=()=>({route:'home',portal:new URLSearchParams(location.search).get('portal')==='none'?'none':'users',bannerOff:false,started:false,crews:[],sel:new Set(),m:null,n:0,tf:'l0',ret:[],s:{lv:1,words:[null,null,null],step:1,sites:[],n:0,filter:'all',q:'',csel:new Set(),ctf:null,targets:[]},j:{step:1,sites:[],n:0,filter:'all',q:'',csel:new Set(),ctf:null,targets:[]},r:{tab:'tpl',list:[],n:0,seq:0,rename:null,adding:null,editing:null,err:false}});
+let S=fresh();
+/* Site and Job share one step: P() is the list being built on this route, K() its words */
+const JOB=()=>S.route==='job';
+const P=()=>JOB()?S.j:S.s;
+const K=()=>JOB()?{one:'Job',many:'Jobs',lone:'job',lmany:'jobs'}:{one:'Site',many:'Sites',lone:'site',lmany:'sites'};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const user=id=>USERS.find(u=>u.id===id);
+const crewOfLoc=id=>S.crews.find(c=>c.locId===id);
+const announce=m=>{ $('#live').textContent=''; setTimeout(()=>{$('#live').textContent=m;},30); };
+const focusFirst=(...sels)=>{ for(const s of sels.flat()){ const n=s&&document.querySelector(s); if(n){ n.focus(); return true; } } return false; };
+/* keep keyboard focus on the same control across a re-render */
+function keepFocus(fn){ const a=document.activeElement, d=a&&a.dataset||{}; const sel=d.act&&d.id?`[data-act="${d.act}"][data-id="${d.id}"]`:a&&a.id?'#'+a.id:null; fn(); if(sel) focusFirst(sel); }
+
+/* ============ Auto save badge (BisStepper save status) ============ */
+const SAVE={status:'idle',at:0,skew:0}; let saveT;
+const fmtTime=ms=>new Date(ms).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}).toLowerCase();
+function ssView(){
+ if(SAVE.status==='saving') return ['saving','<span class="bis-spin"></span>Saving'];
+ if(SAVE.status==='error') return ['err','Couldn’t save <button type="button" data-act="retry">Try again</button>'];
+ const m=Math.floor((Date.now()+SAVE.skew-SAVE.at)/60000);
+ if(m<1) return ['fresh','<i class="fa-solid fa-check" aria-hidden="true"></i>Saved just now'];
+ if(m<60) return ['old','Last saved '+m+' min ago'];
+ return ['old','Last saved at '+fmtTime(SAVE.at)];
+}
+function ssDraw(){ const el=$('#savestat'); if(!el) return; if(SAVE.status==='idle'){ el.hidden=true; return; } const [c,h]=ssView(); el.hidden=false; el.className='bis-savestat '+c; el.innerHTML=h; }
+function autosave(){ SAVE.status='saving'; SAVE.skew=0; ssDraw(); announce('Saving'); clearTimeout(saveT); saveT=setTimeout(()=>{ SAVE.at=Date.now(); SAVE.status='saved'; ssDraw(); announce('Saved'); },900); }
+setInterval(ssDraw,5000);
+
+/* ============ Routing ============ */
+function go(r){ S.route=r; S.m=null; if(r!=='home') S.started=true; if(location.hash!=='#/'+r) history.replaceState(null,'','#/'+r); render(); window.scrollTo(0,0); }
+function render(){
+ $('#jump').value=S.route; $('#portal').value=S.portal;
+ $('#nav').innerHTML=NAV.map(n=>`<button type="button" data-act="nav" data-n="${n}" id="nav-${n}"${(n==='Field'?S.route!=='home':n==='Home'&&S.route==='home')?' class="on" aria-current="page"':''}>${n}</button>`).join('')+'<button type="button" class="pinfo" aria-label="Info"><i class="fa-solid fa-square" aria-hidden="true"></i></button>';
+ const v={home,welcome,crew,site,job:site,routine}[S.route];
+ const sc2=$('#cl2')?$('#cl2').scrollTop:0; $('#app').innerHTML=v(); foot(); bulk(); modal(); ssDraw(); if($('#cl2')) $('#cl2').scrollTop=sc2;
+}
+
+/* ============ Home: a banner only (BisBanner) ============ */
+function home(){
+ const rows=[['course with form - test',' <b style="color:#d93025">Waiting for Form Completion.</b>','04/16/2026','-','07/21/2026','80%','10 Mins','2/2','-','Resume'],['Kavya topic override from course','','04/16/2026','-','-','80%','95 Mins','0/1','-','Start'],['Kavya course override 1','','04/16/2026','-','-','80%','90 Mins','0/1','-','Start'],['Continuous Learning 01 ORIGINAL','','04/16/2026','-','-','80%','11 Mins','0/1','-','Start'],['Occupational Health And Safety Awareness For Supervisors in 5 Steps','','03/30/2026','-','-','100%','60 Mins','0/1','<i class="fa-regular fa-file-pdf" style="color:#d93025;font-size:20px"></i>','Start'],['17112_safetycourse1','','03/25/2026','-','-','80%','90 Mins','0/1','-','Start']];
+ const banner=S.bannerOff?'':`<div class="home-banner"><div class="bis-banner" role="region" aria-label="Field Management"><span class="b-icon"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></span><div class="b-body"><span class="bis-badge blue">NEW</span> <span class="b-title">Field Management</span> See which crews are where, what's been done today, using the locations and people you already have.</div><button class="bis-btn primary" type="button" data-act="goto" data-r="welcome">Set it up</button><button class="bis-btn secondary" type="button" data-act="remind">Remind me next time</button><button class="b-x" type="button" aria-label="Dismiss" data-act="dismiss"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div></div>`;
+ return `<div class="home-tools"><button class="bis-btn secondary-primary sm" type="button">⊕ Add Course</button><button class="bis-btn secondary-primary sm" type="button">Request Training</button><div class="home-seg"><span>All</span><span>Training</span><span>Forms</span><span>Tasks</span><span>Folders</span></div></div>${banner}
+ <div class="home-bar"><span>Assigned</span><span class="o">Show Asset Forms</span></div>
+ <table class="home-t"><tr><th>Training</th><th>Added</th><th>Due Date</th><th>Started</th><th>Pass Mark</th><th>Estimated Time</th><th>Segment</th><th>Materials</th><th></th></tr>${rows.map(r=>`<tr><td><a>${r[0]}</a>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td><td>${r[7]}</td><td>${r[8]}</td><td style="text-align:right"><span class="st ${r[9]==='Start'?'go':'re'}">${r[9]}</span></td></tr>`).join('')}</table>`;
+}
+
+/* ============ Welcome (the empty Field page) ============ */
+function welcome(){
+ const li=[['fa-location-dot','All your places and work in one list'],['fa-chart-simple','See what’s done and what’s missing today'],['fa-user-group','Know who’s working where'],['fa-mobile-screen','Your people fill it in on their phone'],['fa-repeat','Set the checks that are due, and when']];
+ return `<div class="bis-grid welcome"><div class="wcard"><span class="bis-badge blue md">NEW</span><h1>Welcome to <b>Field Management</b></h1><p class="lead">See that the work in the field gets done, every day.</p>
+ <div class="wlist">${li.map(([i,t])=>`<div><i class="fa-solid ${i}" aria-hidden="true"></i><span>${t}</span></div>`).join('')}</div>
+ <div class="wfoot"><button class="bis-btn primary lg" type="button" data-act="goto" data-r="crew" id="getstarted">Get started</button><span><i class="fa-regular fa-clock" aria-hidden="true"></i> About 10 minutes</span></div></div></div>`;
+}
+
+/* ============ Shared setup pieces ============ */
+/* BisStepper: steps, current, completed, onStepClick (done steps), save status */
+function stepper(cur){
+ const ci=STEPS.findIndex(s=>s[0]===cur);
+ return `<div class="bis-stepper-wrap"><ol class="bis-stepper" aria-label="Set up progress">${STEPS.map(([k,t],i)=>{
+  const inner=`<span class="bis-step-dot">${i<ci?'<i class="fa-solid fa-check" aria-hidden="true"></i>':i+1}</span><span class="bis-step-label">${t}</span>${i<ci?'<span class="bis-sr"> completed</span>':''}`;
+  return `<li class="bis-step ${i<ci?'done':i===ci?'current':''}"${i===ci?' aria-current="step"':''}>${i<ci?`<button type="button" data-act="goto" data-r="${k}">${inner}</button>`:inner}</li>`; }).join('')}</ol><span class="bis-savestat" id="savestat" hidden></span></div>`;
+}
+const setHead=cur=>`<div class="settitle"><i class="fa-solid fa-wrench" aria-hidden="true"></i><h1 style="font-size:18px;font-weight:500">Set up Field Management</h1></div><div style="grid-column:span 12">${stepper(cur)}</div>`;
+function stub(t,d){ return `<div class="bis-grid setup">${setHead(S.route)}<div class="c-12 card ph"><b>${t} step</b>${d} Built in the next phase.</div></div>`; }
+function foot(){
+ const f=$('#foot'), r=S.route, i=STEPS.findIndex(s=>s[0]===r);
+ if(i<0&&r!=='welcome'){ f.hidden=true; return; } f.hidden=false;
+ if(r==='site'||r==='job'){ const J=r==='job', st=P().sites, full=st.length&&sitesWith()===st.length, nx=J?'routine':'job', pv=J?'site':'crew', ok=full||(J&&!st.length);
+  f.innerHTML=`<button class="bis-btn tertiary back" type="button" data-act="goto" data-r="${pv}">Back</button><span class="sp"></span>${!J&&!st.length?`<button class="bis-btn secondary lg" type="button" data-act="goto" data-r="${nx}">I don’t need Sites</button>`:st.length&&!full?`<button class="bis-btn secondary lg" type="button" data-act="goto" data-r="${nx}">${sitesWith()?'Save and add the rest later':'Add crews later'}</button>`:''}<button class="bis-btn primary lg" id="cont" type="button" data-act="scont">Continue</button>`; return; }
+ if(r==='routine'){ const n=S.r.list.length; f.innerHTML=`<button class="bis-btn tertiary back" type="button" data-act="goto" data-r="job">Back</button><span class="sp"></span><button class="bis-btn secondary lg" type="button" data-act="rskip">Skip for now</button><button class="bis-btn primary lg" id="cont" type="button" data-act="rcreate">${n>1?'Create '+n+' routines':'Create routine'}</button>`; return; }
+ const prev=r==='welcome'?'home':i>0?STEPS[i-1][0]:'welcome', next=i>=0&&i<STEPS.length-1?STEPS[i+1][0]:null;
+ f.innerHTML=r==='welcome'?`<button class="bis-btn tertiary back" type="button" data-act="goto" data-r="home">Back</button>`:`<button class="bis-btn tertiary back" type="button" data-act="goto" data-r="${prev}">Back</button><span class="sp"></span>${r==='crew'?`<button class="bis-btn primary lg" id="cont" type="button" data-act="ccont">Continue</button>`:next?`<button class="bis-btn primary lg" type="button" data-act="goto" data-r="${next}">Continue</button>`:`<button class="bis-btn primary lg" type="button" data-act="toast" data-m="That is the end of what is built so far">Finish</button>`}`;
+}
+
+/* ============ Crew ============ */
+/* BisTreeList: role=tree, one tab stop (arrows move between rows), see KEYBOARD */
+function node(l){
+ const cr=crewOfLoc(l.id), sel=S.sel.has(l.id), n=esc(l.n);
+ return `<li role="treeitem" aria-level="${l.d+1}" aria-selected="${sel}"><div class="bis-trow${cr?' done':''}${sel?' sel':''}"><span class="bis-dot" style="background:${LC[Math.min(l.d,4)]}"></span><span class="bis-tname">${n}</span>${cr?`<span class="bis-created"><i class="fa-regular fa-circle-check" aria-hidden="true"></i> Created</span><button class="bis-edit" type="button" tabindex="-1" data-act="edit" data-id="${cr.id}" aria-label="Edit crew ${n}"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></button>`:''}<span class="bis-counter">${l.c}</span><input class="bis-check" type="checkbox" data-act="sel" data-id="${l.id}" aria-label="Select ${n}${cr?' (already a crew)':''}" tabindex="${S.tf===l.id?0:-1}"${cr?' aria-disabled="true"':''}${sel?' checked':''}></div>${l.kids.length?`<ul role="group">${l.kids.map(node).join('')}</ul>`:''}</li>`;
+}
+const crewIcon=(c)=>`<i class="fa-solid ${c} e-ic" aria-hidden="true"></i>`;
+function crew(){
+ const empty=S.portal==='none', all=LOCS.filter(r=>!crewOfLoc(r.id)), allOn=all.length&&all.every(r=>S.sel.has(r.id));
+ const left=empty?`<section class="c-7 card"><h2>Set up your crews</h2><div class="bis-empty embedded"><span class="e-ic"><i class="fa-solid fa-user-plus" aria-hidden="true"></i></span><div class="e-t">No people in your portal yet</div><div class="e-d">Add users and their groups will show up here, ready to turn into crews.</div><button class="bis-btn secondary" type="button" data-act="toast" data-m="Opens Users (not built in this prototype)"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> Add users</button></div></section>`
+ :`<section class="c-7 card"><div class="card-h"><div class="grow"><h2>Set up your <span class="hint"><button class="bis-btn link" type="button">Crews</button><span class="bis-tip" role="tooltip">What’s a crew? A group of people who work together, set up once and used across your portal.</span></span></h2><p class="sub">Make your crews from your user hierarchy or from scratch.</p></div><span class="hint r"><button class="bis-btn secondary sm" type="button"><i class="fa-regular fa-lightbulb" aria-hidden="true"></i> Help</button>${helpPop('How to set up crews',['Tick the locations you want as crews, then choose <b>Create</b> in the bar at the bottom. Created locations show a <b>Created</b> badge.','No matching location? Choose <b>Create crew</b> to start from scratch: name it and add its people.','Use the pencil next to <b>Created</b> to edit a crew, and the bin in the Created crews list to remove it. You can undo a removal.'],'Choose Continue when you’re done. You can come back to this step any time.')}</span></div>
+ <div class="root"><span>${ROOT.n}</span><span class="bis-counter">${ROOT.c}</span><span class="sp"></span><input class="bis-check" type="checkbox" data-act="selall" aria-label="Select all locations"${allOn?' checked':''}${all.length?'':' disabled'}></div>
+ <ul class="bis-tree" role="tree" aria-label="Your user hierarchy" aria-multiselectable="true" id="tree">${LOCS.roots.map(node).join('')}</ul></section>`;
+ /* Created crews: a plain list, name + people count + edit (Figma 432:3067, Mika Nov 22: no source label, no path). BisSummaryCard is not used here. */
+ const list=S.crews.length?`<ul class="clist" id="crewlist" aria-label="Created crews">${S.crews.map(c=>`<li><span class="n">${esc(c.name)}</span><span class="bis-counter" title="${c.members.length} people">${c.members.length}</span><button class="ed rm" type="button" data-act="crewrm" data-id="${c.id}" aria-label="Remove ${esc(c.name)}"><i class="fa-regular fa-trash-can" aria-hidden="true"></i></button><button class="ed" type="button" data-act="edit" data-id="${c.id}" aria-label="Edit ${esc(c.name)}"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></button></li>`).join('')}</ul>`
+  :`<div class="bis-empty embedded"><span class="e-ic"><i class="fa-solid fa-helmet-safety" aria-hidden="true"></i></span><div class="e-t">No crews yet</div><div class="e-d">${empty?'You can create one now and add people later.':'Create them from your hierarchy on the left, or start from scratch.'}</div><button class="bis-btn secondary" type="button" data-act="scratch"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> Create crew</button></div>`;
+ const right=`<aside class="c-5 card${S.tried&&S.tried.crew&&!S.crews.length?' invalid':''}"><div class="card-h2"><span>Created crews</span><span class="bis-counter">${S.crews.length}</span><span class="sp"></span>${S.crews.length?`<button class="bis-btn primary sm" type="button" data-act="scratch"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> Create</button>`:''}</div>${list}</aside>`;
+ return `<div class="bis-grid setup">${setHead('crew')}${left}${right}</div>`;
+}
+function makeCrews(ids){ ids.forEach(id=>{ const l=LOCS.find(x=>x.id===id); if(!crewOfLoc(id)) S.crews.push({id:'c'+(++S.n),name:l.n,locId:id,members:l.members.slice(),sup:[]}); S.sel.delete(id); }); }
+/* BisBulkBar: N selected, Select all, Clear, divider, action */
+function bulk(){
+  if(multiOn()){ const p=P(), n=p.csel.size, every=p.sites.every(x=>p.csel.has(x.id));
+   $('#bulk').innerHTML=n?`<div class="bis-bulk-fixed"><div class="bis-bulkbar" role="region" aria-label="Selected ${K().lmany}"><span class="sel">${n} selected</span>${sg('btarget',{multi:true,opts:()=>S.crews.map(x=>({v:x.id,l:x.name})),vals:()=>P().targets,set:a=>{ P().targets=a; },ph:'Search crews',up:true,field:true,what:'crews',label:'Crews to add to the selected '+K().lmany,none:'No crews found',after:()=>bulk()})}<span class="grow"></span>${every?'':'<button class="bis-btn link" type="button" data-act="msall">Select all</button>'}<button class="bis-btn link" type="button" data-act="mdesel">Deselect all</button><span class="bdiv" role="separator" aria-orientation="vertical"></span><button class="bis-btn primary" id="satt" type="button" data-act="msadd"${p.targets.length?'':' disabled'}>Add crews</button></div></div>`
+    :`<div class="bis-bulk-fixed"><div class="bis-bulkbar none" role="region" aria-label="Selected ${K().lmany}"><span class="sel">Nothing selected</span><span class="grow"></span><button class="bis-btn link" type="button" data-act="msall">Select all</button></div></div>`; return; }
+  const n=S.route==='crew'?S.sel.size:0;
+ $('#bulk').innerHTML=n?`<div class="bis-bulk-fixed"><div class="bis-bulkbar" role="region" aria-label="Selected locations"><span class="sel">${n} selected</span><span class="grow"></span><button class="bis-btn link" type="button" data-act="bulkall">Select all</button><button class="bis-btn secondary" type="button" data-act="bulkclear">Clear</button><span class="bdiv" role="separator" aria-orientation="vertical"></span><button class="bis-btn primary" type="button" data-act="bulkmake">Create</button></div></div>`:'';
+}
+function bulkMake(){ const n=S.sel.size; if(!n) return; makeCrews([...S.sel]); render(); focusFirst(`input[data-act=sel][data-id="${S.tf}"]`,'#tree input'); autosave(); toast(n+(n===1?' crew created':' crews created')); }
+
+/* ============ Crew modals (create from location, create from scratch, edit) ============ */
+function openModal(m,ret){ S.ret=ret||[]; S.m=Object.assign({members:[],sup:[],membersq:'',supq:'',open:null,hl:{members:0,sup:0},name:''},m); modal(); const n=$('#mName'); if(n){ n.focus(); n.select(); } }
+function closeModal(){ S.m=null; SG.open=null; modal(); focusFirst(S.ret); }
+const chipHtml=(id,key)=>`<span class="bis-chip pill">${esc(user(id).n)}<button type="button" aria-label="Remove ${esc(user(id).n)}" data-act="unpick" data-k="${key}" data-id="${id}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></span>`;
+/* BisSelect (multiple, combobox, chips): full keyboard, see KEYBOARD */
+const pickerHtml=(m,key,label)=>sg('pk-'+key,{multi:true,field:true,opts:()=>USERS.map(u=>({v:u.id,l:u.n,t:u.l})),vals:()=>m[key],set:a=>{ m[key]=a.slice(); const c=$('#mcount'); if(c&&key==='members') c.textContent=m.members.length; },ph:'Search users to add…',what:'users',label,list:true,listLabel:key==='members'?'Selected crew members':'Selected supervisors',listEmpty:key==='members'?'No crew members added yet':'No supervisors added yet',listIcon:key==='members'?'fa-user-plus':'fa-user-shield',none:'No people found',after:()=>{ const c=$('#mcount'); if(c) c.textContent=m.members.length; sgRedraw('pk-'+key); }});
+function modal(){
+ const m=S.m, box=$('#modal'); if(!m){ box.innerHTML=''; return; }
+ if(m.kind==='done') return doneModal();
+ if(m.kind==='imp') return impModal();
+ if(m.kind==='site') return siteModal();
+ const loc=m.locId&&LOCS.find(l=>l.id===m.locId), linked=!!loc;
+ const title=m.type==='edit'?'Edit crew':linked?'Create crew from location':'Create crew';
+ const picker=(k,l)=>pickerHtml(m,k,l);
+ const members=linked?`<div class="bis-label">Crew members <span class="bis-counter">${m.members.length}</span></div><p class="bis-help">Members come from ${esc(loc.n)}. Change who is in that location to change them.</p><div class="plbox"><label class="plsearch"><input id="mSearch" type="search" placeholder="Search" aria-label="Search crew members" autocomplete="off" data-act="msearch"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></label><div id="mlist">${peopleList(m.members,{key:'locked',label:'Crew members, from your user hierarchy'})}</div></div>`
+  :`<div class="bis-label">Crew members <span class="bis-counter" id="mcount">${m.members.length}</span></div><p class="bis-help">Anyone in your portal. One person can join many crews.</p>${picker('members','Search users to add as crew members')}`;
+ box.innerHTML=`<div class="bis-overlay" data-act="overlay"><div class="bis-modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="bis-modal-h"><i class="fa-solid fa-helmet-safety lead" aria-hidden="true"></i><span id="mTitle">${title}</span><button class="x" type="button" data-act="mclose" aria-label="Close">×</button></div>
+ <div class="bis-modal-b"><div class="mgrid"><div class="bis-field"><label class="bis-label" for="mName">Name</label><div class="bis-input"><input id="mName" value="${esc(m.name)}" autocomplete="off"></div></div><div>${linked?`<div class="bis-label">Location</div><span class="hint"><span class="loc-chip" tabindex="0" aria-describedby="loc-tip"><span class="dot" style="background:${LC[Math.min(loc.d,4)]}"></span>${esc(loc.n)}</span><span class="bis-tip" id="loc-tip" role="tooltip">From your location hierarchy: ${esc(loc.path)}</span></span>`:''}</div>
+ <div>${members}</div><div><div class="bis-label">Supervisor(s) <span class="bis-opt">optional</span></div><p class="bis-help">The selected supervisor(s) will have access to this crew</p>${picker('sup','Search users to add as supervisors')}</div></div></div>
+ <div class="bis-modal-f"><button class="bis-btn tertiary" type="button" data-act="mclose">Cancel</button><button class="bis-btn primary" id="mSave" type="button" data-act="msave"${m.name.trim()?'':' disabled'}>${m.type==='edit'?'Save':'Create'}</button></div></div></div>`;
+}
+const mrowsOld=q=>{ const l=S.m.members.filter(id=>user(id).n.toLowerCase().includes(q)||user(id).l.includes(q)); return l.length?l.map(id=>`<div><span>${esc(user(id).n)}</span><span class="bis-login">${esc(user(id).l)}</span></div>`).join(''):`<div class="bis-empty embedded compact"><span class="e-ic"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span><div class="e-t">No people found</div><div class="e-d">Nothing matches “${esc(q)}”.</div></div>`; };
+const pkList=key=>{ const m=S.m, q=(m[key+'q']||'').toLowerCase(); return USERS.filter(u=>(u.n.toLowerCase().includes(q)||u.l.includes(q))); };
+function pkRefresh(key){
+ const m=S.m, w=document.querySelector(`[data-pk="${key}"]`); if(!m||!w) return;
+ w.querySelector('.chips').innerHTML=m[key].map(id=>`<span class="bis-chip pill">${esc(user(id).n)}<button type="button" aria-label="Remove ${esc(user(id).n)}" data-act="unpick" data-k="${key}" data-id="${id}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></span>`).join('');
+ const dd=w.querySelector('.dd'), lb=w.querySelector('.dd-list'), inp=w.querySelector('input'), open=m.open===key, list=pkList(key);
+ m.hl[key]=Math.max(0,Math.min(m.hl[key],list.length-1));
+ inp.setAttribute('aria-expanded',open); dd.hidden=!open;
+ if(open){ lb.innerHTML=list.length?list.map((u,i)=>`<div class="opt${i===m.hl[key]?' hl':''}" role="option" id="opt-${key}-${u.id}" aria-selected="${m[key].includes(u.id)}" data-act="pick" data-k="${key}" data-id="${u.id}"><span>${esc(u.n)}</span><span class="bis-login">${esc(u.l)}</span>${m[key].includes(u.id)?'<i class="fa-solid fa-check ck" aria-hidden="true"></i>':''}</div>`).join(''):'<div class="none" role="option" aria-disabled="true">No people found</div>';
+  const cur=list[m.hl[key]]; if(cur){ inp.setAttribute('aria-activedescendant',`opt-${key}-${cur.id}`); const el=document.getElementById(`opt-${key}-${cur.id}`); if(el&&el.scrollIntoView) el.scrollIntoView({block:'nearest'}); } else inp.removeAttribute('aria-activedescendant'); }
+ else inp.removeAttribute('aria-activedescendant');
+ const c=$('#mcount'); if(c&&key==='members') c.textContent=m.members.length;
+}
+/* BisSelect (multiple): Enter or click toggles; the query and the open list stay for the next pick */
+function openPk(k){ const m=S.m; if(m.open!==k){ m.open=k; m.snap=m.snap||{}; m.snap[k]=m[k].slice(); } }
+/* Done keeps the picks; Cancel puts back what was selected when the list opened */
+function closePk(k,revert){ const m=S.m; if(revert&&m.snap&&m.snap[k]){ m[k]=m.snap[k].slice(); announce('Selection cancelled'); } else announce(m[k].length+' selected'); m.open=null; m[k+'q']=''; const i=document.querySelector(`[data-pkin="${k}"]`); if(i){ i.value=''; m.skip=true; i.focus(); m.skip=false; } pkRefresh(k); }
+function pick(key,id){ const m=S.m; if(m[key].includes(id)){ unpick(key,id); return; } m[key].push(id); announce('Added '+user(id).n); pkRefresh(key); }
+function unpick(key,id){ const m=S.m; m[key]=m[key].filter(x=>x!==id); announce('Removed '+user(id).n); pkRefresh(key); }
+function saveModal(){
+ if(S.m.kind==='imp') return impCreate();
+ if(S.m.kind==='site') return siteSave();
+ const m=S.m, name=m.name.trim(); if(!name) return;
+ let fallback;
+ if(m.type==='edit'){ const c=S.crews.find(x=>x.id===m.crewId); c.name=name; c.sup=m.sup.slice(); if(!c.locId) c.members=m.members.slice(); toast('Crew saved'); }
+ else { S.crews.push({id:'c'+(++S.n),name,locId:m.locId||null,members:m.locId?LOCS.find(l=>l.id===m.locId).members.slice():m.members.slice(),sup:m.sup.slice()}); if(m.locId) S.sel.delete(m.locId); toast('Crew created'); }
+ S.m=null; render(); focusFirst(S.ret,'[data-act=scratch]','#tree input'); autosave();
+}
+/* toast with an optional Undo (BisSnackbar action); Ctrl/Cmd+Z does the same while it shows */
+let tt, UNDO=null;
+function toast(msg,undo,kind){ UNDO=undo||null; $('#toast').innerHTML=`<div class="bis-snack${kind==='err'?' err':''}" role="status"><i class="${kind==='err'?'fa-solid fa-circle-exclamation':'fa-regular fa-circle-check'} sn-i" aria-hidden="true"></i><div class="sn-b"><span>${esc(msg)}</span>${undo?'<button class="bis-btn link" type="button" data-act="undo">Undo</button>':''}</div><button class="sn-x" type="button" data-act="toastx" aria-label="Close"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>`; announce(msg+(undo?'. Press Control Z to undo':'')); clearTimeout(tt); tt=setTimeout(()=>{ $('#toast').innerHTML=''; UNDO=null; },kind==='err'?6000:undo?7000:3000); }
+function runUndo(){ if(!UNDO) return; const u=UNDO; UNDO=null; $('#toast').innerHTML=''; u(); }
+/* Remove a crew or a Site (Mika, Nov 22): gone at once, Undo in the snackbar */
+function removeCrew(id){ const i=S.crews.findIndex(c=>c.id===id); if(i<0) return; const c=S.crews[i], att=[S.s,S.j].map(L=>L.sites.filter(x=>x.crews.includes(id)).map(x=>x.id));
+ S.crews.splice(i,1); [S.s,S.j].forEach(L=>{ L.sites.forEach(x=>{ x.crews=x.crews.filter(y=>y!==id); }); L.targets=L.targets.filter(y=>y!==id); });
+ render(); focusFirst(c.locId?`input[data-act=sel][data-id="${c.locId}"]`:'','#crewlist .ed','[data-act=scratch]'); autosave();
+ toast(c.name+' removed',()=>{ S.crews.splice(i,0,c); [S.s,S.j].forEach((L,n)=>att[n].forEach(sid=>{ const s=L.sites.find(x=>x.id===sid); if(s&&!s.crews.includes(id)) s.crews.push(id); })); render(); focusFirst(`[data-act=edit][data-id="${id}"].ed`); autosave(); }); }
+function removeSite(id){ const i=P().sites.findIndex(x=>x.id===id); if(i<0) return; const L=P(), st=L.sites[i], kids=L.sites.filter(x=>x.parentId===id).map(x=>x.id), jobs=JOB()?[]:S.j.sites.filter(x=>x.atSite===id).map(x=>x.id);
+ L.sites.splice(i,1); L.sites.forEach(x=>{ if(x.parentId===id) x.parentId=''; }); jobs.forEach(j=>{ S.j.sites.find(x=>x.id===j).atSite=''; }); L.csel.delete(id);
+ render(); focusFirst('#slist [data-act=sedit]','#btn-new-site'); autosave();
+ toast(st.name+' removed',()=>{ L.sites.splice(i,0,st); kids.forEach(k=>{ const x=L.sites.find(y=>y.id===k); if(x) x.parentId=id; }); jobs.forEach(j=>{ const x=S.j.sites.find(y=>y.id===j); if(x) x.atSite=id; }); render(); focusFirst(`[data-act=sedit][data-id="${id}"]`); autosave(); }); }
+
+/* ============ Site (W1 step 2): levels, create Sites, put crews in Sites ============
+   Figma: Site section 448:22678 (Levels and Name, Import, Import Location Modal, Attaching Crew). Step cards are Collapse type="step". */
+const WORDS=['Region','Division','Branch','Site','Facility','Yard'];
+const ROWS={1:['Top'],2:['Top','Lowest'],3:['Top','Middle','Lowest']};
+const SRC={loc:'From Location',asset:'From Assets',scratch:'From Scratch'};
+const helpPop=(title,steps,note)=>`<span class="bis-tip bis-pop" role="tooltip"><span class="pop-h"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>${title}</span><ol>${steps.map(s=>`<li><span>${s}</span></li>`).join('')}</ol><span class="pop-f" style="display:block">${note}</span></span>`;
+const SITE_TIP='What is a Site? Anywhere your crews do their work, whatever you call it.';
+const JOB_TIP='What is a Job? Work with a start and an end, that your crews move onto.';
+/* sample assets for "From your assets" (no Figma frame: it mirrors the location import, with the category filter Mika kept) */
+const CATS=['Equipment','Vehicles','Facilities'];
+const ASSETS=[['Paver P-300','Equipment'],['Roller R-12','Equipment'],['Skid Steer S-7','Equipment'],['Excavator E-20','Equipment'],['Dump Truck 04','Vehicles'],['Water Truck 02','Vehicles'],['Fuel Truck 01','Vehicles'],['Pickup 11','Vehicles'],['Lowbed Trailer','Vehicles'],['Yard Compound A','Facilities'],['Shop Building','Facilities'],['Fuel Island','Facilities']].map(([n,c],i)=>({id:'a'+i,n,c}));
+const lvW=()=>JOB()?['Job']:S.s.words.slice(0,S.s.lv);
+const lvDone=()=>lvW().length===P().lv&&lvW().every(Boolean);
+const plW=a=>{ const p=a.map(w=>w+'s'); return p.length<2?p[0]:p.length===2?p.join(' or '):p.slice(0,-1).join(', ')+', or '+p[p.length-1]; };
+const aW=a=>'a '+(a.length<2?a[0]:a.length===2?a.join(' or a '):a.slice(0,-1).join(', ')+', or a '+a[a.length-1]);
+const siteById=id=>P().sites.find(x=>x.id===id);
+const sitesWith=()=>P().sites.filter(x=>x.crews.length).length;
+const attachedTo=cid=>P().sites.filter(x=>x.crews.includes(cid));
+const sChip=(label,attrs,aria)=>`<span class="bis-chip sm pill">${esc(label)}<button type="button" ${attrs} aria-label="${aria}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></span>`;
+
+/* BisSelect (single, with optional search): one open list at a time; keyboard in the KEYBOARD section */
+const SG={open:null,hl:0,q:''}, SGD={};
+const sgFiltered=id=>{ const c=SGD[id], q=SG.q.toLowerCase(); return c.opts().filter(o=>!q||o.l.toLowerCase().includes(q)); };
+function sgList(id){ const c=SGD[id], o=sgFiltered(id); SG.hl=Math.max(0,Math.min(SG.hl,o.length-1));
+ return o.length?o.map((x,i)=>{ const cur=c.multi?c.vals().map(String).includes(String(x.v)):String(x.v)===String(c.val()); return `<div class="opt${i===SG.hl?' hl':''}" role="option" id="sgo-${id}-${i}" aria-selected="${cur}" data-act="sgpick" data-id="${id}" data-v="${esc(String(x.v))}"><span>${esc(x.l)}</span>${x.t?`<span class="sgt">${esc(x.t)}</span>`:''}${cur?'<i class="fa-solid fa-check ck" aria-hidden="true"></i>':''}</div>`; }).join(''):`<div class="none" role="option" aria-disabled="true"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i><span>${c.none||'Nothing found'}</span></div>`; }
+/* People list (Mika, Nov 24, photos 1-2): the shared pattern for crew members and supervisors. Search field adds people; the picks sit below as a list, name + username + trash. Locked = same list, no trash, muted (crews made from a location). Stand-in for BisListBox + the proposed List item (B28). */
+const peopleList=(ids,o)=>{ const n=ids.length; return `<ul class="plist${o.rm?'':' locked'}" id="pl-${o.key}" aria-label="${esc(o.label||'People')}"${o.rm?'':' tabindex="0"'}>${n?ids.map(id=>`<li class="pli"><span class="pn">${esc(user(id).n)}</span><span class="bis-login">${esc(user(id).l)}</span>${o.rm?`<button type="button" class="pdel" data-act="sgrm" data-id="${o.key}" data-v="${id}" aria-label="Remove ${esc(user(id).n)}"><i class="fa-regular fa-trash-can" aria-hidden="true"></i></button>`:''}</li>`).join(''):`<li class="pempty"><i class="fa-solid ${o.icon||'fa-user-plus'}" aria-hidden="true"></i><span>${esc(o.empty||'No one added yet')}</span></li>`}</ul>`; };
+/* BisSelect multi combobox (Mika, Nov 24, from Storybook input-selection-bisselect-select--multi-combobox): picks are BisChip dismissible INSIDE the field, you type in the same field, Enter or click toggles and the list stays open (query kept), no Cancel/Done, Backspace on an empty query removes the last chip, Esc, Tab or a click elsewhere closes, clear-all icon when there are picks. Stand-in until the DS has it: nothing new, it follows BisSelect. */
+function sgField(id,c){ const o=c.opts(), open=SG.open===id, mv=c.vals();
+ const chips=c.list?'':mv.map(v=>{ const x=o.find(y=>String(y.v)===String(v)); return x?sChip(x.l,`data-act="sgrm" data-id="${id}" data-v="${esc(String(v))}"`,`Remove ${esc(x.l)}`):''; }).join('');
+ return `<div class="bis-sg field${c.up?' up':''}${c.list?' withlist':''}" data-sg="${id}">${c.list?'<div class="plbox">':''}<div class="sgrel"><div class="selbox${open?' open':''}" data-act="sgfopen" data-id="${id}">${chips}<input class="sgq" id="sgb-${id}" type="text" role="combobox" aria-haspopup="listbox" aria-expanded="${open}" aria-controls="sgl-${id}" aria-autocomplete="list" aria-label="${esc(c.label||'')}" placeholder="${mv.length&&!c.list?'':esc(c.ph||'Search')}" value="${open?esc(SG.q):''}" data-sgq="${id}" data-act="sgfopen" data-id="${id}" autocomplete="off">${mv.length&&!c.list?`<button type="button" class="sgclr" data-act="sgclear" data-id="${id}" aria-label="Clear all"><i class="fa-regular fa-circle-xmark" aria-hidden="true"></i></button>`:'<i class="fa-solid fa-magnifying-glass sgchev" aria-hidden="true"></i>'}</div><div class="sgp"${open?'':' hidden'}><div class="sgl" id="sgl-${id}" role="listbox" aria-multiselectable="true" aria-label="${esc(c.label||'Options')}">${open?sgList(id):''}</div>${open?`<div class="sgf"><button class="bis-btn tertiary sm" type="button" data-act="sgcancel" data-id="${id}">Cancel</button><button class="bis-btn primary sm" type="button" data-act="sgdone" data-id="${id}">Accept</button></div>`:''}</div></div>${c.list?peopleList(mv,{key:id,label:c.listLabel||c.label,rm:true,empty:c.listEmpty,icon:c.listIcon})+'</div>':''}</div>`; }
+function sg(id,c){ SGD[id]=c; if(c.field) return sgField(id,c); const o=c.opts(), open=SG.open===id, mv=c.multi?(open&&SG.draft?SG.draft:c.vals()):null, cur=c.multi?(mv.length?{l:c.sum?c.sum(mv):mv.length+' selected'}:null):o.find(x=>String(x.v)===String(c.val()));
+ return `<div class="bis-sg${c.up?' up':''}${c.full?' full':''}${c.compact?' compact':''}${c.pill?' pillsel':''}${c.next?' next':''}${c.invalid?' invalid':''}" data-sg="${id}"><button type="button" class="sgb" id="sgb-${id}" role="combobox" aria-haspopup="listbox" aria-expanded="${open}" aria-controls="sgl-${id}"${c.label?` aria-label="${esc(c.label)}${cur?': '+esc(cur.l):''}"`:''} data-act="sgopen" data-id="${id}"${c.disabled?' disabled':''}><span class="${cur?'':'sgph'}">${esc(cur?cur.l:(c.ph||'Select'))}</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button><div class="sgp"${open?'':' hidden'}>${c.search?`<div class="bis-input"><input class="sgq" id="sgq-${id}" type="text" role="combobox" aria-expanded="true" aria-controls="sgl-${id}" aria-autocomplete="list" aria-label="Search ${esc(c.what||'')}" placeholder="Search ${esc(c.what||'')}" value="${esc(SG.q)}" data-sgq="${id}" autocomplete="off"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></div>`:''}<div class="sgl" id="sgl-${id}" role="listbox" aria-label="${esc(c.label||'Options')}">${open?sgList(id):''}</div>${c.multi?`<div class="sgf"><button class="bis-btn tertiary sm" type="button" data-act="sgcancel" data-id="${id}">Cancel</button><button class="bis-btn primary sm" type="button" data-act="sgdone" data-id="${id}">Done</button></div>`:''}</div></div>`; }
+function sgRedraw(id){ const w=document.querySelector(`[data-sg="${id}"]`); if(!w) return; const had=document.activeElement&&document.activeElement.id, sl=w.querySelector('.sgl'), st=sl?sl.scrollTop:0; w.outerHTML=sg(id,SGD[id]); const nl=document.querySelector(`[data-sg="${id}"] .sgl`); if(nl) nl.scrollTop=st; if(had){ const n=document.getElementById(had); if(n) n.focus(); } }
+function sgListRedraw(id){ const l=$('#sgl-'+id); if(l) l.innerHTML=sgList(id); const a=document.getElementById(`sgo-${id}-${SG.hl}`), f=document.getElementById('sgq-'+id)||document.getElementById('sgb-'+id); if(f){ if(a) f.setAttribute('aria-activedescendant',a.id); else f.removeAttribute('aria-activedescendant'); } if(a&&a.scrollIntoView) a.scrollIntoView({block:'nearest'}); }
+function sgOpen(id){ if(SG.open&&SG.open!==id){ const p=SG.open; SG.open=null; sgRedraw(p); } SG.open=id; SG.q=''; const c=SGD[id]; SG.dirty=false; if(c.multi) SG.snap=c.vals().slice(); SG.hl=c.multi?0:Math.max(0,c.opts().findIndex(x=>String(x.v)===String(c.val()))); sgRedraw(id); const f=document.getElementById('sgq-'+id)||document.getElementById('sgb-'+id); if(f) f.focus(); sgListRedraw(id); }
+/* multiple: picks are live (like BisSelect); the page catches up when the list closes (Esc, Tab, click elsewhere). c.after(refocus) */
+function sgClose(id,refocus,revert){ if(SG.open!==id) return; const c=SGD[id]; if(revert&&SG.snap){ c.set(SG.snap.slice()); SG.dirty=true; } SG.open=null; SG.q=''; const dirty=SG.dirty; SG.dirty=false; if(c.multi&&dirty&&c.after) c.after(!!refocus); else sgRedraw(id); if(refocus){ const b=document.getElementById('sgb-'+id); if(b) b.focus(); } }
+function sgPick(id,v){ const c=SGD[id]; if(c.multi){ const cur=c.vals().slice(), i=cur.map(String).indexOf(String(v)); if(i>=0) cur.splice(i,1); else { const o=c.opts().find(x=>String(x.v)===String(v)); cur.push(o?o.v:v); } c.set(cur); SG.dirty=true; sgRedraw(id); sgListRedraw(id); return; } SG.open=null; c.set(v); if(c.after) c.after(); const b=document.getElementById('sgb-'+id); if(b) b.focus(); }
+function sgPickHl(id){ const o=sgFiltered(id)[SG.hl]; if(o) sgPick(id,o.v); }
+
+/* Collapse type="step": done (check + Change), active (open), locked */
+function acc(n,title,status,body,inv){
+ const sr=status==='done'?' completed':status==='active'?' current step':' not available yet';
+ if(status==='done') return `<div class="bis-acc done"><span class="sn"><i class="fa-solid fa-check" aria-hidden="true"></i></span><span class="lb">${title}<span class="bis-sr">${sr}</span></span><button class="bis-btn link" type="button" data-act="sstep" data-n="${n}" aria-label="Change ${esc(title)}">Change</button></div>`;
+ if(status==='active') return `<section class="bis-acc active${inv?' invalid':''}" id="acc${n}" aria-label="${esc(title)}"><span class="sn">${n}</span><div class="lb">${title}<span class="bis-sr">${sr}</span></div><div class="body">${body}</div></section>`;
+ return `<div class="bis-acc" aria-disabled="true"><span class="sn">${n}</span><span class="lb">${title}<span class="bis-sr">${sr}</span></span></div>`;
+}
+function sLevels(){
+ const lv=P().lv, words=P().words;
+ return `<p class="ssub">Like a branch with sites inside it. Pick how many levels, then name each.</p>
+ <div class="lvl-row"><span class="lk">Levels</span><div class="bis-seg" role="radiogroup" aria-label="How many levels">${[1,2,3].map(n=>`<button type="button" role="radio" id="slv-${n}" aria-checked="${lv===n}" tabindex="${lv===n?0:-1}" data-act="slv" data-n="${n}">${n===1?'No, one level':n+' levels'}</button>`).join('')}</div></div>
+ ${ROWS[lv].map((r,i)=>`<div class="lvl-row"><span class="lk">${r}</span><div class="lchips" role="group" aria-label="${r} level name">${WORDS.map(w=>{ const on=words[i]===w, off=!on&&words.slice(0,lv).includes(w), at=off?words.slice(0,lv).indexOf(w):-1; return `<button type="button" class="lchip${on?' on':''}" id="w-${i}-${w}" aria-pressed="${on}" data-act="sword" data-i="${i}" data-w="${w}"${off?` disabled data-tip="Already selected as the ${ROWS[lv][at]} level."`:''}>${on?'<i class="fa-solid fa-check" aria-hidden="true"></i>':''}${w}</button>`; }).join('')}</div></div>`).join('')}
+ <div class="step-foot"><button class="bis-btn primary" id="s1go" type="button" data-act="sgo" data-n="1"${lvDone()?'':' disabled'}>Continue</button></div>`;
+}
+function sCreate(){
+ const w=lvW(), cnt=k=>P().sites.filter(x=>x.src===k).length;
+ const b=(n,word)=>n?`<span class="bis-badge green"><i class="fa-solid fa-check" aria-hidden="true"></i> ${n} ${word}</span>`:'';
+ const row=(ic,t,d,badge,btn)=>`<div class="srow-s"><i class="fa-solid ${ic} ic" aria-hidden="true"></i><div class="tx"><b>${t}</b><span>${d}</span></div><div class="act">${badge}${btn}</div></div>`;
+ const imp=src=>`<button class="bis-btn secondary sm" id="btn-imp-${src}" type="button" data-act="simp" data-src="${src}"><i class="fa-solid fa-download" aria-hidden="true"></i> Import</button>`;
+ return `<p class="ssub">Import from your location or assets, or create from scratch.</p>
+ ${row('fa-list-ul','From your location',`Bring in location names as ${plW(w)}.`,b(cnt('loc'),'imported'),imp('loc'))}
+ ${row('fa-truck-pickup','From your assets',`Bring in assets as ${plW(w)}.`,b(cnt('asset'),'imported'),imp('asset'))}
+ ${row('fa-circle-plus','From scratch','Create from scratch',b(cnt('scratch'),'created'),`<button class="bis-btn secondary sm" id="btn-new-site" type="button" data-act="snew"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> Create</button>`)}
+ <div class="step-foot"><button class="bis-btn primary" id="s2go" type="button" data-act="sgo" data-n="2"${P().sites.length?'':' disabled'}>Continue</button></div>`;
+}
+function sAttach(){
+ if(!S.crews.length) return `<div class="bis-empty embedded compact"><span class="e-ic"><i class="fa-solid fa-helmet-safety" aria-hidden="true"></i></span><div class="e-t">No crews to put in ${K().many} yet</div><div class="e-d">Create crews in the Crew step first.</div><button class="bis-btn secondary" type="button" data-act="goto" data-r="crew">Go to Crew</button></div>`;
+ return `<div class="nextcue"><p class="ssub">Add crews to each ${K().one} in the Created ${K().lmany} panel${P().sites.length>1?', or choose Bulk add crews to add the same crews to several at once':''}.</p><i class="fa-solid fa-arrow-right nc-r" aria-hidden="true"></i><i class="fa-solid fa-arrow-down nc-d" aria-hidden="true"></i></div>`;
+}
+/* Created sites panel: plain list, banner and crew boxes appear once crews are being attached (step 3) */
+const multiOn=()=>{ if(S.route!=='site'&&S.route!=='job') return false; const p=P(); return !!(p.multi&&p.step>=(JOB()?2:3)&&p.sites.length>1&&S.crews.length); };
+function sPanel(){
+ const sites=P().sites, three=P().step>=(JOB()?2:3), full=sitesWith(), all=sites.length&&full===sites.length; if(all) P().tried=false;
+ const canMulti=three&&sites.length>1&&S.crews.length>0, multi=multiOn();
+ const banner=three&&sites.length?(all?`<div class="bis-banner success" role="status"><span class="b-icon"><i class="fa-regular fa-circle-check" aria-hidden="true"></i></span><div class="b-body">All ${K().lmany} have crews!</div><span class="b-counter">${full}/${sites.length}</span></div>`:`<div class="bis-banner" role="status"><span class="b-icon"><i class="fa-solid fa-circle-info" aria-hidden="true"></i></span><div class="b-body">${K().many} need to have crews to be valid. You can add them later.</div><span class="b-counter">${full}/${sites.length}</span></div>`):'';
+ const pick=(s,ph)=>sg('sc-'+s.id,{multi:true,opts:()=>S.crews.map(c=>({v:c.id,l:c.name})),vals:()=>s.crews,set:a=>{ s.crews=a.slice(); },ph:ph||'Search crews',field:true,what:'crews',label:'Crews for '+s.name,none:'No crews found',after:(rf)=>{ render(); autosave(); if(rf!==false) focusFirst('#sgb-sc-'+s.id); }});
+ const box=s=>s.crews.length?`<div class="attbox"><div class="attk fld"><span>Crews</span>${pick(s)}</div></div>`:`<div class="noatt${P().tried?' err':''}">${pick(s,P().tried?'Add at least one crew. Search to add.':'No crews yet. Search to add one.')}</div>`;
+ const mbox=s=>{ const cs=s.crews.map(id=>S.crews.find(x=>x.id===id)).filter(Boolean); return cs.length?`<div class="attbox"><div class="attk"><span>Crews</span><button class="bis-btn link" type="button" data-act="sclear" data-id="${s.id}" aria-label="Clear the crews of ${esc(s.name)}">Clear</button></div><div class="chips">${cs.map(x=>sChip(x.name,`data-act="detach" data-c="${x.id}" data-s="${s.id}"`,`Remove ${esc(x.name)} from ${esc(s.name)}`)).join('')}</div></div>`:`<div class="noatt muted"><span>No crews yet</span></div>`; };
+ const body=sites.length?`${banner}<ul class="slist${multi?' multi':''}" id="slist" aria-label="Created ${K().lmany}">${sites.map(s=>`<li${multi&&P().csel.has(s.id)?' class="sel"':''}><div class="srow-h"><span class="n">${esc(s.name)}</span><span class="src">${SRC[s.src]}${s.atSite&&S.s.sites.some(x=>x.id===s.atSite)?' · At '+esc(S.s.sites.find(x=>x.id===s.atSite).name):''}</span>${multi?`<span class="bis-counter" title="${s.crews.length} ${s.crews.length===1?'crew':'crews'}">${s.crews.length}</span><input class="bis-check" type="checkbox" data-act="csel" data-id="${s.id}" aria-label="Select ${K().one} ${esc(s.name)}"${P().csel.has(s.id)?' checked':''}>`:`<button class="ed rm" type="button" data-act="siterm" data-id="${s.id}" aria-label="Remove ${esc(s.name)}"><i class="fa-regular fa-trash-can" aria-hidden="true"></i></button><button class="ed" type="button" data-act="sedit" data-id="${s.id}" aria-label="Edit ${esc(s.name)}"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></button>`}</div>${three?(multi?mbox(s):box(s)):''}</li>`).join('')}</ul>`
+  :`<div class="bis-empty embedded"><span class="e-ic"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span><div class="e-t">No ${K().lmany} yet</div><div class="e-d">Create them in Step ${JOB()?1:2}: Create ${K().many}</div></div>`;
+ return `<aside class="c-5 card${P().blk===2&&!sites.length?' invalid':''}${three&&sites.length&&!all&&S.crews.length&&!P().tried&&!multi?' next':''}"><div class="card-h2"><span>Created ${K().lmany}</span><span class="bis-counter">${sites.length}</span>${canMulti?`<button class="bis-btn secondary sm multi-t" type="button" data-act="multi" aria-pressed="${multi}">${multi?'<i class="fa-solid fa-check" aria-hidden="true"></i> Done':'<i class="fa-solid fa-list-check" aria-hidden="true"></i> Bulk add crews'}</button>`:''}</div>${body}</aside>`;
+}
+function site(){
+ const J=JOB(), s=P(), st=i=>i<s.step?'done':i===s.step?'active':'locked', tip=J?JOB_TIP:SITE_TIP, k=K();
+ const left=`<section class="c-7 card"><div class="card-h"><div class="grow"><h2>Set up your <span class="hint"><button class="bis-btn link" type="button">${k.many}</button><span class="bis-tip" role="tooltip">${tip}</span></span></h2><p class="sub">${J?'Make your Jobs from your locations, your assets or from scratch.':'Make your Sites from your user hierarchy or from scratch.'}</p></div><span class="hint r"><button class="bis-btn secondary sm" type="button"><i class="fa-regular fa-lightbulb" aria-hidden="true"></i> Help</button>${J?helpPop('How to set up Jobs',['Add Jobs from your locations, your assets or from scratch. Jobs are optional.','If a Job happens at one of your Sites, link it when you create it.','Put crews in your Jobs: tick crews and choose their Jobs, or choose the crews inside each Job. A crew can be in more than one Job.'],'Every Job needs a crew, but you can add them later.'):helpPop('How to set up Sites',['Choose how many levels you need, or none, and name them.','Add Sites from your locations, your assets or from scratch.','Put crews in your Sites: tick crews and choose their Sites, or choose the crews inside each Site. A crew can be in more than one Site.'],'Every Site needs a crew, but you can add them later.')}</span></div>
+ ${J?acc(1,'Create Jobs',st(1),sCreate())+acc(2,'Put crews in your Jobs',st(2),sAttach(),P().tried&&sitesWith()<P().sites.length):acc(1,'Do some of your places sit inside others?',st(1),sLevels(),P().blk===1&&s.step===1)+acc(2,'Create Sites',st(2),sCreate(),P().blk===2&&!s.sites.length)+acc(3,'Put crews in your Sites',st(3),sAttach(),P().tried&&sitesWith()<P().sites.length)}</section>`;
+ return `<div class="bis-grid setup">${setHead(S.route)}${left}${sPanel()}</div>`;
+}
+
+/* ---- Import from location / assets (Figma 452:30790 to 452:30804) ---- */
+function openImport(src){ S.ret=['#btn-imp-'+src]; S.m={kind:'imp',src,sel:new Set(),lvl:{},q:'',cat:'',hide:false,f:'all',lv:null,ctf:null}; modal(); focusFirst('#imq'); }
+const impItems=()=>S.m.src==='loc'?LOCS:ASSETS;
+const impImported=id=>P().sites.some(x=>x.locId===id||x.assetId===id);
+const impPickable=x=>!impImported(x.id)&&S.m.lvl[x.id]===undefined;
+function impVisible(){ const m=S.m, q=m.q.toLowerCase(); return impItems().filter(x=>x.n.toLowerCase().includes(q)&&(m.src!=='asset'||!m.cat||x.c===m.cat)&&(m.f==='all'||m.lvl[x.id]===m.f)&&!(m.hide&&m.lvl[x.id]!==undefined)); }
+function impRows(){
+ const m=S.m, v=impVisible(), W=lvW(), word=m.src==='loc'?'locations':'assets';
+ if(!v.length) return `<li class="bis-empty embedded compact" role="presentation"><span class="e-ic"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span><div class="e-t">No ${word} found</div><div class="e-d">${m.q?'Nothing matches “'+esc(m.q)+'”.':'Nothing in this view yet.'}</div></li>`;
+ const en=v.filter(impPickable), cur=en.some(x=>x.id===m.ctf)?m.ctf:(en[0]&&en[0].id);
+ return v.map(x=>{ const done=impImported(x.id), lv=m.lvl[x.id], sel=m.sel.has(x.id);
+  const dot=`<span class="bis-dot" style="background:${m.src==='loc'?LC[Math.min(x.d,4)]:'#AFAFB5'}"></span>`;
+  return `<li class="irow${sel?' sel':''}${(done||lv!==undefined)?' locked':''}">${dot}<div class="tx"><span>${esc(x.n)}</span><small>${m.src==='loc'?x.c+' users':esc(x.c)}</small></div>${done?'<span class="bis-created"><i class="fa-regular fa-circle-check" aria-hidden="true"></i> Imported</span>':lv!==undefined?`<span class="bis-chip sm pill">${esc(W[lv])}<button type="button" data-act="iunset" data-id="${x.id}" aria-label="Remove ${esc(W[lv])} from ${esc(x.n)}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></span>`:''}<input class="bis-check" type="checkbox" data-act="isel" data-id="${x.id}" data-rove="implist" aria-label="Select ${esc(x.n)}" tabindex="${x.id===cur?0:-1}"${done||lv!==undefined?' disabled':''}${sel?' checked':''}></li>`; }).join('');
+}
+function impModal(){
+ const m=S.m, box=$('#modal'), J=JOB(), W=lvW(), loc=m.src==='loc', tot=impItems().length, word=loc?'locations':'assets', assigned=J?m.sel.size:Object.keys(m.lvl).length;
+ if(m.f!=='all'&&!Object.values(m.lvl).some(v=>v===m.f)) m.f='all';
+ const pill=(k,l,c)=>`<button type="button" role="radio" id="imf-${k}" aria-checked="${m.f===k}" tabindex="${m.f===k?0:-1}" data-act="ifilter" data-f="${k}"${k!=='all'&&!c?` disabled data-tip="Nothing is set as ${l} yet. Select a ${loc?'location':'asset'} in the list, then choose ${l} as its level."`:''}>${l}<span class="bs">${c}</span></button>`;
+ const pills=pill('all','All',tot)+W.map((w,i)=>pill(i,w,Object.values(m.lvl).filter(v=>v===i).length)).join('');
+ const cat=loc?'':sg('icat',{opts:()=>[{v:'',l:'All categories'},...CATS.map(c=>({v:c,l:c}))],val:()=>m.cat,set:v=>{m.cat=v;},label:'Category',compact:true,after:()=>impRe()});
+ /* the selection bar stays in place (Mika, Nov 24): grey and "Nothing selected" until something is ticked; Select all is always there */
+ const none=!m.sel.size;
+ const vis=impVisible().filter(impPickable), allSel=vis.length>0&&vis.every(x=>m.sel.has(x.id)), anyLv=!J&&Object.keys(m.lvl).length>0;
+ const bar=none?`<div class="bis-bulkbar inmodal none" role="region" aria-label="Selected ${word}"><span class="sel">Nothing selected</span><span class="grow"></span>${vis.length?'<button class="bis-btn link" type="button" data-act="iall">Select all</button>':''}${anyLv?'<button class="bis-btn secondary" type="button" data-act="iclrlv" aria-label="Clear all levels">Clear</button>':''}</div>`
+  :`<div class="bis-bulkbar inmodal" role="region" aria-label="Selected ${word}"><span class="sel">${m.sel.size} selected</span>${J?'':sg('ilv',{opts:()=>W.map((w,i)=>({v:i,l:w})),val:()=>m.lv,set:v=>{m.lv=Number(v); m.lvErr=false;},ph:'Select level',compact:true,pill:true,next:m.lv===null&&!m.lvErr,invalid:!!m.lvErr&&m.lv===null,label:'Level for the selected '+word,after:()=>impRe()})}<span class="grow"></span>${allSel?'':'<button class="bis-btn link" type="button" data-act="iall">Select all</button>'}<button class="bis-btn link" type="button" data-act="idesel">Deselect all</button>${J?'':'<span class="bdiv" role="separator" aria-orientation="vertical"></span><button class="bis-btn primary" id="iacc" type="button" data-act="iaccept">Accept</button>'}</div>`;
+ box.innerHTML=`<div class="bis-overlay" data-act="overlay"><div class="bis-modal narrow" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="bis-modal-h"><i class="fa-solid fa-location-dot lead" aria-hidden="true"></i><span id="mTitle">${loc?'Import from location':'Import from assets'}</span><button class="x" type="button" data-act="mclose" aria-label="Close">×</button></div>
+ <div class="bis-modal-b"><div class="bis-label">${loc?'Location':'Assets'} <span class="bis-counter">${tot}</span></div><p class="bis-help">Select which ${word} you want imported as ${aW(W)}.</p>
+ ${J?'':`<div class="imp-bar"><div class="bis-seg rect imp" role="radiogroup" aria-label="Show by level">${pills}</div><span class="grow"></span>${m.f==='all'?`<button class="bis-btn link" type="button" data-act="ihide" aria-pressed="${m.hide}"><i class="fa-regular ${m.hide?'fa-eye-slash':'fa-eye'}" aria-hidden="true"></i> ${m.hide?'Show':'Hide'} selected</button>`:''}</div>`}
+ <div class="imp-bar"><div class="bis-input" style="flex:1"><input id="imq" type="search" placeholder="Search" aria-label="Search ${word}" value="${esc(m.q)}" data-act="iq" autocomplete="off"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></div>${cat}</div>
+ <ul class="implist" id="implist" aria-label="${loc?'Locations':'Assets'}">${impRows()}</ul>${bar}</div>
+ <div class="bis-modal-f">${(assigned||m.sel.size)?`<button class="bis-btn tertiary" type="button" data-act="mclose">Cancel</button><button class="bis-btn primary" id="mSave" type="button" data-act="msave"${assigned?'':' disabled'}>Create</button>`:`<button class="bis-btn secondary" type="button" data-act="mclose">Close</button>`}</div></div></div>`;
+}
+/* re-draw the import modal and keep the list scroll and the focused row */
+function impRe(focusSel){ const sc=$('#implist')?$('#implist').scrollTop:0, a=document.activeElement, sel=focusSel||(a&&a.dataset&&a.dataset.act&&a.dataset.id?`[data-act="${a.dataset.act}"][data-id="${a.dataset.id}"]`:a&&a.id?'#'+a.id:null); modal(); const l=$('#implist'); if(l) l.scrollTop=sc; if(sel) focusFirst(sel); }
+function impCreate(){
+ const m=S.m, J=JOB(), items=impItems().filter(x=>J?(m.sel.has(x.id)&&impPickable(x)):m.lvl[x.id]!==undefined); if(!items.length) return;
+ const made=new Map(P().sites.filter(x=>x.locId).map(x=>[x.locId,x]));
+ items.forEach(x=>{ const st={id:(J?'j':'s')+(++P().n),name:x.n,src:m.src,locId:m.src==='loc'?x.id:null,assetId:m.src==='asset'?x.id:null,level:J?undefined:m.lvl[x.id],parentId:'',atSite:'',sup:[],crews:[]};
+  if(m.src==='loc'){ const idx=LOCS.indexOf(x); let d=x.d; for(let j=idx-1;j>=0&&d>0;j--){ if(LOCS[j].d<d){ d=LOCS[j].d; const p=made.get(LOCS[j].id); if(p&&p.level<st.level){ st.parentId=p.id; break; } } } made.set(x.id,st); }
+  P().sites.push(st); });
+ const n=items.length; S.m=null; render(); focusFirst(S.ret); autosave(); toast(n+(n===1?' '+K().lone+' imported':' '+K().lmany+' imported'));
+}
+
+/* ---- Create site / Edit site (Figma 478:10608, 478:10484) ---- */
+function openSiteModal(o,ret){ S.ret=ret||[]; S.m=Object.assign({kind:'site',job:JOB(),atSite:'',sup:[],supq:'',open:null,hl:{members:0,sup:0},name:'',level:P().lv===1?0:null,parentId:''},o); modal(); const n=$('#mName'); if(n){ n.focus(); n.select(); } }
+const saveOk=()=>{ const m=S.m; return !!m.name.trim()&&(m.kind!=='site'||m.job||m.level!==null); };
+function siteModal(){
+ const m=S.m, box=$('#modal'), J=!!m.job, W=lvW(), edit=m.type==='edit', st=edit&&siteById(m.siteId), loc=st&&st.locId&&LOCS.find(l=>l.id===st.locId);
+ const again=()=>{ modal(); };
+ const at=sg('satsite',{opts:()=>[{v:'',l:'None'},...S.s.sites.map(x=>({v:x.id,l:x.name}))],val:()=>m.atSite||'',set:v=>{ m.atSite=v; },ph:'None',full:true,label:'At a Site',after:again});
+ const lvl=sg('slevel',{opts:()=>W.map((w,i)=>({v:i,l:w})),val:()=>m.level,set:v=>{ m.level=Number(v); const p=m.parentId&&siteById(m.parentId); if(p&&!(p.level<m.level)) m.parentId=''; },ph:'Select level',full:true,label:'Level',after:again});
+ const parents=[{v:'',l:'None'},...P().sites.filter(x=>x.id!==m.siteId&&m.level!==null&&x.level<m.level).map(x=>({v:x.id,l:x.name}))];
+ const par=sg('sparent',{opts:()=>parents,val:()=>m.parentId,set:v=>{ m.parentId=v; },ph:'None',full:true,label:'Inside another site',disabled:m.level===null||m.level===0,after:again});
+ box.innerHTML=`<div class="bis-overlay" data-act="overlay"><div class="bis-modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="bis-modal-h"><i class="fa-solid fa-location-dot lead" aria-hidden="true"></i><span id="mTitle">${edit?'Edit ':'Create '}${J?'job':'site'}</span><button class="x" type="button" data-act="mclose" aria-label="Close">×</button></div>
+ <div class="bis-modal-b"><div class="mgrid"><div class="bis-field"><label class="bis-label" for="mName">Name <span class="req" aria-hidden="true">*</span></label><div class="bis-input"><input id="mName" value="${esc(m.name)}" placeholder="Type ${J?'job':'site'} name" aria-required="true" autocomplete="off"></div></div>
+ <div class="lvl-loc">${J?'':`<div><div class="bis-label">Level</div>${lvl}</div>`}${loc?`<div><div class="bis-label">Location</div><span class="hint"><span class="loc-chip" tabindex="0" aria-describedby="loc-tip"><span class="dot" style="background:${LC[Math.min(loc.d,4)]}"></span>${esc(loc.n)}</span><span class="bis-tip" id="loc-tip" role="tooltip">From your location hierarchy: ${esc(loc.path)}</span></span></div>`:''}</div>
+ ${J?`<div><div class="bis-label">At a Site <span class="bis-opt">optional</span></div><p class="bis-help">Is this job done at one of your Sites?</p>${at}</div>`:`<div><div class="bis-label">Inside another site</div><p class="bis-help">Is this site nested under another site?</p>${par}</div>`}
+ <div><div class="bis-label">Supervisor(s) <span class="bis-opt">optional</span></div><p class="bis-help">The selected supervisor(s) will have access to this ${J?'job':'site'}</p>${pickerHtml(m,'sup','Search users to add as supervisors')}</div></div></div>
+ <div class="bis-modal-f"><button class="bis-btn tertiary" type="button" data-act="mclose">Cancel</button><button class="bis-btn primary" id="mSave" type="button" data-act="msave"${saveOk()?'':' disabled'}>${edit?'Save':'Create '+(J?'job':'site')}</button></div></div></div>`;
+ pkRefresh('sup');
+}
+function siteSave(){
+ const m=S.m; if(!saveOk()) return;
+ const J=!!m.job, w=J?'Job':'Site';
+ if(m.type==='edit'){ Object.assign(siteById(m.siteId),{name:m.name.trim(),sup:m.sup.slice()},J?{atSite:m.atSite||''}:{level:m.level,parentId:m.parentId}); toast(w+' saved'); }
+ else { P().sites.push(Object.assign({id:(J?'j':'s')+(++P().n),name:m.name.trim(),src:'scratch',locId:null,assetId:null,sup:m.sup.slice(),crews:[]},J?{atSite:m.atSite||''}:{level:m.level,parentId:m.parentId})); toast(w+' created'); }
+ S.m=null; render(); focusFirst(S.ret,'#btn-new-site'); autosave();
+}
+
+/* ============ Routine (step 4): the first routine, forms only (S-3.1, S-3.6) ============
+   Source: the "First routine" step of the earlier onboarding prototype (no Figma frame yet). Out of Wave 1 (D-100): the phone preview and "From a folder". */
+const FORMS=['Field Level Hazard Assessment (FLHA)','Foreman Daily Sign-Off','Toolbox Talk','Equipment Pre-Use Check','Traffic Control Plan','Spill Kit Check'];
+const RWHEN=['Every working day','Every day','Weekly'], RDAYS=['Monday','Tuesday','Wednesday','Thursday','Friday'];
+const rTplBody=()=>({tpl:'sod',name:'Start of Day',when:'Every working day',day:'Monday',dirty:false,items:[{id:'i'+(++S.r.seq),slot:'FLHA',n:null,req:true},{id:'i'+(++S.r.seq),slot:'Equipment pre-use check',n:null,req:true}]});
+const rById=id=>S.r.list.find(r=>r.id===id);
+const rFormsLeft=r=>FORMS.filter(f=>!r.items.some(i=>i.n===f));
+const rTargets=()=>[{v:'alljobs',l:'Every new Job',t:'Job'},...S.s.sites.map(x=>({v:x.id,l:x.name,t:'Site'})),...S.j.sites.map(x=>({v:x.id,l:x.name,t:'Job'})),...S.crews.map(x=>({v:x.id,l:x.name,t:'Crew'}))];
+const rApply=r=>{ const ok=rTargets().map(x=>x.v); return r.apply.filter(v=>ok.includes(v)); };
+const rChanged=(r,focus)=>{ r.dirty=true; render(); autosave(); if(focus) focusFirst(focus); };
+function rSeg(r,it){ const nm=esc(it.n||it.slot||'this item');
+ return `<div class="bis-seg sm" role="radiogroup" aria-label="Required or optional: ${nm}">${[['req','Required',it.req],['opt','Optional',!it.req]].map(([v,l,on])=>`<button type="button" role="radio" aria-checked="${on}" tabindex="${on?0:-1}" id="rq-${r.id}-${it.id}-${v}" data-act="ritemreq" data-r="${r.id}" data-id="${it.id}" data-v="${v}">${l}</button>`).join('')}</div>`; }
+function rItem(r,it){
+ const k=r.id+'-'+it.id, open=!it.n, ed=S.r.editing===k, miss=S.r.err&&open&&it.req, nm=esc(it.n||it.slot||'item');
+ const del=`<button class="ed rm" type="button" data-act="ritemrm" data-r="${r.id}" data-id="${it.id}" aria-label="Remove ${nm}"><i class="fa-regular fa-trash-can" aria-hidden="true"></i></button>`;
+ if(open||ed){
+  const pickr=sg('rp-'+k,{opts:()=>rFormsLeft(r).map(f=>({v:f,l:f})),val:()=>'',set:v=>{ it.n=v; it.open=false; S.r.editing=null; r.dirty=true; },ph:'Search your forms'+(it.slot?' for '+it.slot:''),full:true,search:true,what:'forms',label:'Pick your form'+(it.slot?' for '+it.slot:''),none:'No forms match. Try another word.',after:()=>{ render(); autosave(); focusFirst(`[data-act=ritemed][data-r="${r.id}"][data-id="${it.id}"]`); }});
+  return `<div class="ritem open${miss?' err':''}"><div class="rih"><i class="fa-regular fa-file-lines" aria-hidden="true"></i><span class="rin">${open?`<b>${esc(it.slot)}</b> <span class="rpick">· pick your form</span>`:`<span class="mut">Change ${esc(it.n)}</span>`}</span>${!open?`<button class="bis-btn link" type="button" data-act="ritemcancel">Cancel</button>`:''}${rSeg(r,it)}${del}</div>${pickr}${miss?`<div class="rmsg" role="alert"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Pick one of your forms for ${esc(it.slot)}, or make it Optional.</div>`:''}</div>`; }
+ return `<div class="ritem"><i class="fa-regular fa-file-lines" aria-hidden="true"></i><span class="rin"><span class="rnl"><span class="rnn" title="${nm}">${esc(it.n)}</span><button class="ed" type="button" data-act="ritemed" data-r="${r.id}" data-id="${it.id}" aria-label="Change ${nm}"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></button></span>${it.slot&&!it.n.toLowerCase().includes(it.slot.toLowerCase())?`<span class="rsub">for ${esc(it.slot)}</span>`:''}</span><span class="rkind">Form</span>${rSeg(r,it)}${del}</div>`;
+}
+function rAdd(r){
+ if(S.r.adding!==r.id) return `<div class="radd"><button class="bis-btn secondary sm" type="button" id="radd-${r.id}" data-act="raddopen" data-r="${r.id}"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> Add item</button></div>`;
+ const pk=sg('ra-'+r.id,{opts:()=>rFormsLeft(r).map(f=>({v:f,l:f})),val:()=>'',set:v=>{ r.items.push({id:'i'+(++S.r.seq),slot:'',n:v,req:true}); S.r.adding=null; r.dirty=true; },ph:'Search forms',full:true,search:true,what:'forms',label:'Add a form',none:'No forms match. Try another word.',after:()=>{ render(); autosave(); focusFirst('#radd-'+r.id); }});
+ return `<div class="radd"><div class="radd-row"><span class="rkind">Form</span><span class="grow">${pk}</span><button class="bis-btn link" type="button" data-act="raddcancel" data-r="${r.id}">Cancel</button></div><p class="rnote"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <b>Optional</b> items show as “Also available”: on demand, like an incident form. They never count as missing.</p></div>`;
+}
+function rApplyHtml(r){
+ const ap=rApply(r), tg=rTargets(), name=v=>(tg.find(x=>x.v===v)||{l:v}).l;
+ const pk=sg('rap-'+r.id,{multi:true,opts:()=>tg,vals:()=>rApply(r),set:a=>{ r.apply=a.slice(); },ph:'Search Sites, Jobs and crews',field:true,up:true,what:'Sites, Jobs and crews',label:'Where '+r.name+' applies',none:'No matches',after:(rf)=>{ render(); autosave(); if(rf!==false) focusFirst('#sgb-rap-'+r.id); }});
+ return `<div class="rfoot"><div class="rfh">Applies to <span class="bis-opt">optional</span></div>${pk}
+  ${ap.length?`
+  <div class="rhow"><span class="mut">How many are needed at each one</span> <b>Each person</b></div><p class="rnote">You can change it for each place on its Requirements.</p>`
+  :`<div class="rhint"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Won’t run until it’s on a Site or Job.</div>`}</div>`;
+}
+function rCard(r){
+ const ren=S.r.rename===r.id, tpl=!!r.tpl;
+ const name=ren?`<input class="radin" id="rn-${r.id}" value="${esc(r.name)}" placeholder="Name it, e.g. End of day" aria-label="Routine name" maxlength="60" data-act="rname" data-id="${r.id}" autocomplete="off">`
+  :`<span class="rhn"><b title="${esc(r.name)}">${esc(r.name)}</b><button class="ed" type="button" data-act="rren" data-id="${r.id}" aria-label="Rename ${esc(r.name)}"><i class="fa-regular fa-pen-to-square" aria-hidden="true"></i></button></span>`;
+ const when=sg('rw-'+r.id,{opts:()=>RWHEN.map(w=>({v:w,l:w})),val:()=>r.when,set:v=>{ r.when=v; r.dirty=true; },label:'When',compact:true,after:()=>{ render(); autosave(); focusFirst('#sgb-rw-'+r.id); }});
+ const day=r.when==='Weekly'?sg('rd-'+r.id,{opts:()=>RDAYS.map(w=>({v:w,l:w})),val:()=>r.day,set:v=>{ r.day=v; r.dirty=true; },label:'Day of the week',compact:true,after:()=>{ render(); autosave(); focusFirst('#sgb-rd-'+r.id); }}):'';
+ return `<section class="rcard" aria-label="${esc(r.name)}"><div class="rhd">${name}${tpl?`<span class="bis-badge gray" title="From a template">Template</span><button class="bis-btn link" type="button" data-act="rreset" data-id="${r.id}"${r.dirty?'':' disabled'}>Reset</button>`:''}<span class="grow"></span><button class="ed rm" type="button" data-act="rrm" data-id="${r.id}" aria-label="Remove ${esc(r.name)}"><i class="fa-regular fa-trash-can" aria-hidden="true"></i></button></div>
+  <div class="rwhen"><span class="mut">When</span>${when}${day}</div>
+  <div class="ritems">${r.items.map(it=>rItem(r,it)).join('')||'<div class="rnote" style="padding:8px 0">Nothing in it yet.</div>'}${rAdd(r)}</div>${rApplyHtml(r)}</section>`;
+}
+function routine(){
+ const R=S.r, tab=R.tab, has=R.list.some(r=>r.tpl==='sod');
+ const tabs=`<div class="bis-tabs" role="tablist" aria-label="Where to add a routine from">${[['tpl','Templates'],['scratch','From scratch']].map(([k,l])=>`<button type="button" role="tab" id="rt-${k}" aria-selected="${tab===k}" tabindex="${tab===k?0:-1}" data-act="rtab" data-t="${k}">${l}</button>`).join('')}</div>`;
+ const body=tab==='tpl'?`<p class="ssub">Our routine templates</p><div class="rtrow"><div class="tx"><b>Start of Day</b><span>Every working day, before work starts</span></div><span class="mut">2 items</span><button class="bis-btn secondary sm" id="btn-radd" type="button" data-act="radd" aria-pressed="${has}">${has?'<i class="fa-solid fa-check" aria-hidden="true"></i> Added':'<i class="fa-solid fa-circle-plus" aria-hidden="true"></i> Add'}</button></div>`
+  :`<p class="ssub">Start an empty routine. You’ll name it and add forms in Your routines.</p><button class="bis-btn secondary sm" id="btn-rnew" type="button" data-act="rnew"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> Create</button>`;
+ const left=`<section class="c-5 card"><div class="card-h"><div class="grow"><h2>Add routines</h2><p class="sub">A routine is what’s expected on a schedule. Add as many as you like, from any of these.</p></div><span class="hint r"><button class="bis-btn secondary sm" type="button"><i class="fa-regular fa-lightbulb" aria-hidden="true"></i> Help</button>${helpPop('How to set up a routine',['Add one from <b>Templates</b>, or choose <b>Create</b> under <b>From scratch</b>.','In <b>Your routines</b>, choose when it runs, then add the forms your crews fill in. Mark each one <b>Required</b> or <b>Optional</b>.','Under <b>Applies to</b>, choose the Sites, Jobs or crews it covers. It won’t run until it’s on one.'],'Choose Create routine when you’re done, or Skip for now. You can add more routines later.')}</span></div>${tabs}<div class="rbody">${body}</div></section>`;
+ const right=`<aside class="c-7 card${S.tried&&S.tried.routine&&!R.list.length?' invalid':''}"><div class="card-h2"><span>Your routines</span><span class="bis-counter">${R.list.length}</span></div>${R.list.length?R.list.map(rCard).join(''):`<div class="bis-empty embedded"><span class="e-ic"><i class="fa-solid fa-repeat" aria-hidden="true"></i></span><div class="e-t">No routines yet</div><div class="e-d">Add a template, or start from scratch.</div><button class="bis-btn secondary" type="button" data-act="rnew"><i class="fa-solid fa-circle-plus" aria-hidden="true"></i> Create from scratch</button></div>`}</aside>`;
+ return `<div class="bis-grid setup">${setHead('routine')}${left}${right}</div>`;
+}
+function rNameSave(id,v,refocus){ const r=rById(id); if(!r||S.r.rename!==id) return; S.r.rename=null; v=(v||'').trim(); if(!v&&!r.tpl) v='Untitled routine'; if(v&&v!==r.name){ r.name=v; r.dirty=true; autosave(); } render(); if(refocus) focusFirst(`[data-act=rren][data-id="${id}"]`); }
+function rFinish(msg,done){ S.bannerOff=true; go('home'); if(done){ S.ret=[]; S.m={kind:'done'}; modal(); focusFirst('#fmGo'); announce('Field Management is set up'); } else toast(msg); }
+/* success modal on Home after Create routine (Mika, Nov 24): BisModal success variant, icon in the title, tertiary Close + primary Go to Field Management */
+function doneModal(){ $('#modal').innerHTML=`<div class="bis-overlay" data-act="overlay"><div class="bis-modal svc" role="dialog" aria-modal="true" aria-labelledby="mTitle" aria-describedby="mDesc"><button class="x" type="button" data-act="mclose" aria-label="Close dialog">×</button><div class="svc-ic"><i class="fa-solid fa-check" aria-hidden="true"></i></div><h2 id="mTitle">Field Management is set up</h2><p id="mDesc">Your crews, Sites and routines are ready. You can change any of them later in Field Management.</p><div class="svc-f"><button class="bis-btn tertiary" type="button" data-act="mclose">Close</button><button class="bis-btn primary" id="fmGo" type="button" data-act="gofm">Go to Field Management</button></div></div></div>`; }
+function rCreate(){
+ if(!S.r.list.length){ (S.tried=S.tried||{}).routine=true; render(); toast('Add a routine first, or choose Skip for now.',null,'err'); return; }
+ const bad=S.r.list.some(r=>r.items.some(i=>!i.n&&i.req));
+ if(bad){ S.r.err=true; render(); const el=document.querySelector('.ritem.err'); if(el){ el.scrollIntoView({block:'center',behavior:'smooth'}); const b=el.querySelector('.sgb'); if(b) b.focus(); } announce('Pick one of your forms for each required item, or make it optional'); return; }
+ S.r.err=false; const n=S.r.list.length; rFinish(n===1?'Routine created':n+' routines created',true);
+}
+function rClick(a,t,id){
+ const r=t.dataset.r?rById(t.dataset.r):rById(id);
+ if(a==='rtab'){ S.r.tab=t.dataset.t; render(); return focusFirst('#rt-'+S.r.tab); }
+ if(a==='radd'){ const i=S.r.list.findIndex(x=>x.tpl==='sod'); if(i>=0){ S.r.list.splice(i,1); announce('Template removed'); } else { S.r.list.push(Object.assign({id:'r'+(++S.r.n),apply:[]},rTplBody())); announce('Template added'); } render(); autosave(); return focusFirst('#btn-radd'); }
+ if(a==='rnew'){ const id2='r'+(++S.r.n); S.r.list.push({id:id2,tpl:null,name:'',when:'Every working day',day:'Monday',dirty:false,items:[],apply:[]}); S.r.rename=id2; render(); autosave(); const el=$('#rn-'+id2); if(el) { el.focus(); el.scrollIntoView({block:'center'}); } return; }
+ if(a==='rrm'){ S.r.list=S.r.list.filter(x=>x.id!==id); render(); autosave(); return focusFirst('#btn-radd','#btn-rnew'); }
+ if(a==='rren'){ S.r.rename=id; render(); const el=$('#rn-'+id); if(el){ el.focus(); el.select(); } return; }
+ if(a==='rreset'){ const keep={id:r.id,apply:r.apply}; Object.assign(r,rTplBody(),keep); S.r.rename=null; S.r.editing=null; render(); autosave(); return focusFirst(`[data-act=rren][data-id="${id}"]`); }
+ if(a==='ritemreq'){ const it=r.items.find(x=>x.id===id); it.req=t.dataset.v==='req'; return rChanged(r,`#rq-${r.id}-${id}-${t.dataset.v}`); }
+ if(a==='ritemrm'){ r.items=r.items.filter(x=>x.id!==id); return rChanged(r,`#radd-${r.id}`); }
+ if(a==='ritemed'){ S.r.editing=r.id+'-'+id; render(); return sgOpen('rp-'+r.id+'-'+id); }
+ if(a==='ritemcancel'){ const k=S.r.editing; S.r.editing=null; render(); return focusFirst(k?`[data-act=ritemed][data-r="${k.split('-')[0]}"][data-id="${k.split('-')[1]}"]`:''); }
+ if(a==='raddopen'){ S.r.adding=r.id; render(); return sgOpen('ra-'+r.id); }
+ if(a==='raddcancel'){ S.r.adding=null; render(); return focusFirst('#radd-'+r.id); }
+ if(a==='rdetach'){ r.apply=r.apply.filter(x=>x!==id); render(); autosave(); return focusFirst('#sgb-rap-'+r.id); }
+ if(a==='rcreate') return rCreate();
+ if(a==='rskip') return rFinish('Skipped for now');
+}
+
+/* ============ Events ============ */
+document.addEventListener('click',e=>{
+ const t=e.target.closest('[data-act]'); if(!t) return; const a=t.dataset.act, id=t.dataset.id;
+ if(t.type==='checkbox'){ if(t.getAttribute('aria-disabled')==='true'){ e.preventDefault(); } return; }
+ if(a==='overlay'){ if(e.target===t) closeModal(); return; }
+ if(a==='nav'){ const n=t.dataset.n; if(n==='Home') go('home'); else if(n==='Field') go(S.route==='home'?(S.started?'crew':'welcome'):S.route); return; }
+ if(a==='goto') return go(t.dataset.r);
+ if(a==='remind'){ S.bannerOff=true; render(); return toast('We’ll remind you next time'); }
+ if(a==='dismiss'){ S.bannerOff=true; return render(); }
+ if(a==='toast') return toast(t.dataset.m);
+ if(a==='retry') return autosave();
+ if(a==='make'){ const l=LOCS.find(x=>x.id===id); return openModal({type:'create',locId:id,name:l.n,members:l.members.slice()},[`input[data-act=sel][data-id="${id}"]`]); }
+ if(a==='scratch') return openModal({type:'create',name:''},['[data-act=scratch]','#crewlist .ed']);
+ if(a==='edit'){ const c=S.crews.find(x=>x.id===id); return openModal({type:'edit',crewId:id,locId:c.locId,name:c.name,members:c.members.slice(),sup:c.sup.slice()},[c.locId?`input[data-act=sel][data-id="${c.locId}"]`:'',`[data-act=edit][data-id="${id}"].ed`]); }
+ if(a==='mclose') return closeModal();
+ if(a==='msave') return saveModal();
+ if(a==='pkdone') return closePk(t.dataset.k,false);
+ if(a==='pkcancel') return closePk(t.dataset.k,true);
+ if(a==='pick'){ const k=t.dataset.k; pick(k,id); const i=document.querySelector(`[data-pkin="${k}"]`); if(i) i.focus(); return; }
+ if(a==='unpick'){ const k=t.dataset.k; unpick(k,id); const i=document.querySelector(`[data-pkin="${k}"]`); if(i) i.focus(); return; }
+ if(a==='bulkall'){ LOCS.filter(r=>!crewOfLoc(r.id)).forEach(r=>S.sel.add(r.id)); render(); announce(S.sel.size+' selected'); return focusFirst('[data-act=bulkall]'); }
+ if(a==='bulkclear'){ S.sel.clear(); render(); announce('Selection cleared'); return focusFirst(`input[data-act=sel][data-id="${S.tf}"]`); }
+ if(a==='bulkmake') return bulkMake();
+ /* Site step */
+ if(a==='slv'){ P().lv=+t.dataset.n; render(); return focusFirst('#slv-'+P().lv); }
+ if(a==='sword'){ const i=+t.dataset.i, w=t.dataset.w; P().words[i]=P().words[i]===w?null:w; render(); return focusFirst('#w-'+i+'-'+w); }
+ if(a==='sgo'){ if(JOB()){ P().step=2; render(); autosave(); return focusFirst('#slist .sgq','#acc2 button'); } if(+t.dataset.n===1){ P().sites.forEach(x=>{ x.level=Math.min(x.level,P().lv-1); }); P().step=2; render(); autosave(); return focusFirst('#btn-imp-loc'); } P().step=3; render(); autosave(); return focusFirst('#slist .sgq','#acc3 button'); }
+ if(a==='sstep'){ P().step=+t.dataset.n; render(); return focusFirst((JOB()?['#btn-imp-loc','#slist .sgq']:['#slv-'+P().lv,'#btn-imp-loc','#slist .sgq'])[P().step-1]); }
+ if(a==='simp') return openImport(t.dataset.src);
+ if(a==='snew') return openSiteModal({type:'create'},['#btn-new-site']);
+ if(a==='sedit'){ const st=siteById(id); return openSiteModal({type:'edit',siteId:id,name:st.name,level:st.level,parentId:st.parentId,atSite:st.atSite||'',sup:st.sup.slice()},[`[data-act=sedit][data-id="${id}"]`]); }
+ 
+ if(a==='sclear'){ siteById(id).crews=[]; render(); focusFirst(`input[data-act=csel][data-id="${id}"]`,`[data-act=sedit][data-id="${id}"]`); return autosave(); }
+ if(a==='detach'){ const st=siteById(t.dataset.s), c=t.dataset.c; st.crews=st.crews.filter(x=>x!==c); render(); focusFirst(`input[data-act=csel][data-id="${t.dataset.s}"]`,`[data-act=sedit][data-id="${t.dataset.s}"]`); return autosave(); }
+ if(a==='sgopen') return SG.open===id?sgClose(id,true):sgOpen(id);
+ if(a==='sgfopen'){ if(SG.open!==id) return sgOpen(id); const f=document.getElementById('sgb-'+id); return f&&f.focus(); }
+ if(a==='sgclear'){ const c=SGD[id]; c.set([]); SG.dirty=true; if(SG.open===id){ sgRedraw(id); return sgListRedraw(id); } return c.after?c.after():sgRedraw(id); }
+ if(a==='sgrm'){ const c=SGD[id]; c.set(c.vals().filter(x=>String(x)!==String(t.dataset.v))); return c.after?c.after():sgRedraw(id); }
+ if(a==='sgdone') return sgClose(id,true,false);
+ if(a==='sgcancel') return sgClose(id,true,true);
+ if(a==='crewrm') return removeCrew(id);
+ if(a==='siterm') return removeSite(id);
+ if(a==='undo'){ runUndo(); return; }
+ if(a==='ccont'){ if(S.crews.length) return go('site'); (S.tried=S.tried||{}).crew=true; render(); toast('Create at least one crew to continue.',null,'err'); return; }
+ if(a==='scont'){ const J=JOB(), st=P().sites, nx=J?'routine':'job'; if(J&&!st.length) return go(nx); const need=st.filter(x=>!x.crews.length); if(st.length&&!need.length) return go(nx); if(!st.length){ const lv=!J&&P().step===1; P().blk=lv?1:2; render(); toast(lv?`Answer “Do some of your places sit inside others?” first, then create your ${K().many}.`:`Create a ${K().one} first, or choose “I don’t need ${K().many}”.`,null,'err'); setTimeout(()=>{ const el=document.getElementById('acc'+P().blk); if(el){ el.scrollIntoView({block:'center',behavior:'smooth'}); const f=el.querySelector('button,input,select,[tabindex="0"]'); if(f) f.focus({preventScroll:true}); } },60); return; } P().tried=true; if(P().step<(J?2:3)) P().step=J?2:3; render(); const first=need[0]; toast(`${need.length} ${need.length===1?K().one:K().many} still ${need.length===1?'needs':'need'} crews. Add crews, or choose “${sitesWith()?'Save and add the rest later':'Add crews later'}”.`,null,'err'); setTimeout(()=>{ const el=$('#sgb-sc-'+first.id); if(el){ el.scrollIntoView({block:'center',behavior:'smooth'}); el.focus({preventScroll:true}); } },60); return; }
+ if(a==='gofm'){ closeModal(); toast('Field Management opens here in the real product'); return; }
+ if(a==='toastx'){ $('#toast').innerHTML=''; UNDO=null; return; }
+ if(a==='sgpick') return sgPick(id,t.dataset.v);
+ if(/^r(tab|add|new|rm|ren|reset|create|skip|detach|addopen|addcancel)$|^ritem/.test(a)) return rClick(a,t,id);
+ /* import modal */
+ if(a==='ifilter'){ S.m.f=t.dataset.f==='all'?'all':Number(t.dataset.f); return impRe(); }
+ if(a==='ihide'){ S.m.hide=!S.m.hide; return impRe('[data-act=ihide]'); }
+ if(a==='multi'){ const p=P(); p.multi=!p.multi; p.csel.clear(); p.targets=[]; SG.open=null; render(); announce(p.multi?'Bulk add crews: tick '+K().lmany+', then choose crews':'Bulk add crews is off'); return focusFirst('[data-act=multi]'); }
+ if(a==='msall'){ P().sites.forEach(x=>P().csel.add(x.id)); render(); announce(P().csel.size+' selected'); return focusFirst('[data-act=msall]','[data-act=mdesel]'); }
+ if(a==='mdesel'){ P().csel.clear(); P().targets=[]; render(); announce('Selection cleared'); return focusFirst('[data-act=msall]','[data-act=multi]'); }
+ if(a==='msadd'){ const p=P(), sel=p.sites.filter(x=>p.csel.has(x.id)), cr=p.targets.filter(id=>S.crews.some(x=>x.id===id)); if(!sel.length||!cr.length) return; sel.forEach(s=>cr.forEach(cid=>{ if(!s.crews.includes(cid)) s.crews.push(cid); })); p.csel.clear(); p.targets=[]; render(); autosave(); toast((cr.length===1?'1 crew':cr.length+' crews')+' added to '+(sel.length===1?sel[0].name:sel.length+' '+K().many)); return focusFirst('[data-act=msall]','[data-act=multi]'); }
+ if(a==='iall'){ impVisible().filter(impPickable).forEach(x=>S.m.sel.add(x.id)); announce(S.m.sel.size+' selected'); return impRe('[data-act=iall]'); }
+ if(a==='idesel'){ S.m.sel.clear(); S.m.lvErr=false; announce('Selection cleared'); return impRe('[data-act=iall]'); }
+ if(a==='iclrlv'){ S.m.lvl={}; S.m.f='all'; announce('Levels cleared'); return impRe('[data-act=iall]'); }
+ if(a==='iaccept'){ const m=S.m; if(m.lv===null){ m.lvErr=true; announce('Choose a level first'); impRe(); const b=document.getElementById('sgb-ilv'); if(b) b.focus(); return; } const n=m.sel.size; m.sel.forEach(x=>{ m.lvl[x]=m.lv; }); m.sel.clear(); m.lv=null; announce(n+(n===1?' item':' items')+' given a level'); return impRe('#imq'); }
+ if(a==='iunset'){ delete S.m.lvl[id]; return impRe(); }
+});
+document.addEventListener('click',e=>{ const ch=e.target.closest&&e.target.closest('.bis-chip'); if(ch&&!e.target.closest('button')){ const b=ch.querySelector(':scope>button[data-act]'); if(b){ e.stopPropagation(); e.preventDefault(); b.click(); return; } } },true);
+document.addEventListener('click',e=>{ const row=e.target.closest&&e.target.closest('.irow,.crow-h,.bis-trow,.slist.multi>li'); if(!row||e.target.closest('button,input,a,[data-sg]')) return; const cb=row.querySelector('input.bis-check:not(:disabled)'); if(cb&&cb.getAttribute('aria-disabled')!=='true') cb.click(); });
+document.addEventListener('mousedown',e=>{ if(e.target.closest('.dd,.sgl')) e.preventDefault(); });  /* keep the field focused while picking with the mouse */
+document.addEventListener('change',e=>{ const t=e.target;
+ if(t.dataset.act==='sel'){ if(t.getAttribute('aria-disabled')==='true'){ t.checked=false; return; } t.checked?S.sel.add(t.dataset.id):S.sel.delete(t.dataset.id); S.tf=t.dataset.id; keepFocus(render); announce(S.sel.size+' selected'); }
+ else if(t.dataset.act==='csel'){ const id=t.dataset.id; t.checked?P().csel.add(id):P().csel.delete(id); P().ctf=id; keepFocus(render); announce(P().csel.size+' selected'); }
+ else if(t.dataset.act==='isel'){ const id=t.dataset.id, m=S.m; t.checked?m.sel.add(id):m.sel.delete(id); m.ctf=id; impRe(); announce(m.sel.size+' selected'); }
+ else if(t.dataset.act==='selall'){ LOCS.filter(r=>!crewOfLoc(r.id)).forEach(r=>t.checked?S.sel.add(r.id):S.sel.delete(r.id)); keepFocus(render); announce(S.sel.size+' selected'); } });
+document.addEventListener('input',e=>{ const t=e.target;
+ if(t.id==='mName'){ S.m.name=t.value; const b=$('#mSave'); if(b) b.disabled=!saveOk(); }
+ else if(t.dataset.act==='iq'){ S.m.q=t.value; $('#implist').innerHTML=impRows(); }
+ else if(t.dataset.sgq){ const sid=t.dataset.sgq, v=t.value; if(SG.open!==sid){ sgOpen(sid); const f=document.getElementById('sgb-'+sid); if(f) f.value=v; } SG.q=v; SG.hl=0; sgListRedraw(sid); }
+ else if(t.dataset.pkin){ const k=t.dataset.pkin; S.m[k+'q']=t.value; openPk(k); S.m.hl[k]=0; pkRefresh(k); }
+ else if(t.dataset.act==='msearch'){ const q=t.value.toLowerCase(); $('#mlist').innerHTML=peopleList(S.m.members.filter(id=>user(id).n.toLowerCase().includes(q)||user(id).l.includes(q)),{key:'locked',label:'Crew members, from your user hierarchy',empty:'No one matches “'+t.value.replace(/[<>&]/g,'')+'”',icon:'fa-magnifying-glass'}); } });
+document.addEventListener('focusin',e=>{ const t=e.target;
+ if(t.dataset&&t.dataset.rove){ const g=t.dataset.rove; if(g==='cl2') P().ctf=t.dataset.id; if(g==='implist'&&S.m) S.m.ctf=t.dataset.id; document.querySelectorAll('[data-rove="'+g+'"]').forEach(i=>{ i.tabIndex=i===t?0:-1; }); }
+ const k=t.dataset&&t.dataset.pkin; if(k&&!S.m.skip){ openPk(k); pkRefresh(k); }
+ if(t.matches&&t.matches('#tree input[data-act=sel]')){ S.tf=t.dataset.id; document.querySelectorAll('#tree input[data-act=sel]').forEach(i=>{ i.tabIndex=i===t?0:-1; }); } });
+document.addEventListener('focusout',e=>{ const w=e.target.closest&&e.target.closest('[data-pk]'); if(!w) return; const k=w.dataset.pk; setTimeout(()=>{ if(S.m&&S.m.open===k&&!document.activeElement.closest('[data-pk="'+k+'"]')){ S.m.open=null; pkRefresh(k); } },120); });
+document.addEventListener('click',e=>{ const i=e.target.closest&&e.target.closest('[data-pkin]'); if(i&&S.m&&S.m.open!==i.dataset.pkin){ openPk(i.dataset.pkin); pkRefresh(i.dataset.pkin); } });
+
+document.addEventListener('focusout',e=>{ const t0=e.target; if(t0.dataset&&t0.dataset.act==='rname') return rNameSave(t0.dataset.id,t0.value,false); const w=e.target.closest&&e.target.closest('[data-sg]'); if(!w) return; const id=w.dataset.sg; setTimeout(()=>{ if(SG.open===id&&!document.activeElement.closest('[data-sg="'+id+'"]')) sgClose(id,false); },120); });
+document.addEventListener('click',e=>{ if(SG.open&&!e.target.closest('[data-sg]')) sgClose(SG.open,false); });
+/* clicking in a list or on the field's frame keeps the cursor in the field, so the list stays open while you pick (BisSelect) */
+document.addEventListener('mousedown',e=>{ const t=e.target; if(t.closest&&t.closest('.bis-sg .sgp, .bis-sg .selbox')&&t.tagName!=='INPUT') e.preventDefault(); });
+/* arrow, Home and End move between the ticks of a list */
+function navList(e,sel){ const boxes=[...document.querySelectorAll(sel)].filter(i=>!i.disabled), i=boxes.indexOf(e.target); if(i<0) return false; let n=null; if(e.key==='ArrowDown') n=boxes[i+1]; else if(e.key==='ArrowUp') n=boxes[i-1]; else if(e.key==='Home') n=boxes[0]; else if(e.key==='End') n=boxes[boxes.length-1]; else return false; e.preventDefault(); if(n) n.focus(); return true; }
+
+/* ============ KEYBOARD (Mika, Nov 22: every field and selection works from the keyboard) ============
+   Modal: opens with the Name field focused; Tab and Shift+Tab stay inside; Esc closes (first Esc closes an open list); Enter in Name moves on to the
+          next field; Ctrl/Cmd+Enter saves from anywhere; focus goes back to where it came from.
+   BisSelect (combobox): type to filter; Arrow Down/Up open and move; Enter adds the highlighted person (the first match is highlighted as you type);
+          the list stays open for the next person; Esc closes; Backspace in an empty field removes the last chip; Tab leaves.
+   BisTreeList: one Tab stop; Arrow Up/Down, Home/End move between rows; Space ticks; Enter creates (or edits) that row's crew; Ctrl/Cmd+A selects all;
+          Ctrl/Cmd+Enter creates the ticked rows; Esc clears the selection. Changes are announced to screen readers. */
+document.addEventListener('keydown',e=>{
+ const t=e.target, m=S.m, mod=e.ctrlKey||e.metaKey;
+ if(mod&&(e.key==='z'||e.key==='Z')&&UNDO&&!m&&!(t.matches&&t.matches('input,textarea'))){ e.preventDefault(); return runUndo(); }
+ if(t.dataset&&t.dataset.act==='rname'){ if(e.key==='Enter'){ e.preventDefault(); return rNameSave(t.dataset.id,t.value,true); } if(e.key==='Escape'){ e.preventDefault(); const id=t.dataset.id; S.r.rename=null; render(); return focusFirst(`[data-act=rren][data-id="${id}"]`,'#btn-rnew'); } }
+ if(t.dataset&&t.dataset.act==='ritemreq'){ const k={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key]; if(k){ e.preventDefault(); const r=rById(t.dataset.r), it=r.items.find(x=>x.id===t.dataset.id); it.req=k<0; return rChanged(r,`#rq-${r.id}-${it.id}-${it.req?'req':'opt'}`); } return; }
+ if(t.dataset&&t.dataset.act==='rtab'){ const k={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key]; if(k){ e.preventDefault(); S.r.tab=k>0?'scratch':'tpl'; render(); return focusFirst('#rt-'+S.r.tab); } return; }
+ /* single select (BisSelect): Arrow keys open and move, Enter opens or picks, Esc closes, Tab leaves */
+ const sgw=t.closest&&t.closest('[data-sg]');
+ if(sgw&&(t.classList.contains('sgb')||t.classList.contains('sgq'))){ const id=sgw.dataset.sg, open=SG.open===id, n=sgFiltered(id).length;
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){ e.preventDefault(); if(!open) return sgOpen(id); SG.hl=e.key==='ArrowDown'?Math.min(SG.hl+1,n-1):(SG.hl<=0?n-1:SG.hl-1); return sgListRedraw(id); }
+  if(e.key==='Backspace'&&SGD[id].multi&&t.classList.contains('sgq')&&!t.value){ const v=SGD[id].vals(); if(v.length){ e.preventDefault(); SGD[id].set(v.slice(0,-1)); SG.dirty=true; sgRedraw(id); if(open) sgListRedraw(id); else if(SGD[id].after) SGD[id].after(); } return; }
+  if(e.key==='Enter'&&!mod){ e.preventDefault(); return open?sgPickHl(id):sgOpen(id); }
+  if(e.key==='Escape'&&open){ e.preventDefault(); e.stopPropagation(); return sgClose(id,true); }
+  if(e.key==='Tab'&&open&&!SGD[id].multi) sgClose(id,false);
+ }
+ /* combobox */
+ const k=t.dataset&&t.dataset.pkin;
+ if(m&&k){ const list=pkList(k);
+  if(e.key==='ArrowDown'){ e.preventDefault(); if(m.open!==k){ openPk(k); m.hl[k]=0; } else m.hl[k]=Math.min(m.hl[k]+1,list.length-1); return pkRefresh(k); }
+  if(e.key==='ArrowUp'){ e.preventDefault(); if(m.open!==k){ openPk(k); m.hl[k]=list.length-1; } else m.hl[k]=m.hl[k]<=0?list.length-1:m.hl[k]-1; return pkRefresh(k); }
+  if(e.key==='Enter'&&!mod&&m.open===k&&list.length){ e.preventDefault(); return pick(k,list[m.hl[k]].id); }
+  if(e.key==='Escape'&&m.open===k){ e.preventDefault(); e.stopPropagation(); m.open=null; return pkRefresh(k); }
+  if(e.key==='Backspace'&&!t.value&&m[k].length){ e.preventDefault(); return unpick(k,m[k][m[k].length-1]); }
+ }
+ if(m){
+  if(m.kind==='imp'&&t.matches&&t.matches('#implist input[data-act=isel]')){
+   if(navList(e,'#implist input[data-act=isel]')) return;
+   if((e.key==='a'||e.key==='A')&&mod){ e.preventDefault(); impVisible().filter(impPickable).forEach(x=>m.sel.add(x.id)); announce(m.sel.size+' selected'); return impRe(); }
+   if(e.key==='Enter'&&!mod){ e.preventDefault(); if(m.sel.size&&!JOB()) return sgOpen('ilv'); return t.click(); }
+  }
+  if(e.key==='Escape'){ e.preventDefault(); const w=t.closest&&t.closest('[data-pk]'); if(w&&m.open===w.dataset.pk) return closePk(w.dataset.pk,false); if(m.kind==='imp'&&m.sel.size){ m.sel.clear(); announce('Selection cleared'); return impRe(); } return closeModal(); }
+  if(e.key==='Enter'&&mod){ e.preventDefault(); return saveModal(); }
+  if(e.key==='Enter'&&t.id==='mName'){ e.preventDefault(); const n=$('#sgb-slevel')||$('#sgb-satsite')||document.querySelector('[data-pkin=members]')||$('#mSearch')||document.querySelector('[data-pkin=sup]'); if(n) n.focus(); return; }
+  if(e.key==='Tab'){ const f=[...$('.bis-modal').querySelectorAll('button:not([disabled]),input:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(n=>n.offsetParent!==null); if(!f.length) return; const first=f[0], last=f[f.length-1];
+   if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); } else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); } }
+  return;
+ }
+ /* tree */
+ /* Site step: crew list, levels control */
+ if(t.matches&&t.matches('#cl2 input[data-act=csel]')){
+  if(navList(e,'#cl2 input[data-act=csel]')) return;
+  if((e.key==='a'||e.key==='A')&&mod){ e.preventDefault(); P().sites.forEach(x=>P().csel.add(x.id)); keepFocus(render); announce(P().csel.size+' selected'); }
+  else if(e.key==='Enter'){ e.preventDefault(); if(P().csel.size) sgOpen('btarget'); else if(!mod) t.click(); }
+  else if(e.key==='Escape'&&P().csel.size){ e.preventDefault(); P().csel.clear(); keepFocus(render); announce('Selection cleared'); }
+  return;
+ }
+ if(t.matches&&t.matches('.bis-seg.imp button')){ const k={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key]; if(k){ e.preventDefault(); const bs=[...t.parentElement.querySelectorAll('button:not(:disabled)')], n=bs[Math.max(0,Math.min(bs.length-1,bs.indexOf(t)+k))]; if(n){ S.m.f=n.dataset.f==='all'?'all':Number(n.dataset.f); impRe('#imf-'+n.dataset.f); } } return; }
+ if(t.matches&&t.matches('.bis-seg.filter button')){ const k={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key]; if(k){ e.preventDefault(); const bs=[...t.parentElement.querySelectorAll('button:not(:disabled)')], n=bs[Math.max(0,Math.min(bs.length-1,bs.indexOf(t)+k))]; if(n){ P().filter=n.dataset.f; render(); focusFirst('#fp-'+P().filter); } } return; }
+ if(t.matches&&t.matches('.bis-seg button')){ const k={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key]; if(k){ e.preventDefault(); P().lv=Math.max(1,Math.min(3,P().lv+k)); render(); focusFirst('#slv-'+P().lv); } return; }
+ if(t.matches&&t.matches('#tree input[data-act=sel]')){
+  const boxes=[...document.querySelectorAll('#tree input[data-act=sel]')], i=boxes.indexOf(t);
+  if(e.key==='ArrowDown'){ e.preventDefault(); if(boxes[i+1]) boxes[i+1].focus(); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); if(boxes[i-1]) boxes[i-1].focus(); }
+  else if(e.key==='Home'){ e.preventDefault(); boxes[0].focus(); }
+  else if(e.key==='End'){ e.preventDefault(); boxes[boxes.length-1].focus(); }
+  else if(e.key==='Enter'&&mod){ e.preventDefault(); bulkMake(); }
+  else if(e.key==='Enter'){ e.preventDefault(); const row=t.closest('.bis-trow'), b=row.querySelector('[data-act=edit]'); if(b) b.click(); else { const c=row.querySelector('input[data-act=sel]'), l=c&&LOCS.find(x=>x.id===c.dataset.id); if(l) openModal({type:'create',locId:l.id,name:l.n,members:l.members.slice()},[`input[data-act=sel][data-id="${l.id}"]`]); } }
+  else if((e.key==='a'||e.key==='A')&&mod){ e.preventDefault(); LOCS.filter(r=>!crewOfLoc(r.id)).forEach(r=>S.sel.add(r.id)); keepFocus(render); announce(S.sel.size+' selected'); }
+  else if(e.key==='Escape'&&S.sel.size){ e.preventDefault(); S.sel.clear(); keepFocus(render); announce('Selection cleared'); }
+ }
+});
+$('#jump').addEventListener('change',e=>go(e.target.value));
+addEventListener('keydown',e=>{ if(e.key==='Escape'&&!S.m&&multiOn()&&!e.target.closest('.bis-sg')){ const p=P(); p.multi=false; p.csel.clear(); p.targets=[]; render(); focusFirst('[data-act=multi]'); } });
+(function(){ const j=$('#jump'), rv=$('#review'), menu=$('#rvmenu'), cb=$('#cb'), pc=$('#pc');
+ const now=()=>{ $('#now').textContent=j.options[j.selectedIndex].text; };
+ const step=d=>{ const n=j.options.length; j.selectedIndex=(j.selectedIndex+d+n)%n; go(j.value); now(); };
+ $('#pv').onclick=()=>step(-1); $('#nx').onclick=()=>step(1); j.addEventListener('change',now); now();
+ cb.onclick=()=>{ const o=menu.classList.toggle('on'); cb.setAttribute('aria-expanded',o); now(); };
+ const fold=f=>{ document.body.classList.toggle('folded',f); rv.classList.remove('peek'); menu.classList.remove('on'); cb.setAttribute('aria-expanded','false'); };
+ $('#hide').onclick=()=>fold(true); pc.onclick=()=>fold(false);
+ const peek=o=>{ if(document.body.classList.contains('folded')) rv.classList.toggle('peek',o); };
+ pc.onmouseenter=()=>peek(true); pc.onfocus=()=>peek(true); rv.onmouseleave=()=>{ if(!menu.classList.contains('on')) peek(false); };
+ document.addEventListener('click',e=>{ if(menu.classList.contains('on')&&!e.target.closest('.rv-more')){ menu.classList.remove('on'); cb.setAttribute('aria-expanded','false'); } });
+ addEventListener('keydown',e=>{ if(/SELECT|INPUT|TEXTAREA/.test(e.target.tagName)||e.target.isContentEditable) return; if(e.key.toLowerCase()==='h'&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!S.m) fold(!document.body.classList.contains('folded')); });
+})();
+$('#portal').addEventListener('change',e=>{ S.portal=e.target.value; render(); });
+$('#ssdemo').addEventListener('change',e=>{ const v=e.target.value; clearTimeout(saveT);
+ if(v==='live'){ SAVE.status=S.crews.length?'saved':'idle'; SAVE.skew=0; SAVE.at=Date.now(); }
+ else if(v==='saving'){ SAVE.status='saving'; } else if(v==='err'){ SAVE.status='error'; }
+ else { SAVE.status='saved'; SAVE.at=Date.now(); SAVE.skew=(v==='min12'?12*60000:3*3600000); }
+ ssDraw(); });
+$('#reset').addEventListener('click',()=>{ const p=S.portal; S=fresh(); S.portal=p; SAVE.status='idle'; SAVE.skew=0; $('#ssdemo').value='live'; go('home'); });
+window.addEventListener('hashchange',()=>{ const r=location.hash.replace('#/',''); if(r&&r!==S.route&&ROUTES.includes(r)){ S.route=r; S.m=null; render(); } });
+{ const r=location.hash.replace('#/',''); if(ROUTES.includes(r)){ S.route=r; if(r!=='home') S.started=true; } render(); }
+</script>
+</body>
+</html>
