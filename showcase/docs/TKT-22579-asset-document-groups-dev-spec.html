@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>22579 · Asset Documents: Document Groups · Dev spec</title>
+<style>
+/* Document layout (Layout 1), BIS theme. Built from the document system. Colours only through theme roles. */
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 'Segoe UI',system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--pr)}
+:focus-visible{outline:2px solid var(--pr);outline-offset:2px;border-radius:4px}
+.lab{font:600 11px 'Segoe UI',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--t2)}
+.hdr{background:var(--sf);border-bottom:1px solid var(--ln);flex:none}
+.hdr-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;min-height:46px;padding:6px 16px}
+.hdr h1{margin:0;font:400 16px/1.2 'Segoe UI',sans-serif}.hdr h1 b{font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--t2)}
+.pill{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:999px;border:1px solid var(--ln);background:var(--sf);font-size:12px;font-weight:600;color:var(--t2);white-space:nowrap}
+.pill.pr{background:var(--tint);color:var(--pr);border-color:color-mix(in srgb,var(--pr) 35%,var(--ln))}
+.pill.ok{color:var(--ok)}.pill.chg{color:var(--warn)}.pill.drop{color:var(--err)}
+.sp{flex:1}
+.btn{display:inline-flex;align-items:center;border:1px solid var(--ln);background:var(--sf);border-radius:var(--radius-s);padding:4px 10px;min-height:30px;font-weight:600;font-size:13px;color:var(--pr);text-decoration:none}
+.btn:hover{background:var(--bg)}
+.ask{background:var(--tint);border-bottom:1px solid var(--ln);border-left:4px solid var(--a2);padding:8px 16px;font-size:13.5px}
+.shell{flex:1;min-height:0;display:grid;grid-template-columns:220px minmax(0,1fr)}
+.side{border-right:1px solid var(--ln);background:var(--sf);overflow:auto;padding:10px 8px;display:flex;flex-direction:column;gap:2px}
+.side .lab{padding:8px 8px 4px}
+.nv{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;width:100%;padding:7px 10px;border-radius:var(--radius-s);font-size:13.5px;cursor:pointer;color:var(--tx)}
+.nv:hover{background:var(--bg)}
+.nv.on{background:var(--tint);color:var(--pr);font-weight:600}
+.nv:focus-visible{outline:2px solid var(--pr);outline-offset:-2px}
+main{overflow:auto;padding:22px 28px 90px;scroll-behavior:smooth}
+.col{max-width:980px}
+section{margin-bottom:34px}
+h2{font-size:20px;margin:0 0 10px;line-height:1.25;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+h3{font-size:14px;margin:16px 0 6px}
+p{margin:0 0 10px;max-width:74ch}ul,ol{margin:0 0 10px 18px;padding:0}li{margin:3px 0}
+code{font:12.5px ui-monospace,Consolas,monospace;background:var(--bg);border:1px solid var(--ln);border-radius:4px;padding:0 4px}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:var(--radius);padding:14px 16px}
+.callout{background:var(--tint);border-left:3px solid var(--a2);border-radius:0 var(--radius-s) var(--radius-s) 0;padding:10px 14px;margin:0 0 12px;font-size:13.5px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.two .lab{display:block;color:var(--a2);margin-bottom:4px}
+.tw{overflow-x:auto;margin:8px 0}
+table{width:100%;border-collapse:collapse;background:var(--sf);border:1px solid var(--ln);border-radius:var(--radius);font-size:13.5px}
+th{text-align:left;font:600 11px 'Segoe UI';letter-spacing:.06em;text-transform:uppercase;padding:8px 12px;background:var(--bg);color:var(--t2);border-bottom:1px solid var(--ln)}
+td{padding:8px 12px;border-bottom:1px solid var(--ln);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.id{font:600 12.5px ui-monospace,Consolas,monospace;color:var(--pr);white-space:nowrap}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--t2);margin-bottom:18px}
+.modal{max-width:420px;border:1px solid var(--ln);border-radius:var(--radius);background:var(--sf);padding:14px 16px;font-size:13.5px}
+.modal .t{font-weight:700;font-size:15px}.modal .s{color:var(--t2);margin:2px 0 10px}
+.modal .o{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--ln)}
+.modal .r{width:14px;height:14px;border:2px solid var(--t2);border-radius:50%;flex:none}
+.modal .r.on{border-color:var(--pr);background:var(--pr);box-shadow:inset 0 0 0 2px var(--sf)}
+.modal .b{display:flex;gap:8px;margin-top:10px}
+.modal .b span{padding:5px 12px;border-radius:var(--radius-s);border:1px solid var(--ln);font-weight:600}
+.modal .b span.p{background:var(--pr);color:var(--onpr);border-color:var(--pr)}
+@media(max-width:900px){.shell{grid-template-columns:minmax(0,1fr)}.side{display:none}.two{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){main{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-row">
+    <h1><b>Asset Documents: Document Groups</b> · Dev spec</h1>
+    <div class="chips"><span class="pill pr">Draft for review</span><span>BIS PM 22579</span><span>·</span><span>Web ref 20628</span><span>·</span><span>Dev case 22647</span><span>·</span><span>Owner: Mikaela Yeo</span><span>·</span><span>Nov 27, 2026</span></div>
+    <span class="sp"></span>
+    <a class="btn" href="https://www.figma.com/design/kY70hWPhUMF5Cviz8Kseiu/Mobile?node-id=7020-9893" target="_blank" rel="noopener">Open in Figma ↗</a>
+  </div>
+  <div class="ask"><b>This is a dev spec.</b> I need Ebin Shaji and Abhijith A to check the component gaps (section 2) and the backend fields (section 9), and to size the Required and Archived update (section 7), by <i>[date]</i>.</div>
+</header>
+
+<div class="shell">
+  <nav class="side" id="side" aria-label="Sections"><span class="lab">On this page</span></nav>
+  <main id="main"><div class="col">
+    <div class="legend"><span><span class="pill ok">✓</span> exists in the mobile design system</span><span><span class="pill chg">⚠</span> exists, needs a decision</span><span><span class="pill drop">✗</span> could not identify it</span></div>
+
+    <section id="what" data-t="1 · What the user gets"><h2>1 · What the user gets</h2>
+      <div class="callout"><b>Display only.</b> The Documents tab shows the groups an admin made on web, on a redesigned section. Mobile does not create, rename, remove or move groups. No drag and drop, no archive, no edit.</div>
+      <ul>
+        <li><b>Documents section:</b> sort, a Grouping toggle, a small Upload button, group cards above ungrouped documents.</li>
+        <li><b>Every document is a card.</b> Tap the card to open it. No eye icon.</li>
+        <li><b>One action on a card:</b> the upload icon. No file yet: it uploads. A file already there: it replaces. The existing upload and replace modals and snackbars stay as they are.</li>
+        <li><b>No upload button on a group.</b> Upload lives on a card and on the section.</li>
+        <li><b>All three sections</b> (Required, Documents, Archived) use the Accordion component.</li>
+      </ul>
+      <p>Design: Figma Mobile file, page "22579 - Asset Document Groups", section "Document Updated" · <a href="https://www.figma.com/design/kY70hWPhUMF5Cviz8Kseiu/Mobile?node-id=7020-9893" target="_blank" rel="noopener">open in Figma ↗</a>. Required and Archived, old vs updated: nodes <code>7020:9694</code> and <code>7020:9692</code>. Current section: <code>7017:948</code>.</p></section>
+
+    <section id="map" data-t="2 · Screen and component map"><h2>2 · Screen and component map</h2>
+      <div class="tw"><table><tr><th style="width:17%">Element</th><th style="width:22%">Component</th><th>Spec</th><th style="width:30%">Check</th></tr>
+        <tr><td>Three section shells</td><td>SafeTapp <b>Accordion</b>, fullWidth</td><td>Header padding 14, label 18/22 Semibold, chevron 18, 10 gap before the chevron. 1px divider between panels. Figma: local "Accordion Panel".</td><td><span class="pill ok">✓</span></td></tr>
+        <tr><td>Documents panel body</td><td>Accordion body</td><td>Design: fill <code>#f8f8f8</code>, padding 10/14/24/14, 16 gap. Code: fill <code>color/surface/default</code>, padding 10/14/14, no gap.</td><td><span class="pill chg">⚠</span> The design differs from the code. Needs a body background and padding option, or design adopts white.</td></tr>
+        <tr><td>Sort</td><td><b>Sorting</b> + Sort Icon (library, from 17209)</td><td>71×25. Options: Name, Last Uploaded Date.</td><td><span class="pill ok">✓</span> <span class="pill chg">⚠</span> Confirm the option list can be set per screen.</td></tr>
+        <tr><td>Grouping toggle</td><td><b>Grouping Feature</b>, Group Icon, Grouping Pop Over, Switch (library, from 17209)</td><td>Icon 25×25. Popover: switch, "Grouping", "Show documents in their groups". Hidden when the asset has no groups.</td><td><span class="pill ok">✓</span></td></tr>
+        <tr><td>Upload (section)</td><td><b>Button</b>, small, secondary, leading icon</td><td>34 high, padding 8, gap 8, radius 4, label 14/18 Semibold, icon <code>arrow-up-to-line</code>.</td><td><span class="pill ok">✓</span> The design frame is detached. Relink it to the component.</td></tr>
+        <tr><td>Group header</td><td><b>Group List Card</b>, <code>type="folder"</code></td><td>See "Group List Card spec" below.</td><td><span class="pill ok">✓</span></td></tr>
+        <tr><td>Group footer</td><td><code>statusIndicators</code>: "Expired: n"</td><td>12/20 secondary text, icon <code>exclamation-circle</code> 14, gap 4. No footer when n = 0.</td><td><span class="pill ok">✓</span></td></tr>
+        <tr><td>Group "Last uploaded" line</td><td>Not used</td><td><code>secondaryText</code> stays empty, so the title sits alone.</td><td><span class="pill ok">✓</span></td></tr>
+        <tr><td>Group choice (new document)</td><td>Bottom-sheet select modal</td><td>Title, close ✕, subtitle, radio list, two buttons. Copy in section 3. Shown only when the asset has at least one group.</td><td><span class="pill chg">⚠</span> Could not identify the modal component. Confirm which SafeTapp modal and radio list to use.</td></tr>
+        <tr><td>Empty state</td><td>File icon with a cross, one line, the section Upload button</td><td>Copy in section 3.</td><td><span class="pill chg">⚠</span> Confirm the existing empty-state component.</td></tr>
+        <tr><td>Group children</td><td><b>List Card</b></td><td>12 gap under the header. The screen decides which cards render.</td><td><span class="pill ok">✓</span></td></tr>
+        <tr><td>Separator</td><td>None</td><td>A plain 1px line between the last group and the ungrouped documents.</td><td><span class="pill ok">✓</span> Not a component.</td></tr>
+        <tr><td>Document card</td><td><b>List Card</b></td><td>Width = screen width − 32. Radius 4, shadow 0 0 3 rgba(0,0,0,.25), padding 12, gap 16. Title 16/24 Semibold. Sub line 12/16 secondary ("Expiry: 28 Aug 2025"). <b>No 7px left status bar.</b></td><td><span class="pill chg">⚠</span> The forms List Card has a left bar and a ⋮. Confirm the card can drop the bar and take a custom trailing action.</td></tr>
+        <tr><td>File-type icon</td><td>20px column: docx blue, PDF red</td><td>Not in the library. "Card Icon" frames are detached.</td><td><span class="pill drop">✗</span></td></tr>
+        <tr><td>Status chip</td><td><b>Badge Card</b> (local to the Figma file)</td><td>Height 24, padding 4/8, radius 12, 12/16 Semibold. Expired: red text on a light red fill.</td><td><span class="pill ok">✓</span> Expired. <span class="pill chg">⚠</span> Not Uploaded (grey), Uploaded and Approved (green), Denied (red): not confirmed in the library.</td></tr>
+        <tr><td>Upload icon on card</td><td><b>IconButton</b> in the card's trailing slot</td><td>28 circle, light grey fill, icon <code>arrow-up-to-line</code> 11×13.</td><td><span class="pill chg">⚠</span> 28px is under a 44px tap target. Add hit slop. Needs spoken labels "Upload" and "Replace".</td></tr>
+        <tr><td>Upload and replace flow</td><td>Existing source sheet, form and snackbars</td><td>Source sheet: Open Camera, Choose From Gallery, Choose File. Unchanged.</td><td><span class="pill ok">✓</span></td></tr></table></div>
+
+      <h3>Group List Card spec</h3>
+      <p class="lab" style="max-width:none">From Figma node 7017:2808 and the SafeTapp Storybook</p>
+      <ul>
+        <li>Width 368. Header fill <code>color/surface/default</code>, radius 8, shadow 0 0 3 rgba(0,0,0,.25), padding 12.</li>
+        <li><b>Closed:</b> two layers stacked underneath (354 and 362 wide, offset 8 and 4), meaning "more of these". <b>Open:</b> layers gone, 1px border <code>color/stroke/default</code>, children 12 below.</li>
+        <li>Title row: folder icon (10.5×14, gap 6), then label 16/24 Semibold, two lines then an ellipsis. Count pill: fill <code>color/surface/secondary-lightest</code>, radius 80, padding 2/6, number 14/18 Semibold secondary text, chevron 8×5 (turns 180° when open). Counts above 99 show "99+".</li>
+        <li>Controlled component: the screen owns <code>expanded</code>. Open and close take 300 ms. Reduced motion: instant.</li>
+        <li>The screen passes translated strings: <code>expandedAnnouncement</code>, <code>collapsedAnnouncement</code>, <code>showChildrenLabel</code>, <code>hideChildrenLabel</code>, <code>accessibilityLabel</code>.</li>
+      </ul></section>
+
+    <section id="copy" data-t="3 · Group choice modal and copy"><h2>3 · Group choice modal and copy</h2>
+      <p>Shown when the user taps Upload on the section and the asset has at least one group. With no groups it is skipped.</p>
+      <div class="two"><div class="modal" aria-label="Group choice modal">
+        <div class="t">Upload Document</div><div class="s">Choose where to add this document.</div>
+        <div class="o"><span class="r on"></span>General (Not in a group)</div>
+        <div class="o"><span class="r"></span>Inspections</div>
+        <div class="o"><span class="r"></span>Training</div>
+        <div class="b"><span class="p">Select</span><span>Cancel</span></div></div>
+      <div class="card"><span class="lab">Copy</span><ul><li>Title: <b>Upload Document</b></li><li>Subtitle: <b>Choose where to add this document.</b></li><li>First option: <b>General (Not in a group)</b>, selected by default. Then one option per group, in group order.</li><li>Buttons: <b>Select</b> (primary), <b>Cancel</b></li></ul></div></div>
+      <h3>Empty state copy</h3>
+      <p><i>[copy to confirm: Mika picks from these options]</i></p>
+      <ul><li>Current: "No document is available".</li><li>Suggested, upload allowed: "No documents yet". Optional second line: "Tap Upload to add one."</li><li>Read-only or inactive asset: "No documents available".</li><li>A group opened with no documents: "No documents in this group".</li></ul></section>
+
+    <section id="behaviour" data-t="4 · Behaviour"><h2>4 · Behaviour</h2>
+      <div class="tw"><table><tr><th style="width:56px">#</th><th>Rule</th></tr>
+        <tr><td class="id">1</td><td>Documents section order: sort control row, then groups, then a separator, then ungrouped documents. Required and Archived are not grouped.</td></tr>
+        <tr><td class="id">2</td><td>The Grouping toggle is hidden when the asset has no groups (a flat list only). When groups exist the toggle shows. Off = one flat list. On = groups. <b>To confirm:</b> which state it opens on (ticket and web: Grouped once a group exists).</td></tr>
+        <tr><td class="id">2a</td><td><b>Section Upload with groups:</b> tap Upload, then the group choice modal, then Select, then the existing source sheet and form. With no groups the modal is skipped. The card's upload icon never shows the modal: replace keeps the group, and uploading to a Not Uploaded document keeps its group.</td></tr>
+        <tr><td class="id">3</td><td>Groups are collapsed by default. Tap the header to open or close.</td></tr>
+        <tr><td class="id">4</td><td>Card order in the flat list, inside a group and in the ungrouped list: <b>1. Expired, 2. Not Uploaded, 3. Uploaded.</b> Sort applies inside each of these three bands.</td></tr>
+        <tr><td class="id">5</td><td>Sort options: Name, Last Uploaded Date. Sort applies to the groups (their order) and to the cards inside each status band.</td></tr>
+        <tr><td class="id">6</td><td>The group card shows the total count, and "Expired: n" when n > 0.</td></tr>
+        <tr><td class="id">7</td><td>Expired documents stay visible while their group is collapsed. See flag 11.</td></tr>
+        <tr><td class="id">8</td><td>Tapping a card opens the document in the existing viewer (download and share stay there). The eye icon is removed.</td></tr>
+        <tr><td class="id">9</td><td>Upload icon on a card: Not Uploaded document → upload. Uploaded or Expired document → replace. Replace keeps the document's group.</td></tr>
+        <tr><td class="id">10</td><td>Read-only or inactive asset: groups show and open, but there is no Upload button and no upload icon on cards.</td></tr>
+        <tr><td class="id">11</td><td>Documents with no group sit below the groups. A document belongs to one group at most.</td></tr></table></div>
+      <p><b>States to design or confirm:</b> no groups, no documents, toggle off with groups present, read-only asset, long group name (two lines, then an ellipsis), 99+ count, offline, tablet.</p></section>
+
+    <section id="changes" data-t="5 · Changes from today"><h2>5 · What changed from the current section</h2>
+      <div class="tw"><table><tr><th style="width:20%"></th><th>Current</th><th>Proposed</th></tr>
+        <tr><td>Section shells</td><td>Flat headers with a chevron</td><td>Accordion component, all three sections</td></tr>
+        <tr><td>Documents toolbar</td><td>One large Upload button</td><td>Sort, Grouping toggle, small Upload button</td></tr>
+        <tr><td>Document row</td><td>Table row: status icon, title, eye, in some cases an Upload button</td><td>List Card: file icon, status chip, title, expiry, upload icon</td></tr>
+        <tr><td>Status</td><td>Icon (check or ✗)</td><td>Chip: Expired, Not Uploaded, Uploaded</td></tr>
+        <tr><td>Open a document</td><td>Eye icon</td><td>Tap the card</td></tr>
+        <tr><td>Grouping</td><td>None</td><td>Group List Card, folder icon, count, "Expired: n"</td></tr>
+        <tr><td>Sorting</td><td>None</td><td>Name, Last Uploaded Date, with the status order</td></tr>
+        <tr><td>Upload</td><td>Upload button per row, section button</td><td>Upload icon per card, small button on the section. Modals unchanged</td></tr></table></div></section>
+
+    <section id="web" data-t="6 · Differences from web"><h2>6 · Intentional differences from web (20628)</h2>
+      <div class="tw"><table><tr><th style="width:22%"></th><th>Web</th><th>Mobile</th></tr>
+        <tr><td>Add, rename, remove a group</td><td>Yes (asset-admin roles)</td><td>No. Groups are managed on web</td></tr>
+        <tr><td>Move a document between groups</td><td>Edit, upload picker, drag and drop</td><td>No</td></tr>
+        <tr><td>Upload</td><td>Button on each group heading, and a "Select a group" picker (default "No group")</td><td>No group-level upload. Section button and card icon only. A select modal picks the group when the section button is used</td></tr>
+        <tr><td>Replace</td><td>Keeps the previous group</td><td>Same</td></tr>
+        <tr><td>Archive, drag handles, edit</td><td>Yes</td><td>No</td></tr>
+        <tr><td>Grouped / All</td><td>Opens on All with no groups, switches to Grouped when the first group is created</td><td>Grouping toggle, hidden with no groups</td></tr>
+        <tr><td>Sort</td><td>A sort arrow on each group (bug 20628-03 fixed it to apply to one group only)</td><td>One Sort control for the list and the group order</td></tr>
+        <tr><td>Not Uploaded state</td><td>Not found in the web ticket</td><td>Shown as a chip</td></tr></table></div></section>
+
+    <section id="flags" data-t="7 · Flags"><h2>7 · Flags</h2>
+      <h3>Design vs. design system</h3>
+      <ol>
+        <li>Accordion body background and padding differ between the design (<code>#f8f8f8</code>, 24 bottom, 16 gap) and the code (<code>color/surface/default</code>, 14 bottom).</li>
+        <li>File-type icons (docx, PDF) are not in the library.</li>
+        <li>Status chips beyond Expired are not confirmed. Only Expired and the forms chips were found.</li>
+        <li>The document card is a List Card without the left bar and with an icon button in the ⋮ slot. Confirm this configuration exists.</li>
+        <li>In the design frames, List Card, Group List Card, M-Button and the card icons are detached frames, not instances. Relink them so the specs follow the components.</li>
+        <li>The tap target on the card's upload icon is 28px.</li>
+      </ol>
+      <h3>Design vs. ticket</h3>
+      <ol start="7">
+        <li><b>Group choice on upload: resolved.</b> A select modal appears when the section Upload is tapped on an asset with groups. The ticket should name "General" as the no-group option.</li>
+        <li><b>Grouping default:</b> the toggle is hidden with no groups. Confirm the state it opens on once groups exist. The ticket says All until the first group exists; web switches to Grouped at that point.</li>
+        <li><b>Sorting</b> is not in the ticket.</li>
+        <li><b>Required and Archived</b> are "unchanged" in the ticket's acceptance criteria. The design restyles both (below).</li>
+        <li><b>Expired visible under a collapsed group.</b> The design has the footer "Expired: n". In node <code>7020:7425</code> an expired card sits below the collapsed Training group with nothing to say whether it belongs to it.</li>
+        <li>"Last uploaded" on the group card: removed from the design.</li>
+        <li>Not yet designed: the grouping-off (flat) state, a group with no documents, the read-only state.</li>
+        <li>Typo in the copy: "Pressure Vessel ceritifcate.pdf".</li>
+      </ol>
+      <h3>Required and Archived: updated look (open for devs to choose)</h3>
+      <ul>
+        <li><b>Required, updated:</b> cards with chips (Denied, Not Uploaded, Approved) and an upload icon. The Compliance bar, the settings gear and the eye icon are gone. Confirm those removals are intended and that Approved and Denied are existing statuses.</li>
+        <li><b>Archived, updated:</b> cards with an "Uploaded" chip and expiry. The eye icon is replaced by tap to open.</li>
+        <li><b>Option A:</b> Accordion shell only, old content stays. <b>Option B:</b> shell and cards.</li>
+        <li><b>Recommendation: B</b>, in this ticket if there is room. Otherwise a follow-up ticket straight after. Either way the ticket text changes, because it says these sections are unchanged.</li>
+      </ul></section>
+
+    <section id="out" data-t="8 · Out of scope"><h2>8 · Out of scope</h2>
+      <p>Create, rename or remove a group. Move a document to a group. Drag and drop. Archive. Edit. Bulk move. Group-level upload. Tablet layout (not designed).</p></section>
+
+    <section id="backend" data-t="9 · Backend questions"><h2>9 · Backend questions</h2>
+      <div class="callout">From the code graph. A floor, not proof.</div>
+      <ul>
+        <li>Web returns the group with the document list: <code>ajaxequipment.getEquipmentDocs</code> has a <code>groupName</code> field. The mobile API <code>getEquipmentDocs</code> (bisapi) was found without groups. It needs to return the group (name, and an id if there is one). Read-only, so no write endpoints are needed.</li>
+        <li>Last uploaded date per document, and a way to tell Not Uploaded from Uploaded. Is a Not Uploaded placeholder a document record in the Documents section?</li>
+        <li>Sorting: web sorts per group. Is sorting done on the page after loading or by the server? Does the mobile list come back whole, or paged?</li>
+        <li>Label keys: web needs 18 new keys, and the ticket does not list them. Mobile needs display strings only: section labels, Grouping, "Show documents in their groups", sort options, status chips, "Expired", the group choice modal, and the screen reader announcements.</li>
+      </ul></section>
+
+    <section id="log" data-t="10 · Status"><h2>10 · Status and change log</h2>
+      <div class="card"><b>Nov 27, 2026 · draft:</b> written from the Figma design. Final group choice modal copy added. Open items: default view once groups exist, sorting scope, expired visibility under a collapsed group, Required and Archived sizing. Owner and date for each: <i>[date]</i>.</div></section>
+  </div></main>
+</div>
+
+<script>/* Document system · theme pack (draft v0, 2026-11-09)
+   One set of role names, many themes, like a PowerPoint theme: layouts only use the roles, never a hex value.
+   Roles: bg (page) sf (card) tx (text) t2 (quiet text) pr (primary) onpr (text on primary) tint (soft fill)
+          ln (hairline) a2 (second accent) band (title band) onband ok err warn  + radius, lab (label font), dots.
+   Source of the values:
+     BIS         = the FM Scope Hub tokens, light and dark (flat, one blue). The default for every external deliverable.
+     BIS Brand   blue + the green/navy of the BIS AI mark; an optional accent theme, dark = PROPOSED, not a default anywhere
+     Lotus, Tulip = the pixel design system (design-system\pixel\themes.json). Sky was dropped 2026-11-10: the pack is BIS or the Lotus/Tulip duo.
+   Theme "family": flat (BIS, BIS Brand) or pixel (Lotus, Tulip). The family only changes the SKIN (dotted page, pill buttons, hard-edged card shadow, pixel font on small labels, bold sans headlines), never the layout's structure: a side panel stays a side panel.
+   The theme picker is a DEMO aid for the golden examples and the index. It is OFF by default: init({picker:true}) shows the full picker, init({picker:'mode'}) only a light/dark switch. Real deliverables use neither unless Mika wants a light/dark switch.
+   Later: generate this file from themes.json so a change there flows here. */
+(function () {
+  var SKIN = ''+
+    'html[data-family="pixel"] body{background-image:var(--bgimg);background-size:18px 18px}' +
+    'html[data-family="pixel"] .card,html[data-family="pixel"] .fc,html[data-family="pixel"] .wk,html[data-family="pixel"] .role,html[data-family="pixel"] .stat{box-shadow:0 2px 0 var(--ln)}' +
+    'html[data-family="pixel"] .btn,html[data-family="pixel"] .tb,html[data-family="pixel"] .chip,html[data-family="pixel"] .pill,html[data-family="pixel"] .nv{border-radius:999px}' +
+    'html[data-family="pixel"] .btn,html[data-family="pixel"] .tb{box-shadow:0 2px 0 var(--ln)}' +
+    'html[data-family="pixel"] .lab,html[data-family="pixel"] .time,html[data-family="pixel"] .tag,html[data-family="pixel"] .cnt,html[data-family="pixel"] .badge,html[data-family="pixel"] .chap,html[data-family="pixel"] .kick,html[data-family="pixel"] .who,html[data-family="pixel"] .eyebrow{font-family:var(--lab)}' +
+    'html[data-family="pixel"] h1,html[data-family="pixel"] h2{font-family:"Segoe UI",system-ui,sans-serif;font-weight:700;letter-spacing:-.02em}';
+  var T = {
+    /* BIS = the FM Scope Hub look (Mika's reference for external deliverables): flat surfaces, hairlines, one blue.
+       Light AND dark come from the hub's own tokens (work\projects\field-management\scope-hub\template.html), nothing proposed. */
+    'BIS': {
+      radius: '8px', lab: "'Segoe UI',system-ui,sans-serif", dots: 'none',
+      light: { bg:'#F8F8F9', sf:'#FEFFFF', tx:'#191919', t2:'#666666', pr:'#0078B3', onpr:'#FFFFFF', tint:'#F2FCFF', ln:'#E2E2E3', a2:'#0078B3', band:'#FEFFFF', onband:'#191919', ok:'#167B00', err:'#CC2222', warn:'#A1851F' },
+      dark:  { bg:'#262624', sf:'#1F1E1D', tx:'#FAF9F5', t2:'#B8B6AB', pr:'#4DB3E6', onpr:'#06222F', tint:'#22292D', ln:'#363531', a2:'#4DB3E6', band:'#1F1E1D', onband:'#FAF9F5', ok:'#6FD394', err:'#FF8A7A', warn:'#E6C35A' }
+    },
+    'BIS Brand': {
+      radius: '10px', lab: "'Segoe UI',system-ui,sans-serif", dots: 'none',
+      /* v2 (Nov 9): green is the guidance accent (callout edges, small labels, key numbers), never a big fill.
+         Blue stays for actions. Tint is a whisper of mint-grey, not lime; the old #EBF8D6 tint looked yellow-green on screen. */
+      light: { bg:'#F6F8F7', sf:'#FFFFFF', tx:'#19191A', t2:'#56625C', pr:'#0078B3', onpr:'#FFFFFF', tint:'#EEF5F1', ln:'#D9E2DD', a2:'#2E7D32', band:'#00548F', onband:'#FFFFFF', ok:'#2E7D32', err:'#CC2222', warn:'#9C6300' },
+      dark:  { bg:'#131A17', sf:'#1A2420', tx:'#EEF4EF', t2:'#9DB0A5', pr:'#4FB3E0', onpr:'#0B1A22', tint:'#1F2D27', ln:'#2D3F36', a2:'#8FD18F', band:'#0B3A57', onband:'#EEF4EF', ok:'#8FD18F', err:'#F0736E', warn:'#E6A94B' }
+    },
+    'Lotus': {
+      radius: '12px', lab: "'Pixelify Sans','Segoe UI',monospace", dots: 'dots',
+      light: { bg:'#F5F8EC', sf:'#FBFCF4', tx:'#26361F', t2:'#4C6143', pr:'#B8467A', onpr:'#FFFFFF', tint:'#E5EDD2', ln:'#9ABA7F', a2:'#2F7A8A', band:'#C3D7A6', onband:'#26361F', ok:'#3F7A3A', err:'#B3363F', warn:'#B07A1C' },
+      dark:  { bg:'#1A2016', sf:'#202A1B', tx:'#E3EFD3', t2:'#B6C9A2', pr:'#FF8FB8', onpr:'#1C1014', tint:'#2F3D28', ln:'#5F7A4E', a2:'#7FC0CF', band:'#2F3D28', onband:'#E3EFD3', ok:'#B9D96C', err:'#F0736E', warn:'#E6A94B' }
+    },
+    'Tulip': {
+      radius: '12px', lab: "'Pixelify Sans','Segoe UI',monospace", dots: 'dots',
+      light: { bg:'#FBF3F1', sf:'#FFF9F7', tx:'#2B3A2E', t2:'#4F6A55', pr:'#2F6B3F', onpr:'#FFFFFF', tint:'#F2E3E0', ln:'#D6A5B2', a2:'#5C6FA8', band:'#EDB9C7', onband:'#2B3A2E', ok:'#2F6B3F', err:'#B3363F', warn:'#B07A1C' },
+      dark:  { bg:'#141B16', sf:'#1C261F', tx:'#F1E3E1', t2:'#D8B5BE', pr:'#7FCF94', onpr:'#0F1A12', tint:'#284232', ln:'#5A7A63', a2:'#8FA6E0', band:'#284232', onband:'#F1E3E1', ok:'#8FDCA8', err:'#F0736E', warn:'#E6A94B' }
+    }
+  };
+  var state = { theme: 'BIS', mode: 'light' };
+  function save() { try { localStorage.setItem('docsys-theme', JSON.stringify(state)); } catch (e) {} }
+  function apply() {
+    /* a "pair" = one theme for light, another for dark (e.g. Lotus + Tulip); the mode switch moves between them */
+    if (state.pair) state.theme = state.pair[state.mode];
+    var t = T[state.theme], c = t[state.mode], r = document.documentElement, k;
+    for (k in c) r.style.setProperty('--' + k, c[k]);
+    r.style.setProperty('--radius', t.radius);
+    r.style.setProperty('--radius-s', t.radius === '8px' ? '4px' : '8px');
+    r.style.setProperty('--lab', t.lab);
+    var dot = state.mode === 'dark' ? 'rgba(255,255,255,.09)' : 'rgba(40,60,40,.16)';
+    r.style.setProperty('--bgimg', t.dots === 'dots' ? 'radial-gradient(' + dot + ' 1.3px,transparent 1.4px)' : 'none');
+    r.dataset.mode = state.mode; r.dataset.theme = state.theme;
+    /* family: pixel themes (Lotus, Tulip) add the pixel skin to ANY layout and keep its structure; the rest stay flat */
+    r.dataset.family = t.dots === 'dots' ? 'pixel' : 'flat';
+    var s = document.getElementById('ds-theme'), m = document.getElementById('ds-mode');
+    if (s) s.value = state.theme; if (m) m.textContent = state.mode === 'dark' ? 'Light' : 'Dark';
+  }
+  window.BISThemes = {
+    themes: T,
+    set: function (theme, mode) { if (theme && T[theme]) state.theme = theme; if (mode) state.mode = mode; apply(); save(); },
+    /* init({theme:'BIS', mode:'light'}) or {pair:{light:'Lotus',dark:'Tulip'}}. picker: omitted/false = none (real deliverables), true = full picker, 'mode' = light/dark switch only */
+    init: function (o) {
+      if (!document.getElementById('ds-skin')) { var sk = document.createElement('style'); sk.id = 'ds-skin'; sk.textContent = SKIN; document.head.appendChild(sk); }
+      o = o || {}; state.theme = o.theme || 'BIS'; state.mode = o.mode || 'light'; state.pair = (o.pair && T[o.pair.light] && T[o.pair.dark]) ? o.pair : null;
+      try { var s = JSON.parse(localStorage.getItem('docsys-theme') || 'null'); if (s && T[s.theme] && o.remember) state = s; } catch (e) {}
+      /* ?theme=Lotus&mode=dark&picker=0 wins over everything (used by index.html for its previews) */
+      try { var q = new URLSearchParams(location.search); if (q.get('theme') && T[q.get('theme')]) { state.theme = q.get('theme'); state.pair = null; } if (T[q.get('light')] && T[q.get('dark')]) state.pair = { light: q.get('light'), dark: q.get('dark') }; if (q.get('mode') === 'dark' || q.get('mode') === 'light') state.mode = q.get('mode'); if (q.get('picker') === '0') o.picker = false; if (q.get('picker') === '1') o.picker = true; } catch (e) {}
+      if (o.picker === true || o.picker === 'mode') {
+        var d = document.createElement('div');
+        d.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:9999;display:flex;gap:8px;align-items:center;background:var(--sf);color:var(--tx);border:1px solid var(--ln);border-radius:999px;padding:5px 6px 5px 14px;font:13px "Segoe UI",system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.18)';
+        d.innerHTML = (o.picker === true ? '<label for="ds-theme" style="font-weight:600">Theme</label><select id="ds-theme" style="font:inherit;color:inherit;background:var(--bg);border:1px solid var(--ln);border-radius:999px;padding:4px 8px">' + Object.keys(T).map(function (n) { return '<option>' + n + '</option>'; }).join('') + '</select>' : '') + '<button id="ds-mode" style="font:inherit;font-weight:600;color:var(--onpr);background:var(--pr);border:0;border-radius:999px;padding:5px 12px;cursor:pointer;min-height:30px">Dark</button>';
+        document.body.appendChild(d);
+        if (o.picker === true) document.getElementById('ds-theme').onchange = function (e) { state.pair = null; state.theme = e.target.value; apply(); save(); };
+        document.getElementById('ds-mode').onclick = function () { state.mode = state.mode === 'dark' ? 'light' : 'dark'; apply(); save(); };
+      }
+      apply();
+    }
+  };
+})();
+</script>
+<script>
+BISThemes.init({theme:'BIS',mode:'light'});
+var secs=[].slice.call(document.querySelectorAll('main section')),side=document.getElementById('side'),main=document.getElementById('main');
+secs.forEach(function(s){var b=document.createElement('button');b.className='nv';b.textContent=s.dataset.t;b.onclick=function(){s.scrollIntoView({behavior:'smooth',block:'start'})};side.appendChild(b)});
+function spy(){var y=main.scrollTop+60,k=0;secs.forEach(function(s,i){if(s.offsetTop-main.offsetTop<=y)k=i});[].forEach.call(side.querySelectorAll('.nv'),function(b,i){b.classList.toggle('on',i===k)})}
+main.addEventListener('scroll',spy);spy();
+</script>
+</body>
+</html>
